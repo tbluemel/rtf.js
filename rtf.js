@@ -325,8 +325,10 @@ RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
 
 RTFJS.Renderer.prototype.startPar = function() {
 	this._curpar = $("<div>");
-	if (this._curRPap != null)
+	if (this._curRPap != null) {
 		this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
+		this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
+	}
 	this._cursubpar = null;
 	this._curcont = [];
 	this._dom.push(this._curpar);
