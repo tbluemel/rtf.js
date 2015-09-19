@@ -221,18 +221,35 @@ RTFJS.RenderPap = function(pap) {
 	this._pap = pap;
 };
 
-RTFJS.RenderPap.prototype.apply = function(doc, el, rchp) {
+RTFJS.RenderPap.prototype.apply = function(doc, el, rchp, ismaindiv) {
 	var pap = this._pap;
-	if (pap.spacebefore != 0)
-		el.css("margin-top", RTFJS._twipsToPt(pap.spacebefore) + "pt");
-	else
-		el.css("margin-top", "");
-	if (pap.spaceafter != 0)
-		el.css("margin-bottom", RTFJS._twipsToPt(pap.spaceafter) + "pt");
-	else
-		el.css("margin-bottom", "");
-	if (rchp != null)
-		el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+	if (ismaindiv) {
+		if (pap.spacebefore != 0)
+			el.css("margin-top", RTFJS._twipsToPt(pap.spacebefore) + "pt");
+		else
+			el.css("margin-top", "");
+		if (pap.spaceafter != 0)
+			el.css("margin-bottom", RTFJS._twipsToPt(pap.spaceafter) + "pt");
+		else
+			el.css("margin-bottom", "");
+		if (rchp != null)
+			el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+	} else {
+		switch (pap.justification) {
+			case RTFJS.JUSTIFICATION.LEFT:
+				el.css("text-align", "left");
+				break;
+			case RTFJS.JUSTIFICATION.RIGHT:
+				el.css("text-align", "right");
+				break;
+			case RTFJS.JUSTIFICATION.CENTER:
+				el.css("text-align", "center");
+				break;
+			case RTFJS.JUSTIFICATION.JUSTIFY:
+				el.css("text-align", "justify");
+				break;
+		}
+	}
 };
 
 RTFJS.Renderer = function(doc) {
@@ -243,27 +260,48 @@ RTFJS.Renderer = function(doc) {
 	this._curRChp = null;
 	this._curRPap = null;
 	this._curpar = null;
+	this._cursubpar = null;
 };
 
 RTFJS.Renderer.prototype.addIns = function(ins) {
 	this._ins.push(ins);
 };
 
-RTFJS.Renderer.prototype._appendToPar = function(el) {
+RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
 	if (this._curpar == null)
 		this.startPar();
-	this._curpar.append(el);
+	if (newsubpar == true) {
+		var subpar = $("<div>");
+		if (this._cursubpar == null) {
+			this._curpar.children().appendTo(subpar);
+			this._curpar.append(subpar);
+			subpar = $("<div>");
+		}
+		if (el)
+			subpar.append(el);
+		if (this._curRPap != null)
+			this._curRPap.apply(this._doc, subpar, this._curRChp, false);
+		
+		this._cursubpar = subpar;
+		this._curpar.append(subpar);
+	} else if (el) {
+		if (this._cursubpar != null)
+			this._cursubpar.append(el);
+		else
+			this._curpar.append(el);
+	}
 };
 
 RTFJS.Renderer.prototype.startPar = function() {
 	this._curpar = $("<div>");
 	if (this._curRPap != null)
-		this._curRPap.apply(this._doc, this._curpar, this._curRChp);
+		this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
+	this._cursubpar = null;
 	this._dom.push(this._curpar);
 };
 
 RTFJS.Renderer.prototype.lineBreak = function() {
-	this._appendToPar($("<br>"));
+	this._appendToPar(null, true);
 };
 
 RTFJS.Renderer.prototype.setChp = function(rchp) {
@@ -272,8 +310,13 @@ RTFJS.Renderer.prototype.setChp = function(rchp) {
 
 RTFJS.Renderer.prototype.setPap = function(rpap) {
 	this._curRPap = rpap;
-	if (this._curpar != null)
-		this._curRPap.apply(this._doc, this._curpar);
+	if (this._cursubpar != null)
+		this._curRPap.apply(this._doc, this._cursubpar, null, false);
+	else if (this._curpar != null) {
+		// Don't have a sub-paragraph at all, apply everything
+		this._curRPap.apply(this._doc, this._curpar, null, true);
+		this._curRPap.apply(this._doc, this._curpar, null, false);
+	}
 };
 
 RTFJS.Renderer.prototype.appendElement = function(element) {
