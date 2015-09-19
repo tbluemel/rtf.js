@@ -25,20 +25,44 @@ function beginLoading() {
 	$("#content").text("Loading...");
 }
 function setPictBorder(elem, show) {
-	if (show)
-		elem.css("border", "1pt dotted red")
-	else
-		elem.css("border", "none")
-	return elem;
+	return elem.css("border", show ? "1px dotted red" : "none");
+}
+function setUnsafeLink(elem, warn) {
+	return elem.css("border", warn ? "1px dashed red" : "none");
 }
 function displayRtfFile(blob) {
 	try {
 		var showPicBorder = $("#showpicborder").prop("checked");
+		var warnHttpLinks = $("#warnhttplink").prop("checked");
 		var settings = {
 			onPicture: function(create) {
 				var elem = create().attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
 				return setPictBorder(elem, showPicBorder);
-			}
+			},
+			onHyperlink: function(create, hyperlink) {
+				var url = hyperlink.url();
+				var lnk = create();
+				if (url.substr(0, 7) == "http://") {
+					// Wrap http:// links into a <span>
+					var span = setUnsafeLink($("<span>").addClass("unsafelink").append(lnk), warnHttpLinks);
+					span.click(function(evt) {
+						if ($("#warnhttplink").prop("checked")) {
+							evt.preventDefault();
+							alert("Unsafe link: " + url);
+							return false;
+						}
+					});
+					return {
+						content: lnk,
+						element: span
+					};
+				} else {
+					return {
+						content: lnk,
+						element: lnk
+					};
+				}
+			},
 		};
 		var doc = new RTFJS.Document(blob, settings);
 		var haveMeta = false;
@@ -96,6 +120,12 @@ $(document).ready(function() {
 			setPictBorder($(this), show);
 		});
 	});
+	$("#warnhttplink").change(function() {
+		var warn = $(this).prop("checked");
+		$(".unsafelink").each(function() {
+			setUnsafeLink($(this), warn);
+		});
+	});
 	$("#dropzone")
 		.on("drop", function(evt) {
 			evt.stopPropagation()
@@ -139,11 +169,13 @@ $(document).ready(function() {
 				<option>simplepict.rtf</option>
 				<option>simplepng.rtf</option>
 				<option>simplepngbin.rtf</option>
+				<option>hyperlink.rtf</option>
 			</select>
 		</form>
 	</span>
 	<span id="tools" style="display: none;">
 		<label><input id="showpicborder" type="checkbox"/>Picture border</label>
+		<label><input id="warnhttplink" type="checkbox"/>Protect from unsafe links</label>
 	</span>
 </div>
 <div id="dropzone" style="display: inline-block; border-radius: 6pt; border: 2pt solid #dddddd; padding: 30pt;">

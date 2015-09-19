@@ -261,10 +261,37 @@ RTFJS.Renderer = function(doc) {
 	this._curRPap = null;
 	this._curpar = null;
 	this._cursubpar = null;
+	this._curcont = [];
 };
 
 RTFJS.Renderer.prototype.addIns = function(ins) {
 	this._ins.push(ins);
+};
+
+RTFJS.Renderer.prototype.pushContainer = function(contel) {
+	if (this._curpar == null)
+		this.startPar();
+	
+	var len = this._curcont.push(contel);
+	if (len > 1) {
+		var prevcontel = this._curcont[len - 1];
+		prevcontel.content.append(contel);
+	} else {
+		if (this._cursubpar != null)
+			this._cursubpar.append(contel.element);
+		else
+			this._curpar.append(contel.element);
+	}
+};
+
+RTFJS.Renderer.prototype.popContainer = function() {
+	var contel = this._curcont.pop();
+	if (contel == null)
+		throw new RTFJS.Error("No container on rendering stack");
+};
+
+RTFJS.Renderer.prototype.buildHyperlinkElement = function(url) {
+	return $("<a>").attr("href", url);
 };
 
 RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
@@ -285,10 +312,14 @@ RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
 		this._cursubpar = subpar;
 		this._curpar.append(subpar);
 	} else if (el) {
-		if (this._cursubpar != null)
+		var contelCnt = this._curcont.length;
+		if (contelCnt > 0) {
+			this._curcont[contelCnt - 1].content.append(el);
+		} else if (this._cursubpar != null) {
 			this._cursubpar.append(el);
-		else
+		} else {
 			this._curpar.append(el);
+		}
 	}
 };
 
@@ -297,6 +328,7 @@ RTFJS.Renderer.prototype.startPar = function() {
 	if (this._curRPap != null)
 		this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
 	this._cursubpar = null;
+	this._curcont = [];
 	this._dom.push(this._curpar);
 };
 
@@ -586,6 +618,40 @@ RTFJS.Document.prototype.parse = function(blob) {
 		this.text += text;
 	};
 	
+	var DestinationFormattedTextBase = function(name) {
+		this._name = name;
+		this._records = [];
+	};
+	DestinationFormattedTextBase.prototype.appendText = function(text) {
+		this._records.push(function(rtf) {
+			rtf.appendText(text);
+		});
+	};
+	DestinationFormattedTextBase.prototype.handleKeyword = function(keyword, param) {
+		this._records.push(function(rtf) {
+			return rtf.handleKeyword(keyword, param);
+		});
+	};
+	DestinationFormattedTextBase.prototype.apply = function() {
+		var rtf = findParentDestination("rtf");
+		if (rtf == null)
+			throw new RTFJS.Error("Destination " + this._name + " is not child of rtf destination");
+		
+		var len = this._records.length;
+		var doRender = true;
+		if (this.renderBegin != null)
+			doRender = this.renderBegin(rtf, len);
+		
+		if (doRender) {
+			for (var i = 0; i < len; i++) {
+				this._records[i](rtf);
+			};
+			if (this.renderEnd != null)
+				this.renderEnd(rtf, len);
+		}
+		delete this._records;
+	};
+	
 	var rtfDestination = function() {
 		var cls = function(name, param) {
 			if (parser.version != null)
@@ -598,6 +664,9 @@ RTFJS.Document.prototype.parse = function(blob) {
 			this._metadata = {};
 		};
 		cls.prototype = Object.create(DestinationBase.prototype);
+		cls.prototype.addIns = function(func) {
+			inst._renderer.addIns(func);
+		};
 		cls.prototype.appendText = function(text) {
 			console.log("[rtf] output: " + text);
 			inst._renderer.addIns(text);
@@ -1143,12 +1212,155 @@ RTFJS.Document.prototype.parse = function(blob) {
 				console.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
 			inst._stylesheets = this._stylesheets;
 			delete this._stylesheets;
-		}
+		};
 		cls.prototype.addSub = function(sub) {
 			if (this._stylesheets[sub.index] != null)
 				throw new RTFJS.Error("Cannot redefine stylesheet with index " + sub.index);
 			this._stylesheets[sub.index] = sub;
+		};
+		return cls;
+	};
+	
+	var fieldDestination = function() {
+		var cls = function() {
+			DestinationBase.call(this, "field");
+			this._haveInst = false;
+			this._parsedInst = null; // FieldBase
+			this._result = null;
+		};
+		cls.prototype.apply = function() {
+			if (!this._haveInst)
+				throw new RTFJS.Error("Field has no fldinst destination");
+			if (this._result == null)
+				throw new RTFJS.Error("Field has no fldrslt destination");
+		};
+		cls.prototype.setInst = function(inst) {
+			this._haveInst = true;
+			if (this._parsedInst != null)
+				throw new RTFJS.Error("Field cannot have multiple fldinst destinations");
+			this._parsedInst = inst;
+		};
+		cls.prototype.getInst = function() {
+			return this._parsedInst;
+		};
+		cls.prototype.setResult = function(inst) {
+			if (this._result != null)
+				throw new RTFJS.Error("Field cannot have multiple fldrslt destinations");
+			this._result = inst;
+		};
+		return cls;
+	};
+	
+	var FieldBase = function(fldinst) {
+		this._fldinst = fldinst;
+	};
+	FieldBase.prototype.renderFieldEnd = function(field, rtf, records) {
+		if (records > 0) {
+			rtf.addIns(function() {
+				this.popContainer();
+			});
 		}
+	};
+	
+	var FieldHyperlink = function(fldinst, data) {
+		FieldBase.call(this, fldinst);
+		this._url = data;
+	};
+	FieldHyperlink.prototype = Object.create(FieldBase.prototype);
+	FieldHyperlink.prototype.url = function() {
+		return this._url;
+	};
+	FieldHyperlink.prototype.renderFieldBegin = function(field, rtf, records) {
+		var self = this;
+		if (records > 0) {
+			rtf.addIns(function() {
+				var renderer =  this;
+				var create = function() {
+					return renderer.buildHyperlinkElement(self._url);
+				};
+				var container;
+				if (inst._settings.onHyperlink != null) {
+					container = inst._settings.onHyperlink.call(inst, create, self);
+				} else {
+					var elem = create();
+					container = {
+						element: elem,
+						content: elem
+					};
+				}
+				this.pushContainer(container);
+			});
+			return true;
+		}
+		return false;
+	};
+	
+	var fldinstDestination = function() {
+		var cls = function() {
+			DestinationTextBase.call(this, "fldinst");
+		};
+		cls.prototype = Object.create(DestinationTextBase.prototype);
+		cls.prototype.apply = function() {
+			var field = findParentDestination("field");
+			if (field == null)
+				throw new RTFJS.Error("fldinst destination must be child of field destination");
+			field.setInst(this.parseType());
+		};
+		cls.prototype.parseType = function() {
+			var sep = this.text.indexOf(" ");
+			if (sep > 0) {
+				var data = this.text.substr(sep + 1);
+				if (data.length >= 2 && data[0] == "\"") {
+					var end = data.indexOf("\"", 1);
+					if (end >= 1)
+						data = data.substring(1, end);
+				}
+				var fieldType = this.text.substr(0, sep);
+				switch (fieldType) {
+					case "HYPERLINK":
+						return new FieldHyperlink(this, data);
+					default:
+						console.log("[fldinst]: unknown field type: " + fieldType);
+						break;
+				}
+			}
+		};
+		return cls;
+	};
+	
+	var fldrsltDestination = function() {
+		var cls = function() {
+			DestinationFormattedTextBase.call(this, "fldrslt");
+		};
+		cls.prototype = Object.create(DestinationFormattedTextBase.prototype);
+		var baseApply = cls.prototype.apply;
+		cls.prototype.apply = function() {
+			var field = findParentDestination("field");
+			if (field == null)
+				throw new RTFJS.Error("fldrslt destination must be child of field destination");
+			field.setResult(this);
+			
+			baseApply.call(this);
+		};
+		cls.prototype.renderBegin = function(rtf, records) {
+			var field = findParentDestination("field");
+			if (field == null)
+				throw new RTFJS.Error("fldrslt destination must be child of field destination");
+			
+			var inst = field.getInst();
+			if (inst != null)
+				return inst.renderFieldBegin(field, rtf, records);
+			return false;
+		};
+		cls.prototype.renderEnd = function(rtf, records) {
+			var field = findParentDestination("field");
+			if (field == null)
+				throw new RTFJS.Error("fldrslt destination must be child of field destination");
+			
+			var inst = field.getInst();
+			if (inst != null)
+				inst.renderFieldEnd(field, rtf, records);
+		};
 		return cls;
 	};
 	
@@ -1408,6 +1620,9 @@ RTFJS.Document.prototype.parse = function(blob) {
 		tc: requiredDestination("tc"),
 		txe: requiredDestination("txe"),
 		xe: requiredDestination("xe"),
+		field: fieldDestination(),
+		fldinst: fldinstDestination(),
+		fldrslt: fldrsltDestination(),
 	};
 	
 	var applyDestination = function(always) {
