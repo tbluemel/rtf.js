@@ -200,6 +200,8 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 		el.css("font-weight", "bold");
 	if (chp.italic)
 		el.css("font-style", "italic");
+	if (chp.fontfamily)
+		el.css("font-family", doc._fonts[chp.fontfamily].fontname.replace(";",""));
 		
 	var deco = [];
 	if (chp.underline != RTFJS.UNDERLINE.NONE)
@@ -456,6 +458,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			this.dblstrikethrough = parent.dblstrikethrough;
 			this.colorindex = parent.colorindex;
 			this.fontsize = parent.fontsize;
+			this.fontfamily = parent.fontfamily;
 		} else {
 			this.bold = false;
 			this.underline = RTFJS.UNDERLINE.NONE;
@@ -758,6 +761,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			i: _genericFormatOnOff("chp", "italic"),
 			cf: _genericFormatSetValRequired("chp", "colorindex"),
 			fs: _genericFormatSetValRequired("chp", "fontsize"),
+			f: _genericFormatSetValRequired("chp", "fontfamily"),
 			strike: _genericFormatOnOff("chp", "strikethrough"),
 			striked: _genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
 			ul: _genericFormatOnOff("chp", "underline", RTFJS.UNDERLINE.CONTINUOUS, RTFJS.UNDERLINE.NONE),
