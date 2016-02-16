@@ -1016,6 +1016,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 		var cls = function() {
 			DestinationBase.call(this, "fonttbl");
 			this._fonts = [];
+			this._sub = null;
 		};
 		cls.prototype.sub = function() {
 			var subCls = fonttblDestinationSub();
@@ -1028,6 +1029,16 @@ RTFJS.Document.prototype.parse = function(blob) {
 			}
 			inst._fonts = this._fonts;
 			delete this._fonts;
+		}
+		cls.prototype.appendText = function(text) {
+			this._sub.appendText(text);
+			this._sub.apply();
+		}
+		cls.prototype.handleKeyword = function(keyword, param) {
+			if(keyword === "f") {
+				this._sub = this.sub();
+			}
+			this._sub.handleKeyword(keyword, param);
 		}
 		cls.prototype.addSub = function(sub) {
 			this._fonts[sub.index] = sub;
