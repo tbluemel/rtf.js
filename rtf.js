@@ -1026,6 +1026,8 @@ RTFJS.Document.prototype.parse = function(blob) {
 			for (var idx in this._fonts) {
 				console.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
 			}
+			inst._fonts = this._fonts;
+			delete this._fonts;
 		}
 		cls.prototype.addSub = function(sub) {
 			this._fonts[sub.index] = sub;
