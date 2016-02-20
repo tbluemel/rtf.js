@@ -37,7 +37,6 @@ if (typeof RTFJS === "undefined") {
 		_z: "z".charCodeAt(0),
 		_0: "0".charCodeAt(0),
 		_9: "9".charCodeAt(0),
-		_codepage: 1252,
 		
 		JUSTIFICATION: {
 			LEFT: "left",
@@ -124,7 +123,7 @@ if (typeof RTFJS === "undefined") {
 			var ret = "";
 			var len = view.length;
 			for (var i = 0; i < len; i++)
-				ret += cptable[RTFJS._codepage].dec[view[i]];
+				ret += String.fromCharCode(view[i]);
 			return ret;
 		},
 		_hexToBlob: function(str) {
@@ -147,7 +146,7 @@ if (typeof RTFJS === "undefined") {
 				var val = this._parseHex(str.substr(i, 2));
 				if (isNaN(val))
 					return null;
-				bin += cptable[RTFJS._codepage].dec[val];
+				bin += String.fromCharCode(val);
 			}
 			return bin;
 		},
@@ -570,12 +569,13 @@ RTFJS.Document.prototype.parse = function(blob) {
 		state: null,
 		version: null,
 		text: "",
+		codepage: 1252,
 		eof: function() {
 			return this.pos >= this.data.length;
 		},
 		readChar: function() {
 			if (this.pos < this.data.length) {
-				return cptable[RTFJS._codepage].dec[this.data[this.pos++]];
+				return cptable[this.codepage].dec[this.data[this.pos++]];
 			}
 			
 			throw new RTFJS.Error("Unexpected end of file");
@@ -745,7 +745,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 		var _charFormatHandlers = {
 			ansicpg: function(param) {
 				console.log("[rtf] using charset: " + param);
-				RTFJS._codepage = param;
+				parser.codepage = param;
 			},
 			sectd: function(param) {
 				console.log("[rtf] reset to section defaults");
@@ -1740,7 +1740,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					if (param < 0 || param > 65535)
 						throw new RTFJS.Error("Invalid unicode character encountered");
 
-					appendText(cptable[RTFJS._codepage].dec[param]);
+					appendText(cptable[parser.codepage].dec[param]);
 					parser.state.skipchars = parser.state.ucn;
 				}
 				return;
@@ -1835,7 +1835,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					throw new RTFJS.Error("Could not parse hexadecimal number");
 				
 				if (process != null)
-					appendText(cptable[RTFJS._codepage].dec[param]);
+					appendText(cptable[parser.codepage].dec[param]);
 			} else if (process != null) {
 				var text = process(ch, param);
 				if (text != null)
