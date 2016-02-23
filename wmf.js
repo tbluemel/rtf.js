@@ -575,6 +575,21 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
+WMFJS.GDIContext.prototype.stretchDib = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
+	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+	srcX = this._todevX(srcX);
+	srcY = this._todevY(srcY);
+	srcW = this._todevW(srcW);
+	srcH = this._todevH(srcH);
+	dstX = this._todevX(dstX);
+	dstY = this._todevY(dstY);
+	dstW = this._todevW(dstW);
+	dstH = this._todevH(dstH);
+	console.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+	this._pushGroup();
+	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+};
+
 WMFJS.WMFRect16 = function(reader) {
 	this.left = reader.readInt16();
 	this.top = reader.readInt16();
@@ -655,6 +670,23 @@ WMFJS.WMFRecords = function(reader, first) {
 					gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
 				});
 				break;
+			case WMFJS.GDI.RecordType.META_STRETCHDIB:
+				var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
+				var colorUsage = reader.readInt16();
+				var srcH = reader.readInt16();
+				var srcW = reader.readInt16();
+				var srcY = reader.readInt16();
+				var srcX = reader.readInt16();
+				var destH = reader.readInt16();
+				var destW = reader.readInt16();
+				var destY = reader.readInt16();
+				var destX = reader.readInt16();
+				var datalength = size * 2 - (reader.pos - curpos);
+				var dib = new WMFJS.DIBitmap(reader, datalength);
+				this._records.push(function(gdi) {
+					gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
+				});
+				break;
 			case WMFJS.GDI.RecordType.META_ESCAPE:
 				var func = reader.readUint16();
 				var count = reader.readUint16();
@@ -717,7 +749,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
-			case WMFJS.GDI.RecordType.META_STRETCHDIB:
 			case WMFJS.GDI.RecordType.META_DELETEOBJECT:
 			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
 			case WMFJS.GDI.RecordType.META_CREATEPATTERNBRUSH:
