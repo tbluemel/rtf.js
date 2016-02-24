@@ -997,6 +997,14 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
+WMFJS.GDIContext.prototype._getFill = function() {
+	if (this.state.bkmode == WMFJS.GDI.MixMode.OPAQUE)
+		return "#" + this.state.bkcolor.toHex();
+	else if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
+		return "#" + (this.state.selected.brush.color != null ? this.state.selected.brush.color.toHex() : this.state.bkcolor.toHex()); // TODO: brush styles
+	return "none";
+};
+
 WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	console.log("[gdi] rectangle: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	bottom = this._todevY(bottom);
@@ -1007,11 +1015,10 @@ WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	this._pushGroup();
 	
 	var opts = {
+		fill: this._getFill(),
 		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
 		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
-	}
-	if (this.state.selected.brush.color != null)
-		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
+	};
 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
 };
 
@@ -1061,11 +1068,10 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	console.log("[gdi] polygon: TRANSLATED: pts=" + pts);
 	this._pushGroup();
 	var opts = {
+		fill: this._getFill(),
 		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
 		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
-	}
-	if (this.state.selected.brush.color != null)
-		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
+	};
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
