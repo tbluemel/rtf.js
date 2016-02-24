@@ -727,6 +727,21 @@ WMFJS.GDIContext.prototype.setStretchBltMode = function(stretchMode) {
 	console.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
 };
 
+WMFJS.GDIContext.prototype.stretchDib = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
+	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+	srcX = this._todevX(srcX);
+	srcY = this._todevY(srcY);
+	srcW = this._todevW(srcW);
+	srcH = this._todevH(srcH);
+	dstX = this._todevX(dstX);
+	dstY = this._todevY(dstY);
+	dstW = this._todevW(dstW);
+	dstH = this._todevH(dstH);
+	console.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+	this._pushGroup();
+	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+};
+
 WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
 	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
 	srcX = this._todevX(srcX);
