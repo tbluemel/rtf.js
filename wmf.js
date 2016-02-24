@@ -376,6 +376,11 @@ WMFJS.ColorRef.prototype.clone = function() {
 	return new WMFJS.ColorRef(null, this.r, this.g, this.b);
 };
 
+WMFJS.ColorRef.prototype.toHex = function() {
+	var rgb = (this.b << 16) | (this.g << 8) | this.b;
+	return (0x1000000 + rgb).toString(16).slice(1);
+};
+
 WMFJS.ColorRef.prototype.toString = function() {
 	return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
 };
@@ -562,7 +567,7 @@ WMFJS.Pen.prototype.clone = function() {
 };
 
 WMFJS.Pen.prototype.toString = function() {
-	return "{syle: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
+	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
 };
 
 WMFJS.BitmapCoreHeader = function(reader, skipsize) {
@@ -946,6 +951,24 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
+WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
+	console.log("[gdi] rectangle: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var height = this._todevH(bottom - top);
+	var width = this._todevW(right - left);
+	top = this._todevY(top);
+	left = this._todevX(left);
+	console.log("[gdi] rectangle: TRANSLATED: height=" + height + " width=" + width + " top=" + top + " left=" + left);
+	this._pushGroup();
+	
+	var opts = {
+		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
+		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
+	}
+	if (this.state.selected.brush.color != null)
+		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
+	this._svg.rect(this.state._svggroup, left, top, width, height, 0, 0, opts);
+};
+
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
 	console.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
 	this.state.textalign = textAlignmentMode;
@@ -1223,6 +1246,19 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(idx)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_RECTANGLE:
+				var bottom = reader.readInt16();
+				var right = reader.readInt16();
+				var top = reader.readInt16();
+				var left = reader.readInt16();
+				this._records.push(
+					(function(bottom, right, top, left) {
+						return function(gdi) {
+							gdi.rectangle(bottom, right, top, left);
+						}
+					})(bottom, right, top, left)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1256,7 +1292,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_TEXTOUT:
 			case WMFJS.GDI.RecordType.META_POLYPOLYGON:
 			case WMFJS.GDI.RecordType.META_EXTFLOODFILL:
-			case WMFJS.GDI.RecordType.META_RECTANGLE:
 			case WMFJS.GDI.RecordType.META_SETPIXEL:
 			case WMFJS.GDI.RecordType.META_ROUNDRECT:
 			case WMFJS.GDI.RecordType.META_PATBLT:
