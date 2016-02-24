@@ -321,6 +321,7 @@ WMFJS.ColorRef = function(reader, r, g, b) {
 		this.r = reader.readUint8();
 		this.g = reader.readUint8();
 		this.b = reader.readUint8();
+		reader.skip(1);
 	} else {
 		this.r = r;
 		this.g = g;
