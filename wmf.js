@@ -1047,7 +1047,7 @@ WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	
 	var opts = {
 		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
+		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
 	}
 	this._svg.line(this.state._svggroup, fromX, fromY, x, y, opts);
 }
@@ -1070,7 +1070,7 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	var opts = {
 		fill: this._getFill(),
 		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
+		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
 	};
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
