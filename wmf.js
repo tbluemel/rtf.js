@@ -343,6 +343,15 @@ WMFJS.Blob.prototype.readInt16 = function() {
 	return val;
 };
 
+WMFJS.Blob.prototype.readString = function(length) {
+	if (this.pos + length > this.data.length)
+		throw new WMFJS.Error("Unexpected end of file");
+	var ret = "";
+	for (var i = 0; i < length; i++)
+		ret += String.fromCharCode(this.data[this.pos++] >>> 0);
+	return ret;
+};
+
 WMFJS.Blob.prototype.readNullTermString = function(maxSize) {
 	var ret = "";
 	if (maxSize > 0) {
@@ -973,6 +982,20 @@ WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
 };
 
+WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
+	console.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+	x = this._todevX(x);
+	y = this._todevY(y);
+	console.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
+	this._pushGroup();
+	
+	var opts = {
+		"font-family": this.state.selected.font.facename,
+		"font-size": this._todevH(Math.abs(this.state.selected.font.height)),
+	};
+	this._svg.text(this.state._svggroup, x, y, text, opts);
+};
+
 WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	console.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
 	x = this._todevX(x);
@@ -1307,6 +1330,22 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(y, x)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_TEXTOUT:
+				var len = reader.readInt16();
+				if (len > 0) {
+					var text = reader.readString(len);
+					reader.skip(len % 2);
+					var y = reader.readInt16();
+					var x = reader.readInt16();
+					this._records.push(
+						(function(text, y, x) {
+							return function(gdi) {
+								gdi.textOut(x, y, text);
+							}
+						})(text, y, x)
+					);
+				}
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1335,7 +1374,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_FLOODFILL:
 			case WMFJS.GDI.RecordType.META_FRAMEREGION:
 			case WMFJS.GDI.RecordType.META_ANIMATEPALETTE:
-			case WMFJS.GDI.RecordType.META_TEXTOUT:
 			case WMFJS.GDI.RecordType.META_POLYPOLYGON:
 			case WMFJS.GDI.RecordType.META_EXTFLOODFILL:
 			case WMFJS.GDI.RecordType.META_SETPIXEL:
