@@ -191,6 +191,24 @@ if (typeof WMFJS === 'undefined') {
 				COLORONCOLOR: 3,
 				HALFTONE: 4
 			},
+			TextAlignmentMode: {
+				TA_UPDATECP: 1,
+				TA_RIGHT: 2,
+				TA_CENTER: 6,
+				TA_BOTTOM: 8,
+				TA_BASELINE: 24,
+				TA_RTLREADING: 256
+			},
+			MixMode: {
+				TRANSPARENT: 1,
+				OPAQUE: 2
+			},
+			VerticalTextAlignmentMode: {
+				VTA_BOTTOM: 2,
+				VTA_CENTER: 6,
+				VTA_LEFT: 8,
+				VTA_BASELINE: 24
+			},
 			BitmapCompression: {
 				BI_RGB: 0,
 				BI_RLE8: 1,
@@ -259,6 +277,16 @@ WMFJS.Blob.prototype.readBinary = function(cnt) {
 	return ret;
 };
 
+WMFJS.Blob.prototype.readInt8 = function() {
+	if (this.pos + 1 > this.data.length)
+		throw new WMFJS.Error("Unexpected end of file");
+	return this.data[this.pos++];
+};
+
+WMFJS.Blob.prototype.readUint8 = function() {
+	return this.readInt8() >>> 0;
+};
+
 WMFJS.Blob.prototype.readInt32 = function() {
 	if (this.pos + 4 > this.data.length)
 		throw new WMFJS.Error("Unexpected end of file");
@@ -286,6 +314,97 @@ WMFJS.Blob.prototype.readInt16 = function() {
 	if (val > 32767)
 		val -= 65536;
 	return val;
+};
+
+WMFJS.ColorRef = function(reader, r, g, b) {
+	if (reader != null) {
+		this.r = reader.readUint8();
+		this.g = reader.readUint8();
+		this.b = reader.readUint8();
+	} else {
+		this.r = r;
+		this.g = g;
+		this.b = b;
+	}
+};
+
+WMFJS.ColorRef.prototype.clone = function() {
+	return new WMFJS.ColorRef(null, this.r, this.g, this.b);
+};
+
+WMFJS.ColorRef.prototype.toString = function() {
+	return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
+};
+
+WMFJS.PointS = function(reader, x, y) {
+	if (reader != null) {
+		this.x = reader.readInt16();
+		this.y = reader.readInt16();
+	} else {
+		this.x =  x;
+		this.y = y;
+	}
+};
+
+WMFJS.PointS.prototype.clone = function() {
+	return new WMFJS.PointS(null, this.x, this.y);
+};
+
+WMFJS.PointS.prototype.toString = function() {
+	return "{x: " + this.x + ", y: " + this.y + "}";
+};
+
+WMFJS.Obj = function() {
+}
+
+WMFJS.Obj.prototype.clone = function() {
+	throw new WMFJS.Error("clone not implemented");
+}
+
+WMFJS.Obj.prototype.toString = function() {
+	throw new WMFJS.Error("toString not implemented");
+}
+
+WMFJS.Brush = function(reader, style, color, hatch) {
+	if (reader != null) {
+		this.style = reader.readUint16();
+		this.color = new WMFJS.ColorRef(reader);
+		this.hatch = reader.readUint16();
+	} else {
+		this.style = style;
+		this.color = color;
+		this.hatch = hatch;
+	}
+};
+WMFJS.Brush.prototype = Object.create(WMFJS.Obj.prototype);
+
+WMFJS.Brush.prototype.clone = function() {
+	return new WMFJS.Brush(null, this.style, this.color.clone(), this.hatch);
+};
+
+WMFJS.Brush.prototype.toString = function() {
+	return "{style: " + this.style + ", color: " + this.color.toString() + ", hatch: " + this.hatch + "}";
+};
+
+WMFJS.Pen = function(reader, style, width, color) {
+	if (reader != null) {
+		this.style = reader.readUint16();
+		this.width = new WMFJS.PointS(reader);
+		this.color = new WMFJS.ColorRef(reader);
+	} else {
+		this.style = style;
+		this.width = width;
+		this.color = color;
+	}
+};
+WMFJS.Pen.prototype = Object.create(WMFJS.Obj.prototype);
+
+WMFJS.Pen.prototype.clone = function() {
+	return new WMFJS.Pen(null, this.style, this.width.clone(), this.color.clone());
+};
+
+WMFJS.Pen.prototype.toString = function() {
+	return "{syle: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
 };
 
 WMFJS.BitmapCoreHeader = function(reader, skipsize) {
@@ -404,6 +523,10 @@ WMFJS.GDIContextState = function(copy) {
 		this._svggroup = copy._svggroup;
 		this.mapmode = copy.mapmode;
 		this.stretchmode = copy.stretchmode;
+		this.textalign = copy.textalign;
+		this.bkmode = copy.bkmode;
+		this.textcolor = copy.textcolor.clone();
+		this.bkcolor = copy.bkcolor.clone();
 		this.wx = copy.wx;
 		this.wy = copy.wy;
 		this.ww = copy.ww;
@@ -412,10 +535,16 @@ WMFJS.GDIContextState = function(copy) {
 		this.vy = copy.vy;
 		this.vw = copy.vw;
 		this.vh = copy.vh;
+		
+		this.selected = copy.selected;
 	} else {
 		this._svggroup = null;
 		this.mapmode = WMFJS.GDI.MapMode.MM_ANISOTROPIC;
 		this.stretchmode = WMFJS.GDI.StretchMode.COLORONCOLOR;
+		this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
+		this.bkmode = WMFJS.GDI.MixMode.OPAQUE;
+		this.textcolor = new WMFJS.ColorRef(null, 0, 0, 0);
+		this.bkcolor = new WMFJS.ColorRef(null, 255, 255, 255);
 		this.wx = 0;
 		this.wy = 0;
 		this.ww = 0;
@@ -424,6 +553,8 @@ WMFJS.GDIContextState = function(copy) {
 		this.vy = 0;
 		this.vw = 0;
 		this.vh = 0;
+		
+		this.selected = null;
 	}
 }
 
@@ -431,6 +562,7 @@ WMFJS.GDIContext = function(svg) {
 	this._svg = svg;
 	this.state = new WMFJS.GDIContextState(null);
 	this.statestack = [this.state];
+	this.objects = {};
 };
 
 WMFJS.GDIContext.prototype._pushGroup = function() {
@@ -443,6 +575,41 @@ WMFJS.GDIContext.prototype._pushGroup = function() {
 		this.state._svggroup = this._svg.svg(this.state._svggroup,
 			this.state.vx, this.state.vy, this.state.vw, this.state.vh, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
 	}
+};
+
+WMFJS.GDIContext.prototype._storeObject = function(obj) {
+	var i = 0;
+	while (this.objects[i.toString()] != null && i <= 65535)
+		i++;
+	if (i > 65535) {
+		console.log("[gdi] Too many objects!");
+		return -1;
+	}
+	
+	this.objects[i.toString()] = obj;
+	return i;
+};
+
+WMFJS.GDIContext.prototype._getObject = function(objIdx) {
+	var obj = this.objects[objIdx.toString()];
+	if (obj == null)
+		console.log("[gdi] No object with handle " + objIdx);
+	return obj;
+}
+
+WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
+	var obj = this.objects[objIdx.toString()];
+	if (obj != null) {
+		for (var i = 0; i < this.statestack.length; i++) {
+			var state = this.statestack[i];
+			if (state.selected == obj)
+				state.selected = null;
+		}
+		return true;
+	}
+	
+	console.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+	return false;
 };
 
 WMFJS.GDIContext.prototype._todevX = function(val) {
@@ -575,19 +742,44 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
-WMFJS.GDIContext.prototype.stretchDib = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
-	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
-	srcX = this._todevX(srcX);
-	srcY = this._todevY(srcY);
-	srcW = this._todevW(srcW);
-	srcH = this._todevH(srcH);
-	dstX = this._todevX(dstX);
-	dstY = this._todevY(dstY);
-	dstW = this._todevW(dstW);
-	dstH = this._todevH(dstH);
-	console.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
-	this._pushGroup();
-	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
+	console.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+	this.state.textalign = textAlignmentMode;
+};
+
+WMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
+	console.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+	this.state.bkmode = bkMode;
+};
+
+WMFJS.GDIContext.prototype.setTextColor = function(textColor) {
+	console.log("[gdi] setTextColor: textColor=" + textColor.toString());
+	this.state.textcolor = textColor;
+};
+
+WMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
+	console.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+	this.state.bkcolor = bkColor;
+};
+
+WMFJS.GDIContext.prototype.createBrush = function(brush) {
+	var idx = this._storeObject(brush);
+	console.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+};
+
+WMFJS.GDIContext.prototype.createPen = function(pen) {
+	var idx = this._storeObject(pen);
+	console.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+};
+
+WMFJS.GDIContext.prototype.selectObject = function(objIdx) {
+	this.state.selected = this._getObject(objIdx);
+	console.log("[gdi] selectObject: objIdx=" + objIdx + " selected: " + (this.state.selected != null ? this.state.toString() : "[invalid index]"));
+};
+
+WMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
+	var ret = this._deleteObject(objIdx);
+	console.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
 };
 
 WMFJS.WMFRect16 = function(reader) {
@@ -696,9 +888,56 @@ WMFJS.WMFRecords = function(reader, first) {
 					gdi.escape(func, blob, offset, count);
 				});
 				break;
+			case WMFJS.GDI.RecordType.META_SETTEXTALIGN:
+				var textAlign = reader.readUint16();
+				this._records.push(function(gdi) {
+					gdi.setTextAlign(textAlign);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_SETBKMODE:
+				var bkMode = reader.readUint16();
+				this._records.push(function(gdi) {
+					gdi.setBkMode(bkMode);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_SETTEXTCOLOR:
+				var textColor = new WMFJS.ColorRef(reader);
+				this._records.push(function(gdi) {
+					gdi.setTextColor(textColor);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_SETBKCOLOR:
+				var bkColor = new WMFJS.ColorRef(reader);
+				this._records.push(function(gdi) {
+					gdi.setBkColor(bkColor);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
+				var brush = new WMFJS.Brush(reader);
+				this._records.push(function(gdi) {
+					gdi.createBrush(brush);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_CREATEPENINDIRECT:
+				var pen = new WMFJS.Pen(reader);
+				this._records.push(function(gdi) {
+					gdi.createPen(pen);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_SELECTOBJECT:
+				var idx = reader.readUint16();
+				this._records.push(function(gdi) {
+					gdi.selectObject(idx);
+				});
+				break;
+			case WMFJS.GDI.RecordType.META_DELETEOBJECT:
+				var idx = reader.readUint16();
+				this._records.push(function(gdi) {
+					gdi.deleteObject(idx);
+				});
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
-			case WMFJS.GDI.RecordType.META_SETBKMODE:
 			case WMFJS.GDI.RecordType.META_SETROP2:
 			case WMFJS.GDI.RecordType.META_SETRELABS:
 			case WMFJS.GDI.RecordType.META_SETPOLYFILLMODE:
@@ -706,8 +945,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_RESIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
 			case WMFJS.GDI.RecordType.META_SETLAYOUT:
-			case WMFJS.GDI.RecordType.META_SETBKCOLOR:
-			case WMFJS.GDI.RecordType.META_SETTEXTCOLOR:
 			case WMFJS.GDI.RecordType.META_OFFSETVIEWPORTORG:
 			case WMFJS.GDI.RecordType.META_LINETO:
 			case WMFJS.GDI.RecordType.META_MOVETO:
@@ -741,20 +978,15 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_INVERTREGION:
 			case WMFJS.GDI.RecordType.META_PAINTREGION:
 			case WMFJS.GDI.RecordType.META_SELECTCLIPREGION:
-			case WMFJS.GDI.RecordType.META_SELECTOBJECT:
-			case WMFJS.GDI.RecordType.META_SETTEXTALIGN:
 			case WMFJS.GDI.RecordType.META_ARC:
 			case WMFJS.GDI.RecordType.META_CHORD:
 			case WMFJS.GDI.RecordType.META_BITBLT:
 			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
-			case WMFJS.GDI.RecordType.META_DELETEOBJECT:
 			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
 			case WMFJS.GDI.RecordType.META_CREATEPATTERNBRUSH:
-			case WMFJS.GDI.RecordType.META_CREATEPENINDIRECT:
 			case WMFJS.GDI.RecordType.META_CREATEFONTINDIRECT:
-			case WMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
 			case WMFJS.GDI.RecordType.META_CREATEREGION:
 				console.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				break;
