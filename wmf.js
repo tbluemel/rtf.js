@@ -757,12 +757,12 @@ WMFJS.GDIContext = function(svg) {
 WMFJS.GDIContext.prototype._pushGroup = function() {
 	if (this.state._svggroup == null) {
 		var settings = {
-			viewBox: [this.state.vx + this._todevX(0), this.state.vy + this._todevY(0), this.state.vw, this.state.vh].join(" "),
+			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
 			preserveAspectRatio: "none"
 		};
-		//this.state._svggroup = this._svg.group(WMFJS._makeUniqueId("wmfjs_grp"), settings);
+		console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh);
 		this.state._svggroup = this._svg.svg(this.state._svggroup,
-			this.state.vx, this.state.vy, this.state.vw, this.state.vh, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
+			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
 	}
 };
 
@@ -953,11 +953,11 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 
 WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	console.log("[gdi] rectangle: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-	var height = this._todevH(bottom - top);
-	var width = this._todevW(right - left);
+	bottom = this._todevY(bottom);
+	right = this._todevX(right);
 	top = this._todevY(top);
 	left = this._todevX(left);
-	console.log("[gdi] rectangle: TRANSLATED: height=" + height + " width=" + width + " top=" + top + " left=" + left);
+	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
 	this._pushGroup();
 	
 	var opts = {
@@ -966,7 +966,7 @@ WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	}
 	if (this.state.selected.brush.color != null)
 		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
-	this._svg.rect(this.state._svggroup, left, top, width, height, 0, 0, opts);
+	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
 };
 
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
