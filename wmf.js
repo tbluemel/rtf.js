@@ -1033,6 +1033,11 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 		"font-family": this.state.selected.font.facename,
 		"font-size": this._todevH(Math.abs(this.state.selected.font.height)),
 	};
+	if (this.state.selected.font.escapement != 0) {
+		// Rotate around it's center...
+		opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+		opts.style = "dominant-baseline: middle; text-anchor: start;";
+	}
 	this._svg.text(this.state._svggroup, x, y, text, opts);
 };
 
