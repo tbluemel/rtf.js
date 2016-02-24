@@ -713,6 +713,8 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vy = copy.vy;
 		this.vw = copy.vw;
 		this.vh = copy.vh;
+		this.x = copy.x;
+		this.y = copy.y;
 		
 		this.selected = {};
 		for (var type in copy.selected)
@@ -733,6 +735,8 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vy = 0;
 		this.vw = 0;
 		this.vh = 0;
+		this.x = 0;
+		this.y = 0;
 		
 		this.selected = {};
 		for (var type in defObjects)
@@ -968,6 +972,28 @@ WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
 };
+
+WMFJS.GDIContext.prototype.lineTo = function(x, y) {
+	console.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+	x = this._todevX(x);
+	y = this._todevY(y);
+	var fromX = this._todevX(this.state.x);
+	var fromY = this._todevY(this.state.y);
+	console.log("[gdi] lineTo: TRANSLATED: x=" + x + " y=" + y + " fromX=" + fromX + " fromY=" + fromY);
+	this._pushGroup();
+	
+	var opts = {
+		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
+		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
+	}
+	this._svg.line(this.state._svggroup, fromX, fromY, x, y, opts);
+}
+
+WMFJS.GDIContext.prototype.moveTo = function(x, y) {
+	console.log("[gdi] moveTo: x=" + x + " y=" + y);
+	this.state.x = x;
+	this.state.y = y;
+}
 
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
 	console.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
@@ -1259,6 +1285,28 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(bottom, right, top, left)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_LINETO:
+				var y = reader.readInt16();
+				var x = reader.readInt16();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.lineTo(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_MOVETO:
+				var y = reader.readInt16();
+				var x = reader.readInt16();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.moveTo(x, y);
+						}
+					})(y, x)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1269,8 +1317,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
 			case WMFJS.GDI.RecordType.META_SETLAYOUT:
 			case WMFJS.GDI.RecordType.META_OFFSETVIEWPORTORG:
-			case WMFJS.GDI.RecordType.META_LINETO:
-			case WMFJS.GDI.RecordType.META_MOVETO:
 			case WMFJS.GDI.RecordType.META_OFFSETCLIPRGN:
 			case WMFJS.GDI.RecordType.META_FILLREGION:
 			case WMFJS.GDI.RecordType.META_SETMAPPERFLAGS:
