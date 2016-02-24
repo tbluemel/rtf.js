@@ -605,6 +605,7 @@ WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
 			if (state.selected == obj)
 				state.selected = null;
 		}
+		delete this.objects[objIdx.toString()];
 		return true;
 	}
 	
