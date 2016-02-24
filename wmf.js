@@ -412,6 +412,28 @@ WMFJS.PointS.prototype.toString = function() {
 	return "{x: " + this.x + ", y: " + this.y + "}";
 };
 
+WMFJS.Rect = function(reader, left, top, right, bottom) {
+	if (reader != null) {
+		this.left = reader.readInt16();
+		this.top = reader.readInt16();
+		this.right = reader.readInt16();
+		this.bottom = reader.readInt16();
+	} else {
+		this.left = left;
+		this.top = top;
+		this.right = right;
+		this.bottom = bottom;
+	}
+};
+
+WMFJS.Rect.prototype.clone = function() {
+	return new WMFJS.Rect(null, this.left, this.top, this.right, this.bottom);
+};
+
+WMFJS.Rect.prototype.toString = function() {
+	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+};
+
 WMFJS.Obj = function(type) {
 	this.type = type;
 }
@@ -724,6 +746,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = copy.vh;
 		this.x = copy.x;
 		this.y = copy.y;
+		this.clip = {
+			exclude: copy.clip.exclude != null ? copy.clip.exclude.clone() : null,
+			intersect: copy.clip.intersect != null ? copy.clip.intersect.clone() : null
+		};
 		
 		this.selected = {};
 		for (var type in copy.selected)
@@ -746,6 +772,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = 0;
 		this.x = 0;
 		this.y = 0;
+		this.clip = {
+			exclude: null,
+			intersect: null
+		};
 		
 		this.selected = {};
 		for (var type in defObjects)
@@ -774,6 +804,9 @@ WMFJS.GDIContext.prototype._pushGroup = function() {
 			preserveAspectRatio: "none"
 		};
 		console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh);
+		console.log("[gdi] use clipping: intersect: "
+			+ (this.state.clip.intersect != null ? this.state.clip.intersect.toString() : "[none]") + ", exclude: "
+			+ (this.state.clip.exclude != null ? this.state.clip.exclude.toString() : "[none]"))
 		this.state._svggroup = this._svg.svg(this.state._svggroup,
 			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
 	}
@@ -1017,6 +1050,36 @@ WMFJS.GDIContext.prototype.moveTo = function(x, y) {
 	this.state.x = x;
 	this.state.y = y;
 }
+
+WMFJS.GDIContext.prototype.polygon = function(points) {
+	console.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var pts = [];
+	for (var i = 0; i < points.length; i++) {
+		var point = points[i];
+		pts.push([this._todevX(point.x), this._todevY(point.y)]);
+	}
+	console.log("[gdi] polygon: TRANSLATED: pts=" + pts);
+	this._pushGroup();
+	var opts = {
+		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
+		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
+	}
+	if (this.state.selected.brush.color != null)
+		opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush style
+	this._svg.polygon(this.state._svggroup, pts, opts);
+};
+
+WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
+	console.log("[gdi] excludeClipRect: rect=" + rect.toString());
+	this.state.clip.exclude = rect;
+	this.state._svggroup = null;
+};
+
+WMFJS.GDIContext.prototype.intersectClipRect = function(rect) {
+	console.log("[gdi] intersectClipRect: rect=" + rect.toString());
+	this.state.clip.intersect = rect;
+	this.state._svggroup = null;
+};
 
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
 	console.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
@@ -1346,6 +1409,49 @@ WMFJS.WMFRecords = function(reader, first) {
 					);
 				}
 				break;
+			case WMFJS.GDI.RecordType.META_EXCLUDECLIPRECT:
+				var bottom = reader.readInt16();
+				var right = reader.readInt16();
+				var top = reader.readInt16();
+				var left = reader.readInt16();
+				var rect = new WMFJS.Rect(null, left, top, right, bottom);
+				this._records.push(
+					(function(rect) {
+						return function(gdi) {
+							gdi.excludeClipRect(rect);
+						}
+					})(rect)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_INTERSECTCLIPRECT:
+				var bottom = reader.readInt16();
+				var right = reader.readInt16();
+				var top = reader.readInt16();
+				var left = reader.readInt16();
+				var rect = new WMFJS.Rect(null, left, top, right, bottom);
+				this._records.push(
+					(function(rect) {
+						return function(gdi) {
+							gdi.intersectClipRect(rect);
+						}
+					})(rect)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_POLYGON:
+				var cnt = reader.readInt16();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new WMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points) {
+						return function(gdi) {
+							gdi.polygon(points);
+						}
+					})(points)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1360,7 +1466,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_FILLREGION:
 			case WMFJS.GDI.RecordType.META_SETMAPPERFLAGS:
 			case WMFJS.GDI.RecordType.META_SELECTPALETTE:
-			case WMFJS.GDI.RecordType.META_POLYGON:
 			case WMFJS.GDI.RecordType.META_POLYLINE:
 			case WMFJS.GDI.RecordType.META_SETTEXTJUSTIFICATION:
 			case WMFJS.GDI.RecordType.META_SETVIEWPORTORG:
@@ -1368,8 +1473,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_OFFSETWINDOWORG:
 			case WMFJS.GDI.RecordType.META_SCALEWINDOWEXT:
 			case WMFJS.GDI.RecordType.META_SCALEVIEWPORTEXT:
-			case WMFJS.GDI.RecordType.META_EXCLUDECLIPRECT:
-			case WMFJS.GDI.RecordType.META_INTERSECTCLIPRECT:
 			case WMFJS.GDI.RecordType.META_ELLIPSE:
 			case WMFJS.GDI.RecordType.META_FLOODFILL:
 			case WMFJS.GDI.RecordType.META_FRAMEREGION:
