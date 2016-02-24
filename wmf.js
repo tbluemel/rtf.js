@@ -1021,23 +1021,35 @@ WMFJS.WMFRecords = function(reader, first) {
 				break main_loop;
 			case WMFJS.GDI.RecordType.META_SETMAPMODE:
 				var mapMode = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.setMapMode(mapMode);
-				});
+				this._records.push(
+					(function(mapMode) {
+						return function(gdi) {
+							gdi.setMapMode(mapMode);
+						}
+					})(mapMode)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETWINDOWORG:
 				var y = reader.readInt16();
 				var x = reader.readInt16();
-				this._records.push(function(gdi) {
-					gdi.setWindowOrg(x, y);
-				});
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setWindowOrg(x, y);
+						}
+					})(y, x)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETWINDOWEXT:
 				var y = reader.readInt16();
 				var x = reader.readInt16();
-				this._records.push(function(gdi) {
-					gdi.setWindowExt(x, y);
-				});
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setWindowExt(x, y);
+						}
+					})(y, x)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SAVEDC:
 				this._records.push(function(gdi) {
@@ -1046,15 +1058,23 @@ WMFJS.WMFRecords = function(reader, first) {
 				break;
 			case WMFJS.GDI.RecordType.META_RESTOREDC:
 				var saved = reader.readInt16();
-				this._records.push(function(gdi) {
-					gdi.restoreDC(saved);
-				});
+				this._records.push(
+					(function(saved) {
+						return function(gdi) {
+							gdi.restoreDC(saved);
+						}
+					})(saved)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETSTRETCHBLTMODE:
 				var stretchMode = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.setStretchBltMode(stretchMode);
-				});
+				this._records.push(
+					(function(stretchMode) {
+						return function(gdi) {
+							gdi.setStretchBltMode(stretchMode);
+						}
+					})(stretchMode)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_DIBSTRETCHBLT:
 				var haveSrcDib = ((type >> 8) + 3 != size);
@@ -1069,9 +1089,13 @@ WMFJS.WMFRecords = function(reader, first) {
 				var destX = reader.readInt16();
 				var datalength = size * 2 - (reader.pos - curpos);
 				var dib = new WMFJS.DIBitmap(reader, datalength);
-				this._records.push(function(gdi) {
-					gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
-				});
+				this._records.push(
+					(function(rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
+						return function(gdi) {
+							gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
+						}
+					})(rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_STRETCHDIB:
 				var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
@@ -1086,74 +1110,118 @@ WMFJS.WMFRecords = function(reader, first) {
 				var destX = reader.readInt16();
 				var datalength = size * 2 - (reader.pos - curpos);
 				var dib = new WMFJS.DIBitmap(reader, datalength);
-				this._records.push(function(gdi) {
-					gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
-				});
+				this._records.push(
+					(function(rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
+						return function(gdi) {
+							gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
+						}
+					})(rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_ESCAPE:
 				var func = reader.readUint16();
 				var count = reader.readUint16();
 				var offset = reader.pos;
 				var blob = new WMFJS.Blob(reader, offset);
-				this._records.push(function(gdi) {
-					gdi.escape(func, blob, offset, count);
-				});
+				this._records.push(
+					(function(func, count, offset, blob) {
+						return function(gdi) {
+							gdi.escape(func, blob, offset, count);
+						}
+					})(func, count, offset, blob)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETTEXTALIGN:
 				var textAlign = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.setTextAlign(textAlign);
-				});
+				this._records.push(
+					(function(textAlign) {
+						return function(gdi) {
+							gdi.setTextAlign(textAlign);
+						}
+					})(textAlign)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETBKMODE:
 				var bkMode = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.setBkMode(bkMode);
-				});
+				this._records.push(
+					(function(bkMode) {
+						return function(gdi) {
+							gdi.setBkMode(bkMode);
+						}
+					})(bkMode)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETTEXTCOLOR:
 				var textColor = new WMFJS.ColorRef(reader);
-				this._records.push(function(gdi) {
-					gdi.setTextColor(textColor);
-				});
+				this._records.push(
+					(function(textColor) {
+						return function(gdi) {
+							gdi.setTextColor(textColor);
+						}
+					})(textColor)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SETBKCOLOR:
 				var bkColor = new WMFJS.ColorRef(reader);
-				this._records.push(function(gdi) {
-					gdi.setBkColor(bkColor);
-				});
+				this._records.push(
+					(function(bkColor) {
+						return function(gdi) {
+							gdi.setBkColor(bkColor);
+						}
+					})(bkColor)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
 				var datalength = size * 2 - (reader.pos - curpos);
 				var brush = new WMFJS.Brush(reader, datalength);
-				this._records.push(function(gdi) {
-					gdi.createBrush(brush);
-				});
+				this._records.push(
+					(function(brush, datalength) {
+						return function(gdi) {
+							gdi.createBrush(brush);
+						}
+					})(brush, datalength)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_CREATEPENINDIRECT:
 				var pen = new WMFJS.Pen(reader);
-				this._records.push(function(gdi) {
-					gdi.createPen(pen);
-				});
+				this._records.push(
+					(function(pen) {
+						return function(gdi) {
+							gdi.createPen(pen);
+						}
+					})(pen)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_CREATEFONTINDIRECT:
 				var datalength = size * 2 - (reader.pos - curpos);
 				var font = new WMFJS.Font(reader, datalength);
-				this._records.push(function(gdi) {
-					gdi.createFont(font);
-				});
+				this._records.push(
+					(function(font, datalength) {
+						return function(gdi) {
+							gdi.createFont(font);
+						}
+					})(font, datalength)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_SELECTOBJECT:
 				var idx = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.selectObject(idx);
-				});
+				this._records.push(
+					(function(idx) {
+						return function(gdi) {
+							gdi.selectObject(idx);
+						}
+					})(idx)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_DELETEOBJECT:
 				var idx = reader.readUint16();
-				this._records.push(function(gdi) {
-					gdi.deleteObject(idx);
-				});
+				this._records.push(
+					(function(idx) {
+						return function(gdi) {
+							gdi.deleteObject(idx);
+						}
+					})(idx)
+				);
 				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
