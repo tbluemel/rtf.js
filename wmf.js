@@ -209,6 +209,33 @@ if (typeof WMFJS === 'undefined') {
 				VTA_LEFT: 8,
 				VTA_BASELINE: 24
 			},
+			BrushStyle: {
+				BS_SOLID: 0,
+				BS_NULL: 1,
+				BS_HATCHED: 2,
+				BS_PATTERN: 3,
+				BS_INDEXED: 4,
+				BS_DIBPATTERN: 5,
+				BS_DIBPATTERNPT: 6,
+				BS_PATTERN8X8: 7,
+				BS_DIBPATTERN8X8: 8,
+				BS_MONOPATTERN: 9
+			},
+			PenStyle: {
+				PS_SOLID: 0,
+				PS_DASH: 1,
+				PS_DOT: 2,
+				PS_DASHDOT: 3,
+				PS_DASHDOTDOT: 4,
+				PS_NULL: 5,
+				PS_INSIDEFRAME: 6,
+				PS_USERSTYLE: 7,
+				PS_ALTERNATE: 8,
+				PS_ENDCAP_SQUARE: 256,
+				PS_ENDCAP_FLAT: 512,
+				PS_JOIN_BEVE: 4096,
+				PS_JOIN_MITER: 8192
+			},
 			BitmapCompression: {
 				BI_RGB: 0,
 				BI_RLE8: 1,
@@ -355,7 +382,8 @@ WMFJS.PointS.prototype.toString = function() {
 	return "{x: " + this.x + ", y: " + this.y + "}";
 };
 
-WMFJS.Obj = function() {
+WMFJS.Obj = function(type) {
+	this.type = type;
 }
 
 WMFJS.Obj.prototype.clone = function() {
@@ -366,28 +394,73 @@ WMFJS.Obj.prototype.toString = function() {
 	throw new WMFJS.Error("toString not implemented");
 }
 
-WMFJS.Brush = function(reader, style, color, hatch) {
+WMFJS.Brush = function(reader, copy) {
+	WMFJS.Obj.call(this, "brush");
 	if (reader != null) {
+		var dataLength = copy;
+		var start = reader.pos;
 		this.style = reader.readUint16();
-		this.color = new WMFJS.ColorRef(reader);
-		this.hatch = reader.readUint16();
+		switch (this.style) {
+			case WMFJS.GDI.BrushStyle.BS_SOLID:
+				this.color = new WMFJS.ColorRef(reader);
+				break;
+			case WMFJS.GDI.BrushStyle.BS_PATTERN:
+				reader.skip(4);
+				this.pattern = new WMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
+				break;
+			case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				this.colorusage = reader.readUint32();
+				this.dibpatternpt = new WMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
+				break;
+			case WMFJS.GDI.BrushStyle.BS_HATCHED:
+				this.color = new WMFJS.ColorRef(reader);
+				this.hatchstyle = reader.readUint16();
+				break;
+		}
 	} else {
-		this.style = style;
-		this.color = color;
-		this.hatch = hatch;
+		this.style = copy.style;
+		switch (this.style) {
+			case WMFJS.GDI.BrushStyle.BS_SOLID:
+				this.color = copy.color.clone();
+				break;
+			case WMFJS.GDI.BrushStyle.BS_PATTERN:
+				this.pattern = copy.pattern.clone();
+				break;
+			case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				this.colorusage = copy.colorusage;
+				this.dibpatternpt = copy.dibpatternpt;
+				break;
+			case WMFJS.GDI.BrushStyle.BS_HATCHED:
+				this.color = copy.color.clone();
+				this.hatchstyle = copy.hatchstyle;
+				break;
+		}
 	}
 };
 WMFJS.Brush.prototype = Object.create(WMFJS.Obj.prototype);
 
 WMFJS.Brush.prototype.clone = function() {
-	return new WMFJS.Brush(null, this.style, this.color.clone(), this.hatch);
+	return new WMFJS.Brush(null, this);
 };
 
 WMFJS.Brush.prototype.toString = function() {
-	return "{style: " + this.style + ", color: " + this.color.toString() + ", hatch: " + this.hatch + "}";
+	var ret = "{style: " + this.style;
+	switch (this.style) {
+		case WMFJS.GDI.BrushStyle.BS_SOLID:
+			ret += ", color: " + this.color.toString();
+			break
+		case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+			ret += ", colorusage: " + this.colorusage;
+			break;
+		case WMFJS.GDI.BrushStyle.BS_HATCHED:
+			ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
+			break;
+	}
+	return ret + "}";
 };
 
 WMFJS.Pen = function(reader, style, width, color) {
+	WMFJS.Obj.call(this, "pen");
 	if (reader != null) {
 		this.style = reader.readUint16();
 		this.width = new WMFJS.PointS(reader);
@@ -519,7 +592,22 @@ WMFJS.DIBitmap.prototype.base64ref = function() {
 	return ref;
 };
 
-WMFJS.GDIContextState = function(copy) {
+WMFJS.Bitmap16 = function(reader, size) {
+	this._reader = reader;
+	this._offset = reader.pos;
+	this._size = size;
+	this.type = reader.readInt16();
+	this.width = reader.readInt16();
+	this.height = reader.readInt16();
+	this.widthBytes = reader.readInt16();
+	this.planes = reader.readUint8();
+	this.bitsPixel = reader.readUint8();
+	this.bitsSize = (((this.width * this.bitsPixel + 10) >> 4) << 1) * this.height;
+	if (this.bitsSize != size - 10)
+		throw new WMFJS.Error("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
+};
+
+WMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
 		this.mapmode = copy.mapmode;
@@ -537,7 +625,9 @@ WMFJS.GDIContextState = function(copy) {
 		this.vw = copy.vw;
 		this.vh = copy.vh;
 		
-		this.selected = copy.selected;
+		this.selected = {};
+		for (var type in copy.selected)
+			this.selected[type] = copy.selected[type];
 	} else {
 		this._svggroup = null;
 		this.mapmode = WMFJS.GDI.MapMode.MM_ANISOTROPIC;
@@ -555,13 +645,21 @@ WMFJS.GDIContextState = function(copy) {
 		this.vw = 0;
 		this.vh = 0;
 		
-		this.selected = null;
+		this.selected = {};
+		for (var type in defObjects)
+			this.selected[type] = defObjects[type].clone();
 	}
 }
 
 WMFJS.GDIContext = function(svg) {
 	this._svg = svg;
-	this.state = new WMFJS.GDIContextState(null);
+	
+	this.defObjects = {
+		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0)),
+		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0))
+	};
+	
+	this.state = new WMFJS.GDIContextState(null, this.defObjects);
 	this.statestack = [this.state];
 	this.objects = {};
 };
@@ -598,13 +696,17 @@ WMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	return obj;
 }
 
+WMFJS.GDIContext.prototype._selectObject = function(obj) {
+	this.state.selected[obj.type] = obj;
+};
+
 WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
 	var obj = this.objects[objIdx.toString()];
 	if (obj != null) {
 		for (var i = 0; i < this.statestack.length; i++) {
 			var state = this.statestack[i];
-			if (state.selected == obj)
-				state.selected = null;
+			if (state.selected[obj.type] == obj)
+				state.selected[obj.type] = this.defObjects[obj.type].clone();
 		}
 		delete this.objects[objIdx.toString()];
 		return true;
@@ -790,8 +892,10 @@ WMFJS.GDIContext.prototype.createPen = function(pen) {
 };
 
 WMFJS.GDIContext.prototype.selectObject = function(objIdx) {
-	this.state.selected = this._getObject(objIdx);
-	console.log("[gdi] selectObject: objIdx=" + objIdx + " selected: " + (this.state.selected != null ? this.state.toString() : "[invalid index]"));
+	var obj = this._getObject(objIdx);
+	if (obj != null)
+		this._selectObject(obj);
+	console.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
 };
 
 WMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
@@ -930,7 +1034,8 @@ WMFJS.WMFRecords = function(reader, first) {
 				});
 				break;
 			case WMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
-				var brush = new WMFJS.Brush(reader);
+				var datalength = size * 2 - (reader.pos - curpos);
+				var brush = new WMFJS.Brush(reader, datalength);
 				this._records.push(function(gdi) {
 					gdi.createBrush(brush);
 				});
