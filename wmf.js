@@ -343,6 +343,22 @@ WMFJS.Blob.prototype.readInt16 = function() {
 	return val;
 };
 
+WMFJS.Blob.prototype.readNullTermString = function(maxSize) {
+	var ret = "";
+	if (maxSize > 0) {
+		maxSize--;
+		for (var i = 0; i < maxSize; i++) {
+			if (this.pos + i + 1 > this.data.length)
+				throw new WMFJS.Error("Unexpected end of file");
+			var byte = this.data[this.pos + i] >>> 0;
+			if (byte == 0)
+				break;
+			ret += String.fromCharCode(byte);
+		}
+	}
+	return ret;
+};
+
 WMFJS.ColorRef = function(reader, r, g, b) {
 	if (reader != null) {
 		this.r = reader.readUint8();
@@ -393,6 +409,74 @@ WMFJS.Obj.prototype.clone = function() {
 WMFJS.Obj.prototype.toString = function() {
 	throw new WMFJS.Error("toString not implemented");
 }
+
+WMFJS.Font = function(reader, copy) {
+	WMFJS.Obj.call(this, "font");
+	if (reader != null) {
+		this.height = reader.readInt16();
+		this.width = reader.readInt16();
+		this.escapement = reader.readInt16();
+		this.orientation = reader.readInt16();
+		this.weight = reader.readInt16();
+		this.italic = reader.readUint8();
+		this.underline = reader.readUint8();
+		this.strikeout = reader.readUint8();
+		this.charset = reader.readUint8();
+		this.outprecision = reader.readUint8();
+		this.clipprecision = reader.readUint8();
+		this.quality = reader.readUint8();
+		var pitchAndFamily = reader.readUint8();
+		this.pitch = pitchAndFamily & 0xf; // TODO: double check
+		this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
+		
+		var dataLength = copy;
+		var start = reader.pos;
+		this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
+	} else if (copy != null) {
+		this.height = copy.height;
+		this.width = copy.width;
+		this.escapement = copy.escapement;
+		this.orientation = copy.orientation;
+		this.weight = copy.weight;
+		this.italic = copy.italic;
+		this.underline = copy.underline;
+		this.strikeout = copy.strikeout;
+		this.charset = copy.charset;
+		this.outprecision = copy.outprecision;
+		this.clipprecision = copy.clipprecision;
+		this.quality = copy.quality;
+		this.pitch = copy.pitch;
+		this.family = copy.family;
+		this.facename = copy.facename;
+	} else {
+		// TODO: Values for a default font?
+		this.height = -80;
+		this.width = 0;
+		this.escapement = 0;
+		this.orientation = 0;
+		this.weight = 400;
+		this.italic = 0;
+		this.underline = 0;
+		this.strikeout = 0;
+		this.charset = 0;
+		this.outprecision = 0;
+		this.clipprecision = 0;
+		this.quality = 0;
+		this.pitch = 0;
+		this.family = 0;
+		this.facename = "Helvetica";
+	}
+};
+WMFJS.Font.prototype = Object.create(WMFJS.Obj.prototype);
+
+WMFJS.Font.prototype.clone = function() {
+	return new WMFJS.Font(null, this);
+};
+
+WMFJS.Font.prototype.toString = function() {
+	//return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
+	return JSON.stringify(this);
+};
 
 WMFJS.Brush = function(reader, copy) {
 	WMFJS.Obj.call(this, "brush");
@@ -656,7 +740,8 @@ WMFJS.GDIContext = function(svg) {
 	
 	this.defObjects = {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0)),
-		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0))
+		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0)),
+		font: new WMFJS.Font(null, null)
 	};
 	
 	this.state = new WMFJS.GDIContextState(null, this.defObjects);
@@ -886,6 +971,11 @@ WMFJS.GDIContext.prototype.createBrush = function(brush) {
 	console.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
 };
 
+WMFJS.GDIContext.prototype.createFont = function(font) {
+	var idx = this._storeObject(font);
+	console.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
+};
+
 WMFJS.GDIContext.prototype.createPen = function(pen) {
 	var idx = this._storeObject(pen);
 	console.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
@@ -1046,6 +1136,13 @@ WMFJS.WMFRecords = function(reader, first) {
 					gdi.createPen(pen);
 				});
 				break;
+			case WMFJS.GDI.RecordType.META_CREATEFONTINDIRECT:
+				var datalength = size * 2 - (reader.pos - curpos);
+				var font = new WMFJS.Font(reader, datalength);
+				this._records.push(function(gdi) {
+					gdi.createFont(font);
+				});
+				break;
 			case WMFJS.GDI.RecordType.META_SELECTOBJECT:
 				var idx = reader.readUint16();
 				this._records.push(function(gdi) {
@@ -1108,7 +1205,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
 			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
 			case WMFJS.GDI.RecordType.META_CREATEPATTERNBRUSH:
-			case WMFJS.GDI.RecordType.META_CREATEFONTINDIRECT:
 			case WMFJS.GDI.RecordType.META_CREATEREGION:
 				console.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				break;
