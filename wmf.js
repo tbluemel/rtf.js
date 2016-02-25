@@ -1080,6 +1080,23 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
+WMFJS.GDIContext.prototype.polyline = function(points) {
+	console.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var pts = [];
+	for (var i = 0; i < points.length; i++) {
+		var point = points[i];
+		pts.push([this._todevX(point.x), this._todevY(point.y)]);
+	}
+	console.log("[gdi] polyline: TRANSLATED: pts=" + pts);
+	this._pushGroup();
+	var opts = {
+		fill: this._getFill(),
+		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
+		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
+	}
+	this._svg.polyline(this.state._svggroup, pts, opts);
+};
+
 WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
 	console.log("[gdi] excludeClipRect: rect=" + rect.toString());
 	this.state.clip.exclude = rect;
@@ -1463,6 +1480,21 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(points)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_POLYLINE:
+				var cnt = reader.readInt16();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new WMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points) {
+						return function(gdi) {
+							gdi.polyline(points);
+						}
+					})(points)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1477,7 +1509,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_FILLREGION:
 			case WMFJS.GDI.RecordType.META_SETMAPPERFLAGS:
 			case WMFJS.GDI.RecordType.META_SELECTPALETTE:
-			case WMFJS.GDI.RecordType.META_POLYLINE:
 			case WMFJS.GDI.RecordType.META_SETTEXTJUSTIFICATION:
 			case WMFJS.GDI.RecordType.META_SETVIEWPORTORG:
 			case WMFJS.GDI.RecordType.META_SETVIEWPORTEXT:
