@@ -1022,10 +1022,27 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
-WMFJS.GDIContext.prototype._getFill = function() {
-	if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
-		return "#" + this.state.selected.brush.color.toHex(); // TODO: brush styles
-	return "none";
+WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont) {
+	if (opts == null)
+		opts = {};
+	if (usePen) {
+		if (this.state.selected.pen.style != WMFJS.GDI.PenStyle.PS_NULL) {
+			opts.stroke =  "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
+			opts.strokeWidth = this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
+		}
+	}
+	if (useBrush) {
+		if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
+			opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush styles
+		else
+			opts.fill = "none";
+	}
+	if (useFont) {
+		opts["font-family"] = this.state.selected.font.facename;
+		opts["font-size"] = this._todevH(Math.abs(this.state.selected.font.height));
+		opts["fill"] = "#" + this.state.textcolor.toHex();
+	}
+	return opts;
 };
 
 WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
@@ -1037,11 +1054,7 @@ WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
 	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
 	this._pushGroup();
 	
-	var opts = {
-		fill: this._getFill(),
-		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this.state.selected.pen.width.x // TODO: is .y ever used?
-	};
+	var opts = this._applyOpts(null, true, true, false);
 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
 };
 
@@ -1052,11 +1065,7 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 	console.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
 	this._pushGroup();
 	
-	var opts = {
-		"font-family": this.state.selected.font.facename,
-		"font-size": this._todevH(Math.abs(this.state.selected.font.height)),
-		"fill": "#" + this.state.textcolor.toHex(),
-	};
+	var opts = this._applyOpts(null, false, false, true);
 	if (this.state.selected.font.escapement != 0) {
 		opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
 		opts.style = "dominant-baseline: middle; text-anchor: start;";
@@ -1084,10 +1093,7 @@ WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	console.log("[gdi] lineTo: TRANSLATED: x=" + x + " y=" + y + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
 	
-	var opts = {
-		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
-	}
+	var opts = this._applyOpts(null, true, false, false);
 	this._svg.line(this.state._svggroup, fromX, fromY, x, y, opts);
 }
 
@@ -1107,10 +1113,9 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	console.log("[gdi] polygon: TRANSLATED: pts=" + pts);
 	this._pushGroup();
 	var opts = {
-		fill: this._getFill(),
-		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
+		"fill-rule": this.state.polyfillmode == WMFJS.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
 	};
+	this._applyOpts(opts, true, true, false);
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
@@ -1123,7 +1128,7 @@ WMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
 };
 
 WMFJS.GDIContext.prototype.polyline = function(points) {
-	console.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	console.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
@@ -1131,11 +1136,7 @@ WMFJS.GDIContext.prototype.polyline = function(points) {
 	}
 	console.log("[gdi] polyline: TRANSLATED: pts=" + pts);
 	this._pushGroup();
-	var opts = {
-		fill: this._getFill(),
-		stroke: "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-		strokeWidth: this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
-	}
+	var opts = this._applyOpts(null, true, true, false);
 	this._svg.polyline(this.state._svggroup, pts, opts);
 };
 
