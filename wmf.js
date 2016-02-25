@@ -236,6 +236,10 @@ if (typeof WMFJS === 'undefined') {
 				PS_JOIN_BEVE: 4096,
 				PS_JOIN_MITER: 8192
 			},
+			PolyFillMode: {
+				ALTERNATE: 1,
+				WINDING: 2
+			},
 			BitmapCompression: {
 				BI_RGB: 0,
 				BI_RLE8: 1,
@@ -386,7 +390,7 @@ WMFJS.ColorRef.prototype.clone = function() {
 };
 
 WMFJS.ColorRef.prototype.toHex = function() {
-	var rgb = (this.b << 16) | (this.g << 8) | this.b;
+	var rgb = (this.r << 16) | (this.g << 8) | this.b;
 	return (0x1000000 + rgb).toString(16).slice(1);
 };
 
@@ -727,6 +731,23 @@ WMFJS.Bitmap16 = function(reader, size) {
 		throw new WMFJS.Error("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
 };
 
+WMFJS.PolyPolygon = function(reader) {
+	var polygonsCnt = reader.readUint16();
+	var polygonsPtCnts = [];
+	for (var i = 0; i < polygonsCnt; i++)
+		polygonsPtCnts.push(reader.readUint16());
+	
+	this._polygons = [];
+	for (var i = 0; i < polygonsCnt; i++) {
+		var ptCnt = polygonsPtCnts[i];
+		
+		var polygon = [];
+		for (var ip = 0; ip < ptCnt; ip++)
+			polygon.push(new WMFJS.PointS(reader));
+		this._polygons.push(polygon);
+	}
+};
+
 WMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
@@ -736,6 +757,7 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.bkmode = copy.bkmode;
 		this.textcolor = copy.textcolor.clone();
 		this.bkcolor = copy.bkcolor.clone();
+		this.polyfillmode = copy.polyfillmode;
 		this.wx = copy.wx;
 		this.wy = copy.wy;
 		this.ww = copy.ww;
@@ -759,9 +781,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.mapmode = WMFJS.GDI.MapMode.MM_ANISOTROPIC;
 		this.stretchmode = WMFJS.GDI.StretchMode.COLORONCOLOR;
 		this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
-		this.bkmode = WMFJS.GDI.MixMode.OPAQUE;
+		this.bkmode = WMFJS.GDI.MixMode.TRANSPARENT;
 		this.textcolor = new WMFJS.ColorRef(null, 0, 0, 0);
 		this.bkcolor = new WMFJS.ColorRef(null, 255, 255, 255);
+		this.polyfillmode = WMFJS.GDI.PolyFillMode.ALTERNATE;
 		this.wx = 0;
 		this.wy = 0;
 		this.ww = 0;
@@ -1080,6 +1103,14 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
+WMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
+	console.log("[gdi] polyPolygon: polyPolygon=" + JSON.stringify(polyPolygon) + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	this._pushGroup();
+	var cnt = polyPolygon._polygons.length;
+	for (var i = 0; i < cnt; i++)
+		this.polygon(polyPolygon._polygons[i]);
+};
+
 WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
 	console.log("[gdi] excludeClipRect: rect=" + rect.toString());
 	this.state.clip.exclude = rect;
@@ -1110,6 +1141,11 @@ WMFJS.GDIContext.prototype.setTextColor = function(textColor) {
 WMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
 	console.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
 	this.state.bkcolor = bkColor;
+};
+
+WMFJS.GDIContext.prototype.setPolyFillMode = function(polyFillMode) {
+	console.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+	this.state.polyfillmode = polyFillMode;
 };
 
 WMFJS.GDIContext.prototype.createBrush = function(brush) {
@@ -1463,11 +1499,30 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(points)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_SETPOLYFILLMODE:
+				var polyfillmode = reader.readUint16();
+				this._records.push(
+					(function(polyfillmode) {
+						return function(gdi) {
+							gdi.setPolyFillMode(polyfillmode);
+						}
+					})(polyfillmode)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_POLYPOLYGON:
+				var polyPolygon = new WMFJS.PolyPolygon(reader);
+				this._records.push(
+					(function(polyPolygon) {
+						return function(gdi) {
+							gdi.polyPolygon(polyPolygon);
+						}
+					})(polyPolygon)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
 			case WMFJS.GDI.RecordType.META_SETRELABS:
-			case WMFJS.GDI.RecordType.META_SETPOLYFILLMODE:
 			case WMFJS.GDI.RecordType.META_SETTEXTCHAREXTRA:
 			case WMFJS.GDI.RecordType.META_RESIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
@@ -1488,7 +1543,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_FLOODFILL:
 			case WMFJS.GDI.RecordType.META_FRAMEREGION:
 			case WMFJS.GDI.RecordType.META_ANIMATEPALETTE:
-			case WMFJS.GDI.RecordType.META_POLYPOLYGON:
 			case WMFJS.GDI.RecordType.META_EXTFLOODFILL:
 			case WMFJS.GDI.RecordType.META_SETPIXEL:
 			case WMFJS.GDI.RecordType.META_ROUNDRECT:
