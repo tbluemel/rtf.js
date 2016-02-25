@@ -251,7 +251,7 @@ if (typeof WMFJS === 'undefined') {
 		},
 		_uniqueId: 0,
 		_makeUniqueId: function(prefix) {
-			return prefix + (this._uniqueId++);
+			return "wmfjs_" + prefix + (this._uniqueId++);
 		},
 		_writeUint32Val: function(uint8arr, pos, val) {
 			uint8arr[pos++] = val & 0xff;
@@ -751,6 +751,7 @@ WMFJS.PolyPolygon = function(reader) {
 WMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
+		this._svgtextbkfilter = copy._svgtextbkfilter;
 		this.mapmode = copy.mapmode;
 		this.stretchmode = copy.stretchmode;
 		this.textalign = copy.textalign;
@@ -778,10 +779,11 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 			this.selected[type] = copy.selected[type];
 	} else {
 		this._svggroup = null;
+		this._svgtextbkfilter = null;
 		this.mapmode = WMFJS.GDI.MapMode.MM_ANISOTROPIC;
 		this.stretchmode = WMFJS.GDI.StretchMode.COLORONCOLOR;
 		this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
-		this.bkmode = WMFJS.GDI.MixMode.TRANSPARENT;
+		this.bkmode = WMFJS.GDI.MixMode.OPAQUE;
 		this.textcolor = new WMFJS.ColorRef(null, 0, 0, 0);
 		this.bkcolor = new WMFJS.ColorRef(null, 255, 255, 255);
 		this.polyfillmode = WMFJS.GDI.PolyFillMode.ALTERNATE;
@@ -1021,10 +1023,8 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 };
 
 WMFJS.GDIContext.prototype._getFill = function() {
-	if (this.state.bkmode == WMFJS.GDI.MixMode.OPAQUE)
-		return "#" + this.state.bkcolor.toHex();
-	else if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
-		return "#" + (this.state.selected.brush.color != null ? this.state.selected.brush.color.toHex() : this.state.bkcolor.toHex()); // TODO: brush styles
+	if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
+		return "#" + this.state.selected.brush.color.toHex(); // TODO: brush styles
 	return "none";
 };
 
@@ -1055,11 +1055,22 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 	var opts = {
 		"font-family": this.state.selected.font.facename,
 		"font-size": this._todevH(Math.abs(this.state.selected.font.height)),
+		"fill": "#" + this.state.textcolor.toHex(),
 	};
 	if (this.state.selected.font.escapement != 0) {
-		// Rotate around it's center...
 		opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
 		opts.style = "dominant-baseline: middle; text-anchor: start;";
+	}
+	if (this.state.bkmode == WMFJS.GDI.MixMode.OPAQUE) {
+		if (this.state._svgtextbkfilter == null) {
+			var filterId = WMFJS._makeUniqueId("f");
+			var filter = this._svg.filter(this.state._svggroup, filterId, 0, 0, 1, 1);
+			this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+			this._svg.filters.composite(filter, null, null, "SourceGraphic");
+			this.state._svgtextbkfilter = filter;
+		}
+		
+		opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
 	}
 	this._svg.text(this.state._svggroup, x, y, text, opts);
 };
@@ -1158,6 +1169,7 @@ WMFJS.GDIContext.prototype.setTextColor = function(textColor) {
 WMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
 	console.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
 	this.state.bkcolor = bkColor;
+	this.state._svgtextbkfilter = null;
 };
 
 WMFJS.GDIContext.prototype.setPolyFillMode = function(polyFillMode) {

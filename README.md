@@ -10,7 +10,8 @@ The code of this project is licensed under the MIT license.  See the file LICENS
   * [js-codepage](https://github.com/SheetJS/js-codepage/) (Apache 2.0 license)
 * wmf.js requires:
   * [jquery](https://jquery.com/)
-* Rendering WMF images is accomplished by using HTML5's <svg> feature, which means that wmf.js depends on the handy [jquery.svg.js plugin](https://github.com/kbwood/svg).
+  * [jquery.svg.js plugin](https://github.com/kbwood/svg) with the jquery.svgfilter.js extension.
+* Rendering WMF images is accomplished by using HTML5's <svg> feature.
 * Rendering RTF documents often requires rendering WMF images, however rtf.js can be used without wmf.js if rendering such images is not required.
 
 # Live samples:
