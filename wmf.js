@@ -245,6 +245,11 @@ if (typeof WMFJS === 'undefined') {
 				DIB_PAL_COLORS: 1,
 				DIB_PAL_INDICES: 2
 			},
+			PaletteEntryFlag: {
+				PC_RESERVED: 1,
+				PC_EXPLICIT: 2,
+				PC_NOCOLLAPSE: 4
+			},
 			BitmapCompression: {
 				BI_RGB: 0,
 				BI_RLE8: 1,
@@ -617,6 +622,49 @@ WMFJS.Pen.prototype.toString = function() {
 	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
 };
 
+WMFJS.PaletteEntry = function(reader, copy) {
+	if (reader != null) {
+		this.flag = reader.readUint8();
+		this.b = reader.readUint8();
+		this.g = reader.readUint8();
+		this.r = reader.readUint8();
+	} else {
+		this.flag = copy.flag;
+		this.b = copy.b;
+		this.g = copy.g;
+		this.r = copy.r;
+	}
+};
+
+WMFJS.PaletteEntry.prototype.clone = function() {
+	return new WMFJS.PaletteEntry(null, this);
+};
+
+WMFJS.Palette = function(reader, copy) {
+	WMFJS.Obj.call(this, "palette");
+	if (reader != null) {
+		this.start = reader.readUint16();
+		var cnt = reader.readUint16();
+		this.entries = [];
+		while (cnt > 0) {
+			this.entries.push(new WMFJS.PaletteEntry(reader));
+	} else {
+		this.start = copy.start;
+		this.entries = [];
+		var len = copy.entries.length;
+		for (var i = 0; i < len; i++)
+			entries.push(copy.entries[i.clone()]);
+	}
+};
+WMFJS.Palette.prototype = Object.create(WMFJS.Obj.prototype);
+
+WMFJS.Palette.prototype.clone = function() {
+	return new WMFJS.Palette(null, this);
+};
+
+WMFJS.Palette.prototype.toString = function() {
+};
+
 WMFJS.BitmapCoreHeader = function(reader, skipsize) {
 	if (skipsize)
 		reader.skip(4);
@@ -815,8 +863,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		};
 		
 		this.selected = {};
-		for (var type in defObjects)
-			this.selected[type] = defObjects[type].clone();
+		for (var type in defObjects) {
+			var defObj = defObjects[type];
+			this.selected[type] = defObj != null ? defObj.clone() : null;
+		}
 	}
 }
 
@@ -826,7 +876,8 @@ WMFJS.GDIContext = function(svg) {
 	this.defObjects = {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0)),
 		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0), 0, 0),
-		font: new WMFJS.Font(null, null)
+		font: new WMFJS.Font(null, null),
+		palette: null
 	};
 	
 	this.state = new WMFJS.GDIContextState(null, this.defObjects);
@@ -1258,6 +1309,11 @@ WMFJS.GDIContext.prototype.createPen = function(pen) {
 	console.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
 };
 
+WMFJS.GDIContext.prototype.createPalette = function(palette) {
+	var idx = this._storeObject(palette);
+	console.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
+};
+
 WMFJS.GDIContext.prototype.selectObject = function(objIdx) {
 	var obj = this._getObject(objIdx);
 	if (obj != null)
@@ -1684,6 +1740,16 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(points)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
+				var palette = new WMFJS.Palette(reader);
+				this._records.push(
+					(function(palette) {
+						return function(gdi) {
+							gdi.createPalette(palette);
+						}
+					})(palette)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1717,7 +1783,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
-			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
 			case WMFJS.GDI.RecordType.META_CREATEPATTERNBRUSH:
 			case WMFJS.GDI.RecordType.META_CREATEREGION:
 				console.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
