@@ -233,7 +233,7 @@ if (typeof WMFJS === 'undefined') {
 				PS_ALTERNATE: 8,
 				PS_ENDCAP_SQUARE: 256,
 				PS_ENDCAP_FLAT: 512,
-				PS_JOIN_BEVE: 4096,
+				PS_JOIN_BEVEL: 4096,
 				PS_JOIN_MITER: 8192
 			},
 			PolyFillMode: {
@@ -583,26 +583,31 @@ WMFJS.Brush.prototype.toString = function() {
 	return ret + "}";
 };
 
-WMFJS.Pen = function(reader, style, width, color) {
+WMFJS.Pen = function(reader, style, width, color, linecap, join) {
 	WMFJS.Obj.call(this, "pen");
 	if (reader != null) {
-		this.style = reader.readUint16();
+		var style = reader.readUint16();
+		this.style = style & 0xFF;
 		this.width = new WMFJS.PointS(reader);
 		this.color = new WMFJS.ColorRef(reader);
+		this.linecap = (style & (WMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE | WMFJS.GDI.PenStyle.PS_ENDCAP_FLAT));
+		this.join = (style & (WMFJS.GDI.PenStyle.PS_JOIN_BEVEL | WMFJS.GDI.PenStyle.PS_JOIN_MITER));
 	} else {
 		this.style = style;
 		this.width = width;
 		this.color = color;
+		this.linecap = linecap;
+		this.join = join;
 	}
 };
 WMFJS.Pen.prototype = Object.create(WMFJS.Obj.prototype);
 
 WMFJS.Pen.prototype.clone = function() {
-	return new WMFJS.Pen(null, this.style, this.width.clone(), this.color.clone());
+	return new WMFJS.Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
 };
 
 WMFJS.Pen.prototype.toString = function() {
-	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
+	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
 };
 
 WMFJS.BitmapCoreHeader = function(reader, skipsize) {
@@ -813,7 +818,7 @@ WMFJS.GDIContext = function(svg) {
 	
 	this.defObjects = {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0)),
-		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0)),
+		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0), 0, 0),
 		font: new WMFJS.Font(null, null)
 	};
 	
@@ -1026,20 +1031,52 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	if (opts == null)
 		opts = {};
 	if (usePen) {
-		if (this.state.selected.pen.style != WMFJS.GDI.PenStyle.PS_NULL) {
-			opts.stroke =  "#" + this.state.selected.pen.color.toHex(), // TODO: pen style
-			opts.strokeWidth = this._todevW(this.state.selected.pen.width.x) // TODO: is .y ever used?
+		var pen = this.state.selected.pen;
+		if (pen.style != WMFJS.GDI.PenStyle.PS_NULL) {
+			opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
+			opts.strokeWidth = this._todevW(pen.width.x) // TODO: is .y ever used?
+			
+			var dotWidth;
+			if ((pen.linecap & WMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
+				opts["stroke-linecap"] = "square";
+				dotWidth = 1;
+			} else if ((pen.linecap & WMFJS.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
+				opts["stroke-linecap"] = "butt";
+				dotWidth = opts.strokeWidth;
+			} else {
+				opts["stroke-linecap"] = "round";
+				dotWidth = 1;
+			}
+			
+			var dashWidth = opts.strokeWidth * 4;
+			var dotSpacing = opts.strokeWidth * 2;
+			switch (pen.style) {
+				case WMFJS.GDI.PenStyle.PS_DASH:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
+					break;
+				case WMFJS.GDI.PenStyle.PS_DOT:
+					opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
+					break;
+				case WMFJS.GDI.PenStyle.PS_DASHDOT:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
+					break;
+				case WMFJS.GDI.PenStyle.PS_DASHDOTDOT:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+					break;
+			}
 		}
 	}
 	if (useBrush) {
-		if (this.state.selected.brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
-			opts.fill = "#" + this.state.selected.brush.color.toHex(); // TODO: brush styles
+		var brush = this.state.selected.brush;
+		if (brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
+			opts.fill = "#" +brush.color.toHex(); // TODO: brush styles
 		else
 			opts.fill = "none";
 	}
 	if (useFont) {
-		opts["font-family"] = this.state.selected.font.facename;
-		opts["font-size"] = this._todevH(Math.abs(this.state.selected.font.height));
+		var font = this.state.selected.font;
+		opts["font-family"] = font.facename;
+		opts["font-size"] = this._todevH(Math.abs(font.height));
 		opts["fill"] = "#" + this.state.textcolor.toHex();
 	}
 	return opts;
