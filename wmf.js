@@ -240,6 +240,11 @@ if (typeof WMFJS === 'undefined') {
 				ALTERNATE: 1,
 				WINDING: 2
 			},
+			ColorUsage: {
+				DIB_RGB_COLORS: 0,
+				DIB_PAL_COLORS: 1,
+				DIB_PAL_INDICES: 2
+			},
 			BitmapCompression: {
 				BI_RGB: 0,
 				BI_RLE8: 1,
@@ -518,22 +523,24 @@ WMFJS.Font.prototype.toString = function() {
 	return JSON.stringify(this);
 };
 
-WMFJS.Brush = function(reader, copy) {
+WMFJS.Brush = function(reader, copy, forceDibPattern) {
 	WMFJS.Obj.call(this, "brush");
 	if (reader != null) {
 		var dataLength = copy;
 		var start = reader.pos;
 		this.style = reader.readUint16();
+		if (forceDibPattern && this.style != WMFJS.GDI.BrushStyle.BS_PATTERN)
+			this.style = WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT;
 		switch (this.style) {
 			case WMFJS.GDI.BrushStyle.BS_SOLID:
 				this.color = new WMFJS.ColorRef(reader);
 				break;
 			case WMFJS.GDI.BrushStyle.BS_PATTERN:
-				reader.skip(4);
+				reader.skip(forceDibPattern ? 2 : 4);
 				this.pattern = new WMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
 				break;
 			case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-				this.colorusage = reader.readUint32();
+				this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
 				this.dibpatternpt = new WMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
 				break;
 			case WMFJS.GDI.BrushStyle.BS_HATCHED:
@@ -1487,7 +1494,18 @@ WMFJS.WMFRecords = function(reader, first) {
 				break;
 			case WMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
 				var datalength = size * 2 - (reader.pos - curpos);
-				var brush = new WMFJS.Brush(reader, datalength);
+				var brush = new WMFJS.Brush(reader, datalength, false);
+				this._records.push(
+					(function(brush, datalength) {
+						return function(gdi) {
+							gdi.createBrush(brush);
+						}
+					})(brush, datalength)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
+				var datalength = size * 2 - (reader.pos - curpos);
+				var brush = new WMFJS.Brush(reader, datalength, true);
 				this._records.push(
 					(function(brush, datalength) {
 						return function(gdi) {
@@ -1672,7 +1690,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_SETRELABS:
 			case WMFJS.GDI.RecordType.META_SETTEXTCHAREXTRA:
 			case WMFJS.GDI.RecordType.META_RESIZEPALETTE:
-			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
 			case WMFJS.GDI.RecordType.META_SETLAYOUT:
 			case WMFJS.GDI.RecordType.META_OFFSETCLIPRGN:
 			case WMFJS.GDI.RecordType.META_FILLREGION:
