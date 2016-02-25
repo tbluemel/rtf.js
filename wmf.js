@@ -829,6 +829,8 @@ WMFJS.GDIContext = function(svg) {
 
 WMFJS.GDIContext.prototype._pushGroup = function() {
 	if (this.state._svggroup == null) {
+		this.state._svgtextbkfilter = null;
+		
 		var settings = {
 			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
 			preserveAspectRatio: "none"
@@ -950,6 +952,13 @@ WMFJS.GDIContext.prototype.setWindowExt = function(x, y) {
 	this.state._svggroup = null;
 };
 
+WMFJS.GDIContext.prototype.offsetWindowOrg = function(offX, offY) {
+	console.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
+	this.state.wx += offX;
+	this.state.wy += offY;
+	this.state._svggroup = null;
+};
+
 WMFJS.GDIContext.prototype.setViewportOrg = function(x, y) {
 	console.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
 	this.state.vx = x;
@@ -961,6 +970,13 @@ WMFJS.GDIContext.prototype.setViewportExt = function(x, y) {
 	console.log("[gdi] setViewportExt: x=" + x + " y=" + y);
 	this.state.vw = x;
 	this.state.vh = y;
+	this.state._svggroup = null;
+};
+
+WMFJS.GDIContext.prototype.offsetViewportOrg = function(offX, offY) {
+	console.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
+	this.state.vx += offX;
+	this.state.vy += offY;
 	this.state._svggroup = null;
 };
 
@@ -1069,7 +1085,7 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	if (useBrush) {
 		var brush = this.state.selected.brush;
 		if (brush.style == WMFJS.GDI.BrushStyle.BS_SOLID)
-			opts.fill = "#" +brush.color.toHex(); // TODO: brush styles
+			opts.fill = "#" + brush.color.toHex(); // TODO: brush styles
 		else
 			opts.fill = "none";
 	}
@@ -1123,15 +1139,20 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 
 WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	console.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-	x = this._todevX(x);
-	y = this._todevY(y);
+	var toX = this._todevX(x);
+	var toY = this._todevY(y);
 	var fromX = this._todevX(this.state.x);
 	var fromY = this._todevY(this.state.y);
-	console.log("[gdi] lineTo: TRANSLATED: x=" + x + " y=" + y + " fromX=" + fromX + " fromY=" + fromY);
+	
+	// Update position
+	this.state.x = x;
+	this.state.y = y;
+	
+	console.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
 	
 	var opts = this._applyOpts(null, true, false, false);
-	this._svg.line(this.state._svggroup, fromX, fromY, x, y, opts);
+	this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
 }
 
 WMFJS.GDIContext.prototype.moveTo = function(x, y) {
@@ -1173,7 +1194,7 @@ WMFJS.GDIContext.prototype.polyline = function(points) {
 	}
 	console.log("[gdi] polyline: TRANSLATED: pts=" + pts);
 	this._pushGroup();
-	var opts = this._applyOpts(null, true, true, false);
+	var opts = this._applyOpts({fill: "none"}, true, false, false);
 	this._svg.polyline(this.state._svggroup, pts, opts);
 };
 
@@ -1298,6 +1319,50 @@ WMFJS.WMFRecords = function(reader, first) {
 							gdi.setWindowExt(x, y);
 						}
 					})(y, x)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_OFFSETWINDOWORG:
+				var offY = reader.readInt16();
+				var offX = reader.readInt16();
+				this._records.push(
+					(function(offY, offX) {
+						return function(gdi) {
+							gdi.offsetWindowOrg(offX, offY);
+						}
+					})(offY, offX)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_SETVIEWPORTORG:
+				var y = reader.readInt16();
+				var x = reader.readInt16();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setViewportOrg(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_SETVIEWPORTEXT:
+				var y = reader.readInt16();
+				var x = reader.readInt16();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setViewportExt(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_OFFSETVIEWPORTORG:
+				var offY = reader.readInt16();
+				var offX = reader.readInt16();
+				this._records.push(
+					(function(offY, offX) {
+						return function(gdi) {
+							gdi.offsetViewportOrg(offX, offY);
+						}
+					})(offY, offX)
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_SAVEDC:
@@ -1609,15 +1674,11 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_RESIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
 			case WMFJS.GDI.RecordType.META_SETLAYOUT:
-			case WMFJS.GDI.RecordType.META_OFFSETVIEWPORTORG:
 			case WMFJS.GDI.RecordType.META_OFFSETCLIPRGN:
 			case WMFJS.GDI.RecordType.META_FILLREGION:
 			case WMFJS.GDI.RecordType.META_SETMAPPERFLAGS:
 			case WMFJS.GDI.RecordType.META_SELECTPALETTE:
 			case WMFJS.GDI.RecordType.META_SETTEXTJUSTIFICATION:
-			case WMFJS.GDI.RecordType.META_SETVIEWPORTORG:
-			case WMFJS.GDI.RecordType.META_SETVIEWPORTEXT:
-			case WMFJS.GDI.RecordType.META_OFFSETWINDOWORG:
 			case WMFJS.GDI.RecordType.META_SCALEWINDOWEXT:
 			case WMFJS.GDI.RecordType.META_SCALEVIEWPORTEXT:
 			case WMFJS.GDI.RecordType.META_ELLIPSE:
