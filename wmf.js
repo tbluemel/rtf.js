@@ -646,7 +646,7 @@ WMFJS.Palette = function(reader, copy) {
 		this.start = reader.readUint16();
 		var cnt = reader.readUint16();
 		this.entries = [];
-		while (cnt > 0) {
+		while (cnt > 0)
 			this.entries.push(new WMFJS.PaletteEntry(reader));
 	} else {
 		this.start = copy.start;
