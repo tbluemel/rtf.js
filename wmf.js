@@ -428,15 +428,15 @@ WMFJS.PointS.prototype.toString = function() {
 
 WMFJS.Rect = function(reader, left, top, right, bottom) {
 	if (reader != null) {
-		this.left = reader.readInt16();
-		this.top = reader.readInt16();
-		this.right = reader.readInt16();
 		this.bottom = reader.readInt16();
+		this.right = reader.readInt16();
+		this.top = reader.readInt16();
+		this.left = reader.readInt16();
 	} else {
-		this.left = left;
-		this.top = top;
-		this.right = right;
 		this.bottom = bottom;
+		this.right = right;
+		this.top = top;
+		this.left = left;
 	}
 };
 
@@ -1156,12 +1156,12 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	return opts;
 };
 
-WMFJS.GDIContext.prototype.rectangle = function(bottom, right, top, left) {
-	console.log("[gdi] rectangle: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-	bottom = this._todevY(bottom);
-	right = this._todevX(right);
-	top = this._todevY(top);
-	left = this._todevX(left);
+WMFJS.GDIContext.prototype.rectangle = function(rect) {
+	console.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var bottom = this._todevY(rect.bottom);
+	var right = this._todevX(rect.right);
+	var top = this._todevY(rect.top);
+	var left = this._todevX(rect.left);
 	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
 	this._pushGroup();
 	
@@ -1254,6 +1254,20 @@ WMFJS.GDIContext.prototype.polyline = function(points) {
 	this._pushGroup();
 	var opts = this._applyOpts({fill: "none"}, true, false, false);
 	this._svg.polyline(this.state._svggroup, pts, opts);
+};
+
+WMFJS.GDIContext.prototype.ellipse = function(rect) {
+	console.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var bottom = this._todevY(rect.bottom);
+	var right = this._todevX(rect.right);
+	var top = this._todevY(rect.top);
+	var left = this._todevX(rect.left);
+	console.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+	this._pushGroup();
+	var width2 = (right - left) / 2;
+	var height2 = (bottom - top) / 2;
+	var opts = this._applyOpts(null, true, true, false);
+	this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
 };
 
 WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
@@ -1612,16 +1626,13 @@ WMFJS.WMFRecords = function(reader, first) {
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_RECTANGLE:
-				var bottom = reader.readInt16();
-				var right = reader.readInt16();
-				var top = reader.readInt16();
-				var left = reader.readInt16();
+				var rect = new WMFJS.Rect(reader);
 				this._records.push(
-					(function(bottom, right, top, left) {
+					(function(rect) {
 						return function(gdi) {
-							gdi.rectangle(bottom, right, top, left);
+							gdi.rectangle(rect);
 						}
-					})(bottom, right, top, left)
+					})(rect)
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_LINETO:
@@ -1663,11 +1674,7 @@ WMFJS.WMFRecords = function(reader, first) {
 				}
 				break;
 			case WMFJS.GDI.RecordType.META_EXCLUDECLIPRECT:
-				var bottom = reader.readInt16();
-				var right = reader.readInt16();
-				var top = reader.readInt16();
-				var left = reader.readInt16();
-				var rect = new WMFJS.Rect(null, left, top, right, bottom);
+				var rect = new WMFJS.Rect(reader);
 				this._records.push(
 					(function(rect) {
 						return function(gdi) {
@@ -1677,11 +1684,7 @@ WMFJS.WMFRecords = function(reader, first) {
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_INTERSECTCLIPRECT:
-				var bottom = reader.readInt16();
-				var right = reader.readInt16();
-				var top = reader.readInt16();
-				var left = reader.readInt16();
-				var rect = new WMFJS.Rect(null, left, top, right, bottom);
+				var rect = new WMFJS.Rect(reader);
 				this._records.push(
 					(function(rect) {
 						return function(gdi) {
@@ -1740,6 +1743,16 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(points)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_ELLIPSE:
+				var rect = new WMFJS.Rect(reader);
+				this._records.push(
+					(function(rect) {
+						return function(gdi) {
+							gdi.ellipse(rect);
+						}
+					})(rect)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_CREATEPALETTE:
 				var palette = new WMFJS.Palette(reader);
 				this._records.push(
@@ -1764,7 +1777,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_SETTEXTJUSTIFICATION:
 			case WMFJS.GDI.RecordType.META_SCALEWINDOWEXT:
 			case WMFJS.GDI.RecordType.META_SCALEVIEWPORTEXT:
-			case WMFJS.GDI.RecordType.META_ELLIPSE:
 			case WMFJS.GDI.RecordType.META_FLOODFILL:
 			case WMFJS.GDI.RecordType.META_FRAMEREGION:
 			case WMFJS.GDI.RecordType.META_ANIMATEPALETTE:
