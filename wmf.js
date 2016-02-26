@@ -663,7 +663,72 @@ WMFJS.Palette.prototype.clone = function() {
 };
 
 WMFJS.Palette.prototype.toString = function() {
+	return "{ #entries: " + this.entries.length + "}"; // TODO
 };
+
+WMFJS.Scan = function(reader, copy) {
+	if (reader != null) {
+		var cnt = reader.readUint16();
+		this.top = reader.readUint16();
+		this.bottom = reader.readUint16();
+		this.scanlines = [];
+		for (var i = 0; i < cnt; i++) {
+			var left = reader.readUint16();
+			var right = reader.readUint16();
+			this.scanlines.push({left: left, right: right});
+		}
+		reader.skip(2);
+	} else {
+		this.top = copy.top;
+		this.bottom = copy.bottom;
+		this.scanlines = [];
+		for (var i = 0; i < copy.scanlines.length; i++) {
+			var scanline = copy.scanlines[i];
+			this.scanlines.push({left: scanline.left, right: scanline.right});
+		}
+	}
+};
+
+WMFJS.Scan.prototype.clone = function() {
+	return new WMFJS.Scan(null, this);
+};
+
+WMFJS.Scan.prototype.toString = function() {
+	return "{ #scanlines: " + this.scanlines.length + " bounds: " + this.bounds.toString() + "}";
+};
+
+WMFJS.Region = function(reader, copy) {
+	WMFJS.Obj.call(this, "region");
+	if (reader != null) {
+		reader.skip(8);
+		var rgnSize = reader.readInt16();
+		var scanCnt = reader.readInt16();
+		reader.skip(2);
+		// note, Rect in reverse, can't use WMFJS.Rect(reader) directly
+		var left = reader.readInt16();
+		var top = reader.readInt16();
+		var right = reader.readInt16();
+		var bottom = reader.readInt16();
+		this.bounds = new WMFJS.Rect(null, left, top, right, bottom);
+		this.scans = [];
+		for (var i = 0; i < scanCnt; i++)
+			this.scans.push(new WMFJS.Scan(reader));
+	} else {
+		this.bounds = copy.bounds.clone();
+		this.scans = [];
+		for (var i = 0; i < copy.scans.length; i++)
+			this.scans.push(copy.scans[i].clone());
+	}
+};
+WMFJS.Region.prototype = Object.create(WMFJS.Obj.prototype);
+
+WMFJS.Region.prototype.clone = function() {
+	return new WMFJS.Region(null, this);
+};
+
+WMFJS.Region.prototype.toString = function() {
+};
+
 
 WMFJS.BitmapCoreHeader = function(reader, skipsize) {
 	if (skipsize)
@@ -877,7 +942,8 @@ WMFJS.GDIContext = function(svg) {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0)),
 		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0), 0, 0),
 		font: new WMFJS.Font(null, null),
-		palette: null
+		palette: null,
+		region: null
 	};
 	
 	this.state = new WMFJS.GDIContextState(null, this.defObjects);
@@ -1328,6 +1394,11 @@ WMFJS.GDIContext.prototype.createPalette = function(palette) {
 	console.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
 };
 
+WMFJS.GDIContext.prototype.createRegion = function(region) {
+	var idx = this._storeObject(region);
+	console.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
+};
+
 WMFJS.GDIContext.prototype.selectObject = function(objIdx) {
 	var obj = this._getObject(objIdx);
 	if (obj != null)
@@ -1763,6 +1834,16 @@ WMFJS.WMFRecords = function(reader, first) {
 					})(palette)
 				);
 				break;
+			case WMFJS.GDI.RecordType.META_CREATEREGION:
+				var region = new WMFJS.Region(reader);
+				this._records.push(
+					(function(region) {
+						return function(gdi) {
+							gdi.createRegion(region);
+						}
+					})(region)
+				);
+				break;
 			case WMFJS.GDI.RecordType.META_REALIZEPALETTE:
 			case WMFJS.GDI.RecordType.META_SETPALENTRIES:
 			case WMFJS.GDI.RecordType.META_SETROP2:
@@ -1796,7 +1877,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
 			case WMFJS.GDI.RecordType.META_CREATEPATTERNBRUSH:
-			case WMFJS.GDI.RecordType.META_CREATEREGION:
 				console.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				break;
 			default:
