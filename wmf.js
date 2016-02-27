@@ -1082,6 +1082,7 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 
 WMFJS.GDIContext = function(svg) {
 	this._svg = svg;
+	this._svgdefs = null;
 	this._svgPatterns = {};
 	
 	this.defObjects = {
@@ -1129,7 +1130,13 @@ WMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	if (obj == null)
 		console.log("[gdi] No object with handle " + objIdx);
 	return obj;
-}
+};
+
+WMFJS.GDIContext.prototype._getSvgDef = function() {
+	if (this._svgdefs == null)
+		this._svgdefs = this._svg.defs();
+	return this._svgdefs;
+};
 
 WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 	for (var id in this._svgPatterns) {
@@ -1154,7 +1161,7 @@ WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 	}
 	
 	var id = WMFJS._makeUniqueId("p");
-	var spat = this._svg.pattern(id, 0, 0, width, height, {patternUnits: 'userSpaceOnUse'});
+	var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, {patternUnits: 'userSpaceOnUse'});
 	this._svg.image(spat, 0, 0, width, height, img);
 	this._svgPatterns[id] = brush;
 	return id;
@@ -1370,6 +1377,13 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 				dotWidth = 1;
 			}
 			
+			if ((pen.join & WMFJS.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
+				opts["stroke-linejoin"] = "bevel";
+			else if ((pen.join & WMFJS.GDI.PenStyle.PS_JOIN_MITER) != 0)
+				opts["stroke-linejoin"] = "miter";
+			else
+				opts["stroke-linejoin"] = "round";
+			
 			var dashWidth = opts.strokeWidth * 4;
 			var dotSpacing = opts.strokeWidth * 2;
 			switch (pen.style) {
@@ -1398,7 +1412,11 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 			case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
 				opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
 				break;
+			case WMFJS.GDI.BrushStyle.BS_NULL:
+				opts.fill = "none";
+				break;
 			default:
+				console.log("[gdi] unsupported brush style: " + brush.style);
 				opts.fill = "none";
 				break;
 		}
@@ -1440,7 +1458,7 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 	if (this.state.bkmode == WMFJS.GDI.MixMode.OPAQUE) {
 		if (this.state._svgtextbkfilter == null) {
 			var filterId = WMFJS._makeUniqueId("f");
-			var filter = this._svg.filter(this.state._svggroup, filterId, 0, 0, 1, 1);
+			var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
 			this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
 			this._svg.filters.composite(filter, null, null, "SourceGraphic");
 			this.state._svgtextbkfilter = filter;
