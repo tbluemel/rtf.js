@@ -1294,6 +1294,7 @@ WMFJS.PolyPolygon = function(reader) {
 WMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
+		this._svgclipChanged = copy._svgclipChanged;
 		this._svgtextbkfilter = copy._svgtextbkfilter;
 		this.mapmode = copy.mapmode;
 		this.stretchmode = copy.stretchmode;
@@ -1313,13 +1314,15 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.x = copy.x;
 		this.y = copy.y;
 		
-		this.clip = copy.clip != null ? copy.clip.clone() : null;
+		this.clip = copy.clip;
+		this.ownclip = false;
 		
 		this.selected = {};
 		for (var type in copy.selected)
 			this.selected[type] = copy.selected[type];
 	} else {
 		this._svggroup = null;
+		this._svgclipChanged = false;
 		this._svgtextbkfilter = null;
 		this.Id = null;
 		this.mapmode = WMFJS.GDI.MapMode.MM_ANISOTROPIC;
@@ -1341,6 +1344,7 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.y = 0;
 		
 		this.clip = null;
+		this.ownclip = false;
 		
 		this.selected = {};
 		for (var type in defObjects) {
@@ -1354,6 +1358,7 @@ WMFJS.GDIContext = function(svg) {
 	this._svg = svg;
 	this._svgdefs = null;
 	this._svgPatterns = {};
+	this._svgClipPaths = {};
 	
 	this.defObjects = {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0), false),
@@ -1369,14 +1374,20 @@ WMFJS.GDIContext = function(svg) {
 };
 
 WMFJS.GDIContext.prototype._pushGroup = function() {
-	if (this.state._svggroup == null) {
+	if (this.state._svggroup == null || this.state._svgclipChanged) {
+		this.state._svgclipChanged = false;
 		this.state._svgtextbkfilter = null;
 		
 		var settings = {
 			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
 			preserveAspectRatio: "none"
 		};
-		console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh);
+		if (this.state.clip != null) {
+			console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+			settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
+		}
+		else
+			console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
 		this.state._svggroup = this._svg.svg(this.state._svggroup,
 			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
 	}
@@ -1406,6 +1417,38 @@ WMFJS.GDIContext.prototype._getSvgDef = function() {
 	if (this._svgdefs == null)
 		this._svgdefs = this._svg.defs();
 	return this._svgdefs;
+};
+
+
+WMFJS.GDIContext.prototype._getSvgClipPathForRegion = function(region) {
+	for (var id in this._svgClipPaths) {
+		var rgn = this._svgClipPaths[id];
+		if (rgn == region)
+			return id;
+	}
+	
+	var id = WMFJS._makeUniqueId("c");
+	var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
+	switch (region.complexity) {
+		case 1:
+			this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top),
+				this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top),
+				{ fill: 'black', strokeWidth: 0 });
+			break;
+		case 2:
+			for (var i = 0; i < region.scans.length; i++) {
+				var scan = region.scans[i];
+				for (var j = 0; j < scan.scanlines.length; j++) {
+					var scanline = scan.scanlines[j];
+					this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top),
+						this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top),
+						{ fill: 'black', strokeWidth: 0 });
+				}
+			}
+			break;
+	};
+	this._svgClipPaths[id] = region;
+	return id;
 };
 
 WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
@@ -1439,6 +1482,8 @@ WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 
 WMFJS.GDIContext.prototype._selectObject = function(obj) {
 	this.state.selected[obj.type] = obj;
+	if (obj.type == "region")
+		this.state._svgclipChanged = true;
 };
 
 WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
@@ -1458,12 +1503,16 @@ WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
 };
 
 WMFJS.GDIContext.prototype._getClipRgn = function() {
-	if (this.state.clip != null)
-		return this.state.clip;
-	if (this.state.selected.region != null)
-		this.state.clip = this.state.selected.region.clone();
-	else
-		this.state.clip = WMFJS.CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+	if (this.state.clip != null) {
+		if (!this.state.ownclip)
+			this.state.clip = this.state.clip.clone();
+	} else {
+		if (this.state.selected.region != null)
+			this.state.clip = this.state.selected.region.clone();
+		else
+			this.state.clip = WMFJS.CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+	}
+	this.state.ownclip = true;
 	return this.state.clip;
 };
 
@@ -1817,19 +1866,16 @@ WMFJS.GDIContext.prototype.ellipse = function(rect) {
 WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
 	console.log("[gdi] excludeClipRect: rect=" + rect.toString());
 	this._getClipRgn().subtract(rect);
-	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.intersectClipRect = function(rect) {
 	console.log("[gdi] intersectClipRect: rect=" + rect.toString());
 	this._getClipRgn().intersect(rect);
-	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.offsetClipRgn = function(offX, offY) {
 	console.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
 	this._getClipRgn().offset(offX, offY);
-	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
