@@ -1749,17 +1749,19 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	return opts;
 };
 
-WMFJS.GDIContext.prototype.rectangle = function(rect) {
+WMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 	console.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var bottom = this._todevY(rect.bottom);
 	var right = this._todevX(rect.right);
 	var top = this._todevY(rect.top);
 	var left = this._todevX(rect.left);
-	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+	rw = this._todevH(rw);
+	rh = this._todevH(rh);
+	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
 	this._pushGroup();
 	
 	var opts = this._applyOpts(null, true, true, false);
-	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, 0, 0, opts);
+	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
 };
 
 WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
@@ -2259,9 +2261,21 @@ WMFJS.WMFRecords = function(reader, first) {
 				this._records.push(
 					(function(rect) {
 						return function(gdi) {
-							gdi.rectangle(rect);
+							gdi.rectangle(rect, 0, 0);
 						}
 					})(rect)
+				);
+				break;
+			case WMFJS.GDI.RecordType.META_ROUNDRECT:
+				var rh = reader.readInt16();
+				var rw = reader.readInt16();
+				var rect = new WMFJS.Rect(reader);
+				this._records.push(
+					(function(rh, rw, rect) {
+						return function(gdi) {
+							gdi.rectangle(rect, rw, rh);
+						}
+					})(rh, rw, rect)
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_LINETO:
