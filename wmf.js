@@ -448,6 +448,20 @@ WMFJS.Rect.prototype.toString = function() {
 	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
 };
 
+WMFJS.Rect.prototype.empty = function() {
+	return this.left >= this.right || this.top >= this.bottom;
+};
+
+WMFJS.Rect.prototype.intersect = function(rect) {
+	if (this.empty() || rect.empty())
+		return null;
+	if (this.left >= rect.right || this.top >= rect.bottom ||
+		this.right <= rect.left || this.bottom <= rect.top) {
+		return null;
+	}
+	return new WMFJS.Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top), Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
+};
+
 WMFJS.Obj = function(type) {
 	this.type = type;
 }
@@ -672,7 +686,7 @@ WMFJS.Palette.prototype.toString = function() {
 	return "{ #entries: " + this.entries.length + "}"; // TODO
 };
 
-WMFJS.Scan = function(reader, copy) {
+WMFJS.Scan = function(reader, copy, top, bottom, scanlines) {
 	if (reader != null) {
 		var cnt = reader.readUint16();
 		this.top = reader.readUint16();
@@ -684,7 +698,7 @@ WMFJS.Scan = function(reader, copy) {
 			this.scanlines.push({left: left, right: right});
 		}
 		reader.skip(2);
-	} else {
+	} else if (copy != null) {
 		this.top = copy.top;
 		this.bottom = copy.bottom;
 		this.scanlines = [];
@@ -692,11 +706,94 @@ WMFJS.Scan = function(reader, copy) {
 			var scanline = copy.scanlines[i];
 			this.scanlines.push({left: scanline.left, right: scanline.right});
 		}
+	} else {
+		this.top = top;
+		this.bottom = bottom;
+		this.scanlines = scanlines;
 	}
 };
 
 WMFJS.Scan.prototype.clone = function() {
 	return new WMFJS.Scan(null, this);
+};
+
+WMFJS.Scan.prototype.subtract = function(left, right) {
+	var i;
+	
+	// Keep everything on the left side
+	i = 0;
+	while (i < this.scanlines.length) {
+		var scanline = this.scanlines[i];
+		if (scanline.left <= left) {
+			if (scanline.right >= left) {
+				scanline.right = left - 1;
+				if (scanline.left >= scanline.right) {
+					this.scanlines.splice(i, 1);
+					continue;
+				}
+			}
+			i++;
+		} else {
+			break;
+		}
+	}
+	
+	// Find the first one that may exceed to the right side
+	var first = i;
+	var cnt = 0;
+	while (i < this.scanlines.length) {
+		var scanline = this.scanlines[i];
+		if (scanline.right > right) {
+			scanline.left = right;
+			cnt = i - first;
+			if (scanline.left >= scanline.right)
+				cnt++;
+			break;
+		}
+		i++;
+	}
+	
+	// Delete everything we're subtracting
+	if (cnt > 0 && first < this.scanlines.length)
+		this.scanlines.splice(first, cnt);
+	
+	return this.scanlines.length > 0;
+};
+
+WMFJS.Scan.prototype.intersect = function(left, right) {
+	// Get rid of anything that falls entirely outside to the left
+	for (var i = 0; i < this.scanlines.length; i++) {
+		var scanline = this.scanlines[i];
+		if (scanline.left >= left || scanline.right >= left) {
+			if (i > 0)
+				this.scanlines.splice(0, i);
+			break;
+		}
+	}
+	
+	if (this.scanlines.length > 0) {
+		// Adjust the first to match the left, if needed
+		var scanline = this.scanlines[0];
+		if (scanline.left < left)
+			scanline.left = left;
+		
+		// Get rid of anything that falls entirely outside to the right
+		for (var i = 0; i < this.scanlines.length; i++) {
+			scanline = this.scanlines[i];
+			if (scanline.left > right) {
+				this.scanlines.splice(i, this.scanline.length - i);
+				break;
+			}
+		}
+		
+		if (this.scanlines.length > 0) {
+			// Adjust the last to match the right, if needed
+			scanline = this.scanlines[this.scanlines.length - 1];
+			if (scanline.right > right)
+				scanline.right = right;
+		}
+	}
+	return this.scanlines.length > 0;
 };
 
 WMFJS.Scan.prototype.toString = function() {
@@ -733,7 +830,7 @@ WMFJS.Region = function(reader, copy) {
 	} else {
 		this.bounds = null;
 		this.scans = null;
-		this.complexity = "null";
+		this.complexity = 0;
 	}
 };
 WMFJS.Region.prototype = Object.create(WMFJS.Obj.prototype);
@@ -743,23 +840,29 @@ WMFJS.Region.prototype.clone = function() {
 };
 
 WMFJS.Region.prototype.toString = function() {
-	return "{bounds: " + this.bounds.toString() + " #scans: " + this.scans.length + "}";
+	var _complexity = ["null", "simple", "complex"];
+	return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
 };
 
 WMFJS.Region.prototype._updateComplexity = function() {
-	if (this.bounds == null)
-		this.complexity = "null";
-	else if (this.scans == null)
-		this.complexity = "simple";
-	else {
-		this.complexity = "complex";
+	if (this.bounds == null) {
+		this.complexity = 0;
+		this.scans = null;
+	} else if (this.bounds.empty()) {
+		this.complexity = 0;
+		this.scans = null;
+		this.bounds = null;
+	} else if (this.scans == null) {
+		this.complexity = 1;
+	} else {
+		this.complexity = 2;
 		if (this.scans.length == 1) {
 			var scan = this.scans[0];
 			if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
 				var scanline = scan.scanlines[0];
 				if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
 					this.scans = null;
-					this.complexity = "simple";
+					this.complexity = 1;
 				}
 			}
 		}
@@ -767,11 +870,178 @@ WMFJS.Region.prototype._updateComplexity = function() {
 };
 
 WMFJS.Region.prototype.subtract = function(rect) {
-	console.log("[wmf] Region subtraction not implemented");
+	console.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
+	
+	if (this.bounds != null) {
+		var isect = this.bounds.intersect(rect);
+		if (isect != null) { // Only need to do anything if there is any chance of an overlap
+			if (this.scans == null) {
+				// We currently have a simple region and there is some kind of an overlap.
+				// We need to create scanlines now.  Simplest method is to fake one scan line
+				// that equals the simple region and re-use the same logic as for complex regions
+				this.scans = new WMFJS.Scan(null, null, this.bounds.top, this.bounds.bottom,
+					[{left: this.bounds.left, right: this.bounds.right}]);
+				this.complexity = 2;
+			}
+			
+			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
+			// The first scan that falls partially below rect.top needs to be split into two scans.
+			var si = 0;
+			while (si < this.scans.length) {
+				var scan = this.scans[si];
+				if (scan.bottom >= rect.top) {
+					// We need to clone this scan into two so that we can subtract from the second one
+					var cloned = scan.clone();
+					scan.bottom = rect.top - 1;
+					cloned.top = rect.top;
+					if (scan.top >= scan.bottom) {
+						this.scans[si] = cloned;
+					} else {
+						console.log("[wmf] Region split top scan " + si + " for substraction");
+						this.scans.splice(++si, 0, cloned);
+					}
+					break;
+				}
+				si++;
+			}
+			
+			// Now find the first one that falls at least partially below rect.bottom, which needs to be
+			// split if it is only partially below rect.bottom
+			var first = si;
+			while (si < this.scans.length) {
+				var scan = this.scans[si];
+				if (scan.top > rect.bottom)
+					break;
+				if (scan.bottom > rect.bottom) {
+					// We need to clone this scan into two so that we can subtract from the first one
+					var cloned = scan.clone();
+					scan.bottom = rect.bottom;
+					cloned.top = rect.bottom + 1;
+					if (scan.top >= scan.bottom) {
+						this.scans[si] = cloned;
+					} else {
+						console.log("[wmf] Region split bottom scan " + si + " for substraction");
+						this.scans.splice(++si, 0, clone);
+					}
+					break;
+				}
+				si++;
+			}
+			
+			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
+			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
+			// account for this anymore.
+			if (first < this.scans.length) {
+				var last = si;
+				si = first;
+				while (si < last) {
+					var scan = this.scans[si];
+					if (!scan.subtract(rect.left, rect.right)) {
+						console.log("[wmf] Region remove now empty scan " + si + " due to subtraction");
+						this.scans.splice(si, 1);
+						last--;
+						continue;
+					}
+					
+					si++;
+				}
+			}
+			
+			// Update bounds
+			if (this.scans != null) {
+				var left, top, right, bottom;
+				var len = this.scans.length;
+				for (var i = 0; i < len; i++) {
+					var scan = this.scans[i];
+					if (i == 0)
+						top = scan.top;
+					if (i == len - 1)
+						bottom = scan.bottom;
+					
+					var slen = scan.scanline.length;
+					if (slen > 0) {
+						var scanline = scan.scanline[0];
+						if (left == null || scanline.left < left)
+							left = scanline.left;
+						scanline = scan.scanline[slen - 1];
+						if (right == null || scanline.right > right)
+							right = scanline.right;
+					}
+				}
+				
+				if (left != null && top != null && right != null && bottom != null) {
+					this.bounds = new WMFJS.Rect(null, left, top, right, bottom);
+					this._updateComplexity();
+				} else {
+					// This has to be a null region now
+					this.bounds = null;
+					this.scans = null;
+					this.complexity = 0;
+				}
+			} else {
+				this._updateComplexity();
+			}
+		}
+	}
+	
+	console.log("[wmf] Region subtraction -> " + this.toString());
 };
 
 WMFJS.Region.prototype.intersect = function(rect) {
-	console.log("[wmf] Region intersection not implemented");
+	console.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
+	if (this.bounds != null) {
+		this.bounds = this.bounds.intersect(rect);
+		if (this.bounds != null) {
+			if (this.scans != null) {
+				var si = 0;
+				// Remove any scans that are entirely above the new bounds.top
+				while (si < this.scans.length) {
+					var scan = this.scans[si];
+					if (scan.bottom < this.bounds.top)
+						si++;
+					else
+						break;
+				}
+				if (si > 0) {
+					console.log("[wmf] Region remove " + si + " scans from top");
+					this.scans.splice(0, si);
+					
+					// Adjust the first scan's top to match the new bounds.top
+					if (this.scans.length > 0)
+						this.scans[0].top = this.bounds.top;
+				}
+				
+				// Get rid of anything that falls outside the new bounds.left/bounds.right
+				si = 0;
+				while (si < this.scans.length) {
+					var scan = this.scans[si];
+					if (scan.top > this.bounds.bottom) {
+						// Remove this and all remaining scans that fall entirely below the new bounds.bottom
+						console.log("[wmf] Region remove " + (this.scans.length - si) + " scans from bottom");
+						this.scans.splice(si, this.scans.length - si);
+						break;
+					}
+					if (!scan.intersect(this.bounds.left, this.bounds.right)) {
+						// Remove now empty scan
+						console.log("[wmf] Region remove now empty scan " + si + " due to intersection");
+						this.scans.splice(si, 1);
+						continue;
+					}
+					si++;
+				}
+				
+				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
+				if (this.scans.length > 0)
+					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
+				
+				this._updateComplexity();
+			}
+		} else {
+			this.scans = null;
+			this.complexity = 0;
+		}
+	}
+	console.log("[wmf] Region intersection -> " + this.toString());
 };
 
 WMFJS.Region.prototype.offset = function(offX, offY) {
@@ -802,7 +1072,7 @@ WMFJS.Region.prototype.offset = function(offX, offY) {
 WMFJS.CreateSimpleRegion = function(left, top, right, bottom) {
 	var rgn = new WMFJS.Region(null, null);
 	rgn.bounds = new WMFJS.Rect(null, left, top, right, bottom);
-	rgn.complexity = "simple";
+	rgn._updateComplexity();
 	return rgn;
 };
 
@@ -1193,7 +1463,7 @@ WMFJS.GDIContext.prototype._getClipRgn = function() {
 	if (this.state.selected.region != null)
 		this.state.clip = this.state.selected.region.clone();
 	else
-		this.state.clip = WMFJS.CreateSimpleRegion(this.state.wx, this.state.wx + this.state.ww, this.state.wy, this.state.wy + this.state.wh);
+		this.state.clip = WMFJS.CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
 	return this.state.clip;
 };
 
@@ -2223,11 +2493,11 @@ WMFJS.Renderer.prototype.parse = function(blob) {
 		throw new WMFJS.Error("Format not recognized");
 };
 
-WMFJS.Renderer.prototype._render = function(svg, info) {
+WMFJS.Renderer.prototype._render = function(svg, mapMode, xExt, yExt) {
 	// See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
 	var gdi = new WMFJS.GDIContext(svg);
-	gdi.setViewportExt(info.xExt, info.yExt);
-	gdi.setMapMode(info.mapMode);
+	gdi.setViewportExt(xExt, yExt);
+	gdi.setMapMode(mapMode);
 	console.log("[WMF] BEGIN RENDERING --->");
 	this._img.render(gdi);
 	console.log("[WMF] <--- DONE RENDERING");
@@ -2235,15 +2505,17 @@ WMFJS.Renderer.prototype._render = function(svg, info) {
 
 WMFJS.Renderer.prototype.render = function(info) {
 	var inst = this;
-	var img = $("<div>").svg({
-		onLoad: function(svg) {
-			return inst._render.call(inst, svg, info);
-		},
-		settings: {
-			viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-			preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-		}
-	});
+	var img = (function(mapMode, xExt, yExt) {
+		return $("<div>").svg({
+			onLoad: function(svg) {
+				return inst._render.call(inst, svg, mapMode, xExt, yExt);
+			},
+			settings: {
+				viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+				preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+			}
+		});
+	})(info.mapMode, info.xExt, info.yExt);
 	var svg = $(img[0]).svg("get");
 	return $(svg.root()).attr("width", info.width).attr("height", info.height);
 };
