@@ -2456,7 +2456,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_ANIMATEPALETTE:
 			case WMFJS.GDI.RecordType.META_EXTFLOODFILL:
 			case WMFJS.GDI.RecordType.META_SETPIXEL:
-			case WMFJS.GDI.RecordType.META_ROUNDRECT:
 			case WMFJS.GDI.RecordType.META_PATBLT:
 			case WMFJS.GDI.RecordType.META_PIE:
 			case WMFJS.GDI.RecordType.META_STRETCHBLT:
