@@ -200,6 +200,8 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 		el.css("font-weight", "bold");
 	if (chp.italic)
 		el.css("font-style", "italic");
+	if (chp.fontfamily)
+		el.css("font-family", doc._fonts[chp.fontfamily].fontname.replace(";",""));
 		
 	var deco = [];
 	if (chp.underline != RTFJS.UNDERLINE.NONE)
@@ -456,6 +458,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			this.dblstrikethrough = parent.dblstrikethrough;
 			this.colorindex = parent.colorindex;
 			this.fontsize = parent.fontsize;
+			this.fontfamily = parent.fontfamily;
 		} else {
 			this.bold = false;
 			this.underline = RTFJS.UNDERLINE.NONE;
@@ -763,6 +766,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			i: _genericFormatOnOff("chp", "italic"),
 			cf: _genericFormatSetValRequired("chp", "colorindex"),
 			fs: _genericFormatSetValRequired("chp", "fontsize"),
+			f: _genericFormatSetValRequired("chp", "fontfamily"),
 			strike: _genericFormatOnOff("chp", "strikethrough"),
 			striked: _genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
 			ul: _genericFormatOnOff("chp", "underline", RTFJS.UNDERLINE.CONTINUOUS, RTFJS.UNDERLINE.NONE),
@@ -1021,6 +1025,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 		var cls = function() {
 			DestinationBase.call(this, "fonttbl");
 			this._fonts = [];
+			this._sub = null;
 		};
 		cls.prototype.sub = function() {
 			var subCls = fonttblDestinationSub();
@@ -1031,6 +1036,18 @@ RTFJS.Document.prototype.parse = function(blob) {
 			for (var idx in this._fonts) {
 				console.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
 			}
+			inst._fonts = this._fonts;
+			delete this._fonts;
+		}
+		cls.prototype.appendText = function(text) {
+			this._sub.appendText(text);
+			this._sub.apply();
+		}
+		cls.prototype.handleKeyword = function(keyword, param) {
+			if(keyword === "f") {
+				this._sub = this.sub();
+			}
+			this._sub.handleKeyword(keyword, param);
 		}
 		cls.prototype.addSub = function(sub) {
 			this._fonts[sub.index] = sub;
