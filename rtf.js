@@ -466,7 +466,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			this.strikethrough = false;
 			this.dblstrikethrough = false;
 			this.colorindex = 0;
-			this.fontsize = 12;
+			this.fontsize = 24;
 		}
 	};
 	
