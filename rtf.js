@@ -29,6 +29,12 @@ if (typeof RTFJS === "undefined") {
 		Error: function(message) {
 			this.message = message;
 		},
+		loggingEnabled: true,
+		log: function(message){
+			if(RTFJS.loggingEnabled) {
+				console.log(message);
+			}
+		},
 		_A: "A".charCodeAt(0),
 		_a: "a".charCodeAt(0),
 		_F: "F".charCodeAt(0),
@@ -609,7 +615,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 				return state.destination;
 			state = state.parent;
 		}
-		console.log("findParentDestination() did not find destination " + dest);
+		RTFJS.log("findParentDestination() did not find destination " + dest);
 	};
 	
 	var DestinationBase = function(name) {
@@ -674,11 +680,11 @@ RTFJS.Document.prototype.parse = function(blob) {
 			inst._renderer.addIns(func);
 		};
 		cls.prototype.appendText = function(text) {
-			console.log("[rtf] output: " + text);
+			RTFJS.log("[rtf] output: " + text);
 			inst._renderer.addIns(text);
 		}
 		cls.prototype.sub = function() {
-			console.log("[rtf].sub()");
+			RTFJS.log("[rtf].sub()");
 		}
 		
 		var _addInsHandler = function(func) {
@@ -706,7 +712,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = val;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				_addFormatIns(ptype, props);
 			};
 		};
@@ -714,7 +720,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				_addFormatIns(ptype, props);
 			};
 		};
@@ -722,7 +728,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null) ? defaultval : param;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				_addFormatIns(ptype, props);
 			};
 		};
@@ -732,7 +738,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					throw new RTFJS.Error("Keyword without required param");
 				var props = parser.state[ptype];
 				props[prop] = param;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				_addFormatIns(ptype, props);
 			};
 		};
@@ -741,25 +747,25 @@ RTFJS.Document.prototype.parse = function(blob) {
 				var props = parser.state[ptype];
 				var members = props[prop];
 				members[member] = (param == null) ? defaultval : param;
-				console.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
 				_addFormatIns(ptype, props);
 			};
 		};
 		var _charFormatHandlers = {
 			ansicpg: function(param) {
-				console.log("[rtf] using charset: " + param);
+				RTFJS.log("[rtf] using charset: " + param);
 				parser.codepage = param;
 			},
 			sectd: function(param) {
-				console.log("[rtf] reset to section defaults");
+				RTFJS.log("[rtf] reset to section defaults");
 				parser.state.sep = new Sep(null);
 			},
 			plain: function(param) {
-				console.log("[rtf] reset to character defaults");
+				RTFJS.log("[rtf] reset to character defaults");
 				parser.state.chp = new Chp(null);
 			},
 			pard: function(param) {
-				console.log("[rtf] reset to paragraph defaults");
+				RTFJS.log("[rtf] reset to paragraph defaults");
 				parser.state.pap = new Pap(null);
 			},
 			b: _genericFormatOnOff("chp", "bold"),
@@ -830,11 +836,11 @@ RTFJS.Document.prototype.parse = function(blob) {
 				handler(param);
 				return true;
 			}
-			//console.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
+			//RTFJS.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
 			return false;
 		}
 		cls.prototype.apply = function() {
-			console.log("[rtf] apply()");
+			RTFJS.log("[rtf] apply()");
 			for (var prop in this._metadata)
 				inst._meta[prop] = this._metadata[prop];
 			delete this._metadata;
@@ -995,7 +1001,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					if (param != null) {
 						this.charset = RTFJS._mapCharset(param);
 						if (this.charset == null)
-							console.log("Unknown font charset: " + param);
+							RTFJS.log("Unknown font charset: " + param);
 					}
 					return true;
 			}
@@ -1032,9 +1038,9 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return new subCls(this);
 		};
 		cls.prototype.apply = function() {
-			console.log("[fonttbl] apply()");
+			RTFJS.log("[fonttbl] apply()");
 			for (var idx in this._fonts) {
-				console.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
+				RTFJS.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
 			}
 			inst._fonts = this._fonts;
 			delete this._fonts;
@@ -1145,17 +1151,17 @@ RTFJS.Document.prototype.parse = function(blob) {
 					break;
 			}
 			
-			console.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
+			RTFJS.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
 			return false;
 		}
 		cls.prototype.apply = function() {
-			console.log("[colortbl] apply()");
+			RTFJS.log("[colortbl] apply()");
 			if (this._autoIndex == null)
 				this._autoIndex = 0;
 			if (this._autoIndex >= this._colors.length)
 				throw new RTFJS.Error("colortbl doesn't define auto color")
 			for (var idx in this._colors)
-				console.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
+				RTFJS.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
 			inst._colors = this._colors;
 			inst._autoColor = this._autoIndex;
 			delete this._colors;
@@ -1169,7 +1175,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			if (data == null)
 				this[member] = data = {};
 			return function(keyword, param) {
-				console.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+				RTFJS.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
 				return false;
 			};
 		};
@@ -1231,9 +1237,9 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return new subCls(this);
 		};
 		cls.prototype.apply = function() {
-			console.log("[stylesheet] apply()");
+			RTFJS.log("[stylesheet] apply()");
 			for (var idx in this._stylesheets)
-				console.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
+				RTFJS.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
 			inst._stylesheets = this._stylesheets;
 			delete this._stylesheets;
 		};
@@ -1344,7 +1350,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					case "HYPERLINK":
 						return new FieldHyperlink(this, data);
 					default:
-						console.log("[fldinst]: unknown field type: " + fieldType);
+						RTFJS.log("[fldinst]: unknown field type: " + fieldType);
 						break;
 				}
 			}
@@ -1407,7 +1413,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 			return function(param) {
 				if (param == null)
 					throw new RTFJS.Error("Picture property has no value");
-				console.log("[pict] set " + member + "." + prop + " = " + param);
+				RTFJS.log("[pict] set " + member + "." + prop + " = " + param);
 				var obj = (member != null ? this[member] : this);
 				obj[prop] = param;
 			};
@@ -1520,7 +1526,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 					var pictrender = type.call(info);
 					if (pictrender != null) {
 						if (typeof pictrender === "string") {
-							console.log("[pict] Could not load image: " + pictrender);
+							RTFJS.log("[pict] Could not load image: " + pictrender);
 							if (rendering) {
 								return this.buildPicture(pictrender, null);
 							} else {
@@ -1721,9 +1727,9 @@ RTFJS.Document.prototype.parse = function(blob) {
 		}
 		
 		//if (param != null)
-		//	console.log("keyword " + keyword + " with param " + param);
+		//	RTFJS.log("keyword " + keyword + " with param " + param);
 		//else
-		//	console.log("keyword " + keyword);
+		//	RTFJS.log("keyword " + keyword);
 		
 		if (parser.state.bindata > 0)
 			throw new RTFJS.Error("Keyword encountered within binary data");
@@ -1797,7 +1803,7 @@ RTFJS.Document.prototype.parse = function(blob) {
 							if (dest.handleKeyword != null)
 								dest.handleKeyword(keyword, param);
 						} else {
-							console.log("Unhandled keyword: " + keyword + " param: " + param);
+							RTFJS.log("Unhandled keyword: " + keyword + " param: " + param);
 						}
 					}
 				}

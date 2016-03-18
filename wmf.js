@@ -29,6 +29,12 @@ if (typeof WMFJS === 'undefined') {
 		Error: function(message) {
 			this.message = message;
 		},
+		loggingEnabled: true,
+		log: function(message){
+			if(WMFJS.loggingEnabled) {
+				console.log(message);
+			}
+		},
 		GDI: {
 			METAHEADER_SIZE: 18,
 			BITMAPINFOHEADER_SIZE: 40,
@@ -870,7 +876,7 @@ WMFJS.Region.prototype._updateComplexity = function() {
 };
 
 WMFJS.Region.prototype.subtract = function(rect) {
-	console.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
+	WMFJS.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
 	
 	if (this.bounds != null) {
 		var isect = this.bounds.intersect(rect);
@@ -897,7 +903,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 					if (scan.top >= scan.bottom) {
 						this.scans[si] = cloned;
 					} else {
-						console.log("[wmf] Region split top scan " + si + " for substraction");
+						WMFJS.log("[wmf] Region split top scan " + si + " for substraction");
 						this.scans.splice(++si, 0, cloned);
 					}
 					break;
@@ -920,7 +926,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 					if (scan.top >= scan.bottom) {
 						this.scans[si] = cloned;
 					} else {
-						console.log("[wmf] Region split bottom scan " + si + " for substraction");
+						WMFJS.log("[wmf] Region split bottom scan " + si + " for substraction");
 						this.scans.splice(++si, 0, clone);
 					}
 					break;
@@ -937,7 +943,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 				while (si < last) {
 					var scan = this.scans[si];
 					if (!scan.subtract(rect.left, rect.right)) {
-						console.log("[wmf] Region remove now empty scan " + si + " due to subtraction");
+						WMFJS.log("[wmf] Region remove now empty scan " + si + " due to subtraction");
 						this.scans.splice(si, 1);
 						last--;
 						continue;
@@ -984,11 +990,11 @@ WMFJS.Region.prototype.subtract = function(rect) {
 		}
 	}
 	
-	console.log("[wmf] Region subtraction -> " + this.toString());
+	WMFJS.log("[wmf] Region subtraction -> " + this.toString());
 };
 
 WMFJS.Region.prototype.intersect = function(rect) {
-	console.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
+	WMFJS.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
 	if (this.bounds != null) {
 		this.bounds = this.bounds.intersect(rect);
 		if (this.bounds != null) {
@@ -1003,7 +1009,7 @@ WMFJS.Region.prototype.intersect = function(rect) {
 						break;
 				}
 				if (si > 0) {
-					console.log("[wmf] Region remove " + si + " scans from top");
+					WMFJS.log("[wmf] Region remove " + si + " scans from top");
 					this.scans.splice(0, si);
 					
 					// Adjust the first scan's top to match the new bounds.top
@@ -1017,13 +1023,13 @@ WMFJS.Region.prototype.intersect = function(rect) {
 					var scan = this.scans[si];
 					if (scan.top > this.bounds.bottom) {
 						// Remove this and all remaining scans that fall entirely below the new bounds.bottom
-						console.log("[wmf] Region remove " + (this.scans.length - si) + " scans from bottom");
+						WMFJS.log("[wmf] Region remove " + (this.scans.length - si) + " scans from bottom");
 						this.scans.splice(si, this.scans.length - si);
 						break;
 					}
 					if (!scan.intersect(this.bounds.left, this.bounds.right)) {
 						// Remove now empty scan
-						console.log("[wmf] Region remove now empty scan " + si + " due to intersection");
+						WMFJS.log("[wmf] Region remove now empty scan " + si + " due to intersection");
 						this.scans.splice(si, 1);
 						continue;
 					}
@@ -1041,7 +1047,7 @@ WMFJS.Region.prototype.intersect = function(rect) {
 			this.complexity = 0;
 		}
 	}
-	console.log("[wmf] Region intersection -> " + this.toString());
+	WMFJS.log("[wmf] Region intersection -> " + this.toString());
 };
 
 WMFJS.Region.prototype.offset = function(offX, offY) {
@@ -1383,11 +1389,11 @@ WMFJS.GDIContext.prototype._pushGroup = function() {
 			preserveAspectRatio: "none"
 		};
 		if (this.state.clip != null) {
-			console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+			WMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
 			settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
 		}
 		else
-			console.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+			WMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
 		this.state._svggroup = this._svg.svg(this.state._svggroup,
 			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
 	}
@@ -1398,7 +1404,7 @@ WMFJS.GDIContext.prototype._storeObject = function(obj) {
 	while (this.objects[i.toString()] != null && i <= 65535)
 		i++;
 	if (i > 65535) {
-		console.log("[gdi] Too many objects!");
+		WMFJS.log("[gdi] Too many objects!");
 		return -1;
 	}
 	
@@ -1409,7 +1415,7 @@ WMFJS.GDIContext.prototype._storeObject = function(obj) {
 WMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	var obj = this.objects[objIdx.toString()];
 	if (obj == null)
-		console.log("[gdi] No object with handle " + objIdx);
+		WMFJS.log("[gdi] No object with handle " + objIdx);
 	return obj;
 };
 
@@ -1498,7 +1504,7 @@ WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
 		return true;
 	}
 	
-	console.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+	WMFJS.log("[gdi] Cannot delete object with invalid handle " + objIdx);
 	return false;
 };
 
@@ -1565,55 +1571,55 @@ WMFJS.GDIContext.prototype._tologicalH = function(val) {
 };
 
 WMFJS.GDIContext.prototype.setMapMode = function(mode) {
-	console.log("[gdi] setMapMode: mode=" + mode);
+	WMFJS.log("[gdi] setMapMode: mode=" + mode);
 	this.state.mapmode = mode;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.setWindowOrg = function(x, y) {
-	console.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
 	this.state.wx = x;
 	this.state.wy = y;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.setWindowExt = function(x, y) {
-	console.log("[gdi] setWindowExt: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] setWindowExt: x=" + x + " y=" + y);
 	this.state.ww = x;
 	this.state.wh = y;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.offsetWindowOrg = function(offX, offY) {
-	console.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
+	WMFJS.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
 	this.state.wx += offX;
 	this.state.wy += offY;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.setViewportOrg = function(x, y) {
-	console.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
 	this.state.vx = x;
 	this.state.vy = y;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.setViewportExt = function(x, y) {
-	console.log("[gdi] setViewportExt: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] setViewportExt: x=" + x + " y=" + y);
 	this.state.vw = x;
 	this.state.vh = y;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.offsetViewportOrg = function(offX, offY) {
-	console.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
+	WMFJS.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
 	this.state.vx += offX;
 	this.state.vy += offY;
 	this.state._svggroup = null;
 };
 
 WMFJS.GDIContext.prototype.saveDC = function() {
-	console.log("[gdi] saveDC");
+	WMFJS.log("[gdi] saveDC");
 	var prevstate = this.state;
 	this.state = new WMFJS.GDIContextState(this.state);
 	this.statestack.push(prevstate);
@@ -1621,7 +1627,7 @@ WMFJS.GDIContext.prototype.saveDC = function() {
 };
 
 WMFJS.GDIContext.prototype.restoreDC = function(saved) {
-	console.log("[gdi] restoreDC: saved=" + saved);
+	WMFJS.log("[gdi] restoreDC: saved=" + saved);
 	if (this.statestack.length > 1) {
 		if (saved == -1) {
 			this.state = this.statestack.pop();
@@ -1638,15 +1644,15 @@ WMFJS.GDIContext.prototype.restoreDC = function(saved) {
 };
 
 WMFJS.GDIContext.prototype.escape = function(func, blob, offset, count) {
-	console.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
+	WMFJS.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
 };
 
 WMFJS.GDIContext.prototype.setStretchBltMode = function(stretchMode) {
-	console.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
+	WMFJS.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
 };
 
 WMFJS.GDIContext.prototype.stretchDib = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
-	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+	WMFJS.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
 	srcX = this._todevX(srcX);
 	srcY = this._todevY(srcY);
 	srcW = this._todevW(srcW);
@@ -1655,13 +1661,13 @@ WMFJS.GDIContext.prototype.stretchDib = function(srcX, srcY, srcW, srcH, dstX, d
 	dstY = this._todevY(dstY);
 	dstW = this._todevW(dstW);
 	dstH = this._todevH(dstH);
-	console.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+	WMFJS.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
 	this._pushGroup();
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
 
 WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
-	console.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+	WMFJS.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
 	srcX = this._todevX(srcX);
 	srcY = this._todevY(srcY);
 	srcW = this._todevW(srcW);
@@ -1670,7 +1676,7 @@ WMFJS.GDIContext.prototype.stretchDibBits = function(srcX, srcY, srcW, srcH, dst
 	dstY = this._todevY(dstY);
 	dstW = this._todevW(dstW);
 	dstH = this._todevH(dstH);
-	console.log("[gdi] stretchDibBits: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+	WMFJS.log("[gdi] stretchDibBits: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
 	this._pushGroup();
 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 };
@@ -1735,7 +1741,7 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 				opts.fill = "none";
 				break;
 			default:
-				console.log("[gdi] unsupported brush style: " + brush.style);
+				WMFJS.log("[gdi] unsupported brush style: " + brush.style);
 				opts.fill = "none";
 				break;
 		}
@@ -1750,14 +1756,14 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 };
 
 WMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
-	console.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	WMFJS.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var bottom = this._todevY(rect.bottom);
 	var right = this._todevX(rect.right);
 	var top = this._todevY(rect.top);
 	var left = this._todevX(rect.left);
 	rw = this._todevH(rw);
 	rh = this._todevH(rh);
-	console.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+	WMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
 	this._pushGroup();
 	
 	var opts = this._applyOpts(null, true, true, false);
@@ -1765,10 +1771,10 @@ WMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 };
 
 WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
-	console.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+	WMFJS.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
 	x = this._todevX(x);
 	y = this._todevY(y);
-	console.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
 	this._pushGroup();
 	
 	var opts = this._applyOpts(null, false, false, true);
@@ -1791,7 +1797,7 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 };
 
 WMFJS.GDIContext.prototype.lineTo = function(x, y) {
-	console.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+	WMFJS.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
 	var toX = this._todevX(x);
 	var toY = this._todevY(y);
 	var fromX = this._todevX(this.state.x);
@@ -1801,7 +1807,7 @@ WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	this.state.x = x;
 	this.state.y = y;
 	
-	console.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+	WMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
 	
 	var opts = this._applyOpts(null, true, false, false);
@@ -1809,19 +1815,19 @@ WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 }
 
 WMFJS.GDIContext.prototype.moveTo = function(x, y) {
-	console.log("[gdi] moveTo: x=" + x + " y=" + y);
+	WMFJS.log("[gdi] moveTo: x=" + x + " y=" + y);
 	this.state.x = x;
 	this.state.y = y;
 }
 
 WMFJS.GDIContext.prototype.polygon = function(points) {
-	console.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	WMFJS.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
 		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
-	console.log("[gdi] polygon: TRANSLATED: pts=" + pts);
+	WMFJS.log("[gdi] polygon: TRANSLATED: pts=" + pts);
 	this._pushGroup();
 	var opts = {
 		"fill-rule": this.state.polyfillmode == WMFJS.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
@@ -1831,7 +1837,7 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 };
 
 WMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
-	console.log("[gdi] polyPolygon: polyPolygon=" + JSON.stringify(polyPolygon) + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	WMFJS.log("[gdi] polyPolygon: polyPolygon=" + JSON.stringify(polyPolygon) + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	this._pushGroup();
 	var cnt = polyPolygon._polygons.length;
 	for (var i = 0; i < cnt; i++)
@@ -1839,25 +1845,25 @@ WMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
 };
 
 WMFJS.GDIContext.prototype.polyline = function(points) {
-	console.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
+	WMFJS.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
 		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
-	console.log("[gdi] polyline: TRANSLATED: pts=" + pts);
+	WMFJS.log("[gdi] polyline: TRANSLATED: pts=" + pts);
 	this._pushGroup();
 	var opts = this._applyOpts({fill: "none"}, true, false, false);
 	this._svg.polyline(this.state._svggroup, pts, opts);
 };
 
 WMFJS.GDIContext.prototype.ellipse = function(rect) {
-	console.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	WMFJS.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var bottom = this._todevY(rect.bottom);
 	var right = this._todevX(rect.right);
 	var top = this._todevY(rect.top);
 	var left = this._todevX(rect.left);
-	console.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+	WMFJS.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
 	this._pushGroup();
 	var width2 = (right - left) / 2;
 	var height2 = (bottom - top) / 2;
@@ -1866,89 +1872,89 @@ WMFJS.GDIContext.prototype.ellipse = function(rect) {
 };
 
 WMFJS.GDIContext.prototype.excludeClipRect = function(rect) {
-	console.log("[gdi] excludeClipRect: rect=" + rect.toString());
+	WMFJS.log("[gdi] excludeClipRect: rect=" + rect.toString());
 	this._getClipRgn().subtract(rect);
 };
 
 WMFJS.GDIContext.prototype.intersectClipRect = function(rect) {
-	console.log("[gdi] intersectClipRect: rect=" + rect.toString());
+	WMFJS.log("[gdi] intersectClipRect: rect=" + rect.toString());
 	this._getClipRgn().intersect(rect);
 };
 
 WMFJS.GDIContext.prototype.offsetClipRgn = function(offX, offY) {
-	console.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
+	WMFJS.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
 	this._getClipRgn().offset(offX, offY);
 };
 
 WMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
-	console.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+	WMFJS.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
 	this.state.textalign = textAlignmentMode;
 };
 
 WMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
-	console.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+	WMFJS.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
 	this.state.bkmode = bkMode;
 };
 
 WMFJS.GDIContext.prototype.setTextColor = function(textColor) {
-	console.log("[gdi] setTextColor: textColor=" + textColor.toString());
+	WMFJS.log("[gdi] setTextColor: textColor=" + textColor.toString());
 	this.state.textcolor = textColor;
 };
 
 WMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
-	console.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+	WMFJS.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
 	this.state.bkcolor = bkColor;
 	this.state._svgtextbkfilter = null;
 };
 
 WMFJS.GDIContext.prototype.setPolyFillMode = function(polyFillMode) {
-	console.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+	WMFJS.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
 	this.state.polyfillmode = polyFillMode;
 };
 
 WMFJS.GDIContext.prototype.createBrush = function(brush) {
 	var idx = this._storeObject(brush);
-	console.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+	WMFJS.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.createFont = function(font) {
 	var idx = this._storeObject(font);
-	console.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
+	WMFJS.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.createPen = function(pen) {
 	var idx = this._storeObject(pen);
-	console.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+	WMFJS.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.createPalette = function(palette) {
 	var idx = this._storeObject(palette);
-	console.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
+	WMFJS.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.createRegion = function(region) {
 	var idx = this._storeObject(region);
-	console.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
+	WMFJS.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.createPatternBrush = function(patternBrush) {
 	var idx = this._storeObject(patternBrush);
-	console.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
+	WMFJS.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
 };
 
 WMFJS.GDIContext.prototype.selectObject = function(objIdx, checkType) {
 	var obj = this._getObject(objIdx);
 	if (obj != null && (checkType == null || obj.type == checkType)) {
 		this._selectObject(obj);
-		console.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+		WMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
 	} else {
-		console.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+		WMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
 	}
 };
 
 WMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
 	var ret = this._deleteObject(objIdx);
-	console.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+	WMFJS.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
 };
 
 WMFJS.WMFRect16 = function(reader) {
@@ -2467,10 +2473,10 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
-				console.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
+				WMFJS.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				break;
 			default:
-				console.log("[WMF] UNKNOWN record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
+				WMFJS.log("[WMF] UNKNOWN record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				//throw new WMFJS.Error("Record type not recognized: 0x" + type.toString(16));
 				break;
 		}
@@ -2495,7 +2501,7 @@ WMFJS.WMFPlacable = function(reader) {
 	this.unitsPerInch = reader.readInt16();
 	reader.skip(4);
 	reader.skip(2); // TODO: checksum
-	console.log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
+	WMFJS.log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
 };
 
 WMFJS.WMF = function(reader, placable, version, hdrsize) {
@@ -2513,7 +2519,7 @@ WMFJS.WMF.prototype.render = function(gdi) {
 
 WMFJS.Renderer = function(blob) {
 	this.parse(blob);
-	console.log("WMFJS.Renderer instantiated");
+	WMFJS.log("WMFJS.Renderer instantiated");
 };
 
 WMFJS.Renderer.prototype.parse = function(blob) {
@@ -2557,9 +2563,9 @@ WMFJS.Renderer.prototype._render = function(svg, mapMode, xExt, yExt) {
 	var gdi = new WMFJS.GDIContext(svg);
 	gdi.setViewportExt(xExt, yExt);
 	gdi.setMapMode(mapMode);
-	console.log("[WMF] BEGIN RENDERING --->");
+	WMFJS.log("[WMF] BEGIN RENDERING --->");
 	this._img.render(gdi);
-	console.log("[WMF] <--- DONE RENDERING");
+	WMFJS.log("[WMF] <--- DONE RENDERING");
 };
 
 WMFJS.Renderer.prototype.render = function(info) {
