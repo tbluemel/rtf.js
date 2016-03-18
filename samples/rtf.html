@@ -38,11 +38,12 @@ function displayRtfFile(blob) {
 		var warnHttpLinks = $("#warnhttplink").prop("checked");
 		var settings = {
 			onPicture: function(create) {
-				var elem = create().attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
-				return setPictBorder(elem, showPicBorder);
+				var pict = create();
+				setPictBorder($(pict).attr("class", "rtfpict"), showPicBorder); // WHY does addClass not work on <svg>?!
+				return pict;
 			},
 			onHyperlink: function(create, hyperlink) {
-				var url = hyperlink.url();
+				var url = hyperlink.url;
 				var lnk = create();
 				if (url.substr(0, 7) == "http://") {
 					// Wrap http:// links into a <span>
@@ -172,6 +173,7 @@ $(document).ready(function() {
 				<option>simplepng.rtf</option>
 				<option>simplepngbin.rtf</option>
 				<option>hyperlink.rtf</option>
+				<option>table.rtf</option>
 			</select>
 		</form>
 	</span>
