@@ -234,18 +234,48 @@ if (typeof RTFJS === "undefined") {
 	RTFJS.Error.prototype = new Error;
 }
 
-RTFJS.RenderChp = function(chp) {
+RTFJS.RenderElement = function(doc, type, element) {
+	this._doc = doc;
+	this._type = type;
+	this._element = element;
+	this._pap = null;
+	this._chp = null;
+}
+
+RTFJS.RenderElement.prototype.getElement = function() {
+	return this._element;
+};
+
+RTFJS.RenderElement.prototype.getContent = function() {
+	return this._element;
+};
+
+RTFJS.RenderElement.prototype.updateProps = function(pap, chp) {
+	this._pap = pap;
 	this._chp = chp;
 };
 
-RTFJS.RenderChp.prototype.apply = function(doc, el) {
+RTFJS.RenderElement.prototype.finalize = function() {
+	console.log("[rtf] finalizing element of type " + this._type);
+	return this._element;
+};
+
+RTFJS.RenderTextElement = function(doc, text, chp) {
+	RTFJS.RenderElement.call(this, doc, "text", $("<span>").text(text));
+	this._chp = chp;
+};
+
+RTFJS.RenderTextElement.prototype = Object.create(RTFJS.RenderElement.prototype);
+
+RTFJS.RenderTextElement.prototype.applyProps = function() {
 	var chp = this._chp;
+	var el = this.getElement();
 	if (chp.bold)
 		el.css("font-weight", "bold");
 	if (chp.italic)
 		el.css("font-style", "italic");
-	if (chp.hasOwnProperty("fontfamily") && doc._fonts[chp.fontfamily]) {
-		var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
+	if (chp.hasOwnProperty("fontfamily") && this._doc._fonts[chp.fontfamily]) {
+		var fontFamily = this._doc._fonts[chp.fontfamily].fontname.replace(";", "");
 		if (fontFamily !== "Symbol")
 			el.css("font-family", fontFamily);
 	}
@@ -259,19 +289,91 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 	if (deco.length > 0)
 		el.css("text-decoration", deco.join(" "));
 	if (chp.colorindex != 0) {
-		var color = doc._lookupColor(chp.colorindex);
+		var color = this._doc._lookupColor(chp.colorindex);
 		if (color != null)
 			el.css("color", RTFJS._colorToStr(color));
 	}
 	el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
 };
 
-RTFJS.RenderPap = function(pap) {
-	this._pap = pap;
+RTFJS.RenderTextElement.prototype.finalize = function() {
+	console.log("[rtf] finalizing text element");
+	this.applyProps();
+	return RTFJS.RenderElement.prototype.finalize.call(this);
+}
+
+RTFJS.RenderContainer = function(doc, type, element, content) {
+	RTFJS.RenderElement.call(this, doc, type, element);
+	this._content = content;
+	this._sub = [];
 };
 
-RTFJS.RenderPap.prototype.apply = function(doc, el, rchp, ismaindiv) {
-	var pap = this._pap;
+RTFJS.RenderContainer.prototype = Object.create(RTFJS.RenderElement.prototype);
+
+RTFJS.RenderContainer.prototype.getType = function() {
+	return this._type;
+};
+
+RTFJS.RenderContainer.prototype.getContent = function() {
+	return this._content;
+};
+
+RTFJS.RenderContainer.prototype.appendSub = function(container) {
+	console.log("[rtf] appendSub for container " + this._type);
+	this._sub.push({
+		container: container
+	});
+};
+
+RTFJS.RenderContainer.prototype._finalizeSub = function(sub) {
+	return sub.container.finalize();
+};
+
+RTFJS.RenderContainer.prototype.finalize = function() {
+	console.log("[rtf] finalizing container " + this._type);
+	if (this._sub == null)
+		throw new RTFJS.Error("Container already finalized");
+
+	var cont = this.getContent();
+	var len = this._sub.length;
+	for (var i = 0; i < len; i++) {
+		var element = this._finalizeSub(this._sub[i]);
+		if (element != null)
+			cont.append(element);
+	}
+	delete this._sub;
+	return this._element;
+};
+
+RTFJS.RenderParagraphContainer = function(doc) {
+	var par = $("<div>");
+	RTFJS.RenderContainer.call(this, doc, "par", par, par);
+};
+
+RTFJS.RenderParagraphContainer.prototype = Object.create(RTFJS.RenderContainer.prototype);
+
+RTFJS.RenderParagraphContainer.prototype.appendSub = function(container) {
+	console.log("[rtf] appendSub for container " + this._type);
+	this._sub.push({
+		container: container,
+		pap: container._pap != null ? container._pap : this._pap,
+		chp: container._chp != null ? container._chp : this._chp
+	});
+};
+
+RTFJS.RenderParagraphContainer.prototype.updateProps = function(pap, chp) {
+	this._pap = pap;
+	this._chp = chp;
+
+	if (this._sub.length > 0) {
+		var sub = this._sub[this._sub.length - 1];
+		sub.pap = pap;
+		sub.chp = chp;
+	}
+};
+
+RTFJS.RenderParagraphContainer.prototype.applyPap = function(el, pap, chp, ismaindiv) {
+	var el = this.getElement();
 	if (ismaindiv) {
 		if (pap.spacebefore != 0)
 			el.css("margin-top", RTFJS._twipsToPt(pap.spacebefore) + "pt");
@@ -281,8 +383,8 @@ RTFJS.RenderPap.prototype.apply = function(doc, el, rchp, ismaindiv) {
 			el.css("margin-bottom", RTFJS._twipsToPt(pap.spaceafter) + "pt");
 		else
 			el.css("margin-bottom", "");
-		if (rchp != null)
-			el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+		if (chp != null)
+			el.css("min-height", Math.floor(chp.fontsize / 2) + "pt");
 	} else {
 		switch (pap.justification) {
 			case RTFJS.JUSTIFICATION.LEFT:
@@ -301,15 +403,120 @@ RTFJS.RenderPap.prototype.apply = function(doc, el, rchp, ismaindiv) {
 	}
 };
 
+RTFJS.RenderParagraphContainer.prototype._finalizeSub = function(sub) {
+	var element = sub.container.finalize();
+	if (element)
+		this.applyPap(element, sub.pap, sub.chp);
+	return element;
+};
+
+RTFJS.RenderParagraphContainer.prototype.finalize = function() {
+	console.log("[rtf] finalizing paragraph");
+	if (this._sub == null)
+		throw new RTFJS.Error("Paragraph already finalized");
+	if (this._sub.length > 0)
+		return RTFJS.RenderContainer.prototype.finalize.call(this);
+
+	delete this._sub;
+	return null;
+};
+
+RTFJS.RenderTableContainer = function(doc) {
+	RTFJS.RenderContainer.call(this, doc, "table", $("<table>"), null);
+	this._rows = [];
+	this._row = null;
+	this._cell = null;
+};
+
+RTFJS.RenderTableContainer.prototype = Object.create(RTFJS.RenderContainer.prototype);
+
+RTFJS.RenderTableContainer.prototype.appendCell = function() {
+	console.log("[rtf] Table appending cell");
+	if (this._row == null)
+		this.appendRow();
+
+	this._cell = {
+		element: $("<td>").appendTo(this._row.element),
+		sub: []
+	};
+	this._row.cells.push(this._cell);
+};
+
+RTFJS.RenderTableContainer.prototype.appendRow = function() {
+	console.log("[rtf] Table appending row");
+	this._row = {
+		element: $("<tr>").appendTo(this._element),
+		cells: []
+	};
+	this._rows.push(this._row);
+	this.appendCell();
+};
+
+RTFJS.RenderTableContainer.prototype.finishRow = function() {
+	console.log("[rtf] Table finish row");
+	this.finishCell();
+	this._row = null;
+};
+
+RTFJS.RenderTableContainer.prototype.finishCell = function() {
+	console.log("[rtf] Table finish cell");
+	var len = this._sub.length;
+	if (len > 0) {
+		if (this._row == null)
+			this.appendRow();
+		if (this._cell == null)
+			this.appendCell();
+
+		for (var i = 0; i < len; i++)
+			this._cell.sub.push(this._sub[i]);
+		this._sub = [];
+	}
+
+	this._cell = null;
+};
+
+RTFJS.RenderTableContainer.prototype.finalize = function() {
+	console.log("[rtf] Table finalize");
+	if (this._sub == null)
+		throw new RTFJS.Error("Table container already finalized");
+
+	var rlen = this._rows.length;
+	console.log("[rtf] Table finalize: #rows: " + rlen);
+	for (var r = 0; r < rlen; r++) {
+		var row = this._rows[r];
+		var clen = row.cells.length;
+		console.log("[rtf] Table finalize: row[" + r + "].#cells: " + clen);
+		for (var c = 0; c < clen; c++) {
+			var cell = row.cells[c];
+
+			var slen = cell.sub.length;
+			console.log("[rtf] Table finalize: row[" + r + "].cell[" + c + "].#subs: " + slen);
+			for (var s = 0; s < slen; s++) {
+				var sub = cell.sub[s];
+				var element = sub.finalize();
+				if (element != null)
+					cell.element.append(element);
+			}
+		}
+	}
+
+	delete this._sub;
+
+	return this._element;
+};
+
 RTFJS.Renderer = function(doc) {
 	this._doc = doc;
 	this._ins = [];
 	this._dom = null;
-	
-	this._curRChp = null;
-	this._curRPap = null;
-	this._curpar = null;
-	this._cursubpar = null;
+	this.initRender();
+};
+
+RTFJS.Renderer.prototype.initRender = function() {
+	this._chp = null;
+	this._pap = null;
+	this._curpar = [];
+	this._cursubparIdx = -1;
 	this._curcont = [];
 };
 
@@ -317,99 +524,136 @@ RTFJS.Renderer.prototype.addIns = function(ins) {
 	this._ins.push(ins);
 };
 
-RTFJS.Renderer.prototype.pushContainer = function(contel) {
-	if (this._curpar == null)
-		this.startPar();
-	
-	var len = this._curcont.push(contel);
+RTFJS.Renderer.prototype.pushContainer = function(container) {
+	var len = this._curcont.push(container);
 	if (len > 1) {
 		var prevcontel = this._curcont[len - 1];
-		prevcontel.content.append(contel);
+		prevcontel.appendSub(container);
 	} else {
-		if (this._cursubpar != null)
-			this._cursubpar.append(contel.element);
-		else
-			this._curpar.append(contel.element);
+		if (this._cursubparIdx >= 0) {
+			var par = this._curpar[this._cursubparIdx];
+			par.appendSub(container);
+		} else {
+			this._curpar.push(container);
+		}
 	}
 };
 
-RTFJS.Renderer.prototype.popContainer = function() {
-	var contel = this._curcont.pop();
-	if (contel == null)
-		throw new RTFJS.Error("No container on rendering stack");
+RTFJS.Renderer.prototype.currentContainer = function(type) {
+	var len = this._curcont.length;
+	if (len == 0)
+		return null;
+	if (type != null) {
+		for (var i = len - 1; i >= 0; i--) {
+			var cont = this._curcont[i];
+			if (cont.getType() == type)
+				return cont;
+		}
+		return null;
+	}
+	return this._curcont[len - 1];
+};
+
+RTFJS.Renderer.prototype.popContainer = function(type) {
+	var cont;
+	if (type != null) {
+		var popped = false;
+		while (this._curcont.length > 0) {
+			cont = this._curcont.pop();
+			if (cont.getType() == type) {
+				popped = true;
+				break;
+			}
+		}
+		if (!popped)
+			throw new RTFJS.Error("No container of type " + type + " on rendering stack");
+	} else {
+		cont = this._curcont.pop();
+		if (cont == null)
+			throw new RTFJS.Error("No container on rendering stack");
+	}
+	return cont;
 };
 
 RTFJS.Renderer.prototype.buildHyperlinkElement = function(url) {
 	return $("<a>").attr("href", url);
 };
 
-RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
-	if (this._curpar == null)
-		this.startPar();
+RTFJS.Renderer.prototype._appendToPar = function(content, newsubpar) {
 	if (newsubpar == true) {
-		var subpar = $("<div>");
-		if (this._cursubpar == null) {
-			this._curpar.children().appendTo(subpar);
-			this._curpar.append(subpar);
-			subpar = $("<div>");
-		}
-		if (el)
-			subpar.append(el);
-		if (this._curRPap != null)
-			this._curRPap.apply(this._doc, subpar, this._curRChp, false);
+		// Move everything in _curpar since the last sub-paragraph into a new one
+		var par = new RTFJS.RenderParagraphContainer(this._doc);
+		var len = this._curpar.length;
+		for (var i = this._cursubparIdx + 1; i < len; i++)
+			par.appendSub(this._curpar[i]);
+		this._curpar.splice(this._cursubparIdx + 1, len - this._cursubparIdx - 1);
+		par.updateProps(this._pap, this._chp);
+		this._curpar.push(par);
 		
-		this._cursubpar = subpar;
-		this._curpar.append(subpar);
-	} else if (el) {
+		// Add a new sub-paragraph
+		par = new RTFJS.RenderParagraphContainer(this._doc);
+		this._cursubparIdx = this._curpar.push(par) - 1;
+		par.updateProps(this._pap, this._chp);
+
+		if (content != null)
+			this._curpar.push(content);
+	} else if (content != null) {
 		var contelCnt = this._curcont.length;
 		if (contelCnt > 0) {
-			this._curcont[contelCnt - 1].content.append(el);
-		} else if (this._cursubpar != null) {
-			this._cursubpar.append(el);
+			this._curcont[contelCnt - 1].appendSub(content);
+		} else if (this._cursubparIdx >= 0) {
+			this._curpar[this._cursubparIdx].appendSub(content);
 		} else {
-			this._curpar.append(el);
+			this._curpar.push(content);
 		}
 	}
 };
 
-RTFJS.Renderer.prototype.startPar = function() {
-	this._curpar = $("<div>");
-	if (this._curRPap != null) {
-		this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
-		this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
-	}
-	this._cursubpar = null;
-	this._curcont = [];
-	this._dom.push(this._curpar);
+RTFJS.Renderer.prototype.finishPar = function() {
+	this._appendToPar(null, true);
+	//if (this._pap != null && this._pap.intable) {
+	//	console.log("[rtf] finishPar: finishing table row");
+	//	this.finishRow();
+	//}
 };
 
 RTFJS.Renderer.prototype.lineBreak = function() {
 	this._appendToPar(null, true);
 };
 
-RTFJS.Renderer.prototype.setChp = function(rchp) {
-	this._curRChp = rchp;
+RTFJS.Renderer.prototype.finishRow = function() {
+	var table = this.currentContainer("table");
+	if (table == null)
+		throw new RTFJS.Error("No table on rendering stack");
+	table.finishRow();
 };
 
-RTFJS.Renderer.prototype.setPap = function(rpap) {
-	this._curRPap = rpap;
-	if (this._cursubpar != null)
-		this._curRPap.apply(this._doc, this._cursubpar, null, false);
-	else if (this._curpar != null) {
-		// Don't have a sub-paragraph at all, apply everything
-		this._curRPap.apply(this._doc, this._curpar, null, true);
-		this._curRPap.apply(this._doc, this._curpar, null, false);
+RTFJS.Renderer.prototype.finishCell = function() {
+	var table = this.currentContainer("table");
+	if (table == null)
+		throw new RTFJS.Error("No table on rendering stack");
+	table.finishCell();
+};
+
+RTFJS.Renderer.prototype.setChp = function(chp) {
+	this._chp = chp;
+};
+
+RTFJS.Renderer.prototype.setPap = function(pap) {
+	this._pap = pap;
+	if (this._cursubparIdx >= 0) {
+		this._curpar[this._cursubparIdx - 1].updateProps(this._pap, this._chp);
 	}
 };
 
 RTFJS.Renderer.prototype.appendElement = function(element) {
-	this._appendToPar(element);
+	this._appendToPar(new RTFJS.RenderElement(this._doc, "element", element));
 };
 
 RTFJS.Renderer.prototype.buildRenderedPicture = function(element) {
 	if (element == null)
 		element = $("<span>").text("[failed to render image]")
-	return element;
+	return new RTFJS.RenderElement(this._doc, "picture", element);
 };
 
 RTFJS.Renderer.prototype.renderedPicture = function(element) {
@@ -417,16 +661,18 @@ RTFJS.Renderer.prototype.renderedPicture = function(element) {
 };
 
 RTFJS.Renderer.prototype.buildPicture = function(mime, data) {
+	var element;
 	if (data != null) {
-		return $("<img>", {
+		element = $("<img>", {
 			src: "data:" + mime + ";base64," + btoa(data)
 		});
 	} else {
 		var err = "image type not supported";
 		if (typeof mime === "string" && mime != "")
 			err = mime;
-		return $("<span>").text("[" + mime + "]");
+		element = $("<span>").text("[" + mime + "]");
 	}
+	return new RTFJS.RenderElement(this._doc, "picture", element);
 };
 
 RTFJS.Renderer.prototype.picture = function(mime, data) {
@@ -438,23 +684,25 @@ RTFJS.Renderer.prototype.buildDom = function() {
 		return this._dom;
 	
 	this._dom = [];
-	
-	this._curRChp = null;
-	this._curRPap = null;
-	this._curpar = null;
+	this.initRender();
 	
 	var len = this._ins.length;
 	for (var i = 0; i < len; i++) {
 		var ins = this._ins[i];
 		if (typeof ins === "string") {
-			var span = $("<span>");
-			if (this._curRChp != null)
-				this._curRChp.apply(this._doc, span);
-			this._appendToPar(span.text(ins));
+			this._appendToPar(new RTFJS.RenderTextElement(this._doc, ins, this._chp));
 		} else {
 			ins.call(this);
 		}
 	}
+
+	len = this._curpar.length;
+	for (var i = 0; i < len; i++) {
+		var element = this._curpar[i].finalize();
+		if (element)
+			this._dom.push(element);
+	}
+
 	return this._dom;
 };
 
@@ -514,6 +762,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 	};
 	
+	var Tbl = function(parent) {
+		if (parent != null) {
+			this.intbl = parent.intbl;
+		} else {
+			this.intbl = false;
+		}
+	};
+
 	var Pap = function(parent) {
 		if (parent != null) {
 			this.indent = {
@@ -525,6 +781,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.spacebefore = parent.spacebefore;
 			this.spaceafter = parent.spaceafter;
             this.charactertype = parent.charactertype;
+			this.intable = parent.intable;
+			this.isrow = parent.isrow;
 		} else {
 			this.indent = {
 				left: 0,
@@ -534,6 +792,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.justification = RTFJS.JUSTIFICATION.LEFT;
 			this.spacebefore = 0;
 			this.spaceafter = 0;
+			this.intable = false;
+			this.isrow = false;
 		}
 	};
 	
@@ -599,6 +859,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.skipunknowndestination = parent.skipunknowndestination;
 			this.skipdestination = parent.skipdestination;
 			this.ucn = parent.ucn;
+			this.table = parent.table;
 		} else {
 			this.chp = new Chp(null);
 			this.pap = new Pap(null);
@@ -608,6 +869,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.skipunknowndestination = false;
 			this.skipdestination = false;
 			this.ucn = 1;
+			this.table = null;
 		}
 	};
 	
@@ -720,62 +982,120 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			parser.version = 1;
 			
 			this._metadata = {};
+			this._propchanged = {
+				chp: null,
+				pap: null,
+				sep: null
+			};
 		};
 		cls.prototype = Object.create(DestinationBase.prototype);
 		cls.prototype.addIns = function(func) {
 			inst._renderer.addIns(func);
 		};
 		cls.prototype.appendText = function(text) {
-			RTFJS.log("[rtf] output: " + text);
+			console.log("[rtf] appendText()");
+			this.flushProps();
+			if (parser.state.pap.intable) {
+				if (parser.state.table == null)
+					throw new RTFJS.Error("intbl flag without table definition");
+			} else {
+				if (parser.state.table != null) {
+					console.log("[rtf] TABLE END");
+					parser.state.table = null;
+				}
+			}
+
+			console.log("[rtf] output: " + text);
 			inst._renderer.addIns(text);
 		}
 		cls.prototype.sub = function() {
 			RTFJS.log("[rtf].sub()");
 		}
 		
-		var _addInsHandler = function(func) {
+		var _addInsHandler = function(flushprops, func) {
 			return function(param) {
+				if (flushprops)
+					this.flushProps();
 				inst._renderer.addIns(func);
 			};
 		};
-		var _addFormatIns = function(ptype, props) {
+		cls.prototype._addFormatIns = function(ptype, props) {
+			console.log("[rtf] update " + ptype);
 			switch (ptype) {
 				case "chp":
-					var rchp = new RTFJS.RenderChp(new Chp(props));
-					inst._renderer.addIns(function() {
-						this.setChp(rchp);
-					});
+					var chp = new Chp(props);
+					(function(chp) {
+						inst._renderer.addIns(function() {
+							this.setChp(chp);
+						});
+					})(chp);
 					break;
 				case "pap":
-					var rpap = new RTFJS.RenderPap(new Pap(props));
-					inst._renderer.addIns(function() {
-						this.setPap(rpap);
-					});
+					var pap = new Pap(props);
+					(function(pap) {
+						inst._renderer.addIns(function() {
+							this.setPap(pap);
+						});
+					})(pap);
 					break;
 			}
+		};
+		cls.prototype._updateFormatIns = function(ptype, props) {
+			var changed = this._propchanged[ptype];
+			if (changed == null)
+				this._propchanged[ptype] = changed = props;
+			if (changed != props) {
+				this._propchanged[ptype] = props;
+				this._addFormatIns(ptype, changed);
+			}
+		};
+		cls.prototype.flushProps = function(ptype) {
+			if (ptype != null) {
+				var changed = this._propchanged[ptype];
+				if (changed != null) {
+					this._propchanged[ptype] = null;
+					this._addFormatIns(ptype, changed);
+				}
+			} else {
+				this.flushProps("chp");
+				this.flushProps("pap");
+				this.flushProps("sep");
+			}
+		};
+		cls.prototype._finishTableRow = function() {
+			console.log("[rtf] finalize table row");
+			inst._renderer.addIns(function() {
+				this.finishRow();
+			});
+		};
+		cls.prototype._finishTableCell = function() {
+			console.log("[rtf] finalize table cell");
+			inst._renderer.addIns(function() {
+				this.finishCell();
+			});
 		};
 		var _genericFormatSetNoParam = function(ptype, prop, val) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = val;
-				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-				_addFormatIns(ptype, props);
+				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				this._updateFormatIns(ptype, props);
 			};
 		};
 		var _genericFormatOnOff = function(ptype, prop, onval, offval) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
-				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-				_addFormatIns(ptype, props);
+				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				this._updateFormatIns(ptype, props);
 			};
 		};
 		var _genericFormatSetVal = function(ptype, prop, defaultval) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null) ? defaultval : param;
-				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-				_addFormatIns(ptype, props);
+				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				this._updateFormatIns(ptype, props);
 			};
 		};
 		var _genericFormatSetValRequired = function(ptype, prop) {
@@ -784,19 +1104,47 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					throw new RTFJS.Error("Keyword without required param");
 				var props = parser.state[ptype];
 				props[prop] = param;
-				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-				_addFormatIns(ptype, props);
+				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				this._updateFormatIns(ptype, props);
 			};
 		};
-		var _genericFormatSetMemberVal = function(ptype, prop, member, defaultval) {
+		var _genericFormatSetMemberVal = function(ptype, prop, member, defaultValOrFunc) {
 			return function(param) {
 				var props = parser.state[ptype];
 				var members = props[prop];
-				members[member] = (param == null) ? defaultval : param;
-				RTFJS.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-				_addFormatIns(ptype, props);
+				var val;
+				if (typeof defaultValOrFunc === "function")
+					val = defaultValOrFunc.call(this, param);
+				else
+					val = (param == null) ? defaultValOrFunc : param;
+				members[member] = val;
+				console.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+				this._updateFormatIns(ptype, props);
 			};
 		};
+		var _setTableVal = function(member, defaultValOrFunc) {
+			return function(param) {
+				if (member != null) {
+					var val;
+					if (parser.state.table == null)
+						throw new RTFJS.Error("Invalid table row definition");
+					if (typeof defaultValOrFunc === "function")
+						val = defaultValOrFunc.call(this, param);
+					else
+						val = (param == null) ? defaultValOrFunc : param;
+					parser.state.table[member] = val;
+					console.log("[rtf] state.table." + member + " = " + parser.state.table[member].toString());
+				} else {
+					if (parser.state.table != null)
+						this._finishTableRow();
+					parser.state.table = new Tbl();
+					console.log("[rtf] state.pap.table initialized");
+					inst._renderer.addIns(function() {
+						this.pushContainer(new RTFJS.RenderTableContainer(this._doc));
+					});
+				}
+ 			};
+ 		};
 		var _charFormatHandlers = {
 			ansicpg: function(param) {
 				//if the value is 0, use the default charset as 0 is not valid
@@ -808,14 +1156,17 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			sectd: function(param) {
 				RTFJS.log("[rtf] reset to section defaults");
 				parser.state.sep = new Sep(null);
+				this._updateFormatIns("sep", parser.state.sep);
 			},
 			plain: function(param) {
 				RTFJS.log("[rtf] reset to character defaults");
 				parser.state.chp = new Chp(null);
+				this._updateFormatIns("chp", parser.state.chp);
 			},
 			pard: function(param) {
 				RTFJS.log("[rtf] reset to paragraph defaults");
 				parser.state.pap = new Pap(null);
+				this._updateFormatIns("pap", parser.state.pap);
 			},
 			b: _genericFormatOnOff("chp", "bold"),
 			i: _genericFormatOnOff("chp", "italic"),
@@ -875,24 +1226,32 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			pgnstart: _genericFormatSetVal("dop", "pagenumberstart", 1),
 			facingp: _genericFormatSetNoParam("dop", "facingpages", true),
 			landscape: _genericFormatSetNoParam("dop", "landscape", true),
-			par: _addInsHandler(function() {
-				this.startPar();
+			par: _addInsHandler(true, function() {
+				this.finishPar();
 			}),
-			line: _addInsHandler(function() {
+			line: _addInsHandler(true, function() {
 				this.lineBreak();
 			}),
+			trowd: _setTableVal(),
+			intbl: _genericFormatSetNoParam("pap", "intable", true),
+			row: _genericFormatSetNoParam("pap", "isrow", true),
+			cell: function(param) {
+				this._finishTableCell();
+			},
 		};
 		cls.prototype.handleKeyword = function(keyword, param) {
 			var handler = _charFormatHandlers[keyword];
 			if (handler != null) {
-				handler(param);
+				console.log("[rtf] handling keyword: " + keyword);
+				handler.call(this, param);
 				return true;
 			}
 			//RTFJS.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
 			return false;
 		}
 		cls.prototype.apply = function() {
-			RTFJS.log("[rtf] apply()");
+			console.log("[rtf] apply()");
+			this.flushProps();
 			for (var prop in this._metadata)
 				inst._meta[prop] = this._metadata[prop];
 			delete this._metadata;
@@ -1354,6 +1713,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	FieldBase.prototype.renderFieldEnd = function(field, rtf, records) {
 		if (records > 0) {
 			rtf.addIns(function() {
+				console.log("[rtf] Popping container");
 				this.popContainer();
 			});
 		}
@@ -1364,20 +1724,19 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		this._url = data;
 	};
 	FieldHyperlink.prototype = Object.create(FieldBase.prototype);
-	FieldHyperlink.prototype.url = function() {
-		return this._url;
-	};
 	FieldHyperlink.prototype.renderFieldBegin = function(field, rtf, records) {
 		var self = this;
 		if (records > 0) {
 			rtf.addIns(function() {
-				var renderer =  this;
+				var renderer = this;
 				var create = function() {
 					return renderer.buildHyperlinkElement(self._url);
 				};
 				var container;
 				if (inst._settings.onHyperlink != null) {
-					container = inst._settings.onHyperlink.call(inst, create, self);
+					container = inst._settings.onHyperlink.call(inst, create, {
+						url: self._url
+					});
 				} else {
 					var elem = create();
 					container = {
@@ -1385,7 +1744,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						content: elem
 					};
 				}
-				this.pushContainer(container);
+				console.log("[rtf] Pushing hyperlink container for url " + self._url);
+				this.pushContainer(new RTFJS.RenderContainer(this._doc, "hyperlink", container.element, container.content));
 			});
 			return true;
 		}
@@ -1471,7 +1831,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var pictDestination = function() {
 		var cls = function() {
 			DestinationTextBase.call(this, "pict");
@@ -1642,9 +2002,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 							if (rendering) {
 								return this.buildPicture(pictrender, null);
 							} else {
-								inst._renderer.addIns(function() {
-									this.picture(pictrender, null);
-								});
+								(function(pictrender) {
+									inst._renderer.addIns(function() {
+										this.picture(pictrender, null);
+									});
+								})(pictrender);
 							}
 						} else {
 							if (typeof pictrender !== "function")
@@ -1652,28 +2014,32 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 							if (rendering) {
 								return this.buildRenderedPicture(pictrender());
 							} else {
-								inst._renderer.addIns(function() {
-									this.renderedPicture(pictrender());
-								});
+								(function(pictrender) {
+									inst._renderer.addIns(function() {
+										this.renderedPicture(pictrender());
+									});
+								})(pictrender);
 							}
 						}
 					}
 				};
 				
-				if (inst._settings.onPicture != null) {
-					inst._renderer.addIns((function(isLegacy) {
-						return function() {
-							var renderer = this;
-							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
-								return doRender.call(renderer, true);
-							});
-							if (elem != null)
-								this.appendElement(elem);
-						};
-					})(isLegacy));
-				} else {
-					doRender(false);
-				}
+				(function(doRender) {
+					if (inst._settings.onPicture != null) {
+						inst._renderer.addIns((function(isLegacy) {
+                            return function() {
+                                var renderer = this;
+                                var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+                                    return doRender.call(renderer, true).getElement();
+                                });
+                                if (elem != null)
+                                    this.appendElement(elem);
+                            };
+                        })(isLegacy));
+					} else {
+						doRender(false);
+					}
+				})(doRender);
 			} else if (typeof type === "string") {
 				var text = this.text;
 				var blob = this._blob;
@@ -1699,20 +2065,22 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					}
 				};
 				
-				if (inst._settings.onPicture != null) {
-					inst._renderer.addIns((function(isLegacy) {
-						return function() {
-							var renderer = this;
-							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
-								return doRender.call(renderer, true);
-							});
-							if (elem != null)
-								this.appendElement(elem);
-						};
-					})(isLegacy));;
-				} else {
-					doRender(false);
-				}
+				(function(doRender) {
+					if (inst._settings.onPicture != null) {
+						inst._renderer.addIns((function(isLegacy) {
+                            return function() {
+                                var renderer = this;
+                                var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+                                    return doRender.call(renderer, true).getElement();
+                                });
+                                if (elem != null)
+                                    this.appendElement(elem);
+                            };
+					    })(isLegacy));;
+					} else {
+						doRender(false);
+					}
+				})(doRender);
 			}
 			
 			delete this.text;
