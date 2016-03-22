@@ -425,7 +425,7 @@ RTFJS.Document = function(blob, settings) {
 	this._autoColor = null;
 	this._stylesheets = [];
 	this._renderer = new RTFJS.Renderer(this);
-	this.parse(blob);
+	this.parse(blob, this._renderer);
 };
 
 RTFJS.Document.prototype._lookupColor = function(idx) {
@@ -447,10 +447,10 @@ RTFJS.Document.prototype.render = function() {
 	return this._renderer.buildDom();
 };
 
-RTFJS.Document.prototype.parse = function(blob) {
+RTFJS.Document.prototype.parse = function(blob, renderer) {
 	if (!('TextDecoder' in window))
 		throw new RTFJS.Error("Encoding API required");
-	
+
 	var inst = this;
 	
 	var parseKeyword, processKeyword, appendText, parseLoop;
@@ -1701,6 +1701,23 @@ RTFJS.Document.prototype.parse = function(blob) {
 		if (state.parent == null || state.destination != state.parent.destination)
 			applyDestination(true);
 		parser.state = state.parent;
+
+		if(parser.state !== null) {
+			renderer._ins.push(
+				(function(state) {
+					return function () {
+						this.setChp(new RTFJS.RenderChp(state.chp));
+					}
+				})(parser.state)
+			);
+			renderer._ins.push(
+				(function(state) {
+					return function () {
+						this.setPap(new RTFJS.RenderPap(state.pap));
+					}
+				})(parser.state)
+			);
+		}
 		return parser.state;
 	};
 	
