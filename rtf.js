@@ -216,7 +216,7 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 		deco.push("line-through");
 	
 	if (deco.length > 0)
-		el.css("text-decoration-line", deco.join(" "));
+		el.css("text-decoration", deco.join(" "));
 	if (chp.colorindex != 0) {
 		var color = doc._lookupColor(chp.colorindex);
 		if (color != null)
