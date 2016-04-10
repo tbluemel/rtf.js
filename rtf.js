@@ -493,7 +493,7 @@ RTFJS.RenderTableContainer.prototype.finalize = function() {
 			console.log("[rtf] Table finalize: row[" + r + "].cell[" + c + "].#subs: " + slen);
 			for (var s = 0; s < slen; s++) {
 				var sub = cell.sub[s];
-				var element = sub.finalize();
+				var element = sub.container.finalize();
 				if (element != null)
 					cell.element.append(element);
 			}
@@ -1135,13 +1135,15 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					parser.state.table[member] = val;
 					console.log("[rtf] state.table." + member + " = " + parser.state.table[member].toString());
 				} else {
-					if (parser.state.table != null)
+					if (parser.state.table != null) {
 						this._finishTableRow();
-					parser.state.table = new Tbl();
-					console.log("[rtf] state.pap.table initialized");
-					inst._renderer.addIns(function() {
-						this.pushContainer(new RTFJS.RenderTableContainer(this._doc));
-					});
+					} else {
+						parser.state.table = new Tbl();
+						console.log("[rtf] state.pap.table initialized");
+						inst._renderer.addIns(function () {
+							this.pushContainer(new RTFJS.RenderTableContainer(this._doc));
+						});
+					}
 				}
  			};
  		};
