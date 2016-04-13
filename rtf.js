@@ -598,6 +598,10 @@ RTFJS.Renderer.prototype._appendToPar = function(content, newsubpar) {
 		if (content != null)
 			this._curpar.push(content);
 	} else if (content != null) {
+		if(this._pap.intable === false){
+			this._curcont.pop();
+		}
+
 		var contelCnt = this._curcont.length;
 		if (contelCnt > 0) {
 			this._curcont[contelCnt - 1].appendSub(content);
