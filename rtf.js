@@ -598,7 +598,8 @@ RTFJS.Renderer.prototype._appendToPar = function(content, newsubpar) {
 		if (content != null)
 			this._curpar.push(content);
 	} else if (content != null) {
-		if(this._pap.intable === false){
+		if(this._curcont.length > 0 && this._curcont[this._curcont.length - 1] instanceof RTFJS.RenderTableContainer
+			&& this._pap.intable === false){
 			this._curcont.pop();
 		}
 
