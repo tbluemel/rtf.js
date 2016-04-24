@@ -185,7 +185,7 @@ if (typeof RTFJS === "undefined") {
 			texttwo: null,
 		},
 		_mapColorTheme: function(name) {
-			return this.__colorThemeMap[name];
+			return this._colorThemeMap[name];
 		},
 		_colorToStr: function(color) {
 			return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
