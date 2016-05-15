@@ -2199,14 +2199,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			renderer._ins.push(
 				(function(state) {
 					return function () {
-						this.setChp(new RTFJS.RenderChp(state.chp));
+						this.setChp(new Chp(state.chp));
 					}
 				})(parser.state)
 			);
 			renderer._ins.push(
 				(function(state) {
 					return function () {
-						this.setPap(new RTFJS.RenderPap(state.pap));
+						this.setPap(new Pap(state.pap));
 					}
 				})(parser.state)
 			);
