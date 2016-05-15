@@ -256,7 +256,7 @@ RTFJS.RenderElement.prototype.updateProps = function(pap, chp) {
 };
 
 RTFJS.RenderElement.prototype.finalize = function() {
-	console.log("[rtf] finalizing element of type " + this._type);
+	RTFJS.log("[rtf] finalizing element of type " + this._type);
 	return this._element;
 };
 
@@ -297,7 +297,7 @@ RTFJS.RenderTextElement.prototype.applyProps = function() {
 };
 
 RTFJS.RenderTextElement.prototype.finalize = function() {
-	console.log("[rtf] finalizing text element");
+	RTFJS.log("[rtf] finalizing text element");
 	this.applyProps();
 	return RTFJS.RenderElement.prototype.finalize.call(this);
 }
@@ -319,7 +319,7 @@ RTFJS.RenderContainer.prototype.getContent = function() {
 };
 
 RTFJS.RenderContainer.prototype.appendSub = function(container) {
-	console.log("[rtf] appendSub for container " + this._type);
+	RTFJS.log("[rtf] appendSub for container " + this._type);
 	this._sub.push({
 		container: container
 	});
@@ -330,7 +330,7 @@ RTFJS.RenderContainer.prototype._finalizeSub = function(sub) {
 };
 
 RTFJS.RenderContainer.prototype.finalize = function() {
-	console.log("[rtf] finalizing container " + this._type);
+	RTFJS.log("[rtf] finalizing container " + this._type);
 	if (this._sub == null)
 		throw new RTFJS.Error("Container already finalized");
 
@@ -353,7 +353,7 @@ RTFJS.RenderParagraphContainer = function(doc) {
 RTFJS.RenderParagraphContainer.prototype = Object.create(RTFJS.RenderContainer.prototype);
 
 RTFJS.RenderParagraphContainer.prototype.appendSub = function(container) {
-	console.log("[rtf] appendSub for container " + this._type);
+	RTFJS.log("[rtf] appendSub for container " + this._type);
 	this._sub.push({
 		container: container,
 		pap: container._pap != null ? container._pap : this._pap,
@@ -411,7 +411,7 @@ RTFJS.RenderParagraphContainer.prototype._finalizeSub = function(sub) {
 };
 
 RTFJS.RenderParagraphContainer.prototype.finalize = function() {
-	console.log("[rtf] finalizing paragraph");
+	RTFJS.log("[rtf] finalizing paragraph");
 	if (this._sub == null)
 		throw new RTFJS.Error("Paragraph already finalized");
 	if (this._sub.length > 0)
@@ -431,7 +431,7 @@ RTFJS.RenderTableContainer = function(doc) {
 RTFJS.RenderTableContainer.prototype = Object.create(RTFJS.RenderContainer.prototype);
 
 RTFJS.RenderTableContainer.prototype.appendCell = function() {
-	console.log("[rtf] Table appending cell");
+	RTFJS.log("[rtf] Table appending cell");
 	if (this._row == null)
 		this.appendRow();
 
@@ -443,7 +443,7 @@ RTFJS.RenderTableContainer.prototype.appendCell = function() {
 };
 
 RTFJS.RenderTableContainer.prototype.appendRow = function() {
-	console.log("[rtf] Table appending row");
+	RTFJS.log("[rtf] Table appending row");
 	this._row = {
 		element: $("<tr>").appendTo(this._element),
 		cells: []
@@ -453,13 +453,13 @@ RTFJS.RenderTableContainer.prototype.appendRow = function() {
 };
 
 RTFJS.RenderTableContainer.prototype.finishRow = function() {
-	console.log("[rtf] Table finish row");
+	RTFJS.log("[rtf] Table finish row");
 	this.finishCell();
 	this._row = null;
 };
 
 RTFJS.RenderTableContainer.prototype.finishCell = function() {
-	console.log("[rtf] Table finish cell");
+	RTFJS.log("[rtf] Table finish cell");
 	var len = this._sub.length;
 	if (len > 0) {
 		if (this._row == null)
@@ -476,21 +476,21 @@ RTFJS.RenderTableContainer.prototype.finishCell = function() {
 };
 
 RTFJS.RenderTableContainer.prototype.finalize = function() {
-	console.log("[rtf] Table finalize");
+	RTFJS.log("[rtf] Table finalize");
 	if (this._sub == null)
 		throw new RTFJS.Error("Table container already finalized");
 
 	var rlen = this._rows.length;
-	console.log("[rtf] Table finalize: #rows: " + rlen);
+	RTFJS.log("[rtf] Table finalize: #rows: " + rlen);
 	for (var r = 0; r < rlen; r++) {
 		var row = this._rows[r];
 		var clen = row.cells.length;
-		console.log("[rtf] Table finalize: row[" + r + "].#cells: " + clen);
+		RTFJS.log("[rtf] Table finalize: row[" + r + "].#cells: " + clen);
 		for (var c = 0; c < clen; c++) {
 			var cell = row.cells[c];
 
 			var slen = cell.sub.length;
-			console.log("[rtf] Table finalize: row[" + r + "].cell[" + c + "].#subs: " + slen);
+			RTFJS.log("[rtf] Table finalize: row[" + r + "].cell[" + c + "].#subs: " + slen);
 			for (var s = 0; s < slen; s++) {
 				var sub = cell.sub[s];
 				var element = sub.container.finalize();
@@ -617,7 +617,7 @@ RTFJS.Renderer.prototype._appendToPar = function(content, newsubpar) {
 RTFJS.Renderer.prototype.finishPar = function() {
 	this._appendToPar(null, true);
 	//if (this._pap != null && this._pap.intable) {
-	//	console.log("[rtf] finishPar: finishing table row");
+	//	RTFJS.log("[rtf] finishPar: finishing table row");
 	//	this.finishRow();
 	//}
 };
@@ -998,19 +998,19 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			inst._renderer.addIns(func);
 		};
 		cls.prototype.appendText = function(text) {
-			console.log("[rtf] appendText()");
+			RTFJS.log("[rtf] appendText()");
 			this.flushProps();
 			if (parser.state.pap.intable) {
 				if (parser.state.table == null)
 					throw new RTFJS.Error("intbl flag without table definition");
 			} else {
 				if (parser.state.table != null) {
-					console.log("[rtf] TABLE END");
+					RTFJS.log("[rtf] TABLE END");
 					parser.state.table = null;
 				}
 			}
 
-			console.log("[rtf] output: " + text);
+			RTFJS.log("[rtf] output: " + text);
 			inst._renderer.addIns(text);
 		}
 		cls.prototype.sub = function() {
@@ -1025,7 +1025,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			};
 		};
 		cls.prototype._addFormatIns = function(ptype, props) {
-			console.log("[rtf] update " + ptype);
+			RTFJS.log("[rtf] update " + ptype);
 			switch (ptype) {
 				case "chp":
 					var chp = new Chp(props);
@@ -1068,13 +1068,13 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			}
 		};
 		cls.prototype._finishTableRow = function() {
-			console.log("[rtf] finalize table row");
+			RTFJS.log("[rtf] finalize table row");
 			inst._renderer.addIns(function() {
 				this.finishRow();
 			});
 		};
 		cls.prototype._finishTableCell = function() {
-			console.log("[rtf] finalize table cell");
+			RTFJS.log("[rtf] finalize table cell");
 			inst._renderer.addIns(function() {
 				this.finishCell();
 			});
@@ -1083,7 +1083,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = val;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				this._updateFormatIns(ptype, props);
 			};
 		};
@@ -1091,7 +1091,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				this._updateFormatIns(ptype, props);
 			};
 		};
@@ -1099,7 +1099,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			return function(param) {
 				var props = parser.state[ptype];
 				props[prop] = (param == null) ? defaultval : param;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				this._updateFormatIns(ptype, props);
 			};
 		};
@@ -1109,7 +1109,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					throw new RTFJS.Error("Keyword without required param");
 				var props = parser.state[ptype];
 				props[prop] = param;
-				console.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
 				this._updateFormatIns(ptype, props);
 			};
 		};
@@ -1123,7 +1123,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				else
 					val = (param == null) ? defaultValOrFunc : param;
 				members[member] = val;
-				console.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+				RTFJS.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
 				this._updateFormatIns(ptype, props);
 			};
 		};
@@ -1138,13 +1138,13 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					else
 						val = (param == null) ? defaultValOrFunc : param;
 					parser.state.table[member] = val;
-					console.log("[rtf] state.table." + member + " = " + parser.state.table[member].toString());
+					RTFJS.log("[rtf] state.table." + member + " = " + parser.state.table[member].toString());
 				} else {
 					if (parser.state.table != null) {
 						this._finishTableRow();
 					} else {
 						parser.state.table = new Tbl();
-						console.log("[rtf] state.pap.table initialized");
+						RTFJS.log("[rtf] state.pap.table initialized");
 						inst._renderer.addIns(function () {
 							this.pushContainer(new RTFJS.RenderTableContainer(this._doc));
 						});
@@ -1249,7 +1249,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.handleKeyword = function(keyword, param) {
 			var handler = _charFormatHandlers[keyword];
 			if (handler != null) {
-				console.log("[rtf] handling keyword: " + keyword);
+				RTFJS.log("[rtf] handling keyword: " + keyword);
 				handler.call(this, param);
 				return true;
 			}
@@ -1257,7 +1257,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			return false;
 		}
 		cls.prototype.apply = function() {
-			console.log("[rtf] apply()");
+			RTFJS.log("[rtf] apply()");
 			this.flushProps();
 			for (var prop in this._metadata)
 				inst._meta[prop] = this._metadata[prop];
@@ -1720,7 +1720,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	FieldBase.prototype.renderFieldEnd = function(field, rtf, records) {
 		if (records > 0) {
 			rtf.addIns(function() {
-				console.log("[rtf] Popping container");
+				RTFJS.log("[rtf] Popping container");
 				this.popContainer();
 			});
 		}
@@ -1751,7 +1751,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						content: elem
 					};
 				}
-				console.log("[rtf] Pushing hyperlink container for url " + self._url);
+				RTFJS.log("[rtf] Pushing hyperlink container for url " + self._url);
 				this.pushContainer(new RTFJS.RenderContainer(this._doc, "hyperlink", container.element, container.content));
 			});
 			return true;
