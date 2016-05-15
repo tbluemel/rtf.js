@@ -448,9 +448,6 @@ RTFJS.Document.prototype.render = function() {
 };
 
 RTFJS.Document.prototype.parse = function(blob, renderer) {
-	if (!('TextDecoder' in window))
-		throw new RTFJS.Error("Encoding API required");
-
 	var inst = this;
 	
 	var parseKeyword, processKeyword, appendText, parseLoop;
