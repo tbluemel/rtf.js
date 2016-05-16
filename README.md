@@ -8,6 +8,7 @@ The code of this project is licensed under the MIT license.  See the file LICENS
 * rtf.js requires:
   * [jquery](https://jquery.com/)
   * [js-codepage](https://github.com/SheetJS/js-codepage/) (Apache 2.0 license)
+  * symboltable.js (provided in the sample directory)
 * wmf.js requires:
   * [jquery](https://jquery.com/)
   * [jquery.svg.js plugin](https://github.com/kbwood/svg) with the jquery.svgfilter.js extension.

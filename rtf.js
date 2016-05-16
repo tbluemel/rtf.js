@@ -207,7 +207,9 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 	if (chp.italic)
 		el.css("font-style", "italic");
 	if (chp.fontfamily)
-		el.css("font-family", doc._fonts[chp.fontfamily].fontname.replace(";",""));
+		var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";","");
+		if(fontFamily !== "Symbol")
+			el.css("font-family", fontFamily);
 		
 	var deco = [];
 	if (chp.underline != RTFJS.UNDERLINE.NONE)
@@ -1777,7 +1779,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					if (param < 0 || param > 65535)
 						throw new RTFJS.Error("Invalid unicode character encountered");
 
-					appendText(cptable[parser.codepage].dec[param]);
+					var symbol = symbolTable[param.toString(16).substring(2)]
+					appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
 					parser.state.skipchars = parser.state.ucn;
 				}
 				return;
