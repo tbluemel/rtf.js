@@ -1777,7 +1777,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					if (param < 0 || param > 65535)
 						throw new RTFJS.Error("Invalid unicode character encountered");
 
-					appendText(cptable[parser.codepage].dec[param]);
+					appendText(String.fromCharCode(param));
 					parser.state.skipchars = parser.state.ucn;
 				}
 				return;
