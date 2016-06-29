@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="jquery.binarytransport.js"></script>
 <script src="cptable.full.js"></script>
 <script src="symboltable.js"></script>
 <link rel="stylesheet" href="jquery.svg.css">
@@ -87,18 +86,22 @@ function displayRtfFile(blob) {
 			throw e;
 	}
 }
+function stringToBinaryArray(string) {
+	var buffer = new ArrayBuffer(string.length);
+	var bufferView = new Uint8Array(buffer);
+	for (var i=0; i<string.length; i++) {
+		bufferView[i] = string.charCodeAt(i);
+	}
+	return buffer;
+}
 function loadRtfFile(file) {
 	beginLoading();
 	$.ajax({
 		url: file,
-		dataType: "binary",
+		dataType: "text",
 		processData: false,
 		success: function(result) {
-			var reader = new FileReader();
-			reader.onload = function(evt) {
-				displayRtfFile(evt.target.result);
-			};
-			reader.readAsArrayBuffer(result);
+			displayRtfFile(stringToBinaryArray(result));
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			$("#content").text("Error: " + errorThrown);
