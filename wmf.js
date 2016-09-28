@@ -1796,6 +1796,32 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 	this._svg.text(this.state._svggroup, x, y, text, opts);
 };
 
+WMFJS.GDIContext.prototype.extTextOut = function(x, y, text, fwOpts, rect, dx) {
+	WMFJS.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+	x = this._todevX(x);
+	y = this._todevY(y);
+	WMFJS.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
+	this._pushGroup();
+
+	var opts = this._applyOpts(null, false, false, true);
+	if (this.state.selected.font.escapement != 0) {
+		opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+		opts.style = "dominant-baseline: middle; text-anchor: start;";
+	}
+	if (this.state.bkmode == WMFJS.GDI.MixMode.OPAQUE) {
+		if (this.state._svgtextbkfilter == null) {
+			var filterId = WMFJS._makeUniqueId("f");
+			var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
+			this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+			this._svg.filters.composite(filter, null, null, "SourceGraphic");
+			this.state._svgtextbkfilter = filter;
+		}
+
+		opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+	}
+	this._svg.text(this.state._svggroup, x, y, text, opts);
+};
+
 WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	WMFJS.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
 	var toX = this._todevX(x);
@@ -2322,6 +2348,52 @@ WMFJS.WMFRecords = function(reader, first) {
 					);
 				}
 				break;
+			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
+				var y = reader.readInt16();
+				var x = reader.readInt16();
+				var len = reader.readInt16();
+				var fwOpts = reader.readUint16();
+
+				var hasRect = null;
+				var hasDx = null;
+				if(size * 2 === 14 + len + len % 2){
+					hasRect = false;
+					hasDx = false;
+				}
+				if(size * 2 === 14 + 8 + len + len % 2){
+					hasRect = true;
+					hasDx = false;
+				}
+				if(size * 2 === 14 + len + len % 2 + len * 2){
+					hasRect = false;
+					hasDx = true;
+				}
+				if(size * 2 === 14 + 8 + len + len % 2 + len * 2){
+					hasRect = true;
+					hasDx = true;
+				}
+
+				var rect = hasRect ? new WMFJS.Rect(reader) : null;
+				if (len > 0) {
+					var text = reader.readString(len);
+					reader.skip(len % 2);
+
+					var dx = [];
+					if(hasDx) {
+						for (var i = 0; i < text.length; i++) {
+							dx.push(reader.readInt16());
+						}
+					}
+
+					this._records.push(
+						(function(x, y, text, fwOpts, rect, dx) {
+							return function(gdi) {
+								gdi.extTextOut(x, y, text, fwOpts, rect, dx);
+							}
+						})(x, y, text, fwOpts, rect, dx)
+					);
+				}
+				break;
 			case WMFJS.GDI.RecordType.META_EXCLUDECLIPRECT:
 				var rect = new WMFJS.Rect(reader);
 				this._records.push(
@@ -2470,7 +2542,6 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_ARC:
 			case WMFJS.GDI.RecordType.META_CHORD:
 			case WMFJS.GDI.RecordType.META_BITBLT:
-			case WMFJS.GDI.RecordType.META_EXTTEXTOUT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
 				WMFJS.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
