@@ -206,10 +206,11 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 		el.css("font-weight", "bold");
 	if (chp.italic)
 		el.css("font-style", "italic");
-	if (chp.fontfamily)
-		var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";","");
-		if(fontFamily !== "Symbol")
+	if (chp.fontfamily && doc._fonts[chp.fontfamily]) {
+		var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
+		if (fontFamily !== "Symbol")
 			el.css("font-family", fontFamily);
+	}
 		
 	var deco = [];
 	if (chp.underline != RTFJS.UNDERLINE.NONE)
