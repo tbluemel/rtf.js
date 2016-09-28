@@ -1244,8 +1244,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			delete this._stylesheets;
 		};
 		cls.prototype.addSub = function(sub) {
-			if (this._stylesheets[sub.index] != null)
-				throw new RTFJS.Error("Cannot redefine stylesheet with index " + sub.index);
+			//Some documents will redefine stylesheets
+			// if (this._stylesheets[sub.index] != null)
+			// 	throw new RTFJS.Error("Cannot redefine stylesheet with index " + sub.index);
 			this._stylesheets[sub.index] = sub;
 		};
 		return cls;
