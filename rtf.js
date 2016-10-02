@@ -1462,7 +1462,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					return "";
 				}
 			})(),
-			dibitmap: "" // TODO
+			dibitmap: "", // TODO
+			wbitmap: "" // TODO
 		};
 		cls.prototype.handleKeyword = function(keyword, param) {
 			var handler = _pictHandlers[keyword];
@@ -1646,6 +1647,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		headerl: requiredDestination("headerl"),
 		headerr: requiredDestination("headerr"),
 		pict: pictDestination(),
+		shppict: requiredDestination("shppict"),
 		private1: requiredDestination("private1"),
 		rxe: requiredDestination("rxe"),
 		tc: requiredDestination("tc"),
