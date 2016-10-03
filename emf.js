@@ -234,24 +234,24 @@ if (typeof EMFJS === 'undefined') {
 				COLORONCOLOR: 3,
 				HALFTONE: 4
 			},
-			TextAlignmentMode: {
-				TA_UPDATECP: 1,
-				TA_RIGHT: 2,
-				TA_CENTER: 6,
-				TA_BOTTOM: 8,
-				TA_BASELINE: 24,
-				TA_RTLREADING: 256
-			},
+		// 	TextAlignmentMode: {
+		// 		TA_UPDATECP: 1,
+		// 		TA_RIGHT: 2,
+		// 		TA_CENTER: 6,
+		// 		TA_BOTTOM: 8,
+		// 		TA_BASELINE: 24,
+		// 		TA_RTLREADING: 256
+		// 	},
 			MixMode: {
 				TRANSPARENT: 1,
 				OPAQUE: 2
 			},
-			VerticalTextAlignmentMode: {
-				VTA_BOTTOM: 2,
-				VTA_CENTER: 6,
-				VTA_LEFT: 8,
-				VTA_BASELINE: 24
-			},
+		// 	VerticalTextAlignmentMode: {
+		// 		VTA_BOTTOM: 2,
+		// 		VTA_CENTER: 6,
+		// 		VTA_LEFT: 8,
+		// 		VTA_BASELINE: 24
+		// 	},
 			BrushStyle: {
 				BS_SOLID: 0,
 				BS_NULL: 1,
@@ -283,42 +283,42 @@ if (typeof EMFJS === 'undefined') {
 				ALTERNATE: 1,
 				WINDING: 2
 			},
-			ColorUsage: {
-				DIB_RGB_COLORS: 0,
-				DIB_PAL_COLORS: 1,
-				DIB_PAL_INDICES: 2
-			},
-			PaletteEntryFlag: {
-				PC_RESERVED: 1,
-				PC_EXPLICIT: 2,
-				PC_NOCOLLAPSE: 4
-			},
-			BitmapCompression: {
-				BI_RGB: 0,
-				BI_RLE8: 1,
-				BI_RLE4: 2,
-				BI_BITFIELDS: 3,
-				BI_JPEG: 4,
-				BI_PNG: 5
-			},
+		// 	ColorUsage: {
+		// 		DIB_RGB_COLORS: 0,
+		// 		DIB_PAL_COLORS: 1,
+		// 		DIB_PAL_INDICES: 2
+		// 	},
+		// 	PaletteEntryFlag: {
+		// 		PC_RESERVED: 1,
+		// 		PC_EXPLICIT: 2,
+		// 		PC_NOCOLLAPSE: 4
+		// 	},
+		// 	BitmapCompression: {
+		// 		BI_RGB: 0,
+		// 		BI_RLE8: 1,
+		// 		BI_RLE4: 2,
+		// 		BI_BITFIELDS: 3,
+		// 		BI_JPEG: 4,
+		// 		BI_PNG: 5
+		// 	},
 		},
 		_uniqueId: 0,
 		_makeUniqueId: function(prefix) {
 			return "EMFJS_" + prefix + (this._uniqueId++);
 		},
-		_writeUint32Val: function(uint8arr, pos, val) {
-			uint8arr[pos++] = val & 0xff;
-			uint8arr[pos++] = (val >>> 8) & 0xff;
-			uint8arr[pos++] = (val >>> 16) & 0xff;
-			uint8arr[pos++] = (val >>> 24) & 0xff;
-		},
-		_blobToBinary: function(blob) {
-			var ret = "";
-			var len = blob.length;
-			for (var i = 0; i < len; i++)
-				ret += String.fromCharCode(blob[i]);
-			return ret;
-		},
+		// _writeUint32Val: function(uint8arr, pos, val) {
+		// 	uint8arr[pos++] = val & 0xff;
+		// 	uint8arr[pos++] = (val >>> 8) & 0xff;
+		// 	uint8arr[pos++] = (val >>> 16) & 0xff;
+		// 	uint8arr[pos++] = (val >>> 24) & 0xff;
+		// },
+		// _blobToBinary: function(blob) {
+		// 	var ret = "";
+		// 	var len = blob.length;
+		// 	for (var i = 0; i < len; i++)
+		// 		ret += String.fromCharCode(blob[i]);
+		// 	return ret;
+		// },
 	};
 }
 
@@ -468,13 +468,49 @@ EMFJS.PointS.prototype.clone = function() {
 EMFJS.PointS.prototype.toString = function() {
 	return "{x: " + this.x + ", y: " + this.y + "}";
 };
+//
+// EMFJS.Rect = function(reader, left, top, right, bottom) {
+// 	if (reader != null) {
+// 		this.bottom = reader.readInt16();
+// 		this.right = reader.readInt16();
+// 		this.top = reader.readInt16();
+// 		this.left = reader.readInt16();
+// 	} else {
+// 		this.bottom = bottom;
+// 		this.right = right;
+// 		this.top = top;
+// 		this.left = left;
+// 	}
+// };
+//
+// EMFJS.Rect.prototype.clone = function() {
+// 	return new EMFJS.Rect(null, this.left, this.top, this.right, this.bottom);
+// };
+//
+// EMFJS.Rect.prototype.toString = function() {
+// 	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+// };
+//
+// EMFJS.Rect.prototype.empty = function() {
+// 	return this.left >= this.right || this.top >= this.bottom;
+// };
+//
+// EMFJS.Rect.prototype.intersect = function(rect) {
+// 	if (this.empty() || rect.empty())
+// 		return null;
+// 	if (this.left >= rect.right || this.top >= rect.bottom ||
+// 		this.right <= rect.left || this.bottom <= rect.top) {
+// 		return null;
+// 	}
+// 	return new EMFJS.Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top), Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
+// };
 
-EMFJS.Rect = function(reader, left, top, right, bottom) {
+EMFJS.RectL = function(reader, left, top, right, bottom) {
 	if (reader != null) {
-		this.bottom = reader.readInt16();
-		this.right = reader.readInt16();
-		this.top = reader.readInt16();
-		this.left = reader.readInt16();
+		this.left = reader.readInt32();
+		this.top = reader.readInt32();
+		this.right = reader.readInt32();
+		this.bottom = reader.readInt32();
 	} else {
 		this.bottom = bottom;
 		this.right = right;
@@ -483,26 +519,26 @@ EMFJS.Rect = function(reader, left, top, right, bottom) {
 	}
 };
 
-EMFJS.Rect.prototype.clone = function() {
-	return new EMFJS.Rect(null, this.left, this.top, this.right, this.bottom);
+EMFJS.RectL.prototype.clone = function() {
+	return new EMFJS.RectL(null, this.left, this.top, this.right, this.bottom);
 };
 
-EMFJS.Rect.prototype.toString = function() {
+EMFJS.RectL.prototype.toString = function() {
 	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
 };
 
-EMFJS.Rect.prototype.empty = function() {
+EMFJS.RectL.prototype.empty = function() {
 	return this.left >= this.right || this.top >= this.bottom;
 };
 
-EMFJS.Rect.prototype.intersect = function(rect) {
-	if (this.empty() || rect.empty())
+EMFJS.RectL.prototype.intersect = function(rectL) {
+	if (this.empty() || rectL.empty())
 		return null;
-	if (this.left >= rect.right || this.top >= rect.bottom ||
-		this.right <= rect.left || this.bottom <= rect.top) {
+	if (this.left >= rectL.right || this.top >= rectL.bottom ||
+		this.right <= rectL.left || this.bottom <= rectL.top) {
 		return null;
 	}
-	return new EMFJS.Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top), Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
+	return new EMFJS.RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top), Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
 };
 
 EMFJS.Obj = function(type) {
@@ -535,7 +571,7 @@ EMFJS.Font = function(reader, copy) {
 		var pitchAndFamily = reader.readUint8();
 		this.pitch = pitchAndFamily & 0xf; // TODO: double check
 		this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
-		
+
 		var dataLength = copy;
 		var start = reader.pos;
 		this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
@@ -590,7 +626,7 @@ EMFJS.Brush = function(reader, copy, forceDibPattern) {
 	if (reader != null) {
 		var dataLength = copy;
 		var start = reader.pos;
-		
+
 		if (forceDibPattern === true || forceDibPattern === false) {
 			this.style = reader.readUint16();
 			if (forceDibPattern && this.style != EMFJS.GDI.BrushStyle.BS_PATTERN)
@@ -684,655 +720,655 @@ EMFJS.Pen.prototype.clone = function() {
 EMFJS.Pen.prototype.toString = function() {
 	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
 };
-
-EMFJS.PaletteEntry = function(reader, copy) {
-	if (reader != null) {
-		this.flag = reader.readUint8();
-		this.b = reader.readUint8();
-		this.g = reader.readUint8();
-		this.r = reader.readUint8();
-	} else {
-		this.flag = copy.flag;
-		this.b = copy.b;
-		this.g = copy.g;
-		this.r = copy.r;
-	}
-};
-
-EMFJS.PaletteEntry.prototype.clone = function() {
-	return new EMFJS.PaletteEntry(null, this);
-};
-
-EMFJS.Palette = function(reader, copy) {
-	EMFJS.Obj.call(this, "palette");
-	if (reader != null) {
-		this.start = reader.readUint16();
-		var cnt = reader.readUint16();
-		this.entries = [];
-		while (cnt > 0)
-			this.entries.push(new EMFJS.PaletteEntry(reader));
-	} else {
-		this.start = copy.start;
-		this.entries = [];
-		var len = copy.entries.length;
-		for (var i = 0; i < len; i++)
-			entries.push(copy.entries[i.clone()]);
-	}
-};
-EMFJS.Palette.prototype = Object.create(EMFJS.Obj.prototype);
-
-EMFJS.Palette.prototype.clone = function() {
-	return new EMFJS.Palette(null, this);
-};
-
-EMFJS.Palette.prototype.toString = function() {
-	return "{ #entries: " + this.entries.length + "}"; // TODO
-};
-
-EMFJS.Scan = function(reader, copy, top, bottom, scanlines) {
-	if (reader != null) {
-		var cnt = reader.readUint16();
-		this.top = reader.readUint16();
-		this.bottom = reader.readUint16();
-		this.scanlines = [];
-		for (var i = 0; i < cnt; i++) {
-			var left = reader.readUint16();
-			var right = reader.readUint16();
-			this.scanlines.push({left: left, right: right});
-		}
-		reader.skip(2);
-	} else if (copy != null) {
-		this.top = copy.top;
-		this.bottom = copy.bottom;
-		this.scanlines = [];
-		for (var i = 0; i < copy.scanlines.length; i++) {
-			var scanline = copy.scanlines[i];
-			this.scanlines.push({left: scanline.left, right: scanline.right});
-		}
-	} else {
-		this.top = top;
-		this.bottom = bottom;
-		this.scanlines = scanlines;
-	}
-};
-
-EMFJS.Scan.prototype.clone = function() {
-	return new EMFJS.Scan(null, this);
-};
-
-EMFJS.Scan.prototype.subtract = function(left, right) {
-	var i;
-	
-	// Keep everything on the left side
-	i = 0;
-	while (i < this.scanlines.length) {
-		var scanline = this.scanlines[i];
-		if (scanline.left <= left) {
-			if (scanline.right >= left) {
-				scanline.right = left - 1;
-				if (scanline.left >= scanline.right) {
-					this.scanlines.splice(i, 1);
-					continue;
-				}
-			}
-			i++;
-		} else {
-			break;
-		}
-	}
-	
-	// Find the first one that may exceed to the right side
-	var first = i;
-	var cnt = 0;
-	while (i < this.scanlines.length) {
-		var scanline = this.scanlines[i];
-		if (scanline.right > right) {
-			scanline.left = right;
-			cnt = i - first;
-			if (scanline.left >= scanline.right)
-				cnt++;
-			break;
-		}
-		i++;
-	}
-	
-	// Delete everything we're subtracting
-	if (cnt > 0 && first < this.scanlines.length)
-		this.scanlines.splice(first, cnt);
-	
-	return this.scanlines.length > 0;
-};
-
-EMFJS.Scan.prototype.intersect = function(left, right) {
-	// Get rid of anything that falls entirely outside to the left
-	for (var i = 0; i < this.scanlines.length; i++) {
-		var scanline = this.scanlines[i];
-		if (scanline.left >= left || scanline.right >= left) {
-			if (i > 0)
-				this.scanlines.splice(0, i);
-			break;
-		}
-	}
-	
-	if (this.scanlines.length > 0) {
-		// Adjust the first to match the left, if needed
-		var scanline = this.scanlines[0];
-		if (scanline.left < left)
-			scanline.left = left;
-		
-		// Get rid of anything that falls entirely outside to the right
-		for (var i = 0; i < this.scanlines.length; i++) {
-			scanline = this.scanlines[i];
-			if (scanline.left > right) {
-				this.scanlines.splice(i, this.scanline.length - i);
-				break;
-			}
-		}
-		
-		if (this.scanlines.length > 0) {
-			// Adjust the last to match the right, if needed
-			scanline = this.scanlines[this.scanlines.length - 1];
-			if (scanline.right > right)
-				scanline.right = right;
-		}
-	}
-	return this.scanlines.length > 0;
-};
-
-EMFJS.Scan.prototype.toString = function() {
-	return "{ #scanlines: " + this.scanlines.length + " bounds: " + this.bounds.toString() + "}";
-};
-
-EMFJS.Region = function(reader, copy) {
-	EMFJS.Obj.call(this, "region");
-	if (reader != null) {
-		reader.skip(8);
-		var rgnSize = reader.readInt16();
-		var scanCnt = reader.readInt16();
-		reader.skip(2);
-		// note, Rect in reverse, can't use EMFJS.Rect(reader) directly
-		var left = reader.readInt16();
-		var top = reader.readInt16();
-		var right = reader.readInt16();
-		var bottom = reader.readInt16();
-		this.bounds = new EMFJS.Rect(null, left, top, right, bottom);
-		this.scans = [];
-		for (var i = 0; i < scanCnt; i++)
-			this.scans.push(new EMFJS.Scan(reader));
-		this._updateComplexity();
-	} else if (copy != null) {
-		this.bounds = copy.bounds != null ? copy.bounds.clone() : null;
-		if (copy.scans != null) {
-			this.scans = [];
-			for (var i = 0; i < copy.scans.length; i++)
-				this.scans.push(copy.scans[i].clone());
-		} else {
-			this.scans = null;
-		}
-		this.complexity = copy.complexity;
-	} else {
-		this.bounds = null;
-		this.scans = null;
-		this.complexity = 0;
-	}
-};
-EMFJS.Region.prototype = Object.create(EMFJS.Obj.prototype);
-
-EMFJS.Region.prototype.clone = function() {
-	return new EMFJS.Region(null, this);
-};
-
-EMFJS.Region.prototype.toString = function() {
-	var _complexity = ["null", "simple", "complex"];
-	return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
-};
-
-EMFJS.Region.prototype._updateComplexity = function() {
-	if (this.bounds == null) {
-		this.complexity = 0;
-		this.scans = null;
-	} else if (this.bounds.empty()) {
-		this.complexity = 0;
-		this.scans = null;
-		this.bounds = null;
-	} else if (this.scans == null) {
-		this.complexity = 1;
-	} else {
-		this.complexity = 2;
-		if (this.scans.length == 1) {
-			var scan = this.scans[0];
-			if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
-				var scanline = scan.scanlines[0];
-				if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
-					this.scans = null;
-					this.complexity = 1;
-				}
-			}
-		}
-	}
-};
-
-EMFJS.Region.prototype.subtract = function(rect) {
-	EMFJS.log("[emf] Region " + this.toString() + " subtract " + rect.toString());
-	
-	if (this.bounds != null) {
-		var isect = this.bounds.intersect(rect);
-		if (isect != null) { // Only need to do anything if there is any chance of an overlap
-			if (this.scans == null) {
-				// We currently have a simple region and there is some kind of an overlap.
-				// We need to create scanlines now.  Simplest method is to fake one scan line
-				// that equals the simple region and re-use the same logic as for complex regions
-				this.scans = new EMFJS.Scan(null, null, this.bounds.top, this.bounds.bottom,
-					[{left: this.bounds.left, right: this.bounds.right}]);
-				this.complexity = 2;
-			}
-			
-			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
-			// The first scan that falls partially below rect.top needs to be split into two scans.
-			var si = 0;
-			while (si < this.scans.length) {
-				var scan = this.scans[si];
-				if (scan.bottom >= rect.top) {
-					// We need to clone this scan into two so that we can subtract from the second one
-					var cloned = scan.clone();
-					scan.bottom = rect.top - 1;
-					cloned.top = rect.top;
-					if (scan.top >= scan.bottom) {
-						this.scans[si] = cloned;
-					} else {
-						EMFJS.log("[emf] Region split top scan " + si + " for substraction");
-						this.scans.splice(++si, 0, cloned);
-					}
-					break;
-				}
-				si++;
-			}
-			
-			// Now find the first one that falls at least partially below rect.bottom, which needs to be
-			// split if it is only partially below rect.bottom
-			var first = si;
-			while (si < this.scans.length) {
-				var scan = this.scans[si];
-				if (scan.top > rect.bottom)
-					break;
-				if (scan.bottom > rect.bottom) {
-					// We need to clone this scan into two so that we can subtract from the first one
-					var cloned = scan.clone();
-					scan.bottom = rect.bottom;
-					cloned.top = rect.bottom + 1;
-					if (scan.top >= scan.bottom) {
-						this.scans[si] = cloned;
-					} else {
-						EMFJS.log("[emf] Region split bottom scan " + si + " for substraction");
-						this.scans.splice(++si, 0, clone);
-					}
-					break;
-				}
-				si++;
-			}
-			
-			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
-			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
-			// account for this anymore.
-			if (first < this.scans.length) {
-				var last = si;
-				si = first;
-				while (si < last) {
-					var scan = this.scans[si];
-					if (!scan.subtract(rect.left, rect.right)) {
-						EMFJS.log("[emf] Region remove now empty scan " + si + " due to subtraction");
-						this.scans.splice(si, 1);
-						last--;
-						continue;
-					}
-					
-					si++;
-				}
-			}
-			
-			// Update bounds
-			if (this.scans != null) {
-				var left, top, right, bottom;
-				var len = this.scans.length;
-				for (var i = 0; i < len; i++) {
-					var scan = this.scans[i];
-					if (i == 0)
-						top = scan.top;
-					if (i == len - 1)
-						bottom = scan.bottom;
-					
-					var slen = scan.scanline.length;
-					if (slen > 0) {
-						var scanline = scan.scanline[0];
-						if (left == null || scanline.left < left)
-							left = scanline.left;
-						scanline = scan.scanline[slen - 1];
-						if (right == null || scanline.right > right)
-							right = scanline.right;
-					}
-				}
-				
-				if (left != null && top != null && right != null && bottom != null) {
-					this.bounds = new EMFJS.Rect(null, left, top, right, bottom);
-					this._updateComplexity();
-				} else {
-					// This has to be a null region now
-					this.bounds = null;
-					this.scans = null;
-					this.complexity = 0;
-				}
-			} else {
-				this._updateComplexity();
-			}
-		}
-	}
-	
-	EMFJS.log("[emf] Region subtraction -> " + this.toString());
-};
-
-EMFJS.Region.prototype.intersect = function(rect) {
-	EMFJS.log("[emf] Region " + this.toString() + " intersect with " + rect.toString());
-	if (this.bounds != null) {
-		this.bounds = this.bounds.intersect(rect);
-		if (this.bounds != null) {
-			if (this.scans != null) {
-				var si = 0;
-				// Remove any scans that are entirely above the new bounds.top
-				while (si < this.scans.length) {
-					var scan = this.scans[si];
-					if (scan.bottom < this.bounds.top)
-						si++;
-					else
-						break;
-				}
-				if (si > 0) {
-					EMFJS.log("[emf] Region remove " + si + " scans from top");
-					this.scans.splice(0, si);
-					
-					// Adjust the first scan's top to match the new bounds.top
-					if (this.scans.length > 0)
-						this.scans[0].top = this.bounds.top;
-				}
-				
-				// Get rid of anything that falls outside the new bounds.left/bounds.right
-				si = 0;
-				while (si < this.scans.length) {
-					var scan = this.scans[si];
-					if (scan.top > this.bounds.bottom) {
-						// Remove this and all remaining scans that fall entirely below the new bounds.bottom
-						EMFJS.log("[emf] Region remove " + (this.scans.length - si) + " scans from bottom");
-						this.scans.splice(si, this.scans.length - si);
-						break;
-					}
-					if (!scan.intersect(this.bounds.left, this.bounds.right)) {
-						// Remove now empty scan
-						EMFJS.log("[emf] Region remove now empty scan " + si + " due to intersection");
-						this.scans.splice(si, 1);
-						continue;
-					}
-					si++;
-				}
-				
-				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
-				if (this.scans.length > 0)
-					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
-				
-				this._updateComplexity();
-			}
-		} else {
-			this.scans = null;
-			this.complexity = 0;
-		}
-	}
-	EMFJS.log("[emf] Region intersection -> " + this.toString());
-};
-
-EMFJS.Region.prototype.offset = function(offX, offY) {
-	if (this.bounds != null) {
-		this.bounds.left += offX;
-		this.bounds.top += offY;
-		this.bounds.right += offX;
-		this.bounds.bottom += offY;
-	}
-	
-	if (this.scans != null) {
-		var slen = this.scans.length;
-		for (var si = 0; si < slen; si++) {
-			var scan = this.scans[si];
-			scan.top += offY;
-			scan.bottom += offY;
-			
-			var len = scan.scanlines.length;
-			for (var i = 0; i < len; i++) {
-				var scanline = scan.scanlines[i];
-				scanline.left += offX;
-				scanline.right += offX;
-			}
-		}
-	}
-};
-
-EMFJS.CreateSimpleRegion = function(left, top, right, bottom) {
-	var rgn = new EMFJS.Region(null, null);
-	rgn.bounds = new EMFJS.Rect(null, left, top, right, bottom);
-	rgn._updateComplexity();
-	return rgn;
-};
-
-EMFJS.BitmapBase = function() {
-};
-
-EMFJS.BitmapBase.prototype.getWidth = function() {
-	throw EMFJS.Error("getWidth not implemented");
-}
-
-EMFJS.BitmapBase.prototype.getHeight = function() {
-	throw EMFJS.Error("getHeight not implemented");
-}
-
-EMFJS.BitmapCoreHeader = function(reader, skipsize) {
-	if (skipsize)
-		reader.skip(4);
-	this.width = reader.readUint16();
-	this.height = reader.readUint16();
-	this.planes = reader.readUint16();
-	this.bitcount = reader.readUint16();
-}
-
-EMFJS.BitmapCoreHeader.prototype.colors = function() {
-	return this.bitcount <= 8 ? 1 << this.bitcount : 0;
-};
-
-EMFJS.BitmapInfoHeader = function(reader, skipsize) {
-	if (skipsize)
-		reader.skip(4);
-	this.width = reader.readInt32();
-	this.height = reader.readInt32();
-	this.planes = reader.readUint16();
-	this.bitcount = reader.readUint16();
-	this.compression = reader.readUint32();
-	this.sizeimage = reader.readUint32();
-	this.xpelspermeter = reader.readInt32();
-	this.ypelspermeter = reader.readInt32();
-	this.clrused = reader.readUint32();
-	this.clrimportant = reader.readUint32();
-};
-
-EMFJS.BitmapInfoHeader.prototype.colors = function() {
-	if (this.clrused != 0)
-		return this.clrused < 256 ? this.clrused : 256;
-	else
-		return this.bitcount > 8 ? 0 : 1 << this.bitcount;
-};
-
-EMFJS.BitmapInfo = function(reader, usergb) {
-	EMFJS.BitmapBase.call(this);
-	this._reader = reader;
-	this._offset = reader.pos;
-	this._usergb = usergb;
-	var hdrsize = reader.readUint32();
-	this._infosize = hdrsize;
-	if (hdrsize == EMFJS.GDI.BITMAPCOREHEADER_SIZE) {
-		this._header = new EMFJS.BitmapCoreHeader(reader, false);
-		this._infosize += this._header.colors() * (usergb ? 3 : 2);
-	}
-	else {
-		this._header = new EMFJS.BitmapInfoHeader(reader, false);
-		var masks = this._header.compression == EMFJS.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
-		if (hdrsize <= EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
-			this._infosize = EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
-		this._infosize += this._header.colors() * (usergb ? 4 : 2);
-	}
-};
-EMFJS.BitmapInfo.prototype = Object.create(EMFJS.BitmapBase.prototype);
-
-EMFJS.BitmapInfo.prototype.getWidth = function() {
-	return this._header.width;
-};
-
-EMFJS.BitmapInfo.prototype.getHeight = function() {
-	return Math.abs(this._header.height);
-};
-
-EMFJS.BitmapInfo.prototype.infosize = function() {
-	return this._infosize;
-};
-
-EMFJS.BitmapInfo.prototype.header = function() {
-	return this._header;
-};
-
-EMFJS.DIBitmap = function(reader, size) {
-	EMFJS.BitmapBase.call(this);
-	this._reader = reader;
-	this._offset = reader.pos;
-	this._size = size;
-	this._info = new EMFJS.BitmapInfo(reader, true);
-};
-EMFJS.DIBitmap.prototype = Object.create(EMFJS.BitmapBase.prototype);
-
-EMFJS.DIBitmap.prototype.getWidth = function() {
-	return this._info.getWidth();
-};
-
-EMFJS.DIBitmap.prototype.getHeight = function() {
-	return this._info.getHeight();
-};
-
-EMFJS.DIBitmap.prototype.makeBitmapFileHeader = function() {
-	var buf = new ArrayBuffer(14);
-	var view = new Uint8Array(buf);
-	view[0] = 0x42;
-	view[1] = 0x4d;
-	EMFJS._writeUint32Val(view, 2, this._size + 14);
-	EMFJS._writeUint32Val(view, 10, this._info.infosize() + 14);
-	return EMFJS._blobToBinary(view);
-};
-
-EMFJS.DIBitmap.prototype.base64ref = function() {
-	var prevpos = this._reader.pos;
-	this._reader.seek(this._offset);
-	var mime = "image/bmp";
-	var header = this._info.header();
-	var data;
-	if (header.compression != null) {
-		switch (header.compression) {
-			case EMFJS.GDI.BitmapCompression.BI_JPEG:
-				mime = "data:image/jpeg";
-				break;
-			case EMFJS.GDI.BitmapCompression.BI_PNG:
-				mime = "data:image/png";
-				break;
-			default:
-				data = this.makeBitmapFileHeader();
-				break;
-		}
-	} else {
-		data = this.makeBitmapFileHeader();
-	}
-	
-	if (data != null)
-		data += this._reader.readBinary(this._size);
-	else
-		data = this._reader.readBinary(this._size);
-	
-	var ref = "data:" + mime + ";base64," + btoa(data);
-	this._reader.seek(prevpos);
-	return ref;
-};
-
-EMFJS.Bitmap16 = function(reader, size) {
-	if (reader != null) {
-		this._reader = reader;
-		this._offset = reader.pos;
-		this._size = size;
-		this.type = reader.readInt16();
-		this.width = reader.readInt16();
-		this.height = reader.readInt16();
-		this.widthBytes = reader.readInt16();
-		this.planes = reader.readUint8();
-		this.bitsPixel = reader.readUint8();
-		this.bitsOffset = reader.pos;
-		this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
-		if (this.bitsSize != size - 10)
-			throw new EMFJS.Error("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
-	} else {
-		var copy = size;
-		this._reader = copy._reader;
-		this._offset = copy._offset;
-		this._size = copy._size;
-		this.type = copy.type;
-		this.width = copy.width;
-		this.height = copy.height;
-		this.widthBytes = copy.widthBytes;
-		this.planes = copy.planes;
-		this.bitsPixel = copy.bitsPixel;
-		this.bitsOffset = copy.bitsOffset;
-		this.bitsSize = copy.bitsSize;
-	}
-};
-EMFJS.Bitmap16.prototype = Object.create(EMFJS.BitmapBase.prototype);
-
-EMFJS.Bitmap16.prototype.getWidth = function() {
-	return this.width;
-};
-
-EMFJS.Bitmap16.prototype.getHeight = function() {
-	return this.height;
-};
-
-EMFJS.Bitmap16.prototype.clone = function() {
-	return new EMFJS.Bitmap16(null, this);
-};
-
-EMFJS.PatternBitmap16 = function(reader, size) {
-	EMFJS.Bitmap16.call(this, reader, size);
-	if (reader != null) {
-		this.bitsOffset += 22; // skip bits (4 bytes) + reserved (18 bytes)
-	}
-};
-EMFJS.PatternBitmap16.prototype = Object.create(EMFJS.Bitmap16.prototype);
-
-EMFJS.PatternBitmap16.prototype.clone = function() {
-	return new EMFJS.PatternBitmap16(null, this);
-};
-
-EMFJS.PolyPolygon = function(reader) {
-	var polygonsCnt = reader.readUint16();
-	var polygonsPtCnts = [];
-	for (var i = 0; i < polygonsCnt; i++)
-		polygonsPtCnts.push(reader.readUint16());
-	
-	this._polygons = [];
-	for (var i = 0; i < polygonsCnt; i++) {
-		var ptCnt = polygonsPtCnts[i];
-		
-		var polygon = [];
-		for (var ip = 0; ip < ptCnt; ip++)
-			polygon.push(new EMFJS.PointS(reader));
-		this._polygons.push(polygon);
-	}
-};
+//
+// EMFJS.PaletteEntry = function(reader, copy) {
+// 	if (reader != null) {
+// 		this.flag = reader.readUint8();
+// 		this.b = reader.readUint8();
+// 		this.g = reader.readUint8();
+// 		this.r = reader.readUint8();
+// 	} else {
+// 		this.flag = copy.flag;
+// 		this.b = copy.b;
+// 		this.g = copy.g;
+// 		this.r = copy.r;
+// 	}
+// };
+//
+// EMFJS.PaletteEntry.prototype.clone = function() {
+// 	return new EMFJS.PaletteEntry(null, this);
+// };
+//
+// EMFJS.Palette = function(reader, copy) {
+// 	EMFJS.Obj.call(this, "palette");
+// 	if (reader != null) {
+// 		this.start = reader.readUint16();
+// 		var cnt = reader.readUint16();
+// 		this.entries = [];
+// 		while (cnt > 0)
+// 			this.entries.push(new EMFJS.PaletteEntry(reader));
+// 	} else {
+// 		this.start = copy.start;
+// 		this.entries = [];
+// 		var len = copy.entries.length;
+// 		for (var i = 0; i < len; i++)
+// 			entries.push(copy.entries[i.clone()]);
+// 	}
+// };
+// EMFJS.Palette.prototype = Object.create(EMFJS.Obj.prototype);
+//
+// EMFJS.Palette.prototype.clone = function() {
+// 	return new EMFJS.Palette(null, this);
+// };
+//
+// EMFJS.Palette.prototype.toString = function() {
+// 	return "{ #entries: " + this.entries.length + "}"; // TODO
+// };
+//
+// EMFJS.Scan = function(reader, copy, top, bottom, scanlines) {
+// 	if (reader != null) {
+// 		var cnt = reader.readUint16();
+// 		this.top = reader.readUint16();
+// 		this.bottom = reader.readUint16();
+// 		this.scanlines = [];
+// 		for (var i = 0; i < cnt; i++) {
+// 			var left = reader.readUint16();
+// 			var right = reader.readUint16();
+// 			this.scanlines.push({left: left, right: right});
+// 		}
+// 		reader.skip(2);
+// 	} else if (copy != null) {
+// 		this.top = copy.top;
+// 		this.bottom = copy.bottom;
+// 		this.scanlines = [];
+// 		for (var i = 0; i < copy.scanlines.length; i++) {
+// 			var scanline = copy.scanlines[i];
+// 			this.scanlines.push({left: scanline.left, right: scanline.right});
+// 		}
+// 	} else {
+// 		this.top = top;
+// 		this.bottom = bottom;
+// 		this.scanlines = scanlines;
+// 	}
+// };
+//
+// EMFJS.Scan.prototype.clone = function() {
+// 	return new EMFJS.Scan(null, this);
+// };
+//
+// EMFJS.Scan.prototype.subtract = function(left, right) {
+// 	var i;
+//
+// 	// Keep everything on the left side
+// 	i = 0;
+// 	while (i < this.scanlines.length) {
+// 		var scanline = this.scanlines[i];
+// 		if (scanline.left <= left) {
+// 			if (scanline.right >= left) {
+// 				scanline.right = left - 1;
+// 				if (scanline.left >= scanline.right) {
+// 					this.scanlines.splice(i, 1);
+// 					continue;
+// 				}
+// 			}
+// 			i++;
+// 		} else {
+// 			break;
+// 		}
+// 	}
+//
+// 	// Find the first one that may exceed to the right side
+// 	var first = i;
+// 	var cnt = 0;
+// 	while (i < this.scanlines.length) {
+// 		var scanline = this.scanlines[i];
+// 		if (scanline.right > right) {
+// 			scanline.left = right;
+// 			cnt = i - first;
+// 			if (scanline.left >= scanline.right)
+// 				cnt++;
+// 			break;
+// 		}
+// 		i++;
+// 	}
+//
+// 	// Delete everything we're subtracting
+// 	if (cnt > 0 && first < this.scanlines.length)
+// 		this.scanlines.splice(first, cnt);
+//
+// 	return this.scanlines.length > 0;
+// };
+//
+// EMFJS.Scan.prototype.intersect = function(left, right) {
+// 	// Get rid of anything that falls entirely outside to the left
+// 	for (var i = 0; i < this.scanlines.length; i++) {
+// 		var scanline = this.scanlines[i];
+// 		if (scanline.left >= left || scanline.right >= left) {
+// 			if (i > 0)
+// 				this.scanlines.splice(0, i);
+// 			break;
+// 		}
+// 	}
+//
+// 	if (this.scanlines.length > 0) {
+// 		// Adjust the first to match the left, if needed
+// 		var scanline = this.scanlines[0];
+// 		if (scanline.left < left)
+// 			scanline.left = left;
+//
+// 		// Get rid of anything that falls entirely outside to the right
+// 		for (var i = 0; i < this.scanlines.length; i++) {
+// 			scanline = this.scanlines[i];
+// 			if (scanline.left > right) {
+// 				this.scanlines.splice(i, this.scanline.length - i);
+// 				break;
+// 			}
+// 		}
+//
+// 		if (this.scanlines.length > 0) {
+// 			// Adjust the last to match the right, if needed
+// 			scanline = this.scanlines[this.scanlines.length - 1];
+// 			if (scanline.right > right)
+// 				scanline.right = right;
+// 		}
+// 	}
+// 	return this.scanlines.length > 0;
+// };
+//
+// EMFJS.Scan.prototype.toString = function() {
+// 	return "{ #scanlines: " + this.scanlines.length + " bounds: " + this.bounds.toString() + "}";
+// };
+//
+// EMFJS.Region = function(reader, copy) {
+// 	EMFJS.Obj.call(this, "region");
+// 	if (reader != null) {
+// 		reader.skip(8);
+// 		var rgnSize = reader.readInt16();
+// 		var scanCnt = reader.readInt16();
+// 		reader.skip(2);
+// 		// note, Rect in reverse, can't use EMFJS.Rect(reader) directly
+// 		var left = reader.readInt16();
+// 		var top = reader.readInt16();
+// 		var right = reader.readInt16();
+// 		var bottom = reader.readInt16();
+// 		this.bounds = new EMFJS.Rect(null, left, top, right, bottom);
+// 		this.scans = [];
+// 		for (var i = 0; i < scanCnt; i++)
+// 			this.scans.push(new EMFJS.Scan(reader));
+// 		this._updateComplexity();
+// 	} else if (copy != null) {
+// 		this.bounds = copy.bounds != null ? copy.bounds.clone() : null;
+// 		if (copy.scans != null) {
+// 			this.scans = [];
+// 			for (var i = 0; i < copy.scans.length; i++)
+// 				this.scans.push(copy.scans[i].clone());
+// 		} else {
+// 			this.scans = null;
+// 		}
+// 		this.complexity = copy.complexity;
+// 	} else {
+// 		this.bounds = null;
+// 		this.scans = null;
+// 		this.complexity = 0;
+// 	}
+// };
+// EMFJS.Region.prototype = Object.create(EMFJS.Obj.prototype);
+//
+// EMFJS.Region.prototype.clone = function() {
+// 	return new EMFJS.Region(null, this);
+// };
+//
+// EMFJS.Region.prototype.toString = function() {
+// 	var _complexity = ["null", "simple", "complex"];
+// 	return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+// };
+//
+// EMFJS.Region.prototype._updateComplexity = function() {
+// 	if (this.bounds == null) {
+// 		this.complexity = 0;
+// 		this.scans = null;
+// 	} else if (this.bounds.empty()) {
+// 		this.complexity = 0;
+// 		this.scans = null;
+// 		this.bounds = null;
+// 	} else if (this.scans == null) {
+// 		this.complexity = 1;
+// 	} else {
+// 		this.complexity = 2;
+// 		if (this.scans.length == 1) {
+// 			var scan = this.scans[0];
+// 			if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+// 				var scanline = scan.scanlines[0];
+// 				if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+// 					this.scans = null;
+// 					this.complexity = 1;
+// 				}
+// 			}
+// 		}
+// 	}
+// };
+//
+// EMFJS.Region.prototype.subtract = function(rect) {
+// 	EMFJS.log("[emf] Region " + this.toString() + " subtract " + rect.toString());
+//
+// 	if (this.bounds != null) {
+// 		var isect = this.bounds.intersect(rect);
+// 		if (isect != null) { // Only need to do anything if there is any chance of an overlap
+// 			if (this.scans == null) {
+// 				// We currently have a simple region and there is some kind of an overlap.
+// 				// We need to create scanlines now.  Simplest method is to fake one scan line
+// 				// that equals the simple region and re-use the same logic as for complex regions
+// 				this.scans = new EMFJS.Scan(null, null, this.bounds.top, this.bounds.bottom,
+// 					[{left: this.bounds.left, right: this.bounds.right}]);
+// 				this.complexity = 2;
+// 			}
+//
+// 			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
+// 			// The first scan that falls partially below rect.top needs to be split into two scans.
+// 			var si = 0;
+// 			while (si < this.scans.length) {
+// 				var scan = this.scans[si];
+// 				if (scan.bottom >= rect.top) {
+// 					// We need to clone this scan into two so that we can subtract from the second one
+// 					var cloned = scan.clone();
+// 					scan.bottom = rect.top - 1;
+// 					cloned.top = rect.top;
+// 					if (scan.top >= scan.bottom) {
+// 						this.scans[si] = cloned;
+// 					} else {
+// 						EMFJS.log("[emf] Region split top scan " + si + " for substraction");
+// 						this.scans.splice(++si, 0, cloned);
+// 					}
+// 					break;
+// 				}
+// 				si++;
+// 			}
+//
+// 			// Now find the first one that falls at least partially below rect.bottom, which needs to be
+// 			// split if it is only partially below rect.bottom
+// 			var first = si;
+// 			while (si < this.scans.length) {
+// 				var scan = this.scans[si];
+// 				if (scan.top > rect.bottom)
+// 					break;
+// 				if (scan.bottom > rect.bottom) {
+// 					// We need to clone this scan into two so that we can subtract from the first one
+// 					var cloned = scan.clone();
+// 					scan.bottom = rect.bottom;
+// 					cloned.top = rect.bottom + 1;
+// 					if (scan.top >= scan.bottom) {
+// 						this.scans[si] = cloned;
+// 					} else {
+// 						EMFJS.log("[emf] Region split bottom scan " + si + " for substraction");
+// 						this.scans.splice(++si, 0, clone);
+// 					}
+// 					break;
+// 				}
+// 				si++;
+// 			}
+//
+// 			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
+// 			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
+// 			// account for this anymore.
+// 			if (first < this.scans.length) {
+// 				var last = si;
+// 				si = first;
+// 				while (si < last) {
+// 					var scan = this.scans[si];
+// 					if (!scan.subtract(rect.left, rect.right)) {
+// 						EMFJS.log("[emf] Region remove now empty scan " + si + " due to subtraction");
+// 						this.scans.splice(si, 1);
+// 						last--;
+// 						continue;
+// 					}
+//
+// 					si++;
+// 				}
+// 			}
+//
+// 			// Update bounds
+// 			if (this.scans != null) {
+// 				var left, top, right, bottom;
+// 				var len = this.scans.length;
+// 				for (var i = 0; i < len; i++) {
+// 					var scan = this.scans[i];
+// 					if (i == 0)
+// 						top = scan.top;
+// 					if (i == len - 1)
+// 						bottom = scan.bottom;
+//
+// 					var slen = scan.scanline.length;
+// 					if (slen > 0) {
+// 						var scanline = scan.scanline[0];
+// 						if (left == null || scanline.left < left)
+// 							left = scanline.left;
+// 						scanline = scan.scanline[slen - 1];
+// 						if (right == null || scanline.right > right)
+// 							right = scanline.right;
+// 					}
+// 				}
+//
+// 				if (left != null && top != null && right != null && bottom != null) {
+// 					this.bounds = new EMFJS.Rect(null, left, top, right, bottom);
+// 					this._updateComplexity();
+// 				} else {
+// 					// This has to be a null region now
+// 					this.bounds = null;
+// 					this.scans = null;
+// 					this.complexity = 0;
+// 				}
+// 			} else {
+// 				this._updateComplexity();
+// 			}
+// 		}
+// 	}
+//
+// 	EMFJS.log("[emf] Region subtraction -> " + this.toString());
+// };
+//
+// EMFJS.Region.prototype.intersect = function(rect) {
+// 	EMFJS.log("[emf] Region " + this.toString() + " intersect with " + rect.toString());
+// 	if (this.bounds != null) {
+// 		this.bounds = this.bounds.intersect(rect);
+// 		if (this.bounds != null) {
+// 			if (this.scans != null) {
+// 				var si = 0;
+// 				// Remove any scans that are entirely above the new bounds.top
+// 				while (si < this.scans.length) {
+// 					var scan = this.scans[si];
+// 					if (scan.bottom < this.bounds.top)
+// 						si++;
+// 					else
+// 						break;
+// 				}
+// 				if (si > 0) {
+// 					EMFJS.log("[emf] Region remove " + si + " scans from top");
+// 					this.scans.splice(0, si);
+//
+// 					// Adjust the first scan's top to match the new bounds.top
+// 					if (this.scans.length > 0)
+// 						this.scans[0].top = this.bounds.top;
+// 				}
+//
+// 				// Get rid of anything that falls outside the new bounds.left/bounds.right
+// 				si = 0;
+// 				while (si < this.scans.length) {
+// 					var scan = this.scans[si];
+// 					if (scan.top > this.bounds.bottom) {
+// 						// Remove this and all remaining scans that fall entirely below the new bounds.bottom
+// 						EMFJS.log("[emf] Region remove " + (this.scans.length - si) + " scans from bottom");
+// 						this.scans.splice(si, this.scans.length - si);
+// 						break;
+// 					}
+// 					if (!scan.intersect(this.bounds.left, this.bounds.right)) {
+// 						// Remove now empty scan
+// 						EMFJS.log("[emf] Region remove now empty scan " + si + " due to intersection");
+// 						this.scans.splice(si, 1);
+// 						continue;
+// 					}
+// 					si++;
+// 				}
+//
+// 				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
+// 				if (this.scans.length > 0)
+// 					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
+//
+// 				this._updateComplexity();
+// 			}
+// 		} else {
+// 			this.scans = null;
+// 			this.complexity = 0;
+// 		}
+// 	}
+// 	EMFJS.log("[emf] Region intersection -> " + this.toString());
+// };
+//
+// EMFJS.Region.prototype.offset = function(offX, offY) {
+// 	if (this.bounds != null) {
+// 		this.bounds.left += offX;
+// 		this.bounds.top += offY;
+// 		this.bounds.right += offX;
+// 		this.bounds.bottom += offY;
+// 	}
+//
+// 	if (this.scans != null) {
+// 		var slen = this.scans.length;
+// 		for (var si = 0; si < slen; si++) {
+// 			var scan = this.scans[si];
+// 			scan.top += offY;
+// 			scan.bottom += offY;
+//
+// 			var len = scan.scanlines.length;
+// 			for (var i = 0; i < len; i++) {
+// 				var scanline = scan.scanlines[i];
+// 				scanline.left += offX;
+// 				scanline.right += offX;
+// 			}
+// 		}
+// 	}
+// };
+//
+// EMFJS.CreateSimpleRegion = function(left, top, right, bottom) {
+// 	var rgn = new EMFJS.Region(null, null);
+// 	rgn.bounds = new EMFJS.Rect(null, left, top, right, bottom);
+// 	rgn._updateComplexity();
+// 	return rgn;
+// };
+//
+// EMFJS.BitmapBase = function() {
+// };
+//
+// EMFJS.BitmapBase.prototype.getWidth = function() {
+// 	throw EMFJS.Error("getWidth not implemented");
+// }
+//
+// EMFJS.BitmapBase.prototype.getHeight = function() {
+// 	throw EMFJS.Error("getHeight not implemented");
+// }
+//
+// EMFJS.BitmapCoreHeader = function(reader, skipsize) {
+// 	if (skipsize)
+// 		reader.skip(4);
+// 	this.width = reader.readUint16();
+// 	this.height = reader.readUint16();
+// 	this.planes = reader.readUint16();
+// 	this.bitcount = reader.readUint16();
+// }
+//
+// EMFJS.BitmapCoreHeader.prototype.colors = function() {
+// 	return this.bitcount <= 8 ? 1 << this.bitcount : 0;
+// };
+//
+// EMFJS.BitmapInfoHeader = function(reader, skipsize) {
+// 	if (skipsize)
+// 		reader.skip(4);
+// 	this.width = reader.readInt32();
+// 	this.height = reader.readInt32();
+// 	this.planes = reader.readUint16();
+// 	this.bitcount = reader.readUint16();
+// 	this.compression = reader.readUint32();
+// 	this.sizeimage = reader.readUint32();
+// 	this.xpelspermeter = reader.readInt32();
+// 	this.ypelspermeter = reader.readInt32();
+// 	this.clrused = reader.readUint32();
+// 	this.clrimportant = reader.readUint32();
+// };
+//
+// EMFJS.BitmapInfoHeader.prototype.colors = function() {
+// 	if (this.clrused != 0)
+// 		return this.clrused < 256 ? this.clrused : 256;
+// 	else
+// 		return this.bitcount > 8 ? 0 : 1 << this.bitcount;
+// };
+//
+// EMFJS.BitmapInfo = function(reader, usergb) {
+// 	EMFJS.BitmapBase.call(this);
+// 	this._reader = reader;
+// 	this._offset = reader.pos;
+// 	this._usergb = usergb;
+// 	var hdrsize = reader.readUint32();
+// 	this._infosize = hdrsize;
+// 	if (hdrsize == EMFJS.GDI.BITMAPCOREHEADER_SIZE) {
+// 		this._header = new EMFJS.BitmapCoreHeader(reader, false);
+// 		this._infosize += this._header.colors() * (usergb ? 3 : 2);
+// 	}
+// 	else {
+// 		this._header = new EMFJS.BitmapInfoHeader(reader, false);
+// 		var masks = this._header.compression == EMFJS.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+// 		if (hdrsize <= EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
+// 			this._infosize = EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+// 		this._infosize += this._header.colors() * (usergb ? 4 : 2);
+// 	}
+// };
+// EMFJS.BitmapInfo.prototype = Object.create(EMFJS.BitmapBase.prototype);
+//
+// EMFJS.BitmapInfo.prototype.getWidth = function() {
+// 	return this._header.width;
+// };
+//
+// EMFJS.BitmapInfo.prototype.getHeight = function() {
+// 	return Math.abs(this._header.height);
+// };
+//
+// EMFJS.BitmapInfo.prototype.infosize = function() {
+// 	return this._infosize;
+// };
+//
+// EMFJS.BitmapInfo.prototype.header = function() {
+// 	return this._header;
+// };
+//
+// EMFJS.DIBitmap = function(reader, size) {
+// 	EMFJS.BitmapBase.call(this);
+// 	this._reader = reader;
+// 	this._offset = reader.pos;
+// 	this._size = size;
+// 	this._info = new EMFJS.BitmapInfo(reader, true);
+// };
+// EMFJS.DIBitmap.prototype = Object.create(EMFJS.BitmapBase.prototype);
+//
+// EMFJS.DIBitmap.prototype.getWidth = function() {
+// 	return this._info.getWidth();
+// };
+//
+// EMFJS.DIBitmap.prototype.getHeight = function() {
+// 	return this._info.getHeight();
+// };
+//
+// EMFJS.DIBitmap.prototype.makeBitmapFileHeader = function() {
+// 	var buf = new ArrayBuffer(14);
+// 	var view = new Uint8Array(buf);
+// 	view[0] = 0x42;
+// 	view[1] = 0x4d;
+// 	EMFJS._writeUint32Val(view, 2, this._size + 14);
+// 	EMFJS._writeUint32Val(view, 10, this._info.infosize() + 14);
+// 	return EMFJS._blobToBinary(view);
+// };
+//
+// EMFJS.DIBitmap.prototype.base64ref = function() {
+// 	var prevpos = this._reader.pos;
+// 	this._reader.seek(this._offset);
+// 	var mime = "image/bmp";
+// 	var header = this._info.header();
+// 	var data;
+// 	if (header.compression != null) {
+// 		switch (header.compression) {
+// 			case EMFJS.GDI.BitmapCompression.BI_JPEG:
+// 				mime = "data:image/jpeg";
+// 				break;
+// 			case EMFJS.GDI.BitmapCompression.BI_PNG:
+// 				mime = "data:image/png";
+// 				break;
+// 			default:
+// 				data = this.makeBitmapFileHeader();
+// 				break;
+// 		}
+// 	} else {
+// 		data = this.makeBitmapFileHeader();
+// 	}
+//
+// 	if (data != null)
+// 		data += this._reader.readBinary(this._size);
+// 	else
+// 		data = this._reader.readBinary(this._size);
+//
+// 	var ref = "data:" + mime + ";base64," + btoa(data);
+// 	this._reader.seek(prevpos);
+// 	return ref;
+// };
+//
+// EMFJS.Bitmap16 = function(reader, size) {
+// 	if (reader != null) {
+// 		this._reader = reader;
+// 		this._offset = reader.pos;
+// 		this._size = size;
+// 		this.type = reader.readInt16();
+// 		this.width = reader.readInt16();
+// 		this.height = reader.readInt16();
+// 		this.widthBytes = reader.readInt16();
+// 		this.planes = reader.readUint8();
+// 		this.bitsPixel = reader.readUint8();
+// 		this.bitsOffset = reader.pos;
+// 		this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
+// 		if (this.bitsSize != size - 10)
+// 			throw new EMFJS.Error("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
+// 	} else {
+// 		var copy = size;
+// 		this._reader = copy._reader;
+// 		this._offset = copy._offset;
+// 		this._size = copy._size;
+// 		this.type = copy.type;
+// 		this.width = copy.width;
+// 		this.height = copy.height;
+// 		this.widthBytes = copy.widthBytes;
+// 		this.planes = copy.planes;
+// 		this.bitsPixel = copy.bitsPixel;
+// 		this.bitsOffset = copy.bitsOffset;
+// 		this.bitsSize = copy.bitsSize;
+// 	}
+// };
+// EMFJS.Bitmap16.prototype = Object.create(EMFJS.BitmapBase.prototype);
+//
+// EMFJS.Bitmap16.prototype.getWidth = function() {
+// 	return this.width;
+// };
+//
+// EMFJS.Bitmap16.prototype.getHeight = function() {
+// 	return this.height;
+// };
+//
+// EMFJS.Bitmap16.prototype.clone = function() {
+// 	return new EMFJS.Bitmap16(null, this);
+// };
+//
+// EMFJS.PatternBitmap16 = function(reader, size) {
+// 	EMFJS.Bitmap16.call(this, reader, size);
+// 	if (reader != null) {
+// 		this.bitsOffset += 22; // skip bits (4 bytes) + reserved (18 bytes)
+// 	}
+// };
+// EMFJS.PatternBitmap16.prototype = Object.create(EMFJS.Bitmap16.prototype);
+//
+// EMFJS.PatternBitmap16.prototype.clone = function() {
+// 	return new EMFJS.PatternBitmap16(null, this);
+// };
+//
+// EMFJS.PolyPolygon = function(reader) {
+// 	var polygonsCnt = reader.readUint16();
+// 	var polygonsPtCnts = [];
+// 	for (var i = 0; i < polygonsCnt; i++)
+// 		polygonsPtCnts.push(reader.readUint16());
+//
+// 	this._polygons = [];
+// 	for (var i = 0; i < polygonsCnt; i++) {
+// 		var ptCnt = polygonsPtCnts[i];
+//
+// 		var polygon = [];
+// 		for (var ip = 0; ip < ptCnt; ip++)
+// 			polygon.push(new EMFJS.PointS(reader));
+// 		this._polygons.push(polygon);
+// 	}
+// };
 
 EMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
@@ -1416,26 +1452,26 @@ EMFJS.GDIContext = function(svg) {
 	this.objects = {};
 };
 
-// EMFJS.GDIContext.prototype._pushGroup = function() {
-// 	if (this.state._svggroup == null || this.state._svgclipChanged) {
-// 		this.state._svgclipChanged = false;
-// 		this.state._svgtextbkfilter = null;
-//
-// 		var settings = {
-// 			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
-// 			preserveAspectRatio: "none"
-// 		};
-// 		if (this.state.clip != null) {
-// 			EMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
-// 			settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
-// 		}
-// 		else
-// 			EMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
-// 		this.state._svggroup = this._svg.svg(this.state._svggroup,
-// 			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
-// 	}
-// };
-//
+EMFJS.GDIContext.prototype._pushGroup = function() {
+	if (this.state._svggroup == null || this.state._svgclipChanged) {
+		this.state._svgclipChanged = false;
+		this.state._svgtextbkfilter = null;
+
+		var settings = {
+			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
+			preserveAspectRatio: "none"
+		};
+		if (this.state.clip != null) {
+			EMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+			settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
+		}
+		else
+			EMFJS.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+		this.state._svggroup = this._svg.svg(this.state._svggroup,
+			this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
+	}
+};
+
 // EMFJS.GDIContext.prototype._storeObject = function(obj) {
 // 	var i = 0;
 // 	while (this.objects[i.toString()] != null && i <= 65535)
@@ -1448,14 +1484,14 @@ EMFJS.GDIContext = function(svg) {
 // 	this.objects[i.toString()] = obj;
 // 	return i;
 // };
-//
-// EMFJS.GDIContext.prototype._getObject = function(objIdx) {
-// 	var obj = this.objects[objIdx.toString()];
-// 	if (obj == null)
-// 		EMFJS.log("[gdi] No object with handle " + objIdx);
-// 	return obj;
-// };
-//
+
+EMFJS.GDIContext.prototype._getObject = function(objIdx) {
+	var obj = this.objects[objIdx.toString()];
+	if (obj == null)
+		EMFJS.log("[gdi] No object with handle " + objIdx);
+	return obj;
+};
+
 // EMFJS.GDIContext.prototype._getSvgDef = function() {
 // 	if (this._svgdefs == null)
 // 		this._svgdefs = this._svg.defs();
@@ -1522,164 +1558,164 @@ EMFJS.GDIContext = function(svg) {
 // 	this._svgPatterns[id] = brush;
 // 	return id;
 // };
-//
-// EMFJS.GDIContext.prototype._selectObject = function(obj) {
-// 	this.state.selected[obj.type] = obj;
-// 	if (obj.type == "region")
-// 		this.state._svgclipChanged = true;
-// };
-//
-// EMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
-// 	var obj = this.objects[objIdx.toString()];
-// 	if (obj != null) {
-// 		for (var i = 0; i < this.statestack.length; i++) {
-// 			var state = this.statestack[i];
-// 			if (state.selected[obj.type] == obj)
-// 				state.selected[obj.type] = this.defObjects[obj.type].clone();
-// 		}
-// 		delete this.objects[objIdx.toString()];
-// 		return true;
-// 	}
-//
-// 	EMFJS.log("[gdi] Cannot delete object with invalid handle " + objIdx);
-// 	return false;
-// };
-//
-// EMFJS.GDIContext.prototype._getClipRgn = function() {
-// 	if (this.state.clip != null) {
-// 		if (!this.state.ownclip)
-// 			this.state.clip = this.state.clip.clone();
-// 	} else {
-// 		if (this.state.selected.region != null)
-// 			this.state.clip = this.state.selected.region.clone();
-// 		else
-// 			this.state.clip = EMFJS.CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
-// 	}
-// 	this.state.ownclip = true;
-// 	return this.state.clip;
-// };
-//
-// EMFJS.GDIContext.prototype._todevX = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
-// };
-//
-// EMFJS.GDIContext.prototype._todevY = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
-// };
-//
-// EMFJS.GDIContext.prototype._todevW = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
-// };
-//
-// EMFJS.GDIContext.prototype._todevH = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
-// };
-//
-// EMFJS.GDIContext.prototype._tologicalX = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
-// };
-//
-// EMFJS.GDIContext.prototype._tologicalY = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
-// };
-//
-// EMFJS.GDIContext.prototype._tologicalW = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
-// };
-//
-// EMFJS.GDIContext.prototype._tologicalH = function(val) {
-// 	// http://wvware.sourceforge.net/caolan/mapmode.html
-// 	// logical -> device
-// 	return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
-// };
-//
-// EMFJS.GDIContext.prototype.setMapMode = function(mode) {
-// 	EMFJS.log("[gdi] setMapMode: mode=" + mode);
-// 	this.state.mapmode = mode;
-// 	this.state._svggroup = null;
-// };
-//
-// EMFJS.GDIContext.prototype.setWindowOrg = function(x, y) {
-// 	EMFJS.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
-// 	this.state.wx = x;
-// 	this.state.wy = y;
-// 	this.state._svggroup = null;
-// };
-//
-// EMFJS.GDIContext.prototype.setWindowExt = function(x, y) {
-// 	EMFJS.log("[gdi] setWindowExt: x=" + x + " y=" + y);
-// 	this.state.ww = x;
-// 	this.state.wh = y;
-// 	this.state._svggroup = null;
-// };
-//
+
+EMFJS.GDIContext.prototype._selectObject = function(obj) {
+	this.state.selected[obj.type] = obj;
+	if (obj.type == "region")
+		this.state._svgclipChanged = true;
+};
+
+EMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
+	var obj = this.objects[objIdx.toString()];
+	if (obj != null) {
+		for (var i = 0; i < this.statestack.length; i++) {
+			var state = this.statestack[i];
+			if (state.selected[obj.type] == obj)
+				state.selected[obj.type] = this.defObjects[obj.type].clone();
+		}
+		delete this.objects[objIdx.toString()];
+		return true;
+	}
+
+	EMFJS.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+	return false;
+};
+
+EMFJS.GDIContext.prototype._getClipRgn = function() {
+	if (this.state.clip != null) {
+		if (!this.state.ownclip)
+			this.state.clip = this.state.clip.clone();
+	} else {
+		if (this.state.selected.region != null)
+			this.state.clip = this.state.selected.region.clone();
+		else
+			this.state.clip = EMFJS.CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+	}
+	this.state.ownclip = true;
+	return this.state.clip;
+};
+
+EMFJS.GDIContext.prototype._todevX = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
+};
+
+EMFJS.GDIContext.prototype._todevY = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
+};
+
+EMFJS.GDIContext.prototype._todevW = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
+};
+
+EMFJS.GDIContext.prototype._todevH = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
+};
+
+EMFJS.GDIContext.prototype._tologicalX = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
+};
+
+EMFJS.GDIContext.prototype._tologicalY = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
+};
+
+EMFJS.GDIContext.prototype._tologicalW = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
+};
+
+EMFJS.GDIContext.prototype._tologicalH = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
+};
+
+EMFJS.GDIContext.prototype.setMapMode = function(mode) {
+	EMFJS.log("[gdi] setMapMode: mode=" + mode);
+	this.state.mapmode = mode;
+	this.state._svggroup = null;
+};
+
+EMFJS.GDIContext.prototype.setWindowOrgEx = function(x, y) {
+	EMFJS.log("[gdi] setWindowOrgEx: x=" + x + " y=" + y);
+	this.state.wx = x;
+	this.state.wy = y;
+	this.state._svggroup = null;
+};
+
+EMFJS.GDIContext.prototype.setWindowExtEx = function(x, y) {
+	EMFJS.log("[gdi] setWindowExtEx: x=" + x + " y=" + y);
+	this.state.ww = x;
+	this.state.wh = y;
+	this.state._svggroup = null;
+};
+
 // EMFJS.GDIContext.prototype.offsetWindowOrg = function(offX, offY) {
 // 	EMFJS.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
 // 	this.state.wx += offX;
 // 	this.state.wy += offY;
 // 	this.state._svggroup = null;
 // };
-//
-// EMFJS.GDIContext.prototype.setViewportOrg = function(x, y) {
-// 	EMFJS.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
-// 	this.state.vx = x;
-// 	this.state.vy = y;
-// 	this.state._svggroup = null;
-// };
-//
-// EMFJS.GDIContext.prototype.setViewportExt = function(x, y) {
-// 	EMFJS.log("[gdi] setViewportExt: x=" + x + " y=" + y);
-// 	this.state.vw = x;
-// 	this.state.vh = y;
-// 	this.state._svggroup = null;
-// };
-//
+
+EMFJS.GDIContext.prototype.setViewportOrgEx = function(x, y) {
+	EMFJS.log("[gdi] setViewportOrgEx: x=" + x + " y=" + y);
+	this.state.vx = x;
+	this.state.vy = y;
+	this.state._svggroup = null;
+};
+
+EMFJS.GDIContext.prototype.setViewportExtEx = function(x, y) {
+	EMFJS.log("[gdi] setViewportExtEx: x=" + x + " y=" + y);
+	this.state.vw = x;
+	this.state.vh = y;
+	this.state._svggroup = null;
+};
+
 // EMFJS.GDIContext.prototype.offsetViewportOrg = function(offX, offY) {
 // 	EMFJS.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
 // 	this.state.vx += offX;
 // 	this.state.vy += offY;
 // 	this.state._svggroup = null;
 // };
-//
-// EMFJS.GDIContext.prototype.saveDC = function() {
-// 	EMFJS.log("[gdi] saveDC");
-// 	var prevstate = this.state;
-// 	this.state = new EMFJS.GDIContextState(this.state);
-// 	this.statestack.push(prevstate);
-// 	this.state._svggroup = null;
-// };
-//
-// EMFJS.GDIContext.prototype.restoreDC = function(saved) {
-// 	EMFJS.log("[gdi] restoreDC: saved=" + saved);
-// 	if (this.statestack.length > 1) {
-// 		if (saved == -1) {
-// 			this.state = this.statestack.pop();
-// 		} else if (saved < -1) {
-// 			throw new EMFJS.Error("restoreDC: relative restore not implemented");
-// 		} else if (saved > 1) {
-// 			throw new EMFJS.Error("restoreDC: absolute restore not implemented");
-// 		}
-// 	} else {
-// 		throw new EMFJS.Error("No saved contexts");
-// 	}
-//
-// 	this.state._svggroup = null;
-// };
-//
+
+EMFJS.GDIContext.prototype.saveDC = function() {
+	EMFJS.log("[gdi] saveDC");
+	var prevstate = this.state;
+	this.state = new EMFJS.GDIContextState(this.state);
+	this.statestack.push(prevstate);
+	this.state._svggroup = null;
+};
+
+EMFJS.GDIContext.prototype.restoreDC = function(saved) {
+	EMFJS.log("[gdi] restoreDC: saved=" + saved);
+	if (this.statestack.length > 1) {
+		if (saved == -1) {
+			this.state = this.statestack.pop();
+		} else if (saved < -1) {
+			throw new EMFJS.Error("restoreDC: relative restore not implemented");
+		} else if (saved > 1) {
+			throw new EMFJS.Error("restoreDC: absolute restore not implemented");
+		}
+	} else {
+		throw new EMFJS.Error("No saved contexts");
+	}
+
+	this.state._svggroup = null;
+};
+
 // EMFJS.GDIContext.prototype.escape = function(func, blob, offset, count) {
 // 	EMFJS.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
 // };
@@ -1717,81 +1753,81 @@ EMFJS.GDIContext = function(svg) {
 // 	this._pushGroup();
 // 	this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
 // };
-//
-// EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont) {
-// 	if (opts == null)
-// 		opts = {};
-// 	if (usePen) {
-// 		var pen = this.state.selected.pen;
-// 		if (pen.style != EMFJS.GDI.PenStyle.PS_NULL) {
-// 			opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
-// 			opts.strokeWidth = this._todevW(pen.width.x) // TODO: is .y ever used?
-//
-// 			var dotWidth;
-// 			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
-// 				opts["stroke-linecap"] = "square";
-// 				dotWidth = 1;
-// 			} else if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
-// 				opts["stroke-linecap"] = "butt";
-// 				dotWidth = opts.strokeWidth;
-// 			} else {
-// 				opts["stroke-linecap"] = "round";
-// 				dotWidth = 1;
-// 			}
-//
-// 			if ((pen.join & EMFJS.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
-// 				opts["stroke-linejoin"] = "bevel";
-// 			else if ((pen.join & EMFJS.GDI.PenStyle.PS_JOIN_MITER) != 0)
-// 				opts["stroke-linejoin"] = "miter";
-// 			else
-// 				opts["stroke-linejoin"] = "round";
-//
-// 			var dashWidth = opts.strokeWidth * 4;
-// 			var dotSpacing = opts.strokeWidth * 2;
-// 			switch (pen.style) {
-// 				case EMFJS.GDI.PenStyle.PS_DASH:
-// 					opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
-// 					break;
-// 				case EMFJS.GDI.PenStyle.PS_DOT:
-// 					opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
-// 					break;
-// 				case EMFJS.GDI.PenStyle.PS_DASHDOT:
-// 					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
-// 					break;
-// 				case EMFJS.GDI.PenStyle.PS_DASHDOTDOT:
-// 					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
-// 					break;
-// 			}
-// 		}
-// 	}
-// 	if (useBrush) {
-// 		var brush = this.state.selected.brush;
-// 		switch (brush.style) {
-// 			case EMFJS.GDI.BrushStyle.BS_SOLID:
-// 				opts.fill = "#" + brush.color.toHex();
-// 				break;
-// 			case EMFJS.GDI.BrushStyle.BS_PATTERN:
-// 			case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-// 				opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
-// 				break;
-// 			case EMFJS.GDI.BrushStyle.BS_NULL:
-// 				opts.fill = "none";
-// 				break;
-// 			default:
-// 				EMFJS.log("[gdi] unsupported brush style: " + brush.style);
-// 				opts.fill = "none";
-// 				break;
-// 		}
-// 	}
-// 	if (useFont) {
-// 		var font = this.state.selected.font;
-// 		opts["font-family"] = font.facename;
-// 		opts["font-size"] = this._todevH(Math.abs(font.height));
-// 		opts["fill"] = "#" + this.state.textcolor.toHex();
-// 	}
-// 	return opts;
-// };
-//
+
+EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont) {
+	if (opts == null)
+		opts = {};
+	if (usePen) {
+		var pen = this.state.selected.pen;
+		if (pen.style != EMFJS.GDI.PenStyle.PS_NULL) {
+			opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
+			opts.strokeWidth = this._todevW(pen.width.x) // TODO: is .y ever used?
+
+			var dotWidth;
+			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
+				opts["stroke-linecap"] = "square";
+				dotWidth = 1;
+			} else if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
+				opts["stroke-linecap"] = "butt";
+				dotWidth = opts.strokeWidth;
+			} else {
+				opts["stroke-linecap"] = "round";
+				dotWidth = 1;
+			}
+
+			if ((pen.join & EMFJS.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
+				opts["stroke-linejoin"] = "bevel";
+			else if ((pen.join & EMFJS.GDI.PenStyle.PS_JOIN_MITER) != 0)
+				opts["stroke-linejoin"] = "miter";
+			else
+				opts["stroke-linejoin"] = "round";
+
+			var dashWidth = opts.strokeWidth * 4;
+			var dotSpacing = opts.strokeWidth * 2;
+			switch (pen.style) {
+				case EMFJS.GDI.PenStyle.PS_DASH:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
+					break;
+				case EMFJS.GDI.PenStyle.PS_DOT:
+					opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
+					break;
+				case EMFJS.GDI.PenStyle.PS_DASHDOT:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
+					break;
+				case EMFJS.GDI.PenStyle.PS_DASHDOTDOT:
+					opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+					break;
+			}
+		}
+	}
+	if (useBrush) {
+		var brush = this.state.selected.brush;
+		switch (brush.style) {
+			case EMFJS.GDI.BrushStyle.BS_SOLID:
+				opts.fill = "#" + brush.color.toHex();
+				break;
+			case EMFJS.GDI.BrushStyle.BS_PATTERN:
+			case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
+				break;
+			case EMFJS.GDI.BrushStyle.BS_NULL:
+				opts.fill = "none";
+				break;
+			default:
+				EMFJS.log("[gdi] unsupported brush style: " + brush.style);
+				opts.fill = "none";
+				break;
+		}
+	}
+	if (useFont) {
+		var font = this.state.selected.font;
+		opts["font-family"] = font.facename;
+		opts["font-size"] = this._todevH(Math.abs(font.height));
+		opts["fill"] = "#" + this.state.textcolor.toHex();
+	}
+	return opts;
+};
+
 // EMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 // 	EMFJS.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 // 	var bottom = this._todevY(rect.bottom);
@@ -1919,7 +1955,20 @@ EMFJS.GDIContext = function(svg) {
 // 	var opts = this._applyOpts({fill: "none"}, true, false, false);
 // 	this._svg.polyline(this.state._svggroup, pts, opts);
 // };
-//
+
+EMFJS.GDIContext.prototype.polyline16 = function(points) {
+	EMFJS.log("[gdi] polyline16: points=" + points + " with pen " + this.state.selected.pen.toString());
+	var pts = [];
+	for (var i = 0; i < points.length; i++) {
+		var point = points[i];
+		pts.push([this._todevX(point.x), this._todevY(point.y)]);
+	}
+	EMFJS.log("[gdi] polyline16: TRANSLATED: pts=" + pts);
+	this._pushGroup();
+	var opts = this._applyOpts({fill: "none"}, true, false, false);
+	this._svg.polyline(this.state._svggroup, pts, opts);
+};
+
 // EMFJS.GDIContext.prototype.ellipse = function(rect) {
 // 	EMFJS.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 // 	var bottom = this._todevY(rect.bottom);
@@ -2004,32 +2053,32 @@ EMFJS.GDIContext = function(svg) {
 // 	var idx = this._storeObject(patternBrush);
 // 	EMFJS.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
 // };
-//
-// EMFJS.GDIContext.prototype.selectObject = function(objIdx, checkType) {
-// 	var obj = this._getObject(objIdx);
-// 	if (obj != null && (checkType == null || obj.type == checkType)) {
-// 		this._selectObject(obj);
-// 		EMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
-// 	} else {
-// 		EMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
-// 	}
-// };
-//
-// EMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
-// 	var ret = this._deleteObject(objIdx);
-// 	EMFJS.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
-// };
-//
-// EMFJS.EMFRect16 = function(reader) {
-// 	this.left = reader.readInt16();
-// 	this.top = reader.readInt16();
-// 	this.right = reader.readInt16();
-// 	this.bottom = reader.readInt16();
-// };
-//
-// EMFJS.EMFRect16.prototype.toString = function() {
-// 	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
-// };
+
+EMFJS.GDIContext.prototype.selectObject = function(objIdx, checkType) {
+	var obj = this._getObject(objIdx);
+	if (obj != null && (checkType == null || obj.type == checkType)) {
+		this._selectObject(obj);
+		EMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+	} else {
+		EMFJS.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+	}
+};
+
+EMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
+	var ret = this._deleteObject(objIdx);
+	EMFJS.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+};
+
+EMFJS.EMFRect16 = function(reader) {
+	this.left = reader.readInt16();
+	this.top = reader.readInt16();
+	this.right = reader.readInt16();
+	this.bottom = reader.readInt16();
+};
+
+EMFJS.EMFRect16.prototype.toString = function() {
+	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+};
 
 EMFJS.EMFRecords = function(reader, first) {
 	this._records = [];
@@ -2046,38 +2095,38 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EOF:
 				all = true;
 				break main_loop;
-			// case EMFJS.GDI.RecordType.META_SETMAPMODE:
-			// 	var mapMode = reader.readUint16();
-			// 	this._records.push(
-			// 		(function(mapMode) {
-			// 			return function(gdi) {
-			// 				gdi.setMapMode(mapMode);
-			// 			}
-			// 		})(mapMode)
-			// 	);
-			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETWINDOWORG:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.setWindowOrg(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETWINDOWEXT:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.setWindowExt(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SETMAPMODE:
+				var mapMode = reader.readInt32();
+				this._records.push(
+					(function(mapMode) {
+						return function(gdi) {
+							gdi.setMapMode(mapMode);
+						}
+					})(mapMode)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETWINDOWORGEX:
+				var x = reader.readInt32();
+				var y = reader.readInt32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setWindowOrgEx(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETWINDOWEXTEX:
+				var x = reader.readUint32();
+				var y = reader.readUint32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setWindowExtEx(x, y);
+						}
+					})(y, x)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_OFFSETWINDOWORG:
 			// 	var offY = reader.readInt16();
 			// 	var offX = reader.readInt16();
@@ -2089,28 +2138,28 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(offY, offX)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETVIEWPORTORG:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.setViewportOrg(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETVIEWPORTEXT:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.setViewportExt(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SETVIEWPORTORGEX:
+				var x = reader.readInt32();
+				var y = reader.readInt32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setViewportOrgEx(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETVIEWPORTEXTEX:
+				var x = reader.readUint32();
+				var y = reader.readUint32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.setViewportExtEx(x, y);
+						}
+					})(y, x)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_OFFSETVIEWPORTORG:
 			// 	var offY = reader.readInt16();
 			// 	var offX = reader.readInt16();
@@ -2122,21 +2171,21 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(offY, offX)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SAVEDC:
-			// 	this._records.push(function(gdi) {
-			// 		gdi.saveDC();
-			// 	});
-			// 	break;
-			// case EMFJS.GDI.RecordType.META_RESTOREDC:
-			// 	var saved = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(saved) {
-			// 			return function(gdi) {
-			// 				gdi.restoreDC(saved);
-			// 			}
-			// 		})(saved)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SAVEDC:
+				this._records.push(function(gdi) {
+					gdi.saveDC();
+				});
+				break;
+			case EMFJS.GDI.RecordType.EMR_RESTOREDC:
+				var saved = reader.readInt32();
+				this._records.push(
+					(function(saved) {
+						return function(gdi) {
+							gdi.restoreDC(saved);
+						}
+					})(saved)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_SETSTRETCHBLTMODE:
 			// 	var stretchMode = reader.readUint16();
 			// 	this._records.push(
@@ -2285,16 +2334,16 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(font, datalength)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SELECTOBJECT:
-			// 	var idx = reader.readUint16();
-			// 	this._records.push(
-			// 		(function(idx) {
-			// 			return function(gdi) {
-			// 				gdi.selectObject(idx, null);
-			// 			}
-			// 		})(idx)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SELECTOBJECT:
+				var idx = reader.readUint32();
+				this._records.push(
+					(function(idx) {
+						return function(gdi) {
+							gdi.selectObject(idx, null);
+						}
+					})(idx)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_SELECTPALETTE:
 			// 	var idx = reader.readUint16();
 			// 	this._records.push(
@@ -2315,16 +2364,16 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(idx)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_DELETEOBJECT:
-			// 	var idx = reader.readUint16();
-			// 	this._records.push(
-			// 		(function(idx) {
-			// 			return function(gdi) {
-			// 				gdi.deleteObject(idx);
-			// 			}
-			// 		})(idx)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_DELETEOBJECT:
+				var idx = reader.readUint32();
+				this._records.push(
+					(function(idx) {
+						return function(gdi) {
+							gdi.deleteObject(idx);
+						}
+					})(idx)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_RECTANGLE:
 			// 	var rect = new EMFJS.Rect(reader);
 			// 	this._records.push(
@@ -2486,21 +2535,22 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(polyPolygon)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_POLYLINE:
-			// 	var cnt = reader.readInt16();
-			// 	var points = [];
-			// 	while (cnt > 0) {
-			// 		points.push(new EMFJS.PointS(reader));
-			// 		cnt--;
-			// 	}
-			// 	this._records.push(
-			// 		(function(points) {
-			// 			return function(gdi) {
-			// 				gdi.polyline(points);
-			// 			}
-			// 		})(points)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_POLYLINE16:
+				var bounds = new EMFJS.RectL(reader);
+				var cnt = reader.readUint32();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new EMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points) {
+						return function(gdi) {
+							gdi.polyline16(points);
+						}
+					})(points)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_ELLIPSE:
 			// 	var rect = new EMFJS.Rect(reader);
 			// 	this._records.push(
@@ -2561,14 +2611,9 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON:
-			case EMFJS.GDI.RecordType.EMR_SETWINDOWEXTEX:
-			case EMFJS.GDI.RecordType.EMR_SETWINDOWORGEX:
-			case EMFJS.GDI.RecordType.EMR_SETVIEWPORTEXTEX:
-			case EMFJS.GDI.RecordType.EMR_SETVIEWPORTORGEX:
 			case EMFJS.GDI.RecordType.EMR_SETBRUSHORGEX:
 			case EMFJS.GDI.RecordType.EMR_SETPIXELV:
 			case EMFJS.GDI.RecordType.EMR_SETMAPPERFLAGS:
-			case EMFJS.GDI.RecordType.EMR_SETMAPMODE:
 			case EMFJS.GDI.RecordType.EMR_SETBKMODE:
 			case EMFJS.GDI.RecordType.EMR_SETPOLYFILLMODE:
 			case EMFJS.GDI.RecordType.EMR_SETROP2:
@@ -2584,14 +2629,10 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_INTERSECTCLIPRECT:
 			case EMFJS.GDI.RecordType.EMR_SCALEVIEWPORTEXTEX:
 			case EMFJS.GDI.RecordType.EMR_SCALEWINDOWEXTEX:
-			case EMFJS.GDI.RecordType.EMR_SAVEDC:
-			case EMFJS.GDI.RecordType.EMR_RESTOREDC:
 			case EMFJS.GDI.RecordType.EMR_SETWORLDTRANSFORM:
 			case EMFJS.GDI.RecordType.EMR_MODIFYWORLDTRANSFORM:
-			case EMFJS.GDI.RecordType.EMR_SELECTOBJECT:
 			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
 			case EMFJS.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
-			case EMFJS.GDI.RecordType.EMR_DELETEOBJECT:
 			case EMFJS.GDI.RecordType.EMR_ANGLEARC:
 			case EMFJS.GDI.RecordType.EMR_ELLIPSE:
 			case EMFJS.GDI.RecordType.EMR_RECTANGLE:
@@ -2637,7 +2678,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTW:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIER16:
 			case EMFJS.GDI.RecordType.EMR_POLYGON16:
-			case EMFJS.GDI.RecordType.EMR_POLYLINE16:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO16:
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE16:
