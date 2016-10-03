@@ -1426,7 +1426,32 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			pichgoal: _setPropValueRequired("_displaysize", "height")
 		};
 		var _pictTypeHandler = {
-			emfblip: "", // TODO
+			emfblip: (function() {
+				if (typeof EMFJS !== "undefined") {
+					return function() {
+						return {
+							load: function() {
+								try {
+									return new EMFJS.Renderer(this._blob);
+								} catch(e) {
+									if (e instanceof EMFJS.Error)
+										return e.message;
+									else
+										throw e;
+								}
+							},
+							render: function(img) {
+								return img.render({
+									width: RTFJS._twipsToPt(this._displaysize.width) + "pt",
+									height: RTFJS._twipsToPt(this._displaysize.height) + "pt",
+								});
+							}
+						};
+					};
+				} else {
+					return "";
+				}
+			})(),
 			pngblip: "image/png",
 			jpegblip: "image/jpeg",
 			macpict: "", // TODO
