@@ -192,6 +192,9 @@ if (typeof RTFJS === "undefined") {
 		},
 		_twipsToPt: function(twips) {
 			return Math.floor(twips / 20);
+		},
+		_twipsToPx: function(twips) {
+			return Math.floor(twips / 20 * 96 / 72);
 		}
 	};
 }
@@ -1444,6 +1447,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 								return img.render({
 									width: RTFJS._twipsToPt(this._displaysize.width) + "pt",
 									height: RTFJS._twipsToPt(this._displaysize.height) + "pt",
+									xExt: RTFJS._twipsToPx(this._displaysize.width),
+									yExt: RTFJS._twipsToPx(this._displaysize.height),
+									mapMode: 8
 								});
 							}
 						};

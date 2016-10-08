@@ -265,19 +265,23 @@ if (typeof EMFJS === 'undefined') {
 				BS_MONOPATTERN: 9
 			},
 			PenStyle: {
-				PS_SOLID: 0,
-				PS_DASH: 1,
-				PS_DOT: 2,
-				PS_DASHDOT: 3,
-				PS_DASHDOTDOT: 4,
-				PS_NULL: 5,
-				PS_INSIDEFRAME: 6,
-				PS_USERSTYLE: 7,
-				PS_ALTERNATE: 8,
-				PS_ENDCAP_SQUARE: 256,
-				PS_ENDCAP_FLAT: 512,
-				PS_JOIN_BEVEL: 4096,
-				PS_JOIN_MITER: 8192
+				PS_COSMETIC: 0x00000000,
+				PS_ENDCAP_ROUND: 0x00000000,
+				PS_JOIN_ROUND: 0x00000000,
+				PS_SOLID: 0x00000000,
+				PS_DASH: 0x00000001,
+				PS_DOT: 0x00000002,
+				PS_DASHDOT: 0x00000003,
+				PS_DASHDOTDOT: 0x00000004,
+				PS_NULL: 0x00000005,
+				PS_INSIDEFRAME: 0x00000006,
+				PS_USERSTYLE: 0x00000007,
+				PS_ALTERNATE: 0x00000008,
+				PS_ENDCAP_SQUARE: 0x00000100,
+				PS_ENDCAP_FLAT: 0x00000200,
+				PS_JOIN_BEVEL: 0x00001000,
+				PS_JOIN_MITER: 0x00002000,
+				PS_GEOMETRIC: 0x00010000
 			},
 			PolyFillMode: {
 				ALTERNATE: 1,
@@ -627,44 +631,44 @@ EMFJS.Brush = function(reader, copy, forceDibPattern) {
 		var dataLength = copy;
 		var start = reader.pos;
 
-		if (forceDibPattern === true || forceDibPattern === false) {
-			this.style = reader.readUint16();
-			if (forceDibPattern && this.style != EMFJS.GDI.BrushStyle.BS_PATTERN)
-				this.style = EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT;
+		// if (forceDibPattern === true || forceDibPattern === false) {
+			this.style = reader.readUint32();
+			// if (forceDibPattern && this.style != EMFJS.GDI.BrushStyle.BS_PATTERN)
+			// 	this.style = EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT;
 			switch (this.style) {
 				case EMFJS.GDI.BrushStyle.BS_SOLID:
 					this.color = new EMFJS.ColorRef(reader);
 					break;
-				case EMFJS.GDI.BrushStyle.BS_PATTERN:
-					reader.skip(forceDibPattern ? 2 : 4);
-					this.pattern = new EMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
-					break;
-				case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-					this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
-					this.dibpatternpt = new EMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
-					break;
+				// case EMFJS.GDI.BrushStyle.BS_PATTERN:
+				// 	reader.skip(forceDibPattern ? 2 : 4);
+				// 	this.pattern = new EMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
+				// 	break;
+				// case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				// 	this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
+				// 	this.dibpatternpt = new EMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
+				// 	break;
 				case EMFJS.GDI.BrushStyle.BS_HATCHED:
 					this.color = new EMFJS.ColorRef(reader);
-					this.hatchstyle = reader.readUint16();
+					this.hatchstyle = reader.readUint32();
 					break;
 			}
-		} else if (forceDibPattern instanceof EMFJS.PatternBitmap16) {
-			this.style = MFJS.GDI.BrushStyle.BS_PATTERN;
-			this.pattern = forceDibPattern;
-		}
+		// } else if (forceDibPattern instanceof EMFJS.PatternBitmap16) {
+		// 	this.style = MFJS.GDI.BrushStyle.BS_PATTERN;
+		// 	this.pattern = forceDibPattern;
+		// }
 	} else {
 		this.style = copy.style;
 		switch (this.style) {
 			case EMFJS.GDI.BrushStyle.BS_SOLID:
 				this.color = copy.color.clone();
 				break;
-			case EMFJS.GDI.BrushStyle.BS_PATTERN:
-				this.pattern = copy.pattern.clone();
-				break;
-			case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-				this.colorusage = copy.colorusage;
-				this.dibpatternpt = copy.dibpatternpt;
-				break;
+			// case EMFJS.GDI.BrushStyle.BS_PATTERN:
+			// 	this.pattern = copy.pattern.clone();
+			// 	break;
+			// case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+			// 	this.colorusage = copy.colorusage;
+			// 	this.dibpatternpt = copy.dibpatternpt;
+			// 	break;
 			case EMFJS.GDI.BrushStyle.BS_HATCHED:
 				this.color = copy.color.clone();
 				this.hatchstyle = copy.hatchstyle;
@@ -720,6 +724,39 @@ EMFJS.Pen.prototype.clone = function() {
 EMFJS.Pen.prototype.toString = function() {
 	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
 };
+
+EMFJS.PenEx = function(reader, style, width, brushStyle, color, brushHatch, linecap, join) {
+	EMFJS.Obj.call(this, "pen");
+	if (reader != null) {
+		var style = reader.readUint32();
+		this.style = style & 0xFF;
+		this.width = reader.readUint32();
+		this.brushStyle = reader.readUint32();
+		this.color = new EMFJS.ColorRef(reader);
+		this.brushHatch = reader.readUint32();
+		this.linecap = (style & (EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE | EMFJS.GDI.PenStyle.PS_ENDCAP_FLAT));
+		this.join = (style & (EMFJS.GDI.PenStyle.PS_JOIN_BEVEL | EMFJS.GDI.PenStyle.PS_JOIN_MITER));
+	} else {
+		this.style = style;
+		this.width = width;
+		this.brushStyle = brushStyle;
+		this.color = color;
+		this.brushHatch = brushHatch;
+		this.linecap = linecap;
+		this.join = join;
+	}
+};
+EMFJS.PenEx.prototype = Object.create(EMFJS.Obj.prototype);
+
+EMFJS.PenEx.prototype.clone = function() {
+	return new EMFJS.Pen(null, this.style, this.width, this.brushStyle, this.color.clone(), this.brushHatch , this.linecap, this.join);
+};
+
+EMFJS.PenEx.prototype.toString = function() {
+	return "{style: " + this.style + ", width: " + this.width + ", brushStyle: 0x" + this.brushStyle.toString(16) +
+		", color: " + this.color.toString() + ", brushHatch: 0x" + this.brushHatch.toString(16) + ", linecap: " + this.linecap + ", join: " + this.join + "}";
+};
+
 //
 // EMFJS.PaletteEntry = function(reader, copy) {
 // 	if (reader != null) {
@@ -1472,18 +1509,20 @@ EMFJS.GDIContext.prototype._pushGroup = function() {
 	}
 };
 
-// EMFJS.GDIContext.prototype._storeObject = function(obj) {
-// 	var i = 0;
-// 	while (this.objects[i.toString()] != null && i <= 65535)
-// 		i++;
-// 	if (i > 65535) {
-// 		EMFJS.log("[gdi] Too many objects!");
-// 		return -1;
-// 	}
-//
-// 	this.objects[i.toString()] = obj;
-// 	return i;
-// };
+EMFJS.GDIContext.prototype._storeObject = function(obj, idx) {
+	if(!idx) {
+		var idx = 0;
+		while (this.objects[idx.toString()] != null && idx <= 65535)
+			idx++;
+		if (idx > 65535) {
+			EMFJS.log("[gdi] Too many objects!");
+			return -1;
+		}
+	}
+
+	this.objects[idx.toString()] = obj;
+	return idx;
+};
 
 EMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	var obj = this.objects[objIdx.toString()];
@@ -1760,8 +1799,12 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	if (usePen) {
 		var pen = this.state.selected.pen;
 		if (pen.style != EMFJS.GDI.PenStyle.PS_NULL) {
-			opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
-			opts.strokeWidth = this._todevW(pen.width.x) // TODO: is .y ever used?
+			opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
+			if(pen instanceof EMFJS.Pen){
+				opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
+			}else{
+				opts.strokeWidth = this._todevW(pen.width);
+			}
 
 			var dotWidth;
 			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
@@ -2023,12 +2066,12 @@ EMFJS.GDIContext.prototype.polyline16 = function(points) {
 // 	EMFJS.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
 // 	this.state.polyfillmode = polyFillMode;
 // };
-//
-// EMFJS.GDIContext.prototype.createBrush = function(brush) {
-// 	var idx = this._storeObject(brush);
-// 	EMFJS.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
-// };
-//
+
+EMFJS.GDIContext.prototype.createBrush = function(index, brush) {
+	var idx = this._storeObject(brush, index);
+	EMFJS.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+};
+
 // EMFJS.GDIContext.prototype.createFont = function(font) {
 // 	var idx = this._storeObject(font);
 // 	EMFJS.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
@@ -2038,7 +2081,12 @@ EMFJS.GDIContext.prototype.polyline16 = function(points) {
 // 	var idx = this._storeObject(pen);
 // 	EMFJS.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
 // };
-//
+
+EMFJS.GDIContext.prototype.createPenEx = function(index, pen) {
+	var idx = this._storeObject(pen, index);
+	EMFJS.log("[gdi] createPenEx: pen=" + pen.toString() + " width handle " + idx);
+};
+
 // EMFJS.GDIContext.prototype.createPalette = function(palette) {
 // 	var idx = this._storeObject(palette);
 // 	EMFJS.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
@@ -2291,17 +2339,18 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(bkColor)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_CREATEBRUSHINDIRECT:
-			// 	var datalength = size * 2 - (reader.pos - curpos);
-			// 	var brush = new EMFJS.Brush(reader, datalength, false);
-			// 	this._records.push(
-			// 		(function(brush, datalength) {
-			// 			return function(gdi) {
-			// 				gdi.createBrush(brush);
-			// 			}
-			// 		})(brush, datalength)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
+				var index = reader.readUint32();
+				var datalength = size - (reader.pos - curpos);
+				var brush = new EMFJS.Brush(reader, datalength, false);
+				this._records.push(
+					(function(index, brush) {
+						return function(gdi) {
+							gdi.createBrush(index, brush);
+						}
+					})(index, brush)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
 			// 	var datalength = size * 2 - (reader.pos - curpos);
 			// 	var brush = new EMFJS.Brush(reader, datalength, true);
@@ -2323,6 +2372,21 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(pen)
 			// 	);
 			// 	break;
+			case EMFJS.GDI.RecordType.EMR_EXTCREATEPEN:
+				var index = reader.readUint32();
+				var offsetDibHeader = reader.readUint32();
+				var dibHeaderSize = reader.readUint32();
+				var offsetDibBits = reader.readUint32();
+				var dibBitsSize = reader.readUint32();
+				var pen = new EMFJS.PenEx(reader);
+				this._records.push(
+					(function(index, pen) {
+						return function(gdi) {
+							gdi.createPenEx(index, pen);
+						}
+					})(index, pen)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_CREATEFONTINDIRECT:
 			// 	var datalength = size * 2 - (reader.pos - curpos);
 			// 	var font = new EMFJS.Font(reader, datalength);
@@ -2632,7 +2696,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_SETWORLDTRANSFORM:
 			case EMFJS.GDI.RecordType.EMR_MODIFYWORLDTRANSFORM:
 			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
-			case EMFJS.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
 			case EMFJS.GDI.RecordType.EMR_ANGLEARC:
 			case EMFJS.GDI.RecordType.EMR_ELLIPSE:
 			case EMFJS.GDI.RecordType.EMR_RECTANGLE:
@@ -2685,7 +2748,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW16:
 			case EMFJS.GDI.RecordType.EMR_CREATEMONOBRUSH:
 			case EMFJS.GDI.RecordType.EMR_CREATEDIBPATTERNBRUSHPT:
-			case EMFJS.GDI.RecordType.EMR_EXTCREATEPEN:
 			case EMFJS.GDI.RecordType.EMR_POLYTEXTOUTA:
 			case EMFJS.GDI.RecordType.EMR_POLYTEXTOUTW:
 			case EMFJS.GDI.RecordType.EMR_SETICMMODE:
@@ -2775,11 +2837,11 @@ EMFJS.Renderer.prototype.parse = function(blob) {
 		throw new EMFJS.Error("Format not recognized");
 };
 
-EMFJS.Renderer.prototype._render = function(svg) {
+EMFJS.Renderer.prototype._render = function(svg, mapMode, xExt, yExt) {
 	// See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
 	var gdi = new EMFJS.GDIContext(svg);
-	// gdi.setViewportExt(xExt, yExt);
-	// gdi.setMapMode(mapMode);
+	gdi.setViewportExtEx(xExt, yExt);
+	gdi.setMapMode(mapMode);
 	EMFJS.log("[EMF] BEGIN RENDERING --->");
 	this._img.render(gdi);
 	EMFJS.log("[EMF] <--- DONE RENDERING");
@@ -2790,14 +2852,14 @@ EMFJS.Renderer.prototype.render = function(info) {
 	var img = (function(mapMode, xExt, yExt) {
 		return $("<div>").svg({
 			onLoad: function(svg) {
-				return inst._render.call(inst, svg);
+				return inst._render.call(inst, svg, mapMode, xExt, yExt);
 			},
 			settings: {
-				// viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+				viewBox: [0, 0, info.xExt, info.yExt].join(" "),
 				preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
 			}
 		});
-	})();
+	})(info.mapMode, info.xExt, info.yExt);
 	var svg = $(img[0]).svg("get");
 	return $(svg.root()).attr("width", info.width).attr("height", info.height);
 };
