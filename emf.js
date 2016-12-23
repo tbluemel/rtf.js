@@ -472,6 +472,24 @@ EMFJS.PointS.prototype.clone = function() {
 EMFJS.PointS.prototype.toString = function() {
 	return "{x: " + this.x + ", y: " + this.y + "}";
 };
+
+EMFJS.PointL = function(reader, x, y) {
+    if (reader != null) {
+        this.x = reader.readInt32();
+        this.y = reader.readInt32();
+    } else {
+        this.x =  x;
+        this.y = y;
+    }
+};
+
+EMFJS.PointL.prototype.clone = function() {
+    return new EMFJS.PointS(null, this.x, this.y);
+};
+
+EMFJS.PointL.prototype.toString = function() {
+    return "{x: " + this.x + ", y: " + this.y + "}";
+};
 //
 // EMFJS.Rect = function(reader, left, top, right, bottom) {
 // 	if (reader != null) {
@@ -687,7 +705,7 @@ EMFJS.Brush.prototype.toString = function() {
 	switch (this.style) {
 		case EMFJS.GDI.BrushStyle.BS_SOLID:
 			ret += ", color: " + this.color.toString();
-			break
+			break;
 		case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
 			ret += ", colorusage: " + this.colorusage;
 			break;
@@ -698,35 +716,31 @@ EMFJS.Brush.prototype.toString = function() {
 	return ret + "}";
 };
 
-EMFJS.Pen = function(reader, style, width, color, linecap, join) {
+EMFJS.Pen = function(reader, style, width, color) {
 	EMFJS.Obj.call(this, "pen");
 	if (reader != null) {
-		var style = reader.readUint16();
+		var style = reader.readUint32();
 		this.style = style & 0xFF;
-		this.width = new EMFJS.PointS(reader);
+		this.width = (new EMFJS.PointL(reader)).x;
 		this.color = new EMFJS.ColorRef(reader);
-		this.linecap = (style & (EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE | EMFJS.GDI.PenStyle.PS_ENDCAP_FLAT));
-		this.join = (style & (EMFJS.GDI.PenStyle.PS_JOIN_BEVEL | EMFJS.GDI.PenStyle.PS_JOIN_MITER));
 	} else {
 		this.style = style;
 		this.width = width;
 		this.color = color;
-		this.linecap = linecap;
-		this.join = join;
 	}
 };
 EMFJS.Pen.prototype = Object.create(EMFJS.Obj.prototype);
 
 EMFJS.Pen.prototype.clone = function() {
-	return new EMFJS.Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
+	return new EMFJS.Pen(null, this.style, this.width.clone(), this.color.clone());
 };
 
 EMFJS.Pen.prototype.toString = function() {
-	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
+	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
 };
 
 EMFJS.PenEx = function(reader, style, width, brushStyle, color, brushHatch, linecap, join) {
-	EMFJS.Obj.call(this, "pen");
+	EMFJS.Obj.call(this, "penEx");
 	if (reader != null) {
 		var style = reader.readUint32();
 		this.style = style & 0xFF;
@@ -1634,54 +1648,6 @@ EMFJS.GDIContext.prototype._getClipRgn = function() {
 	return this.state.clip;
 };
 
-EMFJS.GDIContext.prototype._todevX = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
-};
-
-EMFJS.GDIContext.prototype._todevY = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
-};
-
-EMFJS.GDIContext.prototype._todevW = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
-};
-
-EMFJS.GDIContext.prototype._todevH = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
-};
-
-EMFJS.GDIContext.prototype._tologicalX = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
-};
-
-EMFJS.GDIContext.prototype._tologicalY = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
-};
-
-EMFJS.GDIContext.prototype._tologicalW = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
-};
-
-EMFJS.GDIContext.prototype._tologicalH = function(val) {
-	// http://wvware.sourceforge.net/caolan/mapmode.html
-	// logical -> device
-	return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
-};
-
 EMFJS.GDIContext.prototype.setMapMode = function(mode) {
 	EMFJS.log("[gdi] setMapMode: mode=" + mode);
 	this.state.mapmode = mode;
@@ -1801,9 +1767,9 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 		if (pen.style != EMFJS.GDI.PenStyle.PS_NULL) {
 			opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
 			if(pen instanceof EMFJS.Pen){
-				opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
+				opts.strokeWidth = pen.width.x; // TODO: is .y ever used?
 			}else{
-				opts.strokeWidth = this._todevW(pen.width);
+				opts.strokeWidth = pen.width;
 			}
 
 			var dotWidth;
@@ -1865,27 +1831,20 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	if (useFont) {
 		var font = this.state.selected.font;
 		opts["font-family"] = font.facename;
-		opts["font-size"] = this._todevH(Math.abs(font.height));
+		opts["font-size"] = Math.abs(font.height);
 		opts["fill"] = "#" + this.state.textcolor.toHex();
 	}
 	return opts;
 };
 
-// EMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
-// 	EMFJS.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-// 	var bottom = this._todevY(rect.bottom);
-// 	var right = this._todevX(rect.right);
-// 	var top = this._todevY(rect.top);
-// 	var left = this._todevX(rect.left);
-// 	rw = this._todevH(rw);
-// 	rh = this._todevH(rh);
-// 	EMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
-// 	this._pushGroup();
-//
-// 	var opts = this._applyOpts(null, true, true, false);
-// 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
-// };
-//
+EMFJS.GDIContext.prototype.rectangle = function(rect) {
+	EMFJS.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	this._pushGroup();
+
+	var opts = this._applyOpts(null, true, true, false);
+	this._svg.rect(this.state._svggroup, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, opts);
+};
+
 // EMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 // 	EMFJS.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
 // 	x = this._todevX(x);
@@ -1937,31 +1896,30 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 // 	}
 // 	this._svg.text(this.state._svggroup, x, y, text, opts);
 // };
-//
-// EMFJS.GDIContext.prototype.lineTo = function(x, y) {
-// 	EMFJS.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-// 	var toX = this._todevX(x);
-// 	var toY = this._todevY(y);
-// 	var fromX = this._todevX(this.state.x);
-// 	var fromY = this._todevY(this.state.y);
-//
-// 	// Update position
-// 	this.state.x = x;
-// 	this.state.y = y;
-//
-// 	EMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
-// 	this._pushGroup();
-//
-// 	var opts = this._applyOpts(null, true, false, false);
-// 	this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
-// }
-//
-// EMFJS.GDIContext.prototype.moveTo = function(x, y) {
-// 	EMFJS.log("[gdi] moveTo: x=" + x + " y=" + y);
-// 	this.state.x = x;
-// 	this.state.y = y;
-// }
-//
+
+EMFJS.GDIContext.prototype.lineTo = function(x, y) {
+	EMFJS.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+	var toX = x;
+	var toY = y;
+	var fromX = this.state.x;
+	var fromY = this.state.y;
+
+	// Update position
+	this.state.x = x;
+	this.state.y = y;
+
+	this._pushGroup();
+
+	var opts = this._applyOpts(null, true, false, false);
+	this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
+}
+
+EMFJS.GDIContext.prototype.moveTo = function(x, y) {
+	EMFJS.log("[gdi] moveTo: x=" + x + " y=" + y);
+	this.state.x = x;
+	this.state.y = y;
+}
+
 // EMFJS.GDIContext.prototype.polygon = function(points) {
 // 	EMFJS.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 // 	var pts = [];
@@ -1977,7 +1935,22 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 // 	this._applyOpts(opts, true, true, false);
 // 	this._svg.polygon(this.state._svggroup, pts, opts);
 // };
-//
+
+EMFJS.GDIContext.prototype.polygon16 = function(points) {
+	EMFJS.log("[gdi] polygon16: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var pts = [];
+	for (var i = 0; i < points.length; i++) {
+		var point = points[i];
+		pts.push([point.x, point.y]);
+	}
+	this._pushGroup();
+	var opts = {
+		"fill-rule": this.state.polyfillmode == EMFJS.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+	};
+	this._applyOpts(opts, true, true, false);
+	this._svg.polygon(this.state._svggroup, pts, opts);
+};
+
 // EMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
 // 	EMFJS.log("[gdi] polyPolygon: polyPolygon=" + JSON.stringify(polyPolygon) + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 // 	this._pushGroup();
@@ -2004,9 +1977,8 @@ EMFJS.GDIContext.prototype.polyline16 = function(points) {
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
-		pts.push([this._todevX(point.x), this._todevY(point.y)]);
+		pts.push([point.x, point.y]);
 	}
-	EMFJS.log("[gdi] polyline16: TRANSLATED: pts=" + pts);
 	this._pushGroup();
 	var opts = this._applyOpts({fill: "none"}, true, false, false);
 	this._svg.polyline(this.state._svggroup, pts, opts);
@@ -2045,27 +2017,27 @@ EMFJS.GDIContext.prototype.polyline16 = function(points) {
 // 	EMFJS.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
 // 	this.state.textalign = textAlignmentMode;
 // };
-//
-// EMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
-// 	EMFJS.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
-// 	this.state.bkmode = bkMode;
-// };
-//
+
+EMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
+	EMFJS.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+	this.state.bkmode = bkMode;
+};
+
 // EMFJS.GDIContext.prototype.setTextColor = function(textColor) {
 // 	EMFJS.log("[gdi] setTextColor: textColor=" + textColor.toString());
 // 	this.state.textcolor = textColor;
 // };
-//
-// EMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
-// 	EMFJS.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
-// 	this.state.bkcolor = bkColor;
-// 	this.state._svgtextbkfilter = null;
-// };
-//
-// EMFJS.GDIContext.prototype.setPolyFillMode = function(polyFillMode) {
-// 	EMFJS.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
-// 	this.state.polyfillmode = polyFillMode;
-// };
+
+EMFJS.GDIContext.prototype.setBkColor = function(bkColor) {
+	EMFJS.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+	this.state.bkcolor = bkColor;
+	this.state._svgtextbkfilter = null;
+};
+
+EMFJS.GDIContext.prototype.setPolyFillMode = function(polyFillMode) {
+	EMFJS.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+	this.state.polyfillmode = polyFillMode;
+};
 
 EMFJS.GDIContext.prototype.createBrush = function(index, brush) {
 	var idx = this._storeObject(brush, index);
@@ -2076,11 +2048,11 @@ EMFJS.GDIContext.prototype.createBrush = function(index, brush) {
 // 	var idx = this._storeObject(font);
 // 	EMFJS.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
 // };
-//
-// EMFJS.GDIContext.prototype.createPen = function(pen) {
-// 	var idx = this._storeObject(pen);
-// 	EMFJS.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
-// };
+
+EMFJS.GDIContext.prototype.createPen = function(index, pen) {
+	var idx = this._storeObject(pen, index);
+	EMFJS.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+};
 
 EMFJS.GDIContext.prototype.createPenEx = function(index, pen) {
 	var idx = this._storeObject(pen, index);
@@ -2309,16 +2281,16 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(textAlign)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETBKMODE:
-			// 	var bkMode = reader.readUint16();
-			// 	this._records.push(
-			// 		(function(bkMode) {
-			// 			return function(gdi) {
-			// 				gdi.setBkMode(bkMode);
-			// 			}
-			// 		})(bkMode)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SETBKMODE:
+				var bkMode = reader.readUint32();
+				this._records.push(
+					(function(bkMode) {
+						return function(gdi) {
+							gdi.setBkMode(bkMode);
+						}
+					})(bkMode)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_SETTEXTCOLOR:
 			// 	var textColor = new EMFJS.ColorRef(reader);
 			// 	this._records.push(
@@ -2329,16 +2301,16 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(textColor)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETBKCOLOR:
-			// 	var bkColor = new EMFJS.ColorRef(reader);
-			// 	this._records.push(
-			// 		(function(bkColor) {
-			// 			return function(gdi) {
-			// 				gdi.setBkColor(bkColor);
-			// 			}
-			// 		})(bkColor)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_SETBKCOLOR:
+				var bkColor = new EMFJS.ColorRef(reader);
+				this._records.push(
+					(function(bkColor) {
+						return function(gdi) {
+							gdi.setBkColor(bkColor);
+						}
+					})(bkColor)
+				);
+				break;
 			case EMFJS.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
 				var index = reader.readUint32();
 				var datalength = size - (reader.pos - curpos);
@@ -2362,16 +2334,17 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(brush, datalength)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_CREATEPENINDIRECT:
-			// 	var pen = new EMFJS.Pen(reader);
-			// 	this._records.push(
-			// 		(function(pen) {
-			// 			return function(gdi) {
-			// 				gdi.createPen(pen);
-			// 			}
-			// 		})(pen)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
+                var index = reader.readUint32();
+				var pen = new EMFJS.Pen(reader);
+				this._records.push(
+					(function(index, pen) {
+						return function(gdi) {
+							gdi.createPen(index, pen);
+						}
+					})(index, pen)
+				);
+				break;
 			case EMFJS.GDI.RecordType.EMR_EXTCREATEPEN:
 				var index = reader.readUint32();
 				var offsetDibHeader = reader.readUint32();
@@ -2438,16 +2411,16 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(idx)
 				);
 				break;
-			// case EMFJS.GDI.RecordType.META_RECTANGLE:
-			// 	var rect = new EMFJS.Rect(reader);
-			// 	this._records.push(
-			// 		(function(rect) {
-			// 			return function(gdi) {
-			// 				gdi.rectangle(rect, 0, 0);
-			// 			}
-			// 		})(rect)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_RECTANGLE:
+				var rect = new EMFJS.RectL(reader);
+				this._records.push(
+					(function(rect) {
+						return function(gdi) {
+							gdi.rectangle(rect, 0, 0);
+						}
+					})(rect)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_ROUNDRECT:
 			// 	var rh = reader.readInt16();
 			// 	var rw = reader.readInt16();
@@ -2460,28 +2433,28 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(rh, rw, rect)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_LINETO:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.lineTo(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
-			// case EMFJS.GDI.RecordType.META_MOVETO:
-			// 	var y = reader.readInt16();
-			// 	var x = reader.readInt16();
-			// 	this._records.push(
-			// 		(function(y, x) {
-			// 			return function(gdi) {
-			// 				gdi.moveTo(x, y);
-			// 			}
-			// 		})(y, x)
-			// 	);
-			// 	break;
+            case EMFJS.GDI.RecordType.EMR_LINETO:
+                var x = reader.readInt32();
+                var y = reader.readInt32();
+                this._records.push(
+                    (function(y, x) {
+                        return function(gdi) {
+                            gdi.lineTo(x, y);
+                        }
+                    })(y, x)
+                );
+                break;
+            case EMFJS.GDI.RecordType.EMR_MOVETOEX:
+                var x = reader.readInt32();
+                var y = reader.readInt32();
+                this._records.push(
+                    (function(y, x) {
+                        return function(gdi) {
+                            gdi.moveTo(x, y);
+                        }
+                    })(y, x)
+                );
+                break;
 			// case EMFJS.GDI.RecordType.META_TEXTOUT:
 			// 	var len = reader.readInt16();
 			// 	if (len > 0) {
@@ -2579,16 +2552,32 @@ EMFJS.EMFRecords = function(reader, first) {
 			// 		})(points)
 			// 	);
 			// 	break;
-			// case EMFJS.GDI.RecordType.META_SETPOLYFILLMODE:
-			// 	var polyfillmode = reader.readUint16();
-			// 	this._records.push(
-			// 		(function(polyfillmode) {
-			// 			return function(gdi) {
-			// 				gdi.setPolyFillMode(polyfillmode);
-			// 			}
-			// 		})(polyfillmode)
-			// 	);
-			// 	break;
+			case EMFJS.GDI.RecordType.EMR_POLYGON16:
+				var bounds = new EMFJS.RectL(reader);
+				var cnt = reader.readUint32();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new EMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points) {
+						return function(gdi) {
+							gdi.polygon16(points);
+						}
+					})(points)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETPOLYFILLMODE:
+				var polyfillmode = reader.readUint32();
+				this._records.push(
+					(function(polyfillmode) {
+						return function(gdi) {
+							gdi.setPolyFillMode(polyfillmode);
+						}
+					})(polyfillmode)
+				);
+				break;
 			// case EMFJS.GDI.RecordType.META_POLYPOLYGON:
 			// 	var polyPolygon = new EMFJS.PolyPolygon(reader);
 			// 	this._records.push(
@@ -2678,16 +2667,12 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_SETBRUSHORGEX:
 			case EMFJS.GDI.RecordType.EMR_SETPIXELV:
 			case EMFJS.GDI.RecordType.EMR_SETMAPPERFLAGS:
-			case EMFJS.GDI.RecordType.EMR_SETBKMODE:
-			case EMFJS.GDI.RecordType.EMR_SETPOLYFILLMODE:
 			case EMFJS.GDI.RecordType.EMR_SETROP2:
 			case EMFJS.GDI.RecordType.EMR_SETSTRETCHBLTMODE:
 			case EMFJS.GDI.RecordType.EMR_SETTEXTALIGN:
 			case EMFJS.GDI.RecordType.EMR_SETCOLORADJUSTMENT:
 			case EMFJS.GDI.RecordType.EMR_SETTEXTCOLOR:
-			case EMFJS.GDI.RecordType.EMR_SETBKCOLOR:
 			case EMFJS.GDI.RecordType.EMR_OFFSETCLIPRGN:
-			case EMFJS.GDI.RecordType.EMR_MOVETOEX:
 			case EMFJS.GDI.RecordType.EMR_SETMETARGN:
 			case EMFJS.GDI.RecordType.EMR_EXCLUDECLIPRECT:
 			case EMFJS.GDI.RecordType.EMR_INTERSECTCLIPRECT:
@@ -2695,10 +2680,8 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_SCALEWINDOWEXTEX:
 			case EMFJS.GDI.RecordType.EMR_SETWORLDTRANSFORM:
 			case EMFJS.GDI.RecordType.EMR_MODIFYWORLDTRANSFORM:
-			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
 			case EMFJS.GDI.RecordType.EMR_ANGLEARC:
 			case EMFJS.GDI.RecordType.EMR_ELLIPSE:
-			case EMFJS.GDI.RecordType.EMR_RECTANGLE:
 			case EMFJS.GDI.RecordType.EMR_ROUNDRECT:
 			case EMFJS.GDI.RecordType.EMR_ARC:
 			case EMFJS.GDI.RecordType.EMR_CHORD:
@@ -2709,7 +2692,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_RESIZEPALETTE:
 			case EMFJS.GDI.RecordType.EMR_REALIZEPALETTE:
 			case EMFJS.GDI.RecordType.EMR_EXTFLOODFILL:
-			case EMFJS.GDI.RecordType.EMR_LINETO:
 			case EMFJS.GDI.RecordType.EMR_ARCTO:
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW:
 			case EMFJS.GDI.RecordType.EMR_SETARCDIRECTION:
@@ -2740,7 +2722,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTA:
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTW:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIER16:
-			case EMFJS.GDI.RecordType.EMR_POLYGON16:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO16:
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE16:
