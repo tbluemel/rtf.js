@@ -672,9 +672,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			if (parser.version != null)
 				throw new RTFJS.Error("Unexpected rtf destination");
 			DestinationBase.call(this, name);
-			if (param != 1)
+
+			// This parameter should be one, but older versions of the spec allow for omission of the version number
+			if (param && param != 1)
 				throw new RTFJS.Error("Unsupported rtf version");
-			parser.version = param;
+			parser.version = 1;
 			
 			this._metadata = {};
 		};
