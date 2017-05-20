@@ -758,8 +758,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		var _charFormatHandlers = {
 			ansicpg: function(param) {
-				RTFJS.log("[rtf] using charset: " + param);
-				parser.codepage = param;
+				//if the value is 0, use the default charset as 0 is not valid
+				if(param > 0) {
+                    RTFJS.log("[rtf] using charset: " + param);
+                    parser.codepage = param;
+                }
 			},
 			sectd: function(param) {
 				RTFJS.log("[rtf] reset to section defaults");
