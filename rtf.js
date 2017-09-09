@@ -986,6 +986,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				case "fdecor":
 				case "ftech":
 				case "fbidi":
+                case "flomajor":
+                case "fhimajor":
+                case "fdbmajor":
+                case "fbimajor":
+                case "flominor":
+                case "fhiminor":
+                case "fdbminor":
+                case "fbiminor":
 					this.family = keyword.slice(1);
 					return true;
 				case "fprq":
