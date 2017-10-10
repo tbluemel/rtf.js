@@ -27,7 +27,9 @@ SOFTWARE.
 if (typeof EMFJS === 'undefined') {
 	(typeof window !== 'undefined' ? window : this).EMFJS = {
 		Error: function(message) {
+			this.name = 'EMFJSError';
 			this.message = message;
+			this.stack = (new Error()).stack;
 		},
 		loggingEnabled: true,
 		log: function(message){
@@ -279,6 +281,7 @@ if (typeof EMFJS === 'undefined') {
 			return "EMFJS_" + prefix + (this._uniqueId++);
 		}
 	};
+    EMFJS.Error.prototype = new Error;
 }
 
 EMFJS.Blob = function(blob, offset) {

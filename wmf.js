@@ -27,7 +27,9 @@ SOFTWARE.
 if (typeof WMFJS === 'undefined') {
 	(typeof window !== 'undefined' ? window : this).WMFJS = {
 		Error: function(message) {
+			this.name = 'WMFJSError';
 			this.message = message;
+			this.stack = (new Error()).stack;
 		},
 		loggingEnabled: true,
 		log: function(message){
@@ -283,6 +285,7 @@ if (typeof WMFJS === 'undefined') {
 			return ret;
 		},
 	};
+	WMFJS.Error.prototype = new Error;
 }
 
 WMFJS.Blob = function(blob, offset) {

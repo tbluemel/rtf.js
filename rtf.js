@@ -27,7 +27,9 @@ SOFTWARE.
 if (typeof RTFJS === "undefined") {
 	(typeof window !== "undefined" ? window : this).RTFJS = {
 		Error: function(message) {
+			this.name = 'RTFJSError';
 			this.message = message;
+			this.stack = (new Error()).stack;
 		},
 		loggingEnabled: true,
 		log: function(message){
@@ -197,6 +199,7 @@ if (typeof RTFJS === "undefined") {
 			return Math.floor(twips / 20 * 96 / 72);
 		}
 	};
+	RTFJS.Error.prototype = new Error;
 }
 
 RTFJS.RenderChp = function(chp) {
