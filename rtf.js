@@ -581,6 +581,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	var parser = {
 		data: new Uint8Array(blob),
 		pos: 0,
+		line: 1,
+		column: 0,
 		state: null,
 		version: null,
 		text: "",
@@ -590,16 +592,19 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		},
 		readChar: function() {
 			if (this.pos < this.data.length) {
+				parser.column++;
 				return cptable[this.codepage].dec[this.data[this.pos++]];
 			}
 			
 			throw new RTFJS.Error("Unexpected end of file");
 		},
 		unreadChar: function() {
-			if (this.pos > 0)
+			if (this.pos > 0) {
+				parser.column--;
 				this.pos--;
-			else
+			} else {
 				throw new RTFJS.Error("Already at beginning of file");
+			}
 		},
 		readBlob: function(cnt) {
 			if (this.pos + cnt > this.data.length)
@@ -1974,38 +1979,48 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	};
 	
 	parseLoop = function(skip, process) {
-		var initialState = parser.state;
-		main_loop: while (!parser.eof()) {
-			if (parser.state != null && parser.state.bindata > 0) {
-				var blob = parser.readBlob(parser.state.bindata);
-				parser.state.bindata = 0;
-				applyBlob(blob);
-			} else {
-				var ch = parser.readChar();
-				switch (ch) {
-					case "\r":
-					case "\n":
-						continue;
-					case "{":
-						pushState(skip);
-						break;
-					case "}":
-						if (initialState == parser.state) {
-							parser.unreadChar();
-							break main_loop;
-						}
-						else if (popState() == initialState)
-							break main_loop;
-						break;
-					case "\\":
-						parseKeyword(!skip ? process : null);
-						break;
-					default:
-						if (!skip)
-							appendText(ch);
-						break;
+		try {
+			var initialState = parser.state;
+			main_loop: while (!parser.eof()) {
+				if (parser.state != null && parser.state.bindata > 0) {
+					var blob = parser.readBlob(parser.state.bindata);
+					parser.state.bindata = 0;
+					applyBlob(blob);
+				} else {
+					var ch = parser.readChar();
+					switch (ch) {
+						case "\r":
+							continue;
+						case "\n":
+							parser.line++;
+							parser.column = 0;
+							continue;
+						case "{":
+							pushState(skip);
+							break;
+						case "}":
+							if (initialState == parser.state) {
+								parser.unreadChar();
+								break main_loop;
+							}
+							else if (popState() == initialState)
+								break main_loop;
+							break;
+						case "\\":
+							parseKeyword(!skip ? process : null);
+							break;
+						default:
+							if (!skip)
+								appendText(ch);
+							break;
+					}
 				}
 			}
+		} catch(error) {
+			if (error instanceof RTFJS.Error) {
+				error.message += " (line: " + parser.line + "; column: " + parser.column + ")";
+			}
+			throw error;
 		}
 	};
 	
