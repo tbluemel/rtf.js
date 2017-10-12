@@ -1286,8 +1286,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.apply = function() {
 			if (!this._haveInst)
 				throw new RTFJS.Error("Field has no fldinst destination");
-			if (this._result == null)
-				throw new RTFJS.Error("Field has no fldrslt destination");
+			//A fldrslt destination should be included but is not required
+			// if (this._result == null)
+			// 	throw new RTFJS.Error("Field has no fldrslt destination");
 		};
 		cls.prototype.setInst = function(inst) {
 			this._haveInst = true;
