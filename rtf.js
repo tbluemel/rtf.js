@@ -1028,6 +1028,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 							RTFJS.log("Unknown font charset: " + param);
 					}
 					return true;
+                case "cpg":
+                    if (param != null) {
+                        this.charset = param;
+                    }
+                    return true;
 			}
 			return false;
 		};
