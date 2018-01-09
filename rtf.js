@@ -160,7 +160,7 @@ if (typeof RTFJS === "undefined") {
 		},
 		
 		_charsetMap: {
-			"0": "windows-1252",
+			"0": 1252,
 			// TODO
 		},
 		_mapCharset: function(idx) {
@@ -1931,8 +1931,17 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				if (isNaN(param))
 					throw new RTFJS.Error("Could not parse hexadecimal number");
 				
-				if (process != null)
-					appendText(cptable[parser.codepage].dec[param]);
+				if (process != null) {
+					// Looking for current fonttbl charset
+					var codepage = parser.codepage;
+					if (parser.state.chp.hasOwnProperty("fontfamily")) {
+						idx = parser.state.chp.fontfamily;
+						if (inst._fonts != undefined && inst._fonts[idx] != null)
+							codepage = inst._fonts[idx].charset;
+					}
+					
+					appendText(cptable[codepage].dec[param]);
+				}
 			} else if (process != null) {
 				var text = process(ch, param);
 				if (text != null)
