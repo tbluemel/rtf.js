@@ -161,7 +161,6 @@ if (typeof RTFJS === "undefined") {
 		
 		_charsetMap: {
 			"0":   1252, // ANSI_CHARSET
-			"2":   42,    // Symbol
 			"77":  10000, // Mac Roman
 			"78":  10001, // Mac Shift Jis
 			"79":  10003, // Mac Hangul
@@ -1964,7 +1963,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					var codepage = parser.codepage;
 					if (parser.state.chp.hasOwnProperty("fontfamily")) {
 						idx = parser.state.chp.fontfamily;
-						if (inst._fonts != undefined && inst._fonts[idx] != null)
+						if (inst._fonts != undefined && inst._fonts[idx] != null && inst._fonts[idx].charset != undefined)
 							codepage = inst._fonts[idx].charset;
 					}
 					
