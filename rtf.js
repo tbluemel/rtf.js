@@ -91,6 +91,11 @@ if (typeof RTFJS === "undefined") {
 			FIXED: 1,
 			VARIABLE: 2
 		},
+        CHARACTER_TYPE: {
+            LOWANSI: "loch",
+            HIGHANSI: "hich",
+            DOUBLE: "dbch"
+        },
 		
 		_isalpha: function(str) {
 			var len = str.length;
@@ -519,6 +524,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.justification = parent.justification;
 			this.spacebefore = parent.spacebefore;
 			this.spaceafter = parent.spaceafter;
+            this.charactertype = parent.charactertype;
 		} else {
 			this.indent = {
 				left: 0,
@@ -816,6 +822,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			cf: _genericFormatSetValRequired("chp", "colorindex"),
 			fs: _genericFormatSetValRequired("chp", "fontsize"),
 			f: _genericFormatSetValRequired("chp", "fontfamily"),
+            loch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.LOWANSI),
+            hich: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.HIGHANSI),
+            dbch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.DOUBLE),
 			strike: _genericFormatOnOff("chp", "strikethrough"),
 			striked: _genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
 			ul: _genericFormatOnOff("chp", "underline", RTFJS.UNDERLINE.CONTINUOUS, RTFJS.UNDERLINE.NONE),
@@ -1959,7 +1968,13 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		var ch = parser.readChar();
 		if (!RTFJS._isalpha(ch)) {
 			if (ch == "\'") {
-				param = RTFJS._parseHex(parser.readChar() + parser.readChar())
+				var hex = parser.readChar() + parser.readChar();
+				if(parser.state.pap.charactertype === RTFJS.CHARACTER_TYPE.DOUBLE) {
+                    parser.readChar();
+                    parser.readChar();
+                    hex += parser.readChar() + parser.readChar();
+                }
+                param = RTFJS._parseHex(hex);
 				if (isNaN(param))
 					throw new RTFJS.Error("Could not parse hexadecimal number");
 				
@@ -1971,7 +1986,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						if (inst._fonts != undefined && inst._fonts[idx] != null && inst._fonts[idx].charset != undefined)
 							codepage = inst._fonts[idx].charset;
 					}
-					
+
 					appendText(cptable[codepage].dec[param]);
 				}
 			} else if (process != null) {
