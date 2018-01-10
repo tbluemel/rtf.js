@@ -621,7 +621,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		readChar: function() {
 			if (this.pos < this.data.length) {
 				parser.column++;
-				return cptable[this.codepage].dec[this.data[this.pos++]];
+				return String.fromCharCode(this.data[this.pos++]);
 			}
 			
 			throw new RTFJS.Error("Unexpected end of file");
