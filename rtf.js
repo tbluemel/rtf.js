@@ -1929,6 +1929,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	};
 	
 	appendText = function(text) {
+		// Handle characters not found in codepage
+		text = text ? text : "";
+
 		parser.state.first = false;
 		if (parser.state.skipchars > 0) {
 			var len = text.length;
