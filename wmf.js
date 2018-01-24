@@ -2547,10 +2547,15 @@ WMFJS.WMFRecords = function(reader, first) {
 			case WMFJS.GDI.RecordType.META_BITBLT:
 			case WMFJS.GDI.RecordType.META_SETDIBTODEV:
 			case WMFJS.GDI.RecordType.META_DIBBITBLT:
-				WMFJS.log("[WMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
-				break;
 			default:
-				WMFJS.log("[WMF] UNKNOWN record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
+				var recordName = "UNKNOWN";
+				for (var name in WMFJS.GDI.RecordType) {
+					if (WMFJS.GDI.RecordType[name] == type) {
+						recordName = name;
+						break;
+					}
+				}
+				WMFJS.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
 				//throw new WMFJS.Error("Record type not recognized: 0x" + type.toString(16));
 				break;
 		}

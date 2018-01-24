@@ -1754,10 +1754,15 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_SETTEXTJUSTIFICATION:
 			case EMFJS.GDI.RecordType.EMR_COLORMATCHTOTARGETW:
 			case EMFJS.GDI.RecordType.EMR_CREATECOLORSPACEW:
-				EMFJS.log("[EMF] record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
-				break;
 			default:
-				EMFJS.log("[EMF] UNKNOWN record 0x" + type.toString(16) + " at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
+				var recordName = "UNKNOWN";
+				for (var name in EMFJS.GDI.RecordType) {
+					if (EMFJS.GDI.RecordType[name] == type) {
+						recordName = name;
+						break;
+					}
+				}
+				EMFJS.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
 				//throw new EMFJS.Error("Record type not recognized: 0x" + type.toString(16));
 				break;
 		}
