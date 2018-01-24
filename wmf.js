@@ -2650,7 +2650,7 @@ WMFJS.Renderer.prototype.render = function(info) {
 				return inst._render.call(inst, svg, mapMode, xExt, yExt);
 			},
 			settings: {
-				viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+				viewBox: [0, 0, xExt, yExt].join(" "),
 				preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
 			}
 		});

@@ -38,6 +38,12 @@ if (typeof EMFJS === 'undefined') {
 			}
 		},
 		GDI: {
+			FormatSignature: {
+				ENHMETA_SIGNATURE: 0x464D4520,
+				EPS_SIGNATURE: 0x46535045
+			},
+			BITMAPINFOHEADER_SIZE: 40,
+			BITMAPCOREHEADER_SIZE: 12,
 			RecordType: {
 				EMR_POLYBEZIER: 0x00000002,
 				EMR_POLYGON: 0x00000003,
@@ -274,12 +280,54 @@ if (typeof EMFJS === 'undefined') {
 			PolyFillMode: {
 				ALTERNATE: 1,
 				WINDING: 2
+			},
+			BitmapCompression: {
+				BI_RGB: 0,
+				BI_RLE8: 1,
+				BI_RLE4: 2,
+				BI_BITFIELDS: 3,
+				BI_JPEG: 4,
+				BI_PNG: 5
+			},
+			StockObject: {
+				WHITE_BRUSH: 0x80000000,
+				LTGRAY_BRUSH: 0x80000001,
+				GRAY_BRUSH: 0x80000002,
+				DKGRAY_BRUSH: 0x80000003,
+				BLACK_BRUSH: 0x80000004,
+				NULL_BRUSH: 0x80000005,
+				WHITE_PEN: 0x80000006,
+				BLACK_PEN: 0x80000007,
+				NULL_PEN: 0x80000008,
+				OEM_FIXED_FONT: 0x8000000A,
+				ANSI_FIXED_FONT: 0x8000000B,
+				ANSI_VAR_FONT: 0x8000000C,
+				SYSTEM_FONT: 0x8000000D,
+				DEVICE_DEFAULT_FONT: 0x8000000E,
+				DEFAULT_PALETTE: 0x8000000F,
+				SYSTEM_FIXED_FONT: 0x80000010,
+				DEFAULT_GUI_FONT: 0x80000011,
+				DC_BRUSH: 0x80000012,
+				DC_PEN: 0x80000013
 			}
 		},
 		_uniqueId: 0,
 		_makeUniqueId: function(prefix) {
 			return "EMFJS_" + prefix + (this._uniqueId++);
-		}
+		},
+		_writeUint32Val: function(uint8arr, pos, val) {
+			uint8arr[pos++] = val & 0xff;
+			uint8arr[pos++] = (val >>> 8) & 0xff;
+			uint8arr[pos++] = (val >>> 16) & 0xff;
+			uint8arr[pos++] = (val >>> 24) & 0xff;
+		},
+		_blobToBinary: function(blob) {
+			var ret = "";
+			var len = blob.length;
+			for (var i = 0; i < len; i++)
+				ret += String.fromCharCode(blob[i]);
+			return ret;
+		},
 	};
     EMFJS.Error.prototype = new Error;
 }
@@ -387,6 +435,20 @@ EMFJS.Blob.prototype.readNullTermString = function(maxSize) {
 	return ret;
 };
 
+EMFJS.Blob.prototype.readFixedSizeUnicodeString = function(fixedSizeChars) {
+	var ret = "";
+	for (var i = 0; i < fixedSizeChars; i++) {
+		var charCode = this.readUint16();
+		if (byte == 0) {
+			if (++i < fixedSizeChars)
+				this.skip((fixedSizeChars - i) * 2);
+			break;
+		}
+		ret += String.fromCharCode(byte);
+	}
+	return ret;
+};
+
 EMFJS.ColorRef = function(reader, r, g, b) {
 	if (reader != null) {
 		this.r = reader.readUint8();
@@ -485,6 +547,155 @@ EMFJS.RectL.prototype.intersect = function(rectL) {
 	return new EMFJS.RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top), Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
 };
 
+EMFJS.BitmapBase = function() {
+};
+
+EMFJS.BitmapBase.prototype.getWidth = function() {
+	throw EMFJS.Error("getWidth not implemented");
+}
+
+EMFJS.BitmapBase.prototype.getHeight = function() {
+	throw EMFJS.Error("getHeight not implemented");
+}
+
+EMFJS.BitmapCoreHeader = function(reader, skipsize) {
+	if (skipsize)
+		reader.skip(4);
+	this.width = reader.readUint16();
+	this.height = reader.readUint16();
+	this.planes = reader.readUint16();
+	this.bitcount = reader.readUint16();
+}
+
+EMFJS.BitmapCoreHeader.prototype.colors = function() {
+	return this.bitcount <= 8 ? 1 << this.bitcount : 0;
+};
+
+EMFJS.BitmapInfoHeader = function(reader, skipsize) {
+	if (skipsize)
+		reader.skip(4);
+	this.width = reader.readInt32();
+	this.height = reader.readInt32();
+	this.planes = reader.readUint16();
+	this.bitcount = reader.readUint16();
+	this.compression = reader.readUint32();
+	this.sizeimage = reader.readUint32();
+	this.xpelspermeter = reader.readInt32();
+	this.ypelspermeter = reader.readInt32();
+	this.clrused = reader.readUint32();
+	this.clrimportant = reader.readUint32();
+};
+
+EMFJS.BitmapInfoHeader.prototype.colors = function() {
+	if (this.clrused != 0)
+		return this.clrused < 256 ? this.clrused : 256;
+	else
+		return this.bitcount > 8 ? 0 : 1 << this.bitcount;
+};
+
+EMFJS.BitmapInfo = function(reader, usergb) {
+	EMFJS.BitmapBase.call(this);
+	this._reader = reader;
+	this._offset = reader.pos;
+	this._usergb = usergb;
+	var hdrsize = reader.readUint32();
+	this._infosize = hdrsize;
+	if (hdrsize == EMFJS.GDI.BITMAPCOREHEADER_SIZE) {
+		this._header = new EMFJS.BitmapCoreHeader(reader, false);
+		this._infosize += this._header.colors() * (usergb ? 3 : 2);
+	}
+	else {
+		this._header = new EMFJS.BitmapInfoHeader(reader, false);
+		var masks = this._header.compression == EMFJS.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+		if (hdrsize <= EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
+			this._infosize = EMFJS.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+		this._infosize += this._header.colors() * (usergb ? 4 : 2);
+	}
+};
+EMFJS.BitmapInfo.prototype = Object.create(EMFJS.BitmapBase.prototype);
+
+EMFJS.BitmapInfo.prototype.getWidth = function() {
+	return this._header.width;
+};
+
+EMFJS.BitmapInfo.prototype.getHeight = function() {
+	return Math.abs(this._header.height);
+};
+
+EMFJS.BitmapInfo.prototype.infosize = function() {
+	return this._infosize;
+};
+
+EMFJS.BitmapInfo.prototype.header = function() {
+	return this._header;
+};
+
+EMFJS.DIBitmap = function(reader, bitmapInfo) {
+	EMFJS.BitmapBase.call(this);
+	this._reader = reader;
+	this._location = bitmapInfo;
+	this._info = new EMFJS.BitmapInfo(reader, true);
+};
+EMFJS.DIBitmap.prototype = Object.create(EMFJS.BitmapBase.prototype);
+
+EMFJS.DIBitmap.prototype.getWidth = function() {
+	return this._info.getWidth();
+};
+
+EMFJS.DIBitmap.prototype.getHeight = function() {
+	return this._info.getHeight();
+};
+
+EMFJS.DIBitmap.prototype.totalSize = function() {
+	return this._location.header.size + this._location.data.size;
+}
+
+EMFJS.DIBitmap.prototype.makeBitmapFileHeader = function() {
+	var buf = new ArrayBuffer(14);
+	var view = new Uint8Array(buf);
+	view[0] = 0x42;
+	view[1] = 0x4d;
+	EMFJS._writeUint32Val(view, 2, this.totalSize() + 14);
+	EMFJS._writeUint32Val(view, 10, this._info.infosize() + 14);
+	return EMFJS._blobToBinary(view);
+};
+
+EMFJS.DIBitmap.prototype.base64ref = function() {
+	var prevpos = this._reader.pos;
+	this._reader.seek(this._offset);
+	var mime = "image/bmp";
+	var header = this._info.header();
+	var data;
+	if (header.compression != null) {
+		switch (header.compression) {
+			case EMFJS.GDI.BitmapCompression.BI_JPEG:
+				mime = "data:image/jpeg";
+				break;
+			case EMFJS.GDI.BitmapCompression.BI_PNG:
+				mime = "data:image/png";
+				break;
+			default:
+				data = this.makeBitmapFileHeader();
+				break;
+		}
+	} else {
+		data = this.makeBitmapFileHeader();
+	}
+	
+	this._reader.seek(this._location.header.offset);
+	if (data != null)
+		data += this._reader.readBinary(this._location.header.size);
+	else
+		data = this._reader.readBinary(this._location.header.size);
+	
+	this._reader.seek(this._location.data.offset);
+	data += this._reader.readBinary(this._location.data.size);
+	
+	var ref = "data:" + mime + ";base64," + btoa(data);
+	this._reader.seek(prevpos);
+	return ref;
+};
+
 EMFJS.Obj = function(type) {
 	this.type = type;
 }
@@ -500,11 +711,11 @@ EMFJS.Obj.prototype.toString = function() {
 EMFJS.Font = function(reader, copy) {
 	EMFJS.Obj.call(this, "font");
 	if (reader != null) {
-		this.height = reader.readInt16();
-		this.width = reader.readInt16();
-		this.escapement = reader.readInt16();
-		this.orientation = reader.readInt16();
-		this.weight = reader.readInt16();
+		this.height = reader.readInt32();
+		this.width = reader.readInt32();
+		this.escapement = reader.readInt32();
+		this.orientation = reader.readInt32();
+		this.weight = reader.readInt32();
 		this.italic = reader.readUint8();
 		this.underline = reader.readUint8();
 		this.strikeout = reader.readUint8();
@@ -518,7 +729,7 @@ EMFJS.Font = function(reader, copy) {
 
 		var dataLength = copy;
 		var start = reader.pos;
-		this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
+		this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
 	} else if (copy != null) {
 		this.height = copy.height;
 		this.width = copy.width;
@@ -565,50 +776,43 @@ EMFJS.Font.prototype.toString = function() {
 	return JSON.stringify(this);
 };
 
-EMFJS.Brush = function(reader, copy, forceDibPattern) {
+EMFJS.Brush = function(reader, copy, bitmapInfo) {
 	EMFJS.Obj.call(this, "brush");
 	if (reader != null) {
 		var dataLength = copy;
 		var start = reader.pos;
-
-		// if (forceDibPattern === true || forceDibPattern === false) {
-			this.style = reader.readUint32();
-			// if (forceDibPattern && this.style != EMFJS.GDI.BrushStyle.BS_PATTERN)
-			// 	this.style = EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT;
-			switch (this.style) {
-				case EMFJS.GDI.BrushStyle.BS_SOLID:
-					this.color = new EMFJS.ColorRef(reader);
-					break;
-				// case EMFJS.GDI.BrushStyle.BS_PATTERN:
-				// 	reader.skip(forceDibPattern ? 2 : 4);
-				// 	this.pattern = new EMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
-				// 	break;
-				// case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-				// 	this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
-				// 	this.dibpatternpt = new EMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
-				// 	break;
-				case EMFJS.GDI.BrushStyle.BS_HATCHED:
-					this.color = new EMFJS.ColorRef(reader);
-					this.hatchstyle = reader.readUint32();
-					break;
-			}
-		// } else if (forceDibPattern instanceof EMFJS.PatternBitmap16) {
-		// 	this.style = MFJS.GDI.BrushStyle.BS_PATTERN;
-		// 	this.pattern = forceDibPattern;
-		// }
+		
+		this.style = reader.readUint32();
+		switch (this.style) {
+			case EMFJS.GDI.BrushStyle.BS_SOLID:
+				this.color = new EMFJS.ColorRef(reader);
+				break;
+			case EMFJS.GDI.BrushStyle.BS_PATTERN:
+				this.pattern = new EMFJS.DIBitmap(reader, bitmapInfo);
+				break;
+			case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				this.dibpatternpt = new EMFJS.DIBitmap(reader, bitmapInfo);
+				break;
+			case EMFJS.GDI.BrushStyle.BS_HATCHED:
+				this.color = new EMFJS.ColorRef(reader);
+				this.hatchstyle = reader.readUint32();
+				break;
+		}
+		
+		reader.seek(start + 12);
 	} else {
 		this.style = copy.style;
 		switch (this.style) {
 			case EMFJS.GDI.BrushStyle.BS_SOLID:
 				this.color = copy.color.clone();
 				break;
-			// case EMFJS.GDI.BrushStyle.BS_PATTERN:
-			// 	this.pattern = copy.pattern.clone();
-			// 	break;
-			// case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
-			// 	this.colorusage = copy.colorusage;
-			// 	this.dibpatternpt = copy.dibpatternpt;
-			// 	break;
+			case EMFJS.GDI.BrushStyle.BS_PATTERN:
+				this.pattern = copy.pattern.clone();
+				break;
+			case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+				this.colorusage = copy.colorusage;
+				this.dibpatternpt = copy.dibpatternpt;
+				break;
 			case EMFJS.GDI.BrushStyle.BS_HATCHED:
 				this.color = copy.color.clone();
 				this.hatchstyle = copy.hatchstyle;
@@ -638,59 +842,41 @@ EMFJS.Brush.prototype.toString = function() {
 	return ret + "}";
 };
 
-EMFJS.Pen = function(reader, style, width, color) {
+EMFJS.Pen = function(reader, style, width, color, brush) {
 	EMFJS.Obj.call(this, "pen");
 	if (reader != null) {
-		var style = reader.readUint32();
-		this.style = style & 0xFF;
-		this.width = (new EMFJS.PointL(reader)).x;
-		this.color = new EMFJS.ColorRef(reader);
+		if (style != null) {
+			// LogPenEx
+			var bitmapInfo = style;
+
+			this.style = reader.readUint32() & 0xFF;
+			this.width = reader.readUint32();
+			this.brush = new EMFJS.Brush(reader);
+			this.color = this.brush.color != null ? this.brush.color.clone() : new EMFJS.ColorRef(null, 0, 0, 0);
+			// TODO: NumStyleEntries, StyleEntry
+		} else {
+			// LogPen
+			this.style = reader.readUint32() & 0xFF;
+			this.width = (new EMFJS.PointL(reader)).x;
+			this.color = new EMFJS.ColorRef(reader);
+		}
 	} else {
 		this.style = style;
 		this.width = width;
-		this.color = color;
+		if (color != null)
+			this.color = color;
+		if (brush != null)
+			this.brush = brush;
 	}
 };
 EMFJS.Pen.prototype = Object.create(EMFJS.Obj.prototype);
 
 EMFJS.Pen.prototype.clone = function() {
-	return new EMFJS.Pen(null, this.style, this.width.clone(), this.color.clone());
+	return new EMFJS.Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
 };
 
 EMFJS.Pen.prototype.toString = function() {
-	return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + "}";
-};
-
-EMFJS.PenEx = function(reader, style, width, brushStyle, color, brushHatch, linecap, join) {
-	EMFJS.Obj.call(this, "penEx");
-	if (reader != null) {
-		var style = reader.readUint32();
-		this.style = style & 0xFF;
-		this.width = reader.readUint32();
-		this.brushStyle = reader.readUint32();
-		this.color = new EMFJS.ColorRef(reader);
-		this.brushHatch = reader.readUint32();
-		this.linecap = (style & (EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE | EMFJS.GDI.PenStyle.PS_ENDCAP_FLAT));
-		this.join = (style & (EMFJS.GDI.PenStyle.PS_JOIN_BEVEL | EMFJS.GDI.PenStyle.PS_JOIN_MITER));
-	} else {
-		this.style = style;
-		this.width = width;
-		this.brushStyle = brushStyle;
-		this.color = color;
-		this.brushHatch = brushHatch;
-		this.linecap = linecap;
-		this.join = join;
-	}
-};
-EMFJS.PenEx.prototype = Object.create(EMFJS.Obj.prototype);
-
-EMFJS.PenEx.prototype.clone = function() {
-	return new EMFJS.Pen(null, this.style, this.width, this.brushStyle, this.color.clone(), this.brushHatch , this.linecap, this.join);
-};
-
-EMFJS.PenEx.prototype.toString = function() {
-	return "{style: " + this.style + ", width: " + this.width + ", brushStyle: 0x" + this.brushStyle.toString(16) +
-		", color: " + this.color.toString() + ", brushHatch: 0x" + this.brushHatch.toString(16) + ", linecap: " + this.linecap + ", join: " + this.join + "}";
+	return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
 };
 
 EMFJS.GDIContextState = function(copy, defObjects) {
@@ -764,7 +950,7 @@ EMFJS.GDIContext = function(svg) {
 	
 	this.defObjects = {
 		brush: new EMFJS.Brush(null, EMFJS.GDI.BrushStyle.BS_SOLID, new EMFJS.ColorRef(null, 0, 0, 0), false),
-		pen: new EMFJS.Pen(null, EMFJS.GDI.PenStyle.PS_SOLID, new EMFJS.PointS(null, 1, 1), new EMFJS.ColorRef(null, 0, 0, 0), 0, 0),
+		pen: new EMFJS.Pen(null, EMFJS.GDI.PenStyle.PS_SOLID, 1, new EMFJS.ColorRef(null, 0, 0, 0)),
 		font: new EMFJS.Font(null, null),
 		palette: null,
 		region: null
@@ -795,6 +981,57 @@ EMFJS.GDIContext.prototype._pushGroup = function() {
 	}
 };
 
+EMFJS._StockObjects = function() {
+	// Create global stock objects
+	var createSolidBrush = function(r, g, b) {
+		return new EMFJS.Brush(null, {
+			style: EMFJS.GDI.BrushStyle.BS_SOLID,
+			color: new EMFJS.ColorRef(null, r, g, b)
+		});
+	}
+	var createSolidPen = function(r, g, b) {
+		return new EMFJS.Pen(null, EMFJS.GDI.PenStyle.PS_SOLID, 1, new EMFJS.ColorRef(null, r, g, b));
+	}
+	var stockObjs = {
+		WHITE_BRUSH: createSolidBrush(255, 255, 255),
+		LTGRAY_BRUSH: createSolidBrush(212, 208, 200),
+		GRAY_BRUSH: createSolidBrush(128, 128, 128),
+		DKGRAY_BRUSH: createSolidBrush(64, 64, 64),
+		BLACK_BRUSH: createSolidBrush(0, 0, 0),
+		NULL_BRUSH: new EMFJS.Brush(null, {
+			style: EMFJS.GDI.BrushStyle.BS_NULL
+		}),
+		WHITE_PEN: createSolidPen(255, 255, 255),
+		BLACK_PEN: createSolidPen(0, 0, 0),
+		NULL_PEN: new EMFJS.Pen(null, EMFJS.GDI.PenStyle.PS_NULL, 0, null),
+		OEM_FIXED_FONT: null, // TODO
+		ANSI_FIXED_FONT: null, // TODO
+		ANSI_VAR_FONT: null, // TODO
+		SYSTEM_FONT: null, // TODO
+		DEVICE_DEFAULT_FONT: null, // TODO
+		DEFAULT_PALETTE: null, // TODO
+		SYSTEM_FIXED_FONT: null, // TODO
+		DEFAULT_GUI_FONT: null, // TODO
+	};
+
+	var objs = {};
+	for (var t in stockObjs) {
+		var idx = EMFJS.GDI.StockObject[t] - 0x80000000;
+		objs[idx.toString()] = stockObjs[t];
+	}
+	return objs;
+}();
+
+EMFJS.GDIContext.prototype._getStockObject = function(idx) {
+	if (idx >= 0x80000000 && idx <= 0x80000011)
+		return EMFJS._StockObjects[(idx - 0x80000000).toString()];
+	else if (idx == EMFJS.GDI.StockObject.DC_BRUSH)
+		return this.state.selected.brush;
+	else if (idx == EMFJS.GDI.StockObject.DC_PEN)
+		return this.state.selected.pen;
+	return null;
+}
+
 EMFJS.GDIContext.prototype._storeObject = function(obj, idx) {
 	if(!idx) {
 		var idx = 0;
@@ -812,8 +1049,11 @@ EMFJS.GDIContext.prototype._storeObject = function(obj, idx) {
 
 EMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	var obj = this.objects[objIdx.toString()];
-	if (obj == null)
-		EMFJS.log("[gdi] No object with handle " + objIdx);
+	if (obj == null) {
+		obj = this._getStockObject(objIdx);
+		if (obj == null)
+			EMFJS.log("[gdi] No object with handle " + objIdx);
+	}
 	return obj;
 };
 
@@ -919,11 +1159,7 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 		var pen = this.state.selected.pen;
 		if (pen.style != EMFJS.GDI.PenStyle.PS_NULL) {
 			opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
-			if(pen instanceof EMFJS.Pen){
-				opts.strokeWidth = pen.width.x; // TODO: is .y ever used?
-			}else{
-				opts.strokeWidth = pen.width;
-			}
+			opts.strokeWidth = pen.width;
 
 			var dotWidth;
 			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
@@ -1105,9 +1341,80 @@ EMFJS.EMFRect16.prototype.toString = function() {
 	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
 };
 
+EMFJS.EmfHeader = function(reader, headerSize) {
+	var recordStart = reader.pos - 8;
+	
+	this.size = headerSize;
+	this.bounds = new EMFJS.RectL(reader);
+	this.frame = new EMFJS.RectL(reader);
+	if (reader.readUint32() != EMFJS.GDI.FormatSignature.ENHMETA_SIGNATURE)
+		throw new EMFJS.Error("Invalid header signature");
+	reader.skip(4); // version
+	reader.skip(4); // bytes (size of metafile)
+	reader.skip(4); // number of records
+	reader.skip(2); // number of handles
+	reader.skip(2); // reserved
+	var descriptionLen = reader.readUint32();
+	var descriptionOff = reader.readUint32();
+	this.nPalEntries = reader.readUint32();
+	this.refDevCx = reader.readUint32();
+	this.refDevCy = reader.readUint32();
+	this.refDevCxMm = reader.readUint32();
+	this.refDevCyMm = reader.readUint32();
+
+	var hdrSize = headerSize;
+	if (descriptionLen > 0) {
+		if (descriptionOff < 88)
+			throw new EMFJS.Error("Invalid header description offset");
+		
+		hdrSize = descriptionOff + (descriptionLen * 2);
+		if (hdrSize > headerSize)
+			throw new EMFJS.Error("Invalid header description length");
+		
+		var prevPos = reader.pos;
+		reader.seek(recordStart + descriptionOff);
+		this.description = reader.readFixedSizeUnicodeString(descriptionLen);
+		reader.seek(prevPos);
+	} else {
+		this.description = "";
+	}
+
+	if (hdrSize >= 100) {
+		// We have a EmfMetafileHeaderExtension1 record
+		var pixelFormatSize = reader.readUint32();
+		var pixelFormatOff = reader.readUint32();
+		var haveOpenGl = reader.readUint32();
+		if (haveOpenGl != 0)
+			throw new EMFJS.Error("OpenGL records are not yet supported");
+		
+		if (pixelFormatOff != 0) {
+			if (pixelFormatOff < 100 || pixelFormatOff < hdrSize)
+				throw new EMFJS.Error("Invalid pixel format offset");
+			
+			hdrSize = pixelFormatOff + pixelFormatSize;
+			if (hdrSize > headerSize)
+				throw new EMFJS.Error("Invalid pixel format size");
+			
+			// TODO: read pixel format blob
+		}
+
+		if (hdrSize >= 108) {
+			// We have a EmfMetafileHeaderExtension2 record
+			this.displayDevCxUm = reader.readUint32(); // in micrometers
+			this.displayDevCyUm = reader.readUint32(); // in micrometers
+		}
+	}
+}
+
+EMFJS.EmfHeader.prototype.toString = function() {
+	return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString() + ", description: " + this.description + "}";
+}
+
 EMFJS.EMFRecords = function(reader, first) {
 	this._records = [];
 	
+	this._header = new EMFJS.EmfHeader(reader, first);
+
 	var all = false;
 	var curpos = first;
 	main_loop: while (!all) {
@@ -1212,7 +1519,7 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
 				var index = reader.readUint32();
 				var datalength = size - (reader.pos - curpos);
-				var brush = new EMFJS.Brush(reader, datalength, false);
+				var brush = new EMFJS.Brush(reader, datalength);
 				this._records.push(
 					(function(index, brush) {
 						return function(gdi) {
@@ -1223,7 +1530,7 @@ EMFJS.EMFRecords = function(reader, first) {
 				break;
 			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
                 var index = reader.readUint32();
-				var pen = new EMFJS.Pen(reader);
+				var pen = new EMFJS.Pen(reader, null);
 				this._records.push(
 					(function(index, pen) {
 						return function(gdi) {
@@ -1234,15 +1541,24 @@ EMFJS.EMFRecords = function(reader, first) {
 				break;
 			case EMFJS.GDI.RecordType.EMR_EXTCREATEPEN:
 				var index = reader.readUint32();
-				var offsetDibHeader = reader.readUint32();
-				var dibHeaderSize = reader.readUint32();
-				var offsetDibBits = reader.readUint32();
-				var dibBitsSize = reader.readUint32();
-				var pen = new EMFJS.PenEx(reader);
+				var offBmi = reader.readUint32();
+				var cbBmi = reader.readUint32();
+				var offBits = reader.readUint32();
+				var cbBits = reader.readUint32();
+				var pen = new EMFJS.Pen(reader, {
+					header: {
+						off: offBmi,
+						size: cbBmi
+					},
+					data: {
+						off: offBits,
+						size: cbBits
+					}
+				});
 				this._records.push(
 					(function(index, pen) {
 						return function(gdi) {
-							gdi.createPenEx(index, pen);
+							gdi.createPen(index, pen);
 						}
 					})(index, pen)
 				);
@@ -1483,9 +1799,11 @@ EMFJS.Renderer.prototype.parse = function(blob) {
 	
 	var type = reader.readUint32();
 	if(type !== 0x00000001){
-		throw new EMFJS.error("Not an EMF File");
+		throw new EMFJS.Error("Not an EMF file");
 	}
 	var size = reader.readUint32();
+	if (size % 4 != 0)
+		throw new EMFJS.Error("Not an EMF file");
 
 	this._img = new EMFJS.EMF(reader, size);
 	
@@ -1493,11 +1811,8 @@ EMFJS.Renderer.prototype.parse = function(blob) {
 		throw new EMFJS.Error("Format not recognized");
 };
 
-EMFJS.Renderer.prototype._render = function(svg, mapMode, xExt, yExt) {
-	// See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
+EMFJS.Renderer.prototype._render = function(svg) {
 	var gdi = new EMFJS.GDIContext(svg);
-	gdi.setViewportExtEx(xExt, yExt);
-	gdi.setMapMode(mapMode);
 	EMFJS.log("[EMF] BEGIN RENDERING --->");
 	this._img.render(gdi);
 	EMFJS.log("[EMF] <--- DONE RENDERING");
@@ -1508,10 +1823,10 @@ EMFJS.Renderer.prototype.render = function(info) {
 	var img = (function(mapMode, xExt, yExt) {
 		return $("<div>").svg({
 			onLoad: function(svg) {
-				return inst._render.call(inst, svg, mapMode, xExt, yExt);
+				return inst._render.call(inst, svg);
 			},
 			settings: {
-				viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+				viewBox: [0, 0, xExt, yExt].join(" "),
 				preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
 			}
 		});

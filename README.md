@@ -18,4 +18,4 @@ The code of this project is licensed under the MIT license.  See the file LICENS
 # Live samples:
 * RTF document rendering: http://tbluemel.github.io/rtf.js/samples/rtf.html
 * WMF image rendering: http://tbluemel.github.io/rtf.js/samples/wmf.html
-
+* EMF image rendering: http://tbluemel.github.io/rtf.js/samples/emf.html
