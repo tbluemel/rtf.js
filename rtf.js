@@ -1433,30 +1433,28 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		var baseApply = cls.prototype.apply;
 		cls.prototype.apply = function() {
 			var field = findParentDestination("field");
-			if (field == null)
-				throw new RTFJS.Error("fldrslt destination must be child of field destination");
-			field.setResult(this);
-			
+			if (field != null) {
+				field.setResult(this);
+			}
+
 			baseApply.call(this);
 		};
 		cls.prototype.renderBegin = function(rtf, records) {
 			var field = findParentDestination("field");
-			if (field == null)
-				throw new RTFJS.Error("fldrslt destination must be child of field destination");
-			
-			var inst = field.getInst();
-			if (inst != null)
-				return inst.renderFieldBegin(field, rtf, records);
+			if (field != null) {
+				var inst = field.getInst();
+				if (inst != null)
+					return inst.renderFieldBegin(field, rtf, records);
+			}
 			return false;
 		};
 		cls.prototype.renderEnd = function(rtf, records) {
 			var field = findParentDestination("field");
-			if (field == null)
-				throw new RTFJS.Error("fldrslt destination must be child of field destination");
-			
-			var inst = field.getInst();
-			if (inst != null)
-				inst.renderFieldEnd(field, rtf, records);
+			if (field != null) {
+				var inst = field.getInst();
+				if (inst != null)
+					inst.renderFieldEnd(field, rtf, records);
+			}
 		};
 		return cls;
 	};
