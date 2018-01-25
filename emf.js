@@ -2568,8 +2568,11 @@ EMFJS.Renderer.prototype.parse = function(blob) {
 		throw new EMFJS.Error("Format not recognized");
 };
 
-EMFJS.Renderer.prototype._render = function(svg) {
+EMFJS.Renderer.prototype._render = function(svg, mapMode, w, h, xExt, yExt) {
 	var gdi = new EMFJS.GDIContext(svg);
+	gdi.setWindowExtEx(w, h);
+	gdi.setViewportExtEx(xExt, yExt);
+	gdi.setMapMode(mapMode);
 	EMFJS.log("[EMF] BEGIN RENDERING --->");
 	this._img.render(gdi);
 	EMFJS.log("[EMF] <--- DONE RENDERING");
@@ -2577,17 +2580,17 @@ EMFJS.Renderer.prototype._render = function(svg) {
 
 EMFJS.Renderer.prototype.render = function(info) {
 	var inst = this;
-	var img = (function(mapMode, xExt, yExt) {
+	var img = (function(mapMode, w, h, xExt, yExt) {
 		return $("<div>").svg({
 			onLoad: function(svg) {
-				return inst._render.call(inst, svg);
+				return inst._render.call(inst, svg, mapMode, w, h, xExt, yExt);
 			},
 			settings: {
 				viewBox: [0, 0, xExt, yExt].join(" "),
 				preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
 			}
 		});
-	})(info.mapMode, info.xExt, info.yExt);
+	})(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
 	var svg = $(img[0]).svg("get");
 	return $(svg.root()).attr("width", info.width).attr("height", info.height);
 };

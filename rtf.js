@@ -1508,8 +1508,10 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 								return img.render({
 									width: RTFJS._twipsToPt(this._displaysize.width) + "pt",
 									height: RTFJS._twipsToPt(this._displaysize.height) + "pt",
-									xExt: RTFJS._twipsToPx(this._displaysize.width),
-									yExt: RTFJS._twipsToPx(this._displaysize.height),
+									wExt: this._size.width,
+									hExt: this._size.width,
+									xExt: this._size.width,
+									yExt: this._size.height,
 									mapMode: 8
 								});
 							}
