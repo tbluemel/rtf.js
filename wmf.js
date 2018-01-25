@@ -1288,23 +1288,6 @@ WMFJS.PatternBitmap16.prototype.clone = function() {
 	return new WMFJS.PatternBitmap16(null, this);
 };
 
-WMFJS.PolyPolygon = function(reader) {
-	var polygonsCnt = reader.readUint16();
-	var polygonsPtCnts = [];
-	for (var i = 0; i < polygonsCnt; i++)
-		polygonsPtCnts.push(reader.readUint16());
-	
-	this._polygons = [];
-	for (var i = 0; i < polygonsCnt; i++) {
-		var ptCnt = polygonsPtCnts[i];
-		
-		var polygon = [];
-		for (var ip = 0; ip < ptCnt; ip++)
-			polygon.push(new WMFJS.PointS(reader));
-		this._polygons.push(polygon);
-	}
-};
-
 WMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
@@ -1854,7 +1837,7 @@ WMFJS.GDIContext.prototype.moveTo = function(x, y) {
 	this.state.y = y;
 }
 
-WMFJS.GDIContext.prototype.polygon = function(points) {
+WMFJS.GDIContext.prototype.polygon = function(points, first) {
 	WMFJS.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
@@ -1862,7 +1845,8 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
 	WMFJS.log("[gdi] polygon: TRANSLATED: pts=" + pts);
-	this._pushGroup();
+	if (first)
+		this._pushGroup();
 	var opts = {
 		"fill-rule": this.state.polyfillmode == WMFJS.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
 	};
@@ -1870,12 +1854,12 @@ WMFJS.GDIContext.prototype.polygon = function(points) {
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
-WMFJS.GDIContext.prototype.polyPolygon = function(polyPolygon) {
-	WMFJS.log("[gdi] polyPolygon: polyPolygon=" + JSON.stringify(polyPolygon) + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-	this._pushGroup();
-	var cnt = polyPolygon._polygons.length;
+WMFJS.GDIContext.prototype.polyPolygon = function(polygons) {
+	WMFJS.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	
+	var cnt = polygons.length;
 	for (var i = 0; i < cnt; i++)
-		this.polygon(polyPolygon._polygons[i]);
+		this.polygon(polygons[i], i == 0);
 };
 
 WMFJS.GDIContext.prototype.polyline = function(points) {
@@ -2432,7 +2416,7 @@ WMFJS.WMFRecords = function(reader, first) {
 				this._records.push(
 					(function(points) {
 						return function(gdi) {
-							gdi.polygon(points);
+							gdi.polygon(points, true);
 						}
 					})(points)
 				);
@@ -2448,13 +2432,26 @@ WMFJS.WMFRecords = function(reader, first) {
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_POLYPOLYGON:
-				var polyPolygon = new WMFJS.PolyPolygon(reader);
+				var cnt = reader.readUint16();
+				var polygonsPtCnts = [];
+				for (var i = 0; i < cnt; i++)
+					polygonsPtCnts.push(reader.readUint16());
+				
+				var polygons = [];
+				for (var i = 0; i < cnt; i++) {
+					var ptCnt = polygonsPtCnts[i];
+					
+					var p = [];
+					for (var ip = 0; ip < ptCnt; ip++)
+						p.push(new WMFJS.PointS(reader));
+					polygons.push(p);
+				}
 				this._records.push(
-					(function(polyPolygon) {
+					(function(polygons) {
 						return function(gdi) {
-							gdi.polyPolygon(polyPolygon);
+							gdi.polyPolygon(polygons);
 						}
-					})(polyPolygon)
+					})(polygons)
 				);
 				break;
 			case WMFJS.GDI.RecordType.META_POLYLINE:

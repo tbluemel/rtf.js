@@ -1321,6 +1321,7 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.textcolor = copy.textcolor.clone();
 		this.bkcolor = copy.bkcolor.clone();
 		this.polyfillmode = copy.polyfillmode;
+		this.miterlimit = copy.miterlimit;
 		this.wx = copy.wx;
 		this.wy = copy.wy;
 		this.ww = copy.ww;
@@ -1354,6 +1355,7 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.textcolor = new EMFJS.ColorRef(null, 0, 0, 0);
 		this.bkcolor = new EMFJS.ColorRef(null, 255, 255, 255);
 		this.polyfillmode = EMFJS.GDI.PolygonFillMode.ALTERNATE;
+		this.miterlimit = 10;
 		this.wx = 0;
 		this.wy = 0;
 		this.ww = 0;
@@ -1735,6 +1737,8 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 			opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
 			opts.strokeWidth = pen.width;
 
+			opts["stroke-miterlimit"] = this.state.miterlimit;
+			
 			var dotWidth;
 			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
 				opts["stroke-linecap"] = "square";
@@ -1843,19 +1847,28 @@ EMFJS.GDIContext.prototype.moveToEx = function(x, y) {
 	}
 }
 
-EMFJS.GDIContext.prototype.polygon16 = function(points) {
-	EMFJS.log("[gdi] polygon16: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+EMFJS.GDIContext.prototype.polygon = function(points, bounds, first) {
+	EMFJS.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
 		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
-	this._pushGroup();
+	if (first)
+		this._pushGroup();
 	var opts = {
 		"fill-rule": this.state.polyfillmode == EMFJS.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
 	};
 	this._applyOpts(opts, true, true, false);
 	this._svg.polygon(this.state._svggroup, pts, opts);
+};
+
+EMFJS.GDIContext.prototype.polyPolygon = function(polygons, bounds) {
+	EMFJS.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	
+	var cnt = polygons.length;
+	for (var i = 0; i < cnt; i++)
+		this.polygon(polygons[i], bounds, i == 0);
 };
 
 EMFJS.GDIContext.prototype.polyline = function(isLineTo, points, bounds) {
@@ -1961,6 +1974,11 @@ EMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
 	this.state.textalign = textAlignmentMode;
 };
 
+EMFJS.GDIContext.prototype.setMiterLimit = function(miterLimit) {
+	EMFJS.log("[gdi] setMiterLimit: miterLimit=" + miterLimit);
+	this.state.miterlimit = miterLimit;
+};
+
 EMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
 	EMFJS.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
 	this.state.bkmode = bkMode;
@@ -2037,6 +2055,20 @@ EMFJS.GDIContext.prototype.fillPath = function(bounds) {
 	var opts = this._applyOpts(null, true, true, false);
 	this._svg.path(this.state._svggroup, selPath.svgPath, opts);
 	
+	this._pushGroup();
+	this.state.selected.path = null;
+};
+
+EMFJS.GDIContext.prototype.strokePath = function(bounds) {
+	EMFJS.log("[gdi] strokePath");
+	if (this.state.selected.path == null)
+		throw new EMFJS.Error("No path selected");
+	
+	var selPath = this.state.selected.path;
+	var opts = this._applyOpts({fill: "none"}, true, false, false);
+	this._svg.path(this.state._svggroup, selPath.svgPath, opts);
+	
+	this._pushGroup();
 	this.state.selected.path = null;
 };
 
@@ -2339,21 +2371,50 @@ EMFJS.EMFRecords = function(reader, first) {
                         }
                     })(y, x)
                 );
-                break;
+				break;
+			case EMFJS.GDI.RecordType.EMR_POLYGON:
 			case EMFJS.GDI.RecordType.EMR_POLYGON16:
+				var isSmall = (type == EMFJS.GDI.RecordType.EMR_POLYGON16);
 				var bounds = new EMFJS.RectL(reader);
 				var cnt = reader.readUint32();
 				var points = [];
 				while (cnt > 0) {
-					points.push(new EMFJS.PointS(reader));
+					points.push(isSmall ? new EMFJS.PointS(reader) : new EMFJS.PointL(reader));
 					cnt--;
 				}
 				this._records.push(
 					(function(points) {
 						return function(gdi) {
-							gdi.polygon16(points);
+							gdi.polygon(points, bounds, true);
 						}
 					})(points)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON:
+			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON16:
+				var isSmall = (type == EMFJS.GDI.RecordType.EMR_POLYPOLYGON16);
+				var bounds = new EMFJS.RectL(reader);
+				var polyCnt = reader.readUint32();
+				reader.skip(4); // count
+				var polygonsPtCnts = [];
+				for (var i = 0; i < cnt; i++)
+					polygonsPtCnts.push(reader.readUint32());
+				
+				var polygons = [];
+				for (var i = 0; i < cnt; i++) {
+					var ptCnt = polygonsPtCnts[i];
+					
+					var p = [];
+					for (var ip = 0; ip < ptCnt; ip++)
+						p.push(isSmall ? new EMFJS.PointS(reader) : new EMFJS.PointL(reader));
+					polygons.push(p);
+				}
+				this._records.push(
+					(function(points, bounds) {
+						return function(gdi) {
+							gdi.polyPolygon(points, bounds);
+						}
+					})(points, bounds)
 				);
 				break;
 			case EMFJS.GDI.RecordType.EMR_SETPOLYFILLMODE:
@@ -2512,6 +2573,16 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(bounds)
 				);
 				break;
+			case EMFJS.GDI.RecordType.EMR_STROKEPATH:
+				var bounds = new EMFJS.RectL(reader);	
+				this._records.push(
+					(function(bounds) {
+						return function(gdi) {
+							gdi.strokePath(bounds);
+						}
+					})(bounds)
+				);
+				break;	
 			case EMFJS.GDI.RecordType.EMR_SELECTCLIPPATH:
 				var rgnMode = reader.readUint32();
 				this._records.push(
@@ -2544,11 +2615,19 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(offset)
 				);
 				break;
-			case EMFJS.GDI.RecordType.EMR_POLYGON:
+			case EMFJS.GDI.RecordType.EMR_SETMITERLIMIT:
+				var miterLimit = reader.readUint32();
+				this._records.push(
+					(function(miterLimit) {
+						return function(gdi) {
+							gdi.setMiterLimit(miterLimit);
+						}
+					})(miterLimit)
+				);
+				break;
 			case EMFJS.GDI.RecordType.EMR_POLYLINE:
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE:
-			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON:
 			case EMFJS.GDI.RecordType.EMR_SETPIXELV:
 			case EMFJS.GDI.RecordType.EMR_SETMAPPERFLAGS:
 			case EMFJS.GDI.RecordType.EMR_SETROP2:
@@ -2575,9 +2654,7 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_ARCTO:
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW:
 			case EMFJS.GDI.RecordType.EMR_SETARCDIRECTION:
-			case EMFJS.GDI.RecordType.EMR_SETMITERLIMIT:
 			case EMFJS.GDI.RecordType.EMR_STROKEANDFILLPATH:
-			case EMFJS.GDI.RecordType.EMR_STROKEPATH:
 			case EMFJS.GDI.RecordType.EMR_FLATTENPATH:
 			case EMFJS.GDI.RecordType.EMR_WIDENPATH:
 			case EMFJS.GDI.RecordType.EMR_COMMENT:
@@ -2595,7 +2672,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTA:
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTW:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE16:
-			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON16:
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW16:
 			case EMFJS.GDI.RecordType.EMR_CREATEMONOBRUSH:
 			case EMFJS.GDI.RecordType.EMR_CREATEDIBPATTERNBRUSHPT:
