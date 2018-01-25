@@ -1858,8 +1858,8 @@ EMFJS.GDIContext.prototype.polygon16 = function(points) {
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
-EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
-	EMFJS.log("[gdi] polyline16: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+EMFJS.GDIContext.prototype.polyline = function(isLineTo, points, bounds) {
+	EMFJS.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
@@ -1877,7 +1877,7 @@ EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
 		EMFJS.log("[gdi] new path: " + this._svgPath.path())
 	} else {
 		this._pushGroup();
-		var opts = this._applyOpts({fill: "none"}, true, false, false);
+		var opts = this._applyOpts(null, true, false, false);
 		if (isLineTo && points.length > 0) {
 			var firstPt = points[0];
 			if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
@@ -1885,6 +1885,44 @@ EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
 			}
 		}
 		this._svg.polyline(this.state._svggroup, pts, opts);
+	}
+
+	if (points.length > 0) {
+		var lastPt = points[points.length - 1];
+		this.state.x = lastPt.x;
+		this.state.y = lastPt.y;
+	}
+};
+
+EMFJS.GDIContext.prototype.polybezier = function(isPolyBezierTo, points, bounds) {
+	EMFJS.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+	var pts = [];
+	for (var i = 0; i < points.length; i++) {
+		var point = points[i];
+		pts.push({ x: this._todevX(point.x), y: this._todevY(point.y)});
+	}
+
+	if (this._svgPath != null) {
+		if (!isPolyBezierTo || pts.length == 0) {
+			this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
+		} else {
+			var firstPts = pts[0];
+			this._svgPath.move(firstPts.x, firstPts.y);
+		}
+
+		if (pts.length < (isPolyBezierTo ? 3 : 4))
+			throw new EMFJS.Error("Not enough points to draw bezier");
+		
+		for (var i = isPolyBezierTo ? 0 : 1; i + 3 <= pts.length; i += 3) {
+			var cp1 = pts[i];
+			var cp2 = pts[i + 1];
+			var ep = pts[i + 2];
+			this._svgPath.curveC(cp1.x,cp1.y, cp2.x, cp2.y, ep.x, ep.y);
+		}
+
+		EMFJS.log("[gdi] new path: " + this._svgPath.path())
+	} else {
+		throw new EMFJS.Error("polybezier not implemented (not a path)")
 	}
 
 	if (points.length > 0) {
@@ -2341,12 +2379,62 @@ EMFJS.EMFRecords = function(reader, first) {
 				this._records.push(
 					(function(isLineTo, points, bounds) {
 						return function(gdi) {
-							gdi.polyline16(isLineTo, points, bounds);
+							gdi.polyline(isLineTo, points, bounds);
 						}
 					})(isLineTo, points, bounds)
 				);
 				break;
-			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
+			case EMFJS.GDI.RecordType.EMR_POLYBEZIER:
+			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO:
+				var isPolyBezierTo = (type == EMFJS.GDI.RecordType.EMR_POLYBEZIERTO);
+				var bounds = new EMFJS.RectL(reader);
+				var cnt = reader.readUint32();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new EMFJS.PointL(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(isPolyBezierTo, points, bounds) {
+						return function(gdi) {
+							gdi.polybezier(isPolyBezierTo, points, bounds);
+						}
+					})(isPolyBezierTo, points, bounds)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_POLYBEZIER16:
+				var bounds = new EMFJS.RectL(reader);
+				var start = new EMFJS.PointL(reader);
+				var cnt = reader.readUint32();
+				var points = [start];
+				while (cnt > 0) {
+					points.push(new EMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points, bounds) {
+						return function(gdi) {
+							gdi.polybezier(false, points, bounds);
+						}
+					})(points, bounds)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO16:
+				var bounds = new EMFJS.RectL(reader);
+				var cnt = reader.readUint32();
+				var points = [];
+				while (cnt > 0) {
+					points.push(new EMFJS.PointS(reader));
+					cnt--;
+				}
+				this._records.push(
+					(function(points, bounds) {
+						return function(gdi) {
+							gdi.polybezier(true, points, bounds);
+						}
+					})(points, bounds)
+				);
+				break;
 				break;
 			case EMFJS.GDI.RecordType.EMR_SETTEXTALIGN:
 				var textAlign = reader.readUint32();
@@ -2456,10 +2544,8 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(offset)
 				);
 				break;
-			case EMFJS.GDI.RecordType.EMR_POLYBEZIER:
 			case EMFJS.GDI.RecordType.EMR_POLYGON:
 			case EMFJS.GDI.RecordType.EMR_POLYLINE:
-			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO:
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON:
@@ -2508,8 +2594,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EXTCREATEFONTINDIRECTW:
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTA:
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTW:
-			case EMFJS.GDI.RecordType.EMR_POLYBEZIER16:
-			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON16:
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW16:
