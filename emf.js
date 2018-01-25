@@ -1787,7 +1787,7 @@ EMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 	var left = this._todevX(rect.left);
 	rw = this._todevH(rw);
 	rh = this._todevH(rh);
-	WMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+	EMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
 	this._pushGroup();
 
 	var opts = this._applyOpts(null, true, true, false);
@@ -1805,7 +1805,7 @@ EMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	this.state.x = x;
 	this.state.y = y;
 
-	WMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+	EMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
 
 	var opts = this._applyOpts(null, true, false, false);
