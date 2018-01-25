@@ -1817,8 +1817,8 @@ EMFJS.GDIContext.prototype.moveToEx = function(x, y) {
 	this.state.x = x;
 	this.state.y = y;
 	if (this._svgPath != null) {
-		this._svgPath.move(this.state.x, this.state.y);
-		EMFJS.log("[gdi] new path: " + this._svgPath.path())
+		this._svgPath.helper.move(this.state.x, this.state.y);
+		EMFJS.log("[gdi] new path: " + this._svgPath.helper.path())
 	}
 }
 
@@ -1842,17 +1842,34 @@ EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
-		if (i == 0 && isLineTo && (this.state.x != point.x || this.state.y != point.y))
-			pts.push([this._todevX(this.state.x), this._todevY(this.state.y)]);
 		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
+
 	if (this._svgPath != null) {
-		this._svgPath.line(pts);
-		EMFJS.log("[gdi] new path: " + this._svgPath.path())
+		if (!isLineTo || pts.length == 0) {
+			this._svgPath.helper.move(this._todevX(this.state.x), this._todevY(this.state.y));
+		} else {
+			var firstPts = pts[0];
+			this._svgPath.helper.move(firstPts[0], firstPts[1]);
+		}
+		this._svgPath.helper.line(pts);
+		EMFJS.log("[gdi] new path: " + this._svgPath.helper.path())
 	} else {
 		this._pushGroup();
 		var opts = this._applyOpts({fill: "none"}, true, false, false);
+		if (isLineTo && points.length > 0) {
+			var firstPt = points[0];
+			if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
+				pts.unshift([this._todevX(this.state.x), this._todevY(this.state.y)]);
+			}
+		}
 		this._svg.polyline(this.state._svggroup, pts, opts);
+	}
+
+	if (points.length > 0) {
+		var lastPt = points[points.length - 1];
+		this.state.x = lastPt.x;
+		this.state.y = lastPt.y;
 	}
 };
 
@@ -1943,8 +1960,13 @@ EMFJS.GDIContext.prototype.beginPath = function() {
 	var toY = this._todevY(this.state.y);
 
 	this._abortPath();
-	this._svgPath = this._svg.createPath();
-	this._svgPath.move(toX, toY);
+
+	var helper = this._svg.createPath();
+	var opts = this._applyOpts({fill: "none"}, true, false, false);
+	this._svgPath = {
+		helper: helper,
+		opts: opts
+	};
 };
 
 EMFJS.GDIContext.prototype.closeFigure = function() {
@@ -1952,7 +1974,7 @@ EMFJS.GDIContext.prototype.closeFigure = function() {
 	if (this._svgPath == null)
 		throw new EMFJS.Error("No path bracket: cannot close figure");
 	
-	this._svgPath.close();
+	this._svgPath.helper.close();
 };
 
 EMFJS.GDIContext.prototype.endPath = function() {
@@ -1961,7 +1983,7 @@ EMFJS.GDIContext.prototype.endPath = function() {
 		throw new EMFJS.Error("No path bracket: cannot end path");
 	
 	this._pushGroup();
-	this._svg.path(this.state._svggroup, this._svgPath);
+	this._svg.path(this.state._svggroup, this._svgPath.helper, this._svgPath.opts);
 	this._svgPath = null;
 };
 
