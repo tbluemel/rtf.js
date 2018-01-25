@@ -3,6 +3,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2016 Tom Zoehner
+Copyright (c) 2018 Thomas Bluemel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -277,7 +278,7 @@ if (typeof EMFJS === 'undefined') {
 				PS_JOIN_MITER: 0x00002000,
 				PS_GEOMETRIC: 0x00010000
 			},
-			PolyFillMode: {
+			PolygonFillMode: {
 				ALTERNATE: 1,
 				WINDING: 2
 			},
@@ -288,6 +289,13 @@ if (typeof EMFJS === 'undefined') {
 				BI_BITFIELDS: 3,
 				BI_JPEG: 4,
 				BI_PNG: 5
+			},
+			RegionMode: {
+				RGN_AND: 1,
+				RGN_OR: 2,
+				RGN_XOR: 3,
+				RGN_DIFF: 4,
+				RGN_COPY: 5
 			},
 			StockObject: {
 				WHITE_BRUSH: 0x80000000,
@@ -547,6 +555,422 @@ EMFJS.RectL.prototype.intersect = function(rectL) {
 	return new EMFJS.RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top), Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
 };
 
+EMFJS.SizeL = function(reader, cx, cy) {
+	if (reader != null) {
+		this.cx = reader.readUin32();
+		this.cy = reader.readUint32();
+	} else {
+		this.cx = cx;
+		this.cy = cy;
+	}
+}
+
+EMFJS.SizeL.prototype.clone = function() {
+	return new EMFJS.SizeL(null, this.cx, this.cy);
+};
+
+EMFJS.SizeL.prototype.toString = function() {
+	return "{cx: " + this.cx + ", cy: " + this.cy + "}";
+};
+
+EMFJS.Obj = function(type) {
+	this.type = type;
+}
+
+EMFJS.Obj.prototype.clone = function() {
+	throw new EMFJS.Error("clone not implemented");
+}
+
+EMFJS.Obj.prototype.toString = function() {
+	throw new EMFJS.Error("toString not implemented");
+}
+
+EMFJS.Scan = function(r, copy) {
+	if (r != null) {
+		this.top = r.top;
+		this.bottom = r.bottom;
+		this.scanlines = [{left: r.left, right: r.right}];
+	} else if (copy != null) {
+		this.top = copy.top;
+		this.bottom = copy.bottom;
+		this.scanlines = [];
+		for (var i = 0; i < copy.scanlines.length; i++) {
+			var scanline = copy.scanlines[i];
+			this.scanlines.push({left: scanline.left, right: scanline.right});
+		}
+	}
+};
+
+EMFJS.Scan.prototype.clone = function() {
+	return new EMFJS.Scan(null, this);
+};
+
+EMFJS.Scan.prototype.append = function(r) {
+	this.scanlines.push({left: r.left, right: r.right});
+};
+
+EMFJS.Scan.prototype.subtract = function(left, right) {
+	var i;
+	
+	// Keep everything on the left side
+	i = 0;
+	while (i < this.scanlines.length) {
+		var scanline = this.scanlines[i];
+		if (scanline.left <= left) {
+			if (scanline.right >= left) {
+				scanline.right = left - 1;
+				if (scanline.left >= scanline.right) {
+					this.scanlines.splice(i, 1);
+					continue;
+				}
+			}
+			i++;
+		} else {
+			break;
+		}
+	}
+	
+	// Find the first one that may exceed to the right side
+	var first = i;
+	var cnt = 0;
+	while (i < this.scanlines.length) {
+		var scanline = this.scanlines[i];
+		if (scanline.right > right) {
+			scanline.left = right;
+			cnt = i - first;
+			if (scanline.left >= scanline.right)
+				cnt++;
+			break;
+		}
+		i++;
+	}
+	
+	// Delete everything we're subtracting
+	if (cnt > 0 && first < this.scanlines.length)
+		this.scanlines.splice(first, cnt);
+	
+	return this.scanlines.length > 0;
+};
+
+EMFJS.Scan.prototype.intersect = function(left, right) {
+	// Get rid of anything that falls entirely outside to the left
+	for (var i = 0; i < this.scanlines.length; i++) {
+		var scanline = this.scanlines[i];
+		if (scanline.left >= left || scanline.right >= left) {
+			if (i > 0)
+				this.scanlines.splice(0, i);
+			break;
+		}
+	}
+	
+	if (this.scanlines.length > 0) {
+		// Adjust the first to match the left, if needed
+		var scanline = this.scanlines[0];
+		if (scanline.left < left)
+			scanline.left = left;
+		
+		// Get rid of anything that falls entirely outside to the right
+		for (var i = 0; i < this.scanlines.length; i++) {
+			scanline = this.scanlines[i];
+			if (scanline.left > right) {
+				this.scanlines.splice(i, this.scanline.length - i);
+				break;
+			}
+		}
+		
+		if (this.scanlines.length > 0) {
+			// Adjust the last to match the right, if needed
+			scanline = this.scanlines[this.scanlines.length - 1];
+			if (scanline.right > right)
+				scanline.right = right;
+		}
+	}
+	return this.scanlines.length > 0;
+};
+
+EMFJS.Region = function(reader, copy) {
+	EMFJS.Obj.call(this, "region");
+	if (reader != null) {
+		var hdrSize = reader.readUint32();
+		if (hdrSize != 32)
+			throw new EMFJS.Error("Invalid region header");
+		reader.skip(4);
+		var rectCnt = reader.readUint32();
+		var rgnSize = reader.readUint32();
+		if (rectCnt * 16 != rgnSize)
+			throw new EMFJS.Error("Invalid region data");
+		
+		this.bounds = new EMFJS.RectL(reader);
+		this.scans = [];
+		var scanLine;
+		for (var i = 0; i < rectCnt; i++) {
+			var r = new EMFJS.RectL(reader);
+			if (scanLine == null || scanline.top != r.top || scanline.bottom != r.bottom) {
+				scanLine = new EMFJS.Scan(r);
+				this.scans.push(scanLine);
+			} else {
+				scanLine.append(r);
+			}
+		}
+		this._updateComplexity();
+	} else if (copy != null) {
+		this.bounds = copy.bounds != null ? copy.bounds.clone() : null;
+		if (copy.scans != null) {
+			this.scans = [];
+			for (var i = 0; i < copy.scans.length; i++)
+				this.scans.push(copy.scans[i].clone());
+		} else {
+			this.scans = null;
+		}
+		this.complexity = copy.complexity;
+	} else {
+		this.bounds = null;
+		this.scans = null;
+		this.complexity = 0;
+	}
+};
+EMFJS.Region.prototype = Object.create(EMFJS.Obj.prototype);
+
+EMFJS.Region.prototype.clone = function() {
+	return new EMFJS.Region(null, this);
+};
+
+EMFJS.Region.prototype.toString = function() {
+	var _complexity = ["null", "simple", "complex"];
+	return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+};
+
+EMFJS.Region.prototype._updateComplexity = function() {
+	if (this.bounds == null) {
+		this.complexity = 0;
+		this.scans = null;
+	} else if (this.bounds.empty()) {
+		this.complexity = 0;
+		this.scans = null;
+		this.bounds = null;
+	} else if (this.scans == null) {
+		this.complexity = 1;
+	} else {
+		this.complexity = 2;
+		if (this.scans.length == 1) {
+			var scan = this.scans[0];
+			if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+				var scanline = scan.scanlines[0];
+				if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+					this.scans = null;
+					this.complexity = 1;
+				}
+			}
+		}
+	}
+};
+
+EMFJS.Region.prototype.subtract = function(rect) {
+	EMFJS.log("[emf] Region " + this.toString() + " subtract " + rect.toString());
+	
+	if (this.bounds != null) {
+		var isect = this.bounds.intersect(rect);
+		if (isect != null) { // Only need to do anything if there is any chance of an overlap
+			if (this.scans == null) {
+				// We currently have a simple region and there is some kind of an overlap.
+				// We need to create scanlines now.  Simplest method is to fake one scan line
+				// that equals the simple region and re-use the same logic as for complex regions
+				this.scans = new EMFJS.Scan(new EMFJS.RectL(null, this.bounds.left, this.bounds.top, this.bounds,right, this.bounds.bottom));
+				this.complexity = 2;
+			}
+			
+			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
+			// The first scan that falls partially below rect.top needs to be split into two scans.
+			var si = 0;
+			while (si < this.scans.length) {
+				var scan = this.scans[si];
+				if (scan.bottom >= rect.top) {
+					// We need to clone this scan into two so that we can subtract from the second one
+					var cloned = scan.clone();
+					scan.bottom = rect.top - 1;
+					cloned.top = rect.top;
+					if (scan.top >= scan.bottom) {
+						this.scans[si] = cloned;
+					} else {
+						EMFJS.log("[emf] Region split top scan " + si + " for substraction");
+						this.scans.splice(++si, 0, cloned);
+					}
+					break;
+				}
+				si++;
+			}
+			
+			// Now find the first one that falls at least partially below rect.bottom, which needs to be
+			// split if it is only partially below rect.bottom
+			var first = si;
+			while (si < this.scans.length) {
+				var scan = this.scans[si];
+				if (scan.top > rect.bottom)
+					break;
+				if (scan.bottom > rect.bottom) {
+					// We need to clone this scan into two so that we can subtract from the first one
+					var cloned = scan.clone();
+					scan.bottom = rect.bottom;
+					cloned.top = rect.bottom + 1;
+					if (scan.top >= scan.bottom) {
+						this.scans[si] = cloned;
+					} else {
+						EMFJS.log("[emf] Region split bottom scan " + si + " for substraction");
+						this.scans.splice(++si, 0, clone);
+					}
+					break;
+				}
+				si++;
+			}
+			
+			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
+			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
+			// account for this anymore.
+			if (first < this.scans.length) {
+				var last = si;
+				si = first;
+				while (si < last) {
+					var scan = this.scans[si];
+					if (!scan.subtract(rect.left, rect.right)) {
+						EMFJS.log("[emf] Region remove now empty scan " + si + " due to subtraction");
+						this.scans.splice(si, 1);
+						last--;
+						continue;
+					}
+					
+					si++;
+				}
+			}
+			
+			// Update bounds
+			if (this.scans != null) {
+				var left, top, right, bottom;
+				var len = this.scans.length;
+				for (var i = 0; i < len; i++) {
+					var scan = this.scans[i];
+					if (i == 0)
+						top = scan.top;
+					if (i == len - 1)
+						bottom = scan.bottom;
+					
+					var slen = scan.scanline.length;
+					if (slen > 0) {
+						var scanline = scan.scanline[0];
+						if (left == null || scanline.left < left)
+							left = scanline.left;
+						scanline = scan.scanline[slen - 1];
+						if (right == null || scanline.right > right)
+							right = scanline.right;
+					}
+				}
+				
+				if (left != null && top != null && right != null && bottom != null) {
+					this.bounds = new EMFJS.RectL(null, left, top, right, bottom);
+					this._updateComplexity();
+				} else {
+					// This has to be a null region now
+					this.bounds = null;
+					this.scans = null;
+					this.complexity = 0;
+				}
+			} else {
+				this._updateComplexity();
+			}
+		}
+	}
+	
+	EMFJS.log("[emf] Region subtraction -> " + this.toString());
+};
+
+EMFJS.Region.prototype.intersect = function(rect) {
+	EMFJS.log("[emf] Region " + this.toString() + " intersect with " + rect.toString());
+	if (this.bounds != null) {
+		this.bounds = this.bounds.intersect(rect);
+		if (this.bounds != null) {
+			if (this.scans != null) {
+				var si = 0;
+				// Remove any scans that are entirely above the new bounds.top
+				while (si < this.scans.length) {
+					var scan = this.scans[si];
+					if (scan.bottom < this.bounds.top)
+						si++;
+					else
+						break;
+				}
+				if (si > 0) {
+					EMFJS.log("[emf] Region remove " + si + " scans from top");
+					this.scans.splice(0, si);
+					
+					// Adjust the first scan's top to match the new bounds.top
+					if (this.scans.length > 0)
+						this.scans[0].top = this.bounds.top;
+				}
+				
+				// Get rid of anything that falls outside the new bounds.left/bounds.right
+				si = 0;
+				while (si < this.scans.length) {
+					var scan = this.scans[si];
+					if (scan.top > this.bounds.bottom) {
+						// Remove this and all remaining scans that fall entirely below the new bounds.bottom
+						EMFJS.log("[emf] Region remove " + (this.scans.length - si) + " scans from bottom");
+						this.scans.splice(si, this.scans.length - si);
+						break;
+					}
+					if (!scan.intersect(this.bounds.left, this.bounds.right)) {
+						// Remove now empty scan
+						EMFJS.log("[emf] Region remove now empty scan " + si + " due to intersection");
+						this.scans.splice(si, 1);
+						continue;
+					}
+					si++;
+				}
+				
+				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
+				if (this.scans.length > 0)
+					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
+				
+				this._updateComplexity();
+			}
+		} else {
+			this.scans = null;
+			this.complexity = 0;
+		}
+	}
+	EMFJS.log("[emf] Region intersection -> " + this.toString());
+};
+
+EMFJS.Region.prototype.offset = function(offX, offY) {
+	if (this.bounds != null) {
+		this.bounds.left += offX;
+		this.bounds.top += offY;
+		this.bounds.right += offX;
+		this.bounds.bottom += offY;
+	}
+	
+	if (this.scans != null) {
+		var slen = this.scans.length;
+		for (var si = 0; si < slen; si++) {
+			var scan = this.scans[si];
+			scan.top += offY;
+			scan.bottom += offY;
+			
+			var len = scan.scanlines.length;
+			for (var i = 0; i < len; i++) {
+				var scanline = scan.scanlines[i];
+				scanline.left += offX;
+				scanline.right += offX;
+			}
+		}
+	}
+};
+
+EMFJS.CreateSimpleRegion = function(left, top, right, bottom) {
+	var rgn = new EMFJS.Region(null, null);
+	rgn.bounds = new EMFJS.Rect(null, left, top, right, bottom);
+	rgn._updateComplexity();
+	return rgn;
+};
+
 EMFJS.BitmapBase = function() {
 };
 
@@ -695,18 +1119,6 @@ EMFJS.DIBitmap.prototype.base64ref = function() {
 	this._reader.seek(prevpos);
 	return ref;
 };
-
-EMFJS.Obj = function(type) {
-	this.type = type;
-}
-
-EMFJS.Obj.prototype.clone = function() {
-	throw new EMFJS.Error("clone not implemented");
-}
-
-EMFJS.Obj.prototype.toString = function() {
-	throw new EMFJS.Error("toString not implemented");
-}
 
 EMFJS.Font = function(reader, copy) {
 	EMFJS.Obj.call(this, "font");
@@ -901,6 +1313,10 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = copy.vh;
 		this.x = copy.x;
 		this.y = copy.y;
+		this.nextbrx = copy.nextbrx;
+		this.nextbry = copy.nextbry;
+		this.brx = copy.brx;
+		this.bry = copy.bry;
 		
 		this.clip = copy.clip;
 		this.ownclip = false;
@@ -919,7 +1335,7 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.bkmode = EMFJS.GDI.MixMode.OPAQUE;
 		this.textcolor = new EMFJS.ColorRef(null, 0, 0, 0);
 		this.bkcolor = new EMFJS.ColorRef(null, 255, 255, 255);
-		this.polyfillmode = EMFJS.GDI.PolyFillMode.ALTERNATE;
+		this.polyfillmode = EMFJS.GDI.PolygonFillMode.ALTERNATE;
 		this.wx = 0;
 		this.wy = 0;
 		this.ww = 0;
@@ -930,6 +1346,10 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = 0;
 		this.x = 0;
 		this.y = 0;
+		this.nextbrx = 0;
+		this.nextbry = 0;
+		this.brx = 0;
+		this.bry = 0;
 		
 		this.clip = null;
 		this.ownclip = false;
@@ -947,6 +1367,7 @@ EMFJS.GDIContext = function(svg) {
 	this._svgdefs = null;
 	this._svgPatterns = {};
 	this._svgClipPaths = {};
+	this._svgPath = null;
 	
 	this.defObjects = {
 		brush: new EMFJS.Brush(null, EMFJS.GDI.BrushStyle.BS_SOLID, new EMFJS.ColorRef(null, 0, 0, 0), false),
@@ -1057,10 +1478,84 @@ EMFJS.GDIContext.prototype._getObject = function(objIdx) {
 	return obj;
 };
 
+EMFJS.GDIContext.prototype._getSvgDef = function() {
+	if (this._svgdefs == null)
+		this._svgdefs = this._svg.defs();
+	return this._svgdefs;
+};
+
+
+EMFJS.GDIContext.prototype._getSvgClipPathForRegion = function(region) {
+	for (var id in this._svgClipPaths) {
+		var rgn = this._svgClipPaths[id];
+		if (rgn == region)
+			return id;
+	}
+	
+	var id = EMFJS._makeUniqueId("c");
+	var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
+	switch (region.complexity) {
+		case 1:
+			this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top),
+				this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top),
+				{ fill: 'black', strokeWidth: 0 });
+			break;
+		case 2:
+			for (var i = 0; i < region.scans.length; i++) {
+				var scan = region.scans[i];
+				for (var j = 0; j < scan.scanlines.length; j++) {
+					var scanline = scan.scanlines[j];
+					this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top),
+						this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top),
+						{ fill: 'black', strokeWidth: 0 });
+				}
+			}
+			break;
+	};
+	this._svgClipPaths[id] = region;
+	return id;
+};
+
+EMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
+	for (var id in this._svgPatterns) {
+		var pat = this._svgPatterns[id];
+		if (pat == brush)
+			return id;
+	}
+	
+	var width, height, img;
+	switch (brush.style) {
+		case EMFJS.GDI.BrushStyle.BS_PATTERN:
+			width = brush.pattern.getWidth();
+			height = brush.pattern.getheight();
+			break;
+		case EMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
+			width = brush.dibpatternpt.getWidth();
+			height = brush.dibpatternpt.getHeight();
+			img = brush.dibpatternpt.base64ref();
+			break;
+		default:
+			throw new EMFJS.Error("Invalid brush style");
+	}
+	
+	var id = EMFJS._makeUniqueId("p");
+	var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, {patternUnits: 'userSpaceOnUse'});
+	this._svg.image(spat, 0, 0, width, height, img);
+	this._svgPatterns[id] = brush;
+	return id;
+};
+
 EMFJS.GDIContext.prototype._selectObject = function(obj) {
 	this.state.selected[obj.type] = obj;
-	if (obj.type == "region")
-		this.state._svgclipChanged = true;
+	switch (obj.type) {
+		case "region":
+			this.state._svgclipChanged = true;
+			break;
+		case "brush":
+			this.state.brx = this.state.nextbrx;
+			this.state.bry = this.state.nextbry;
+			break;
+	}
 };
 
 EMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
@@ -1091,6 +1586,54 @@ EMFJS.GDIContext.prototype._getClipRgn = function() {
 	}
 	this.state.ownclip = true;
 	return this.state.clip;
+};
+
+EMFJS.GDIContext.prototype._todevX = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
+};
+
+EMFJS.GDIContext.prototype._todevY = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
+};
+
+EMFJS.GDIContext.prototype._todevW = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
+};
+
+EMFJS.GDIContext.prototype._todevH = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
+};
+
+EMFJS.GDIContext.prototype._tologicalX = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
+};
+
+EMFJS.GDIContext.prototype._tologicalY = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
+};
+
+EMFJS.GDIContext.prototype._tologicalW = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
+};
+
+EMFJS.GDIContext.prototype._tologicalH = function(val) {
+	// http://wvware.sourceforge.net/caolan/mapmode.html
+	// logical -> device
+	return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
 };
 
 EMFJS.GDIContext.prototype.setMapMode = function(mode) {
@@ -1127,6 +1670,12 @@ EMFJS.GDIContext.prototype.setViewportExtEx = function(x, y) {
 	this.state._svggroup = null;
 };
 
+EMFJS.GDIContext.prototype.setBrushOrgEx = function(origin) {
+	EMFJS.log("[gdi] setBrushOrgEx: x=" + origin.x + " y=" + origin.y);
+	this.state.nextbrx = origin.x;
+	this.state.nextbry = origin.y;
+}
+
 EMFJS.GDIContext.prototype.saveDC = function() {
 	EMFJS.log("[gdi] saveDC");
 	var prevstate = this.state;
@@ -1150,6 +1699,10 @@ EMFJS.GDIContext.prototype.restoreDC = function(saved) {
 	}
 
 	this.state._svggroup = null;
+};
+
+EMFJS.GDIContext.prototype.setStretchBltMode = function(stretchMode) {
+	EMFJS.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
 };
 
 EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont) {
@@ -1226,35 +1779,47 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 	return opts;
 };
 
-EMFJS.GDIContext.prototype.rectangle = function(rect) {
+EMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 	EMFJS.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+	var bottom = this._todevY(rect.bottom);
+	var right = this._todevX(rect.right);
+	var top = this._todevY(rect.top);
+	var left = this._todevX(rect.left);
+	rw = this._todevH(rw);
+	rh = this._todevH(rh);
+	WMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
 	this._pushGroup();
 
 	var opts = this._applyOpts(null, true, true, false);
-	this._svg.rect(this.state._svggroup, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, opts);
+	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
 };
 
 EMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	EMFJS.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-	var toX = x;
-	var toY = y;
-	var fromX = this.state.x;
-	var fromY = this.state.y;
+	var toX = this._todevX(x);
+	var toY = this._todevY(y);
+	var fromX = this._todevX(this.state.x);
+	var fromY = this._todevY(this.state.y);
 
 	// Update position
 	this.state.x = x;
 	this.state.y = y;
 
+	WMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
 
 	var opts = this._applyOpts(null, true, false, false);
 	this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
 }
 
-EMFJS.GDIContext.prototype.moveTo = function(x, y) {
-	EMFJS.log("[gdi] moveTo: x=" + x + " y=" + y);
+EMFJS.GDIContext.prototype.moveToEx = function(x, y) {
+	EMFJS.log("[gdi] moveToEx: x=" + x + " y=" + y);
 	this.state.x = x;
 	this.state.y = y;
+	if (this._svgPath != null) {
+		this._svgPath.move(this.state.x, this.state.y);
+		EMFJS.log("[gdi] new path: " + this._svgPath.path())
+	}
 }
 
 EMFJS.GDIContext.prototype.polygon16 = function(points) {
@@ -1262,26 +1827,62 @@ EMFJS.GDIContext.prototype.polygon16 = function(points) {
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
-		pts.push([point.x, point.y]);
+		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
 	this._pushGroup();
 	var opts = {
-		"fill-rule": this.state.polyfillmode == EMFJS.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+		"fill-rule": this.state.polyfillmode == EMFJS.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
 	};
 	this._applyOpts(opts, true, true, false);
 	this._svg.polygon(this.state._svggroup, pts, opts);
 };
 
-EMFJS.GDIContext.prototype.polyline16 = function(points) {
-	EMFJS.log("[gdi] polyline16: points=" + points + " with pen " + this.state.selected.pen.toString());
+EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
+	EMFJS.log("[gdi] polyline16: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
 	var pts = [];
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
-		pts.push([point.x, point.y]);
+		if (i == 0 && isLineTo && (this.state.x != point.x || this.state.y != point.y))
+			pts.push([this._todevX(this.state.x), this._todevY(this.state.y)]);
+		pts.push([this._todevX(point.x), this._todevY(point.y)]);
 	}
-	this._pushGroup();
-	var opts = this._applyOpts({fill: "none"}, true, false, false);
-	this._svg.polyline(this.state._svggroup, pts, opts);
+	if (this._svgPath != null) {
+		this._svgPath.line(pts);
+		EMFJS.log("[gdi] new path: " + this._svgPath.path())
+	} else {
+		this._pushGroup();
+		var opts = this._applyOpts({fill: "none"}, true, false, false);
+		this._svg.polyline(this.state._svggroup, pts, opts);
+	}
+};
+
+EMFJS.GDIContext.prototype.selectClipPath = function(rgnMode) {
+	EMFJS.log("[gdi] selectClipPath: rgnMode=0x" + rgnMode.toString(16));
+}
+
+EMFJS.GDIContext.prototype.selectClipRgn = function(rgnMode, region) {
+	EMFJS.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
+	if (rgnMode == EMFJS.GDI.RegionMode.RGN_COPY) {
+		this.state.selected.region = region;
+		this.state.clip = null;
+		this.state.ownclip = false;
+	} else {
+		if (region == null)
+			throw new EMFJS.Error("No clip region to select");
+		
+		throw new EMFJS.Error("Not implemented: rgnMode=0x" + rgnMode.toString(16));
+	}
+	this.state._svgclipChanged = true;
+}
+
+EMFJS.GDIContext.prototype.offsetClipRgn = function(offset) {
+	EMFJS.log("[gdi] offsetClipRgn: offset=" + offset.toString());
+	this._getClipRgn().offset(offset.x, offset.y);
+};
+
+EMFJS.GDIContext.prototype.setTextAlign = function(textAlignmentMode) {
+	EMFJS.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+	this.state.textalign = textAlignmentMode;
 };
 
 EMFJS.GDIContext.prototype.setBkMode = function(bkMode) {
@@ -1325,20 +1926,48 @@ EMFJS.GDIContext.prototype.selectObject = function(objIdx, checkType) {
 	}
 };
 
+EMFJS.GDIContext.prototype._abortPath = function() {
+	if (this._svgPath != null)
+		this._svgPath = null;
+}
+
+EMFJS.GDIContext.prototype.abortPath = function() {
+	EMFJS.log("[gdi] abortPath");
+	this._abortPath();
+};
+
+EMFJS.GDIContext.prototype.beginPath = function() {
+	EMFJS.log("[gdi] beginPath");
+	
+	var toX = this._todevX(this.state.x);
+	var toY = this._todevY(this.state.y);
+
+	this._abortPath();
+	this._svgPath = this._svg.createPath();
+	this._svgPath.move(toX, toY);
+};
+
+EMFJS.GDIContext.prototype.closeFigure = function() {
+	EMFJS.log("[gdi] closeFigure");
+	if (this._svgPath == null)
+		throw new EMFJS.Error("No path bracket: cannot close figure");
+	
+	this._svgPath.close();
+};
+
+EMFJS.GDIContext.prototype.endPath = function() {
+	EMFJS.log("[gdi] endPath");
+	if (this._svgPath == null)
+		throw new EMFJS.Error("No path bracket: cannot end path");
+	
+	this._pushGroup();
+	this._svg.path(this.state._svggroup, this._svgPath);
+	this._svgPath = null;
+};
+
 EMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
 	var ret = this._deleteObject(objIdx);
 	EMFJS.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
-};
-
-EMFJS.EMFRect16 = function(reader) {
-	this.left = reader.readInt16();
-	this.top = reader.readInt16();
-	this.right = reader.readInt16();
-	this.bottom = reader.readInt16();
-};
-
-EMFJS.EMFRect16.prototype.toString = function() {
-	return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
 };
 
 EMFJS.EmfHeader = function(reader, headerSize) {
@@ -1593,6 +2222,17 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(rect)
 				);
 				break;
+			case EMFJS.GDI.RecordType.EMR_ROUNDRECT:
+				var rect = new EMFJS.RectL(reader);
+				var corner = new EMFJS.SizeL(reader);
+				this._records.push(
+					(function(rect, corner) {
+						return function(gdi) {
+							gdi.rectangle(rect, corner.cx, corner.cy);
+						}
+					})(rect, corner)
+				);
+				break;
             case EMFJS.GDI.RecordType.EMR_LINETO:
                 var x = reader.readInt32();
                 var y = reader.readInt32();
@@ -1610,7 +2250,7 @@ EMFJS.EMFRecords = function(reader, first) {
                 this._records.push(
                     (function(y, x) {
                         return function(gdi) {
-                            gdi.moveTo(x, y);
+                            gdi.moveToEx(x, y);
                         }
                     })(y, x)
                 );
@@ -1642,6 +2282,8 @@ EMFJS.EMFRecords = function(reader, first) {
 				);
 				break;
 			case EMFJS.GDI.RecordType.EMR_POLYLINE16:
+			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
+				var isLineTo = (type == EMFJS.GDI.RecordType.EMR_POLYLINETO16);
 				var bounds = new EMFJS.RectL(reader);
 				var cnt = reader.readUint32();
 				var points = [];
@@ -1650,11 +2292,111 @@ EMFJS.EMFRecords = function(reader, first) {
 					cnt--;
 				}
 				this._records.push(
-					(function(points) {
+					(function(isLineTo, points, bounds) {
 						return function(gdi) {
-							gdi.polyline16(points);
+							gdi.polyline16(isLineTo, points, bounds);
 						}
-					})(points)
+					})(isLineTo, points, bounds)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETTEXTALIGN:
+				var textAlign = reader.readUint32();
+				this._records.push(
+					(function(textAlign) {
+						return function(gdi) {
+							gdi.setTextAlign(textAlign);
+						}
+					})(textAlign)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETSTRETCHBLTMODE:
+				var stretchMode = reader.readUint32();
+				this._records.push(
+					(function(stretchMode) {
+						return function(gdi) {
+							gdi.setStretchBltMode(stretchMode);
+						}
+					})(stretchMode)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SETBRUSHORGEX:
+				var origin = new EMFJS.PointL(reader);
+				this._records.push(
+					(function(origin) {
+						return function(gdi) {
+							gdi.setBrushOrgEx(origin);
+						}
+					})(origin)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_BEGINPATH:
+				this._records.push(
+					(function() {
+						return function(gdi) {
+							gdi.beginPath();
+						}
+					})()
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_ENDPATH:
+				this._records.push(
+					(function() {
+						return function(gdi) {
+							gdi.endPath();
+						}
+					})()
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_ABORTPATH:
+				this._records.push(
+					(function() {
+						return function(gdi) {
+							gdi.abortPath();
+						}
+					})()
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_CLOSEFIGURE:
+				this._records.push(
+					(function() {
+						return function(gdi) {
+							gdi.closeFigure();
+						}
+					})()
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_SELECTCLIPPATH:
+				var rgnMode = reader.readUint32();
+				this._records.push(
+					(function(rgnMode) {
+						return function(gdi) {
+							gdi.selectClipPath(rgnMode);
+						}
+					})(rgnMode)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_EXTSELECTCLIPRGN:
+				reader.skip(4);
+				var rgnMode = reader.readUint32();
+				var region = rgnMode != EMFJS.GDI.RegionMode.RGN_COPY ? new EMFJS.Region(reader) : null;
+				this._records.push(
+					(function(rgnMode, region) {
+						return function(gdi) {
+							gdi.selectClipRgn(rgnMode, region);
+						}
+					})(rgnMode, region)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_OFFSETCLIPRGN:
+				var offset = new EMFJS.PointL(reader);	
+				this._records.push(
+					(function(offset) {
+						return function(gdi) {
+							gdi.offsetClipRgn(offset);
+						}
+					})(offset)
 				);
 				break;
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIER:
@@ -1664,15 +2406,11 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_POLYLINETO:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON:
-			case EMFJS.GDI.RecordType.EMR_SETBRUSHORGEX:
 			case EMFJS.GDI.RecordType.EMR_SETPIXELV:
 			case EMFJS.GDI.RecordType.EMR_SETMAPPERFLAGS:
 			case EMFJS.GDI.RecordType.EMR_SETROP2:
-			case EMFJS.GDI.RecordType.EMR_SETSTRETCHBLTMODE:
-			case EMFJS.GDI.RecordType.EMR_SETTEXTALIGN:
 			case EMFJS.GDI.RecordType.EMR_SETCOLORADJUSTMENT:
 			case EMFJS.GDI.RecordType.EMR_SETTEXTCOLOR:
-			case EMFJS.GDI.RecordType.EMR_OFFSETCLIPRGN:
 			case EMFJS.GDI.RecordType.EMR_SETMETARGN:
 			case EMFJS.GDI.RecordType.EMR_EXCLUDECLIPRECT:
 			case EMFJS.GDI.RecordType.EMR_INTERSECTCLIPRECT:
@@ -1682,7 +2420,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_MODIFYWORLDTRANSFORM:
 			case EMFJS.GDI.RecordType.EMR_ANGLEARC:
 			case EMFJS.GDI.RecordType.EMR_ELLIPSE:
-			case EMFJS.GDI.RecordType.EMR_ROUNDRECT:
 			case EMFJS.GDI.RecordType.EMR_ARC:
 			case EMFJS.GDI.RecordType.EMR_CHORD:
 			case EMFJS.GDI.RecordType.EMR_PIE:
@@ -1696,22 +2433,16 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW:
 			case EMFJS.GDI.RecordType.EMR_SETARCDIRECTION:
 			case EMFJS.GDI.RecordType.EMR_SETMITERLIMIT:
-			case EMFJS.GDI.RecordType.EMR_BEGINPATH:
-			case EMFJS.GDI.RecordType.EMR_ENDPATH:
-			case EMFJS.GDI.RecordType.EMR_CLOSEFIGURE:
 			case EMFJS.GDI.RecordType.EMR_FILLPATH:
 			case EMFJS.GDI.RecordType.EMR_STROKEANDFILLPATH:
 			case EMFJS.GDI.RecordType.EMR_STROKEPATH:
 			case EMFJS.GDI.RecordType.EMR_FLATTENPATH:
 			case EMFJS.GDI.RecordType.EMR_WIDENPATH:
-			case EMFJS.GDI.RecordType.EMR_SELECTCLIPPATH:
-			case EMFJS.GDI.RecordType.EMR_ABORTPATH:
 			case EMFJS.GDI.RecordType.EMR_COMMENT:
 			case EMFJS.GDI.RecordType.EMR_FILLRGN:
 			case EMFJS.GDI.RecordType.EMR_FRAMERGN:
 			case EMFJS.GDI.RecordType.EMR_INVERTRGN:
 			case EMFJS.GDI.RecordType.EMR_PAINTRGN:
-			case EMFJS.GDI.RecordType.EMR_EXTSELECTCLIPRGN:
 			case EMFJS.GDI.RecordType.EMR_BITBLT:
 			case EMFJS.GDI.RecordType.EMR_STRETCHBLT:
 			case EMFJS.GDI.RecordType.EMR_MASKBLT:
@@ -1723,7 +2454,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_EXTTEXTOUTW:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIER16:
 			case EMFJS.GDI.RecordType.EMR_POLYBEZIERTO16:
-			case EMFJS.GDI.RecordType.EMR_POLYLINETO16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYLINE16:
 			case EMFJS.GDI.RecordType.EMR_POLYPOLYGON16:
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW16:
