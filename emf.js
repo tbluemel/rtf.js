@@ -447,12 +447,12 @@ EMFJS.Blob.prototype.readFixedSizeUnicodeString = function(fixedSizeChars) {
 	var ret = "";
 	for (var i = 0; i < fixedSizeChars; i++) {
 		var charCode = this.readUint16();
-		if (byte == 0) {
+		if (charCode == 0) {
 			if (++i < fixedSizeChars)
 				this.skip((fixedSizeChars - i) * 2);
 			break;
 		}
-		ret += String.fromCharCode(byte);
+		ret += String.fromCharCode(charCode);
 	}
 	return ret;
 };
