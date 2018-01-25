@@ -1291,6 +1291,24 @@ EMFJS.Pen.prototype.toString = function() {
 	return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
 };
 
+EMFJS.Path = function(svgPath) {
+	EMFJS.Obj.call(this, "path");
+	if (svgPath != null) {
+		this.svgPath = svgPath;
+	} else {
+		this.svgPath = copy.svgPath;
+	}
+}
+EMFJS.Path.prototype = Object.create(EMFJS.Obj.prototype);
+
+EMFJS.Path.prototype.clone = function() {
+	return new EMFJS.Path(null, this.svgPath);
+};
+
+EMFJS.Path.prototype.toString = function() {
+	return "{[path]}";
+};
+
 EMFJS.GDIContextState = function(copy, defObjects) {
 	if (copy != null) {
 		this._svggroup = copy._svggroup;
@@ -1370,7 +1388,10 @@ EMFJS.GDIContext = function(svg) {
 	this._svgPath = null;
 	
 	this.defObjects = {
-		brush: new EMFJS.Brush(null, EMFJS.GDI.BrushStyle.BS_SOLID, new EMFJS.ColorRef(null, 0, 0, 0), false),
+		brush: new EMFJS.Brush(null, {
+			style: EMFJS.GDI.BrushStyle.BS_SOLID,
+			color: new EMFJS.ColorRef(null, 0, 0, 0)
+		}),
 		pen: new EMFJS.Pen(null, EMFJS.GDI.PenStyle.PS_SOLID, 1, new EMFJS.ColorRef(null, 0, 0, 0)),
 		font: new EMFJS.Font(null, null),
 		palette: null,
@@ -1817,8 +1838,8 @@ EMFJS.GDIContext.prototype.moveToEx = function(x, y) {
 	this.state.x = x;
 	this.state.y = y;
 	if (this._svgPath != null) {
-		this._svgPath.helper.move(this.state.x, this.state.y);
-		EMFJS.log("[gdi] new path: " + this._svgPath.helper.path())
+		this._svgPath.move(this.state.x, this.state.y);
+		EMFJS.log("[gdi] new path: " + this._svgPath.path())
 	}
 }
 
@@ -1847,13 +1868,13 @@ EMFJS.GDIContext.prototype.polyline16 = function(isLineTo, points, bounds) {
 
 	if (this._svgPath != null) {
 		if (!isLineTo || pts.length == 0) {
-			this._svgPath.helper.move(this._todevX(this.state.x), this._todevY(this.state.y));
+			this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
 		} else {
 			var firstPts = pts[0];
-			this._svgPath.helper.move(firstPts[0], firstPts[1]);
+			this._svgPath.move(firstPts[0], firstPts[1]);
 		}
-		this._svgPath.helper.line(pts);
-		EMFJS.log("[gdi] new path: " + this._svgPath.helper.path())
+		this._svgPath.line(pts);
+		EMFJS.log("[gdi] new path: " + this._svgPath.path())
 	} else {
 		this._pushGroup();
 		var opts = this._applyOpts({fill: "none"}, true, false, false);
@@ -1955,18 +1976,10 @@ EMFJS.GDIContext.prototype.abortPath = function() {
 
 EMFJS.GDIContext.prototype.beginPath = function() {
 	EMFJS.log("[gdi] beginPath");
-	
-	var toX = this._todevX(this.state.x);
-	var toY = this._todevY(this.state.y);
 
 	this._abortPath();
 
-	var helper = this._svg.createPath();
-	var opts = this._applyOpts({fill: "none"}, true, false, false);
-	this._svgPath = {
-		helper: helper,
-		opts: opts
-	};
+	this._svgPath = this._svg.createPath();
 };
 
 EMFJS.GDIContext.prototype.closeFigure = function() {
@@ -1974,7 +1987,19 @@ EMFJS.GDIContext.prototype.closeFigure = function() {
 	if (this._svgPath == null)
 		throw new EMFJS.Error("No path bracket: cannot close figure");
 	
-	this._svgPath.helper.close();
+	this._svgPath.close();
+};
+
+EMFJS.GDIContext.prototype.fillPath = function(bounds) {
+	EMFJS.log("[gdi] fillPath");
+	if (this.state.selected.path == null)
+		throw new EMFJS.Error("No path selected");
+	
+	var selPath = this.state.selected.path;
+	var opts = this._applyOpts(null, true, true, false);
+	this._svg.path(this.state._svggroup, selPath.svgPath, opts);
+	
+	this.state.selected.path = null;
 };
 
 EMFJS.GDIContext.prototype.endPath = function() {
@@ -1983,7 +2008,7 @@ EMFJS.GDIContext.prototype.endPath = function() {
 		throw new EMFJS.Error("No path bracket: cannot end path");
 	
 	this._pushGroup();
-	this._svg.path(this.state._svggroup, this._svgPath.helper, this._svgPath.opts);
+	this._selectObject(new EMFJS.Path(this._svgPath));
 	this._svgPath = null;
 };
 
@@ -2389,6 +2414,16 @@ EMFJS.EMFRecords = function(reader, first) {
 					})()
 				);
 				break;
+			case EMFJS.GDI.RecordType.EMR_FILLPATH:
+				var bounds = new EMFJS.RectL(reader);	
+				this._records.push(
+					(function(bounds) {
+						return function(gdi) {
+							gdi.fillPath(bounds);
+						}
+					})(bounds)
+				);
+				break;
 			case EMFJS.GDI.RecordType.EMR_SELECTCLIPPATH:
 				var rgnMode = reader.readUint32();
 				this._records.push(
@@ -2455,7 +2490,6 @@ EMFJS.EMFRecords = function(reader, first) {
 			case EMFJS.GDI.RecordType.EMR_POLYDRAW:
 			case EMFJS.GDI.RecordType.EMR_SETARCDIRECTION:
 			case EMFJS.GDI.RecordType.EMR_SETMITERLIMIT:
-			case EMFJS.GDI.RecordType.EMR_FILLPATH:
 			case EMFJS.GDI.RecordType.EMR_STROKEANDFILLPATH:
 			case EMFJS.GDI.RecordType.EMR_STROKEPATH:
 			case EMFJS.GDI.RecordType.EMR_FLATTENPATH:
