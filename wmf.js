@@ -566,11 +566,13 @@ WMFJS.Brush = function(reader, copy, forceDibPattern) {
 					this.color = new WMFJS.ColorRef(reader);
 					break;
 				case WMFJS.GDI.BrushStyle.BS_PATTERN:
-					reader.skip(forceDibPattern ? 2 : 4);
+					reader.skip(forceDibPattern ? 2 : 6);
 					this.pattern = new WMFJS.Bitmap16(reader, dataLength - (reader.pos - start));
 					break;
 				case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
 					this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
+					if (!forceDibPattern)
+						reader.skip(2);
 					this.dibpatternpt = new WMFJS.DIBitmap(reader, dataLength - (reader.pos - start));
 					break;
 				case WMFJS.GDI.BrushStyle.BS_HATCHED:
@@ -579,7 +581,7 @@ WMFJS.Brush = function(reader, copy, forceDibPattern) {
 					break;
 			}
 		} else if (forceDibPattern instanceof WMFJS.PatternBitmap16) {
-			this.style = MFJS.GDI.BrushStyle.BS_PATTERN;
+			this.style = WMFJS.GDI.BrushStyle.BS_PATTERN;
 			this.pattern = forceDibPattern;
 		}
 	} else {
@@ -812,7 +814,10 @@ WMFJS.Scan.prototype.toString = function() {
 WMFJS.Region = function(reader, copy) {
 	WMFJS.Obj.call(this, "region");
 	if (reader != null) {
-		reader.skip(8);
+		reader.skip(2);
+		if (reader.readInt16() != 6)
+			throw new WMFJS.Error("Invalid region identifier");
+		reader.skip(2);
 		var rgnSize = reader.readInt16();
 		var scanCnt = reader.readInt16();
 		reader.skip(2);
@@ -1240,7 +1245,7 @@ WMFJS.Bitmap16 = function(reader, size) {
 		this.bitsPixel = reader.readUint8();
 		this.bitsOffset = reader.pos;
 		this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
-		if (this.bitsSize != size - 10)
+		if (this.bitsSize > size - 10)
 			throw new WMFJS.Error("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
 	} else {
 		var copy = size;
@@ -1471,7 +1476,7 @@ WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 	switch (brush.style) {
 		case WMFJS.GDI.BrushStyle.BS_PATTERN:
 			width = brush.pattern.getWidth();
-			height = brush.pattern.getheight();
+			height = brush.pattern.getHeight();
 			break;
 		case WMFJS.GDI.BrushStyle.BS_DIBPATTERNPT:
 			width = brush.dibpatternpt.getWidth();
