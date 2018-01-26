@@ -1916,17 +1916,17 @@ EMFJS.GDIContext.prototype.polybezier = function(isPolyBezierTo, points, bounds)
 	}
 
 	if (this._svgPath != null) {
-		if (!isPolyBezierTo || pts.length == 0) {
-			this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
-		} else {
+		if (isPolyBezierTo && pts.length > 0) {
 			var firstPts = pts[0];
 			this._svgPath.move(firstPts.x, firstPts.y);
+		} else {
+			this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
 		}
 
 		if (pts.length < (isPolyBezierTo ? 3 : 4))
 			throw new EMFJS.Error("Not enough points to draw bezier");
 		
-		for (var i = isPolyBezierTo ? 0 : 1; i + 3 <= pts.length; i += 3) {
+		for (var i = isPolyBezierTo ? 1 : 0; i + 3 <= pts.length; i += 3) {
 			var cp1 = pts[i];
 			var cp2 = pts[i + 1];
 			var ep = pts[i + 2];
