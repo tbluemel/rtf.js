@@ -1458,6 +1458,19 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
+
+	var pictGroupDestination = function(legacy) {
+		var cls = function() {
+			DestinationTextBase.call(this, "pict-group");
+			this._legacy = legacy;
+		};
+		cls.prototype = Object.create(DestinationTextBase.prototype);
+
+		cls.prototype.isLegacy = function() {
+			return this._legacy;
+		};
+		return cls;
+	};
 	
 	var pictDestination = function() {
 		var cls = function() {
@@ -1474,7 +1487,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			};
 		};
 		cls.prototype = Object.create(DestinationTextBase.prototype);
-		_setPropValueRequired = function(member, prop) {
+		var _setPropValueRequired = function(member, prop) {
 			return function(param) {
 				if (param == null)
 					throw new RTFJS.Error("Picture property has no value");
@@ -1482,7 +1495,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				var obj = (member != null ? this[member] : this);
 				obj[prop] = param;
 			};
-		};				
+		};
 		var _pictHandlers = {
 			picw: _setPropValueRequired("_size", "width"),
 			pich: _setPropValueRequired("_size", "height"),
@@ -1606,6 +1619,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			//if (this._displaysize.width == null || this._displaysize.height == null)
 			//	throw new RTFJS.Error("Picture display dimensions not specified");
 			
+			var pictGroup = findParentDestination("pict-group");
+			var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
+
 			var type = this._type;
 			if (typeof type === "function") {
 				// type is the trampoline function that executes the .load function
@@ -1645,14 +1661,16 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				};
 				
 				if (inst._settings.onPicture != null) {
-					inst._renderer.addIns(function() {
-						var renderer = this;
-						var elem = inst._settings.onPicture.call(inst, function() {
-							return doRender.call(renderer, true);
-						});
-						if (elem != null)
-							this.appendElement(elem);
-					});
+					inst._renderer.addIns((function(isLegacy) {
+						return function() {
+							var renderer = this;
+							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+								return doRender.call(renderer, true);
+							});
+							if (elem != null)
+								this.appendElement(elem);
+						};
+					})(isLegacy));
 				} else {
 					doRender(false);
 				}
@@ -1682,14 +1700,16 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				};
 				
 				if (inst._settings.onPicture != null) {
-					inst._renderer.addIns(function() {
-						var renderer = this;
-						var elem = inst._settings.onPicture.call(inst, function() {
-							return doRender.call(renderer, true);
-						});
-						if (elem != null)
-							this.appendElement(elem);
-					});
+					inst._renderer.addIns((function(isLegacy) {
+						return function() {
+							var renderer = this;
+							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+								return doRender.call(renderer, true);
+							});
+							if (elem != null)
+								this.appendElement(elem);
+						};
+					})(isLegacy));;
 				} else {
 					doRender(false);
 				}
@@ -1741,7 +1761,8 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		headerl: requiredDestination("headerl"),
 		headerr: requiredDestination("headerr"),
 		pict: pictDestination(),
-		shppict: requiredDestination("shppict"),
+		shppict: pictGroupDestination(false),
+		nonshppict: pictGroupDestination(true),
 		private1: requiredDestination("private1"),
 		rxe: requiredDestination("rxe"),
 		tc: requiredDestination("tc"),

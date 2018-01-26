@@ -17,7 +17,8 @@ function closeDoc(reset) {
 	$("#meta").empty();
 	$("#content").empty();
 	$("#dropzone").show();
-	$("#closebutton").hide();
+	$("#opened_doc").hide();
+	$("#closed_doc").show();
 	$("#tools").hide();
 	if (reset)
 		$("#samplecombo").val("");
@@ -35,12 +36,16 @@ function setUnsafeLink(elem, warn) {
 }
 function displayRtfFile(blob) {
 	try {
+		var legacyPictures = $("#legacypicts").prop("checked");
 		var showPicBorder = $("#showpicborder").prop("checked");
 		var warnHttpLinks = $("#warnhttplink").prop("checked");
 		var settings = {
-			onPicture: function(create) {
-				var elem = create().attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
-				return setPictBorder(elem, showPicBorder);
+			onPicture: function(isLegacy, create) {
+				// isLegacy is null if it's the only available picture (e.g. legacy rtf)
+				if (isLegacy == null || isLegacy == legacyPictures) {
+					var elem = create().attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
+					return setPictBorder(elem, showPicBorder);
+				}
 			},
 			onHyperlink: function(create, hyperlink) {
 				var url = hyperlink.url();
@@ -77,7 +82,8 @@ function displayRtfFile(blob) {
 		if (haveMeta)
 			$("#havemeta").show();
 		$("#content").empty().append(doc.render());
-		$("#closebutton").show();
+		$("#closed_doc").hide();
+		$("#opened_doc").show();
 		$("#tools").show();
 		console.log("All done!");
 	} catch(e) {
@@ -165,19 +171,24 @@ $(document).ready(function() {
 <div style="margin: 4pt;">
 	<span>
 		<form>
-			<input id="closebutton" type="button" value="Close" style="display: none;"/>
-			<select id="samplecombo">
-				<option selected="selected" value="">Drag&amp;Drop a RTF document</option>
-				<option>simple1.rtf</option>
-				<option>simple2.rtf</option>
-				<option>simple3.rtf</option>
-				<option>simple4.rtf</option>
-				<option>simple5.rtf</option>
-				<option>simplepict.rtf</option>
-				<option>simplepng.rtf</option>
-				<option>simplepngbin.rtf</option>
-				<option>hyperlink.rtf</option>
-			</select>
+			<span id="opened_doc" style="display: none;">
+				<input id="closebutton" type="button" value="Close"/>
+			</span>
+			<span id="closed_doc">
+				<select id="samplecombo">
+					<option selected="selected" value="">Drag&amp;Drop a RTF document</option>
+					<option>simple1.rtf</option>
+					<option>simple2.rtf</option>
+					<option>simple3.rtf</option>
+					<option>simple4.rtf</option>
+					<option>simple5.rtf</option>
+					<option>simplepict.rtf</option>
+					<option>simplepng.rtf</option>
+					<option>simplepngbin.rtf</option>
+					<option>hyperlink.rtf</option>
+				</select>
+				<label><input id="legacypicts" type="checkbox" checked/>Load legacy pictures</label>
+			</span>
 		</form>
 	</span>
 	<span id="tools" style="display: none;">
