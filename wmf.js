@@ -1376,7 +1376,7 @@ WMFJS.GDIContext.prototype._pushGroup = function() {
 		this.state._svgtextbkfilter = null;
 
 		var settings = {
-			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
+			viewBox: [this.state.vx || 0, this.state.vy || 0, this.state.vw || 0, this.state.vh || 0].join(" "),
 			preserveAspectRatio: "none"
 		};
 		if (this.state.clip != null) {
