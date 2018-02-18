@@ -84,12 +84,9 @@ function displayRtfFile(blob, configs={}) {
 		};
 		var doc = new RTFJS.Document(blob, settings);
 
-		setTimeout(
-			() => {
-				get_root_element().empty().append(doc.render())
-			},
-			1000
-		);
+		window.document.addEventListener('RTFContentLoaded', () => {
+			get_root_element().empty().append(doc.render());
+		});
 	} catch(e) {
 		if (e instanceof RTFJS.Error)
 			get_root_element().text("Error: " + e.message);

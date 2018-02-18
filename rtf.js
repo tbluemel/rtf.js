@@ -1409,6 +1409,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	};
 
 	var fldinstDestination = function() {
+		var async_inflight = 0
+		var async_complete = () => {
+			async_inflight--
+			if (async_inflight === 0) {
+				window.document.dispatchEvent(new Event('RTFContentLoaded'))
+			}
+		}
+
 		var cls = function() {
 			DestinationTextBase.call(this, "fldinst");
 		};
@@ -1435,6 +1443,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					case "IMPORT":
 						if (typeof inst._settings.onImport === 'function') {
 							let pict
+							async_inflight++
 
 							inst._renderer.addIns(() => {
 								// backup
@@ -1493,6 +1502,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 								catch(error) {
 									reject(error)
 								}
+							})
+							.catch(error => {
+								async_complete()
+								throw error
+							})
+							.then(_parsedInst => {
+								async_complete()
+								return _parsedInst
 							})
 							break;
 						}
