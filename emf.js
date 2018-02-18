@@ -337,7 +337,7 @@ if (typeof EMFJS === 'undefined') {
 			return ret;
 		},
 	};
-    EMFJS.Error.prototype = new Error;
+	EMFJS.Error.prototype = new Error;
 }
 
 EMFJS.Blob = function(blob, offset) {
@@ -502,21 +502,21 @@ EMFJS.PointS.prototype.toString = function() {
 };
 
 EMFJS.PointL = function(reader, x, y) {
-    if (reader != null) {
-        this.x = reader.readInt32();
-        this.y = reader.readInt32();
-    } else {
-        this.x =  x;
-        this.y = y;
-    }
+	if (reader != null) {
+		this.x = reader.readInt32();
+		this.y = reader.readInt32();
+	} else {
+		this.x =  x;
+		this.y = y;
+	}
 };
 
 EMFJS.PointL.prototype.clone = function() {
-    return new EMFJS.PointS(null, this.x, this.y);
+	return new EMFJS.PointS(null, this.x, this.y);
 };
 
 EMFJS.PointL.prototype.toString = function() {
-    return "{x: " + this.x + ", y: " + this.y + "}";
+	return "{x: " + this.x + ", y: " + this.y + "}";
 };
 
 EMFJS.RectL = function(reader, left, top, right, bottom) {
@@ -611,7 +611,7 @@ EMFJS.Scan.prototype.append = function(r) {
 
 EMFJS.Scan.prototype.subtract = function(left, right) {
 	var i;
-	
+
 	// Keep everything on the left side
 	i = 0;
 	while (i < this.scanlines.length) {
@@ -629,7 +629,7 @@ EMFJS.Scan.prototype.subtract = function(left, right) {
 			break;
 		}
 	}
-	
+
 	// Find the first one that may exceed to the right side
 	var first = i;
 	var cnt = 0;
@@ -644,11 +644,11 @@ EMFJS.Scan.prototype.subtract = function(left, right) {
 		}
 		i++;
 	}
-	
+
 	// Delete everything we're subtracting
 	if (cnt > 0 && first < this.scanlines.length)
 		this.scanlines.splice(first, cnt);
-	
+
 	return this.scanlines.length > 0;
 };
 
@@ -662,13 +662,13 @@ EMFJS.Scan.prototype.intersect = function(left, right) {
 			break;
 		}
 	}
-	
+
 	if (this.scanlines.length > 0) {
 		// Adjust the first to match the left, if needed
 		var scanline = this.scanlines[0];
 		if (scanline.left < left)
 			scanline.left = left;
-		
+
 		// Get rid of anything that falls entirely outside to the right
 		for (var i = 0; i < this.scanlines.length; i++) {
 			scanline = this.scanlines[i];
@@ -677,7 +677,7 @@ EMFJS.Scan.prototype.intersect = function(left, right) {
 				break;
 			}
 		}
-		
+
 		if (this.scanlines.length > 0) {
 			// Adjust the last to match the right, if needed
 			scanline = this.scanlines[this.scanlines.length - 1];
@@ -699,7 +699,7 @@ EMFJS.Region = function(reader, copy) {
 		var rgnSize = reader.readUint32();
 		if (rectCnt * 16 != rgnSize)
 			throw new EMFJS.Error("Invalid region data");
-		
+
 		this.bounds = new EMFJS.RectL(reader);
 		this.scans = [];
 		var scanLine;
@@ -767,7 +767,7 @@ EMFJS.Region.prototype._updateComplexity = function() {
 
 EMFJS.Region.prototype.subtract = function(rect) {
 	EMFJS.log("[emf] Region " + this.toString() + " subtract " + rect.toString());
-	
+
 	if (this.bounds != null) {
 		var isect = this.bounds.intersect(rect);
 		if (isect != null) { // Only need to do anything if there is any chance of an overlap
@@ -778,7 +778,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 				this.scans = new EMFJS.Scan(new EMFJS.RectL(null, this.bounds.left, this.bounds.top, this.bounds,right, this.bounds.bottom));
 				this.complexity = 2;
 			}
-			
+
 			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
 			// The first scan that falls partially below rect.top needs to be split into two scans.
 			var si = 0;
@@ -799,7 +799,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 				}
 				si++;
 			}
-			
+
 			// Now find the first one that falls at least partially below rect.bottom, which needs to be
 			// split if it is only partially below rect.bottom
 			var first = si;
@@ -822,7 +822,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 				}
 				si++;
 			}
-			
+
 			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
 			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
 			// account for this anymore.
@@ -837,11 +837,11 @@ EMFJS.Region.prototype.subtract = function(rect) {
 						last--;
 						continue;
 					}
-					
+
 					si++;
 				}
 			}
-			
+
 			// Update bounds
 			if (this.scans != null) {
 				var left, top, right, bottom;
@@ -852,7 +852,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 						top = scan.top;
 					if (i == len - 1)
 						bottom = scan.bottom;
-					
+
 					var slen = scan.scanline.length;
 					if (slen > 0) {
 						var scanline = scan.scanline[0];
@@ -863,7 +863,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 							right = scanline.right;
 					}
 				}
-				
+
 				if (left != null && top != null && right != null && bottom != null) {
 					this.bounds = new EMFJS.RectL(null, left, top, right, bottom);
 					this._updateComplexity();
@@ -878,7 +878,7 @@ EMFJS.Region.prototype.subtract = function(rect) {
 			}
 		}
 	}
-	
+
 	EMFJS.log("[emf] Region subtraction -> " + this.toString());
 };
 
@@ -900,12 +900,12 @@ EMFJS.Region.prototype.intersect = function(rect) {
 				if (si > 0) {
 					EMFJS.log("[emf] Region remove " + si + " scans from top");
 					this.scans.splice(0, si);
-					
+
 					// Adjust the first scan's top to match the new bounds.top
 					if (this.scans.length > 0)
 						this.scans[0].top = this.bounds.top;
 				}
-				
+
 				// Get rid of anything that falls outside the new bounds.left/bounds.right
 				si = 0;
 				while (si < this.scans.length) {
@@ -924,11 +924,11 @@ EMFJS.Region.prototype.intersect = function(rect) {
 					}
 					si++;
 				}
-				
+
 				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
 				if (this.scans.length > 0)
 					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
-				
+
 				this._updateComplexity();
 			}
 		} else {
@@ -946,14 +946,14 @@ EMFJS.Region.prototype.offset = function(offX, offY) {
 		this.bounds.right += offX;
 		this.bounds.bottom += offY;
 	}
-	
+
 	if (this.scans != null) {
 		var slen = this.scans.length;
 		for (var si = 0; si < slen; si++) {
 			var scan = this.scans[si];
 			scan.top += offY;
 			scan.bottom += offY;
-			
+
 			var len = scan.scanlines.length;
 			for (var i = 0; i < len; i++) {
 				var scanline = scan.scanlines[i];
@@ -1105,16 +1105,16 @@ EMFJS.DIBitmap.prototype.base64ref = function() {
 	} else {
 		data = this.makeBitmapFileHeader();
 	}
-	
+
 	this._reader.seek(this._location.header.offset);
 	if (data != null)
 		data += this._reader.readBinary(this._location.header.size);
 	else
 		data = this._reader.readBinary(this._location.header.size);
-	
+
 	this._reader.seek(this._location.data.offset);
 	data += this._reader.readBinary(this._location.data.size);
-	
+
 	var ref = "data:" + mime + ";base64," + btoa(data);
 	this._reader.seek(prevpos);
 	return ref;
@@ -1193,7 +1193,7 @@ EMFJS.Brush = function(reader, copy, bitmapInfo) {
 	if (reader != null) {
 		var dataLength = copy;
 		var start = reader.pos;
-		
+
 		this.style = reader.readUint32();
 		switch (this.style) {
 			case EMFJS.GDI.BrushStyle.BS_SOLID:
@@ -1210,7 +1210,7 @@ EMFJS.Brush = function(reader, copy, bitmapInfo) {
 				this.hatchstyle = reader.readUint32();
 				break;
 		}
-		
+
 		reader.seek(start + 12);
 	} else {
 		this.style = copy.style;
@@ -1336,10 +1336,10 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.nextbry = copy.nextbry;
 		this.brx = copy.brx;
 		this.bry = copy.bry;
-		
+
 		this.clip = copy.clip;
 		this.ownclip = false;
-		
+
 		this.selected = {};
 		for (var type in copy.selected)
 			this.selected[type] = copy.selected[type];
@@ -1370,10 +1370,10 @@ EMFJS.GDIContextState = function(copy, defObjects) {
 		this.nextbry = 0;
 		this.brx = 0;
 		this.bry = 0;
-		
+
 		this.clip = null;
 		this.ownclip = false;
-		
+
 		this.selected = {};
 		for (var type in defObjects) {
 			var defObj = defObjects[type];
@@ -1388,7 +1388,7 @@ EMFJS.GDIContext = function(svg) {
 	this._svgPatterns = {};
 	this._svgClipPaths = {};
 	this._svgPath = null;
-	
+
 	this.defObjects = {
 		brush: new EMFJS.Brush(null, {
 			style: EMFJS.GDI.BrushStyle.BS_SOLID,
@@ -1399,7 +1399,7 @@ EMFJS.GDIContext = function(svg) {
 		palette: null,
 		region: null
 	};
-	
+
 	this.state = new EMFJS.GDIContextState(null, this.defObjects);
 	this.statestack = [this.state];
 	this.objects = {};
@@ -1507,14 +1507,13 @@ EMFJS.GDIContext.prototype._getSvgDef = function() {
 	return this._svgdefs;
 };
 
-
 EMFJS.GDIContext.prototype._getSvgClipPathForRegion = function(region) {
 	for (var id in this._svgClipPaths) {
 		var rgn = this._svgClipPaths[id];
 		if (rgn == region)
 			return id;
 	}
-	
+
 	var id = EMFJS._makeUniqueId("c");
 	var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
 	switch (region.complexity) {
@@ -1545,7 +1544,7 @@ EMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 		if (pat == brush)
 			return id;
 	}
-	
+
 	var width, height, img;
 	switch (brush.style) {
 		case EMFJS.GDI.BrushStyle.BS_PATTERN:
@@ -1560,7 +1559,7 @@ EMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 		default:
 			throw new EMFJS.Error("Invalid brush style");
 	}
-	
+
 	var id = EMFJS._makeUniqueId("p");
 	var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, {patternUnits: 'userSpaceOnUse'});
 	this._svg.image(spat, 0, 0, width, height, img);
@@ -1738,7 +1737,7 @@ EMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 			opts.strokeWidth = pen.width;
 
 			opts["stroke-miterlimit"] = this.state.miterlimit;
-			
+
 			var dotWidth;
 			if ((pen.linecap & EMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
 				opts["stroke-linecap"] = "square";
@@ -1865,7 +1864,7 @@ EMFJS.GDIContext.prototype.polygon = function(points, bounds, first) {
 
 EMFJS.GDIContext.prototype.polyPolygon = function(polygons, bounds) {
 	EMFJS.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-	
+
 	var cnt = polygons.length;
 	for (var i = 0; i < cnt; i++)
 		this.polygon(polygons[i], bounds, i == 0);
@@ -1925,7 +1924,7 @@ EMFJS.GDIContext.prototype.polybezier = function(isPolyBezierTo, points, bounds)
 
 		if (pts.length < (isPolyBezierTo ? 3 : 4))
 			throw new EMFJS.Error("Not enough points to draw bezier");
-		
+
 		for (var i = isPolyBezierTo ? 1 : 0; i + 3 <= pts.length; i += 3) {
 			var cp1 = pts[i];
 			var cp2 = pts[i + 1];
@@ -1958,7 +1957,7 @@ EMFJS.GDIContext.prototype.selectClipRgn = function(rgnMode, region) {
 	} else {
 		if (region == null)
 			throw new EMFJS.Error("No clip region to select");
-		
+
 		throw new EMFJS.Error("Not implemented: rgnMode=0x" + rgnMode.toString(16));
 	}
 	this.state._svgclipChanged = true;
@@ -2042,7 +2041,7 @@ EMFJS.GDIContext.prototype.closeFigure = function() {
 	EMFJS.log("[gdi] closeFigure");
 	if (this._svgPath == null)
 		throw new EMFJS.Error("No path bracket: cannot close figure");
-	
+
 	this._svgPath.close();
 };
 
@@ -2050,11 +2049,11 @@ EMFJS.GDIContext.prototype.fillPath = function(bounds) {
 	EMFJS.log("[gdi] fillPath");
 	if (this.state.selected.path == null)
 		throw new EMFJS.Error("No path selected");
-	
+
 	var selPath = this.state.selected.path;
 	var opts = this._applyOpts(null, true, true, false);
 	this._svg.path(this.state._svggroup, selPath.svgPath, opts);
-	
+
 	this._pushGroup();
 	this.state.selected.path = null;
 };
@@ -2063,11 +2062,11 @@ EMFJS.GDIContext.prototype.strokePath = function(bounds) {
 	EMFJS.log("[gdi] strokePath");
 	if (this.state.selected.path == null)
 		throw new EMFJS.Error("No path selected");
-	
+
 	var selPath = this.state.selected.path;
 	var opts = this._applyOpts({fill: "none"}, true, false, false);
 	this._svg.path(this.state._svggroup, selPath.svgPath, opts);
-	
+
 	this._pushGroup();
 	this.state.selected.path = null;
 };
@@ -2076,7 +2075,7 @@ EMFJS.GDIContext.prototype.endPath = function() {
 	EMFJS.log("[gdi] endPath");
 	if (this._svgPath == null)
 		throw new EMFJS.Error("No path bracket: cannot end path");
-	
+
 	this._pushGroup();
 	this._selectObject(new EMFJS.Path(this._svgPath));
 	this._svgPath = null;
@@ -2089,7 +2088,7 @@ EMFJS.GDIContext.prototype.deleteObject = function(objIdx) {
 
 EMFJS.EmfHeader = function(reader, headerSize) {
 	var recordStart = reader.pos - 8;
-	
+
 	this.size = headerSize;
 	this.bounds = new EMFJS.RectL(reader);
 	this.frame = new EMFJS.RectL(reader);
@@ -2112,11 +2111,11 @@ EMFJS.EmfHeader = function(reader, headerSize) {
 	if (descriptionLen > 0) {
 		if (descriptionOff < 88)
 			throw new EMFJS.Error("Invalid header description offset");
-		
+
 		hdrSize = descriptionOff + (descriptionLen * 2);
 		if (hdrSize > headerSize)
 			throw new EMFJS.Error("Invalid header description length");
-		
+
 		var prevPos = reader.pos;
 		reader.seek(recordStart + descriptionOff);
 		this.description = reader.readFixedSizeUnicodeString(descriptionLen);
@@ -2132,15 +2131,15 @@ EMFJS.EmfHeader = function(reader, headerSize) {
 		var haveOpenGl = reader.readUint32();
 		if (haveOpenGl != 0)
 			throw new EMFJS.Error("OpenGL records are not yet supported");
-		
+
 		if (pixelFormatOff != 0) {
 			if (pixelFormatOff < 100 || pixelFormatOff < hdrSize)
 				throw new EMFJS.Error("Invalid pixel format offset");
-			
+
 			hdrSize = pixelFormatOff + pixelFormatSize;
 			if (hdrSize > headerSize)
 				throw new EMFJS.Error("Invalid pixel format size");
-			
+
 			// TODO: read pixel format blob
 		}
 
@@ -2158,7 +2157,7 @@ EMFJS.EmfHeader.prototype.toString = function() {
 
 EMFJS.EMFRecords = function(reader, first) {
 	this._records = [];
-	
+
 	this._header = new EMFJS.EmfHeader(reader, first);
 
 	var all = false;
@@ -2275,7 +2274,7 @@ EMFJS.EMFRecords = function(reader, first) {
 				);
 				break;
 			case EMFJS.GDI.RecordType.EMR_CREATEPEN:
-                var index = reader.readUint32();
+				var index = reader.readUint32();
 				var pen = new EMFJS.Pen(reader, null);
 				this._records.push(
 					(function(index, pen) {
@@ -2350,27 +2349,27 @@ EMFJS.EMFRecords = function(reader, first) {
 					})(rect, corner)
 				);
 				break;
-            case EMFJS.GDI.RecordType.EMR_LINETO:
-                var x = reader.readInt32();
-                var y = reader.readInt32();
-                this._records.push(
-                    (function(y, x) {
-                        return function(gdi) {
-                            gdi.lineTo(x, y);
-                        }
-                    })(y, x)
-                );
-                break;
-            case EMFJS.GDI.RecordType.EMR_MOVETOEX:
-                var x = reader.readInt32();
-                var y = reader.readInt32();
-                this._records.push(
-                    (function(y, x) {
-                        return function(gdi) {
-                            gdi.moveToEx(x, y);
-                        }
-                    })(y, x)
-                );
+			case EMFJS.GDI.RecordType.EMR_LINETO:
+				var x = reader.readInt32();
+				var y = reader.readInt32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.lineTo(x, y);
+						}
+					})(y, x)
+				);
+				break;
+			case EMFJS.GDI.RecordType.EMR_MOVETOEX:
+				var x = reader.readInt32();
+				var y = reader.readInt32();
+				this._records.push(
+					(function(y, x) {
+						return function(gdi) {
+							gdi.moveToEx(x, y);
+						}
+					})(y, x)
+				);
 				break;
 			case EMFJS.GDI.RecordType.EMR_POLYGON:
 			case EMFJS.GDI.RecordType.EMR_POLYGON16:
@@ -2399,11 +2398,11 @@ EMFJS.EMFRecords = function(reader, first) {
 				var polygonsPtCnts = [];
 				for (var i = 0; i < cnt; i++)
 					polygonsPtCnts.push(reader.readUint32());
-				
+
 				var polygons = [];
 				for (var i = 0; i < cnt; i++) {
 					var ptCnt = polygonsPtCnts[i];
-					
+
 					var p = [];
 					for (var ip = 0; ip < ptCnt; ip++)
 						p.push(isSmall ? new EMFJS.PointS(reader) : new EMFJS.PointL(reader));
@@ -2712,10 +2711,10 @@ EMFJS.EMFRecords = function(reader, first) {
 				//throw new EMFJS.Error("Record type not recognized: 0x" + type.toString(16));
 				break;
 		}
-		
+
 		curpos += size;
 	}
-	
+
 	if (!all)
 		throw new EMFJS.Error("Could not read all records");
 };
@@ -2745,9 +2744,9 @@ EMFJS.Renderer = function(blob) {
 
 EMFJS.Renderer.prototype.parse = function(blob) {
 	this._img = null;
-	
+
 	var reader = new EMFJS.Blob(blob);
-	
+
 	var type = reader.readUint32();
 	if(type !== 0x00000001){
 		throw new EMFJS.Error("Not an EMF file");
@@ -2757,7 +2756,7 @@ EMFJS.Renderer.prototype.parse = function(blob) {
 		throw new EMFJS.Error("Not an EMF file");
 
 	this._img = new EMFJS.EMF(reader, size);
-	
+
 	if (this._img == null)
 		throw new EMFJS.Error("Format not recognized");
 };

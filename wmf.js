@@ -501,7 +501,7 @@ WMFJS.Font = function(reader, copy) {
 		var pitchAndFamily = reader.readUint8();
 		this.pitch = pitchAndFamily & 0xf; // TODO: double check
 		this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
-		
+
 		var dataLength = copy;
 		var start = reader.pos;
 		this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
@@ -556,7 +556,7 @@ WMFJS.Brush = function(reader, copy, forceDibPattern) {
 	if (reader != null) {
 		var dataLength = copy;
 		var start = reader.pos;
-		
+
 		if (forceDibPattern === true || forceDibPattern === false) {
 			this.style = reader.readUint16();
 			if (forceDibPattern && this.style != WMFJS.GDI.BrushStyle.BS_PATTERN)
@@ -730,7 +730,7 @@ WMFJS.Scan.prototype.clone = function() {
 
 WMFJS.Scan.prototype.subtract = function(left, right) {
 	var i;
-	
+
 	// Keep everything on the left side
 	i = 0;
 	while (i < this.scanlines.length) {
@@ -748,7 +748,7 @@ WMFJS.Scan.prototype.subtract = function(left, right) {
 			break;
 		}
 	}
-	
+
 	// Find the first one that may exceed to the right side
 	var first = i;
 	var cnt = 0;
@@ -763,11 +763,11 @@ WMFJS.Scan.prototype.subtract = function(left, right) {
 		}
 		i++;
 	}
-	
+
 	// Delete everything we're subtracting
 	if (cnt > 0 && first < this.scanlines.length)
 		this.scanlines.splice(first, cnt);
-	
+
 	return this.scanlines.length > 0;
 };
 
@@ -781,13 +781,13 @@ WMFJS.Scan.prototype.intersect = function(left, right) {
 			break;
 		}
 	}
-	
+
 	if (this.scanlines.length > 0) {
 		// Adjust the first to match the left, if needed
 		var scanline = this.scanlines[0];
 		if (scanline.left < left)
 			scanline.left = left;
-		
+
 		// Get rid of anything that falls entirely outside to the right
 		for (var i = 0; i < this.scanlines.length; i++) {
 			scanline = this.scanlines[i];
@@ -796,7 +796,7 @@ WMFJS.Scan.prototype.intersect = function(left, right) {
 				break;
 			}
 		}
-		
+
 		if (this.scanlines.length > 0) {
 			// Adjust the last to match the right, if needed
 			scanline = this.scanlines[this.scanlines.length - 1];
@@ -885,7 +885,7 @@ WMFJS.Region.prototype._updateComplexity = function() {
 
 WMFJS.Region.prototype.subtract = function(rect) {
 	WMFJS.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
-	
+
 	if (this.bounds != null) {
 		var isect = this.bounds.intersect(rect);
 		if (isect != null) { // Only need to do anything if there is any chance of an overlap
@@ -897,7 +897,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 					[{left: this.bounds.left, right: this.bounds.right}]);
 				this.complexity = 2;
 			}
-			
+
 			// We (now) have a complex region.  First we skip any scans that are entirely above rect.top
 			// The first scan that falls partially below rect.top needs to be split into two scans.
 			var si = 0;
@@ -918,7 +918,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 				}
 				si++;
 			}
-			
+
 			// Now find the first one that falls at least partially below rect.bottom, which needs to be
 			// split if it is only partially below rect.bottom
 			var first = si;
@@ -941,7 +941,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 				}
 				si++;
 			}
-			
+
 			// Now perform a subtraction on each scan in between rect.top and rect.bottom.  Because we
 			// cloned scans that partially overlapped rect.top and rect.bottom, we don't have to
 			// account for this anymore.
@@ -956,11 +956,11 @@ WMFJS.Region.prototype.subtract = function(rect) {
 						last--;
 						continue;
 					}
-					
+
 					si++;
 				}
 			}
-			
+
 			// Update bounds
 			if (this.scans != null) {
 				var left, top, right, bottom;
@@ -971,7 +971,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 						top = scan.top;
 					if (i == len - 1)
 						bottom = scan.bottom;
-					
+
 					var slen = scan.scanline.length;
 					if (slen > 0) {
 						var scanline = scan.scanline[0];
@@ -982,7 +982,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 							right = scanline.right;
 					}
 				}
-				
+
 				if (left != null && top != null && right != null && bottom != null) {
 					this.bounds = new WMFJS.Rect(null, left, top, right, bottom);
 					this._updateComplexity();
@@ -997,7 +997,7 @@ WMFJS.Region.prototype.subtract = function(rect) {
 			}
 		}
 	}
-	
+
 	WMFJS.log("[wmf] Region subtraction -> " + this.toString());
 };
 
@@ -1019,12 +1019,12 @@ WMFJS.Region.prototype.intersect = function(rect) {
 				if (si > 0) {
 					WMFJS.log("[wmf] Region remove " + si + " scans from top");
 					this.scans.splice(0, si);
-					
+
 					// Adjust the first scan's top to match the new bounds.top
 					if (this.scans.length > 0)
 						this.scans[0].top = this.bounds.top;
 				}
-				
+
 				// Get rid of anything that falls outside the new bounds.left/bounds.right
 				si = 0;
 				while (si < this.scans.length) {
@@ -1043,11 +1043,11 @@ WMFJS.Region.prototype.intersect = function(rect) {
 					}
 					si++;
 				}
-				
+
 				// If there are any scans left, adjust the last one's bottom to the new bounds.bottom
 				if (this.scans.length > 0)
 					this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
-				
+
 				this._updateComplexity();
 			}
 		} else {
@@ -1065,14 +1065,14 @@ WMFJS.Region.prototype.offset = function(offX, offY) {
 		this.bounds.right += offX;
 		this.bounds.bottom += offY;
 	}
-	
+
 	if (this.scans != null) {
 		var slen = this.scans.length;
 		for (var si = 0; si < slen; si++) {
 			var scan = this.scans[si];
 			scan.top += offY;
 			scan.bottom += offY;
-			
+
 			var len = scan.scanlines.length;
 			for (var i = 0; i < len; i++) {
 				var scanline = scan.scanlines[i];
@@ -1221,12 +1221,12 @@ WMFJS.DIBitmap.prototype.base64ref = function() {
 	} else {
 		data = this.makeBitmapFileHeader();
 	}
-	
+
 	if (data != null)
 		data += this._reader.readBinary(this._size);
 	else
 		data = this._reader.readBinary(this._size);
-	
+
 	var ref = "data:" + mime + ";base64," + btoa(data);
 	this._reader.seek(prevpos);
 	return ref;
@@ -1310,10 +1310,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = copy.vh;
 		this.x = copy.x;
 		this.y = copy.y;
-		
+
 		this.clip = copy.clip;
 		this.ownclip = false;
-		
+
 		this.selected = {};
 		for (var type in copy.selected)
 			this.selected[type] = copy.selected[type];
@@ -1339,10 +1339,10 @@ WMFJS.GDIContextState = function(copy, defObjects) {
 		this.vh = 0;
 		this.x = 0;
 		this.y = 0;
-		
+
 		this.clip = null;
 		this.ownclip = false;
-		
+
 		this.selected = {};
 		for (var type in defObjects) {
 			var defObj = defObjects[type];
@@ -1356,7 +1356,7 @@ WMFJS.GDIContext = function(svg) {
 	this._svgdefs = null;
 	this._svgPatterns = {};
 	this._svgClipPaths = {};
-	
+
 	this.defObjects = {
 		brush: new WMFJS.Brush(null, WMFJS.GDI.BrushStyle.BS_SOLID, new WMFJS.ColorRef(null, 0, 0, 0), false),
 		pen: new WMFJS.Pen(null, WMFJS.GDI.PenStyle.PS_SOLID, new WMFJS.PointS(null, 1, 1), new WMFJS.ColorRef(null, 0, 0, 0), 0, 0),
@@ -1364,7 +1364,7 @@ WMFJS.GDIContext = function(svg) {
 		palette: null,
 		region: null
 	};
-	
+
 	this.state = new WMFJS.GDIContextState(null, this.defObjects);
 	this.statestack = [this.state];
 	this.objects = {};
@@ -1374,7 +1374,7 @@ WMFJS.GDIContext.prototype._pushGroup = function() {
 	if (this.state._svggroup == null || this.state._svgclipChanged) {
 		this.state._svgclipChanged = false;
 		this.state._svgtextbkfilter = null;
-		
+
 		var settings = {
 			viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
 			preserveAspectRatio: "none"
@@ -1398,7 +1398,7 @@ WMFJS.GDIContext.prototype._storeObject = function(obj) {
 		WMFJS.log("[gdi] Too many objects!");
 		return -1;
 	}
-	
+
 	this.objects[i.toString()] = obj;
 	return i;
 };
@@ -1416,14 +1416,13 @@ WMFJS.GDIContext.prototype._getSvgDef = function() {
 	return this._svgdefs;
 };
 
-
 WMFJS.GDIContext.prototype._getSvgClipPathForRegion = function(region) {
 	for (var id in this._svgClipPaths) {
 		var rgn = this._svgClipPaths[id];
 		if (rgn == region)
 			return id;
 	}
-	
+
 	var id = WMFJS._makeUniqueId("c");
 	var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
 	switch (region.complexity) {
@@ -1454,7 +1453,7 @@ WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 		if (pat == brush)
 			return id;
 	}
-	
+
 	var width, height, img;
 	switch (brush.style) {
 		case WMFJS.GDI.BrushStyle.BS_PATTERN:
@@ -1469,7 +1468,7 @@ WMFJS.GDIContext.prototype._getSvgPatternForBrush = function(brush) {
 		default:
 			throw new WMFJS.Error("Invalid brush style");
 	}
-	
+
 	var id = WMFJS._makeUniqueId("p");
 	var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, {patternUnits: 'userSpaceOnUse'});
 	this._svg.image(spat, 0, 0, width, height, img);
@@ -1494,7 +1493,7 @@ WMFJS.GDIContext.prototype._deleteObject = function(objIdx) {
 		delete this.objects[objIdx.toString()];
 		return true;
 	}
-	
+
 	WMFJS.log("[gdi] Cannot delete object with invalid handle " + objIdx);
 	return false;
 };
@@ -1630,7 +1629,7 @@ WMFJS.GDIContext.prototype.restoreDC = function(saved) {
 	} else {
 		throw new WMFJS.Error("No saved contexts");
 	}
-	
+
 	this.state._svggroup = null;
 };
 
@@ -1680,7 +1679,7 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 		if (pen.style != WMFJS.GDI.PenStyle.PS_NULL) {
 			opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
 			opts.strokeWidth = this._todevW(pen.width.x) // TODO: is .y ever used?
-			
+
 			var dotWidth;
 			if ((pen.linecap & WMFJS.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
 				opts["stroke-linecap"] = "square";
@@ -1692,14 +1691,14 @@ WMFJS.GDIContext.prototype._applyOpts = function(opts, usePen, useBrush, useFont
 				opts["stroke-linecap"] = "round";
 				dotWidth = 1;
 			}
-			
+
 			if ((pen.join & WMFJS.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
 				opts["stroke-linejoin"] = "bevel";
 			else if ((pen.join & WMFJS.GDI.PenStyle.PS_JOIN_MITER) != 0)
 				opts["stroke-linejoin"] = "miter";
 			else
 				opts["stroke-linejoin"] = "round";
-			
+
 			var dashWidth = opts.strokeWidth * 4;
 			var dotSpacing = opts.strokeWidth * 2;
 			switch (pen.style) {
@@ -1756,7 +1755,7 @@ WMFJS.GDIContext.prototype.rectangle = function(rect, rw, rh) {
 	rh = this._todevH(rh);
 	WMFJS.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
 	this._pushGroup();
-	
+
 	var opts = this._applyOpts(null, true, true, false);
 	this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
 };
@@ -1767,7 +1766,7 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 	y = this._todevY(y);
 	WMFJS.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
 	this._pushGroup();
-	
+
 	var opts = this._applyOpts(null, false, false, true);
 	if (this.state.selected.font.escapement != 0) {
 		opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
@@ -1781,7 +1780,7 @@ WMFJS.GDIContext.prototype.textOut = function(x, y, text) {
 			this._svg.filters.composite(filter, null, null, "SourceGraphic");
 			this.state._svgtextbkfilter = filter;
 		}
-		
+
 		opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
 	}
 	this._svg.text(this.state._svggroup, x, y, text, opts);
@@ -1819,14 +1818,14 @@ WMFJS.GDIContext.prototype.lineTo = function(x, y) {
 	var toY = this._todevY(y);
 	var fromX = this._todevX(this.state.x);
 	var fromY = this._todevY(this.state.y);
-	
+
 	// Update position
 	this.state.x = x;
 	this.state.y = y;
-	
+
 	WMFJS.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
 	this._pushGroup();
-	
+
 	var opts = this._applyOpts(null, true, false, false);
 	this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
 }
@@ -1856,7 +1855,7 @@ WMFJS.GDIContext.prototype.polygon = function(points, first) {
 
 WMFJS.GDIContext.prototype.polyPolygon = function(polygons) {
 	WMFJS.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-	
+
 	var cnt = polygons.length;
 	for (var i = 0; i < cnt; i++)
 		this.polygon(polygons[i], i == 0);
@@ -1988,7 +1987,7 @@ WMFJS.WMFRect16.prototype.toString = function() {
 
 WMFJS.WMFRecords = function(reader, first) {
 	this._records = [];
-	
+
 	var all = false;
 	var curpos = first;
 	main_loop: while (!all) {
@@ -2436,11 +2435,11 @@ WMFJS.WMFRecords = function(reader, first) {
 				var polygonsPtCnts = [];
 				for (var i = 0; i < cnt; i++)
 					polygonsPtCnts.push(reader.readUint16());
-				
+
 				var polygons = [];
 				for (var i = 0; i < cnt; i++) {
 					var ptCnt = polygonsPtCnts[i];
-					
+
 					var p = [];
 					for (var ip = 0; ip < ptCnt; ip++)
 						p.push(new WMFJS.PointS(reader));
@@ -2561,10 +2560,10 @@ WMFJS.WMFRecords = function(reader, first) {
 				//throw new WMFJS.Error("Record type not recognized: 0x" + type.toString(16));
 				break;
 		}
-		
+
 		curpos += size * 2;
 	}
-	
+
 	if (!all)
 		throw new WMFJS.Error("Could not read all records");
 };
@@ -2605,9 +2604,9 @@ WMFJS.Renderer = function(blob) {
 
 WMFJS.Renderer.prototype.parse = function(blob) {
 	this._img = null;
-	
+
 	var reader = new WMFJS.Blob(blob);
-	
+
 	var type, size, placeable, headerstart;
 	var key = reader.readUint32();
 	if (key == 0x9ac6cdd7) {
@@ -2634,7 +2633,7 @@ WMFJS.Renderer.prototype.parse = function(blob) {
 			}
 			break;
 	}
-	
+
 	if (this._img == null)
 		throw new WMFJS.Error("Format not recognized");
 };
