@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="jquery.binarytransport.js"></script>
-<link rel="stylesheet" href="jquery.svg.css">
-<script src="jquery.svg.min.js"></script>
-<script src="jquery.svgfilter.min.js"></script>
-<script src="../wmf.js"></script>
-<script>
+	<meta charset="UTF-8">
+
+	<script src="../.common/dep/jquery.min.js"></script>
+	<script src="../.common/dep/jquery.binarytransport.js"></script>
+	<script src="../.common/dep/jquery.svg.min.js"></script>
+	<script src="../.common/dep/jquery.svgfilter.min.js"></script>
+<!--
+	<script src="../.common/dep/cptable.full.js"></script>
+	<script src="../.common/dep/symboltable.js"></script>
+
+	<script src="../../rtf.js"></script>
+	<script src="../../wmf.js"></script>
+-->
+	<script src="../../emf.js"></script>
+
+	<link href="../.common/css/jquery.svg.css" rel="stylesheet" />
+
+	<script>
 function closeDoc(reset) {
 	$("#content").empty();
 	$("#dropzone").show();
@@ -32,34 +42,36 @@ function setPictBorder(elem, show) {
 function validateNumberInputRange(input) {
 	var ret = parseInt(input.val());
 	if (isNaN(ret) || ret < input.attr("min") || ret > input.attr("max"))
-		throw new WMFJS.Error("Invalid rendering dimensions");
+		throw new EMFJS.Error("Invalid rendering dimensions");
 	return ret;
 }
-function displayWMF(blob) {
+function displayEMF(blob) {
 	try {
 		var width = validateNumberInputRange($("#renderwidth"));
 		var height = validateNumberInputRange($("#renderheight"));
 		var settings = {
 			width: width + "px",
 			height: height + "px",
+			wExt: width,
+			hExt: height,
 			xExt: width,
 			yExt: height,
 			mapMode: 8 // preserve aspect ratio checkbox
 		};
-		var renderer = new WMFJS.Renderer(blob);
+		var renderer = new EMFJS.Renderer(blob);
 		var svg = setPictBorder(renderer.render(settings), $("#showpicborder").prop("checked"));
-		$("#content").empty().append(svg.attr("class", "wmfpict"));
+		$("#content").empty().append(svg.attr("class", "emfpict"));
 		$("#closebutton").show();
 		$("#tools").show();
 		console.log("All done!");
 	} catch(e) {
-		if (e instanceof WMFJS.Error)
+		if (e instanceof EMFJS.Error)
 			$("#content").text("Error: " + e.message);
 		else
 			throw e;
 	}
 }
-function loadWmfFile(file) {
+function loadEmfFile(file) {
 	beginLoading();
 	$.ajax({
 		url: file,
@@ -68,7 +80,7 @@ function loadWmfFile(file) {
 		success: function(result) {
 			var reader = new FileReader();
 			reader.onload = function(evt) {
-				displayWMF(evt.target.result);
+				displayEMF(evt.target.result);
 			};
 			reader.readAsArrayBuffer(result);
 		},
@@ -86,12 +98,12 @@ $(document).ready(function() {
 		if (file.length == 0) {
 			closeDoc(true);
 		} else {
-			loadWmfFile($(this).val());
+			loadEmfFile('../.common/data/emf/' + $(this).val());
 		}
 	});
 	$("#showpicborder").change(function() {
 		var show = $(this).prop("checked");
-		$(".wmfpict").each(function() {
+		$(".emfpict").each(function() {
 			setPictBorder($(this), show);
 		});
 	});
@@ -108,7 +120,7 @@ $(document).ready(function() {
 				reader.onload = function(evt) {
 					beginLoading();
 					setTimeout(function() {
-						displayWMF(evt.target.result);
+						displayEMF(evt.target.result);
 					}, 100);
 				};
 				reader.readAsArrayBuffer(files[0]);
@@ -121,7 +133,7 @@ $(document).ready(function() {
 	
 	closeDoc(true);
 });
-</script>
+	</script>
 </head>
 <body>
 <div style="margin: 4pt;">
@@ -129,8 +141,7 @@ $(document).ready(function() {
 		<form>
 			<input id="closebutton" type="button" value="Close" style="display: none;"/>
 			<select id="samplecombo">
-				<option selected="selected" value="">Drag&amp;Drop a WMF image</option>
-				<option>rtf.js.wmf</option>
+				<option selected="selected" value="">Drag&amp;Drop a EMF image</option>
 			</select>
 			Render as:
 			<input id="renderwidth" type="number", min="1" max="1024" step="1" value="600"/> x <input id="renderheight" type="number", min="1" max="864" step="1" value="400"/>
@@ -141,7 +152,7 @@ $(document).ready(function() {
 	</span>
 </div>
 <div id="dropzone" style="display: inline-block; border-radius: 6pt; border: 2pt solid #dddddd; padding: 30pt;">
-	Drop an WMF image here
+	Drop an EMF image here
 </div>
 <div id="content"></div>
 </body>
