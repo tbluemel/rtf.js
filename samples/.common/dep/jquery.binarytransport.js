@@ -30,8 +30,12 @@ $.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
 				xhr.addEventListener('load', function(){
 					var data = {};
 					data[options.dataType] = xhr.response;
+
+					// support file:// URIs
+					let status = xhr.status ? xhr.status : (xhr.response ? 200 : 0)
+
 					// make callback and send data
-					callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+					callback(status, xhr.statusText, data, xhr.getAllResponseHeaders());
 				});
 
 				xhr.open(type, url, async, username, password);
