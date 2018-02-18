@@ -31,10 +31,16 @@ if (typeof RTFJS === "undefined") {
 			this.message = message;
 			this.stack = (new Error()).stack;
 		},
-		loggingEnabled: true,
+		loggingEnabled: false,
 		log: function(message){
 			if(RTFJS.loggingEnabled) {
 				console.log(message);
+			}
+		},
+		warningEnabled: true,
+		warn: function(message){
+			if(RTFJS.warningEnabled) {
+				console.warn(message);
 			}
 		},
 		_A: "A".charCodeAt(0),
@@ -229,6 +235,9 @@ if (typeof RTFJS === "undefined") {
 		},
 		_twipsToPx: function(twips) {
 			return Math.floor(twips / 20 * 96 / 72);
+		},
+		_pxToTwips: function(px) {
+			return Math.floor(px * 20 * 72 / 96);
 		}
 	};
 	RTFJS.Error.prototype = new Error;
@@ -1335,7 +1344,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this._haveInst = true;
 			if (this._parsedInst != null)
 				throw new RTFJS.Error("Field cannot have multiple fldinst destinations");
-			this._parsedInst = inst;
+			Promise.resolve(inst)
+			.then(_parsedInst => {
+				this._parsedInst = _parsedInst;
+			})
+			.catch(error => {
+				this._parsedInst = null;
+				throw new RTFJS.Error(error.message)
+			})
 		};
 		cls.prototype.getInst = function() {
 			return this._parsedInst;
@@ -1412,10 +1428,74 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					if (end >= 1)
 						data = data.substring(1, end);
 				}
-				var fieldType = this.text.substr(0, sep);
+				var fieldType = this.text.substr(0, sep).toUpperCase();
 				switch (fieldType) {
 					case "HYPERLINK":
 						return new FieldHyperlink(this, data);
+					case "IMPORT":
+						if (typeof inst._settings.onImport === 'function') {
+							let pict
+
+							inst._renderer.addIns(() => {
+								// backup
+								const hook = inst._settings.onPicture
+								inst._settings.onPicture = null
+
+								let {isLegacy, element} = pict.apply(true)
+
+								// restore
+								inst._settings.onPicture = hook
+
+								if (typeof hook === 'function') {
+									element = hook(isLegacy, () => element)
+								}
+
+								if (element != null)
+									inst._renderer.appendElement(element)
+							})
+
+							return new Promise((resolve, reject) => {
+								try {
+									let cb = function(keyword, blob) {
+										if (typeof keyword === 'string' && keyword && blob) {
+											const dims = {
+												w: RTFJS._pxToTwips(window.document.body.clientWidth || window.innerWidth),
+												h: RTFJS._pxToTwips(300)
+											}
+											const cls  = pictDestination();
+											pict = new cls();
+
+											pict.handleBlob(blob);
+											pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
+											pict._displaysize.width  = dims.w
+											pict._displaysize.height = dims.h
+											pict._size.width  = dims.w
+											pict._size.height = dims.h
+
+											const _parsedInst = {
+												renderFieldBegin: () => true,
+												renderFieldEnd: () => true
+											}
+											resolve(_parsedInst);
+										}
+										else {
+											RTFJS.log("[fldinst]: failed to IMPORT image file: " + data);
+											if (keyword instanceof Error) {
+												reject(keyword);
+											}
+											else {
+												resolve(undefined);
+											}
+										}
+									}
+									inst._settings.onImport.call(inst, data, cb)
+								}
+								catch(error) {
+									reject(error)
+								}
+							})
+							break;
+						}
 					default:
 						RTFJS.log("[fldinst]: unknown field type: " + fieldType);
 						break;
@@ -1611,7 +1691,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.handleBlob = function(blob) {
 			this._blob = blob;
 		};
-		cls.prototype.apply = function() {
+		cls.prototype.apply = function(rendering=false) {
 			if (this._type == null)
 				throw new RTFJS.Error("Picture type unknown or not specified");
 			//if (this._size.width == null || this._size.height == null)
@@ -1663,16 +1743,18 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				if (inst._settings.onPicture != null) {
 					inst._renderer.addIns((function(isLegacy) {
 						return function() {
-							var renderer = this;
 							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
-								return doRender.call(renderer, true);
+								return doRender.call(inst._renderer, true);
 							});
 							if (elem != null)
-								this.appendElement(elem);
+								inst._renderer.appendElement(elem);
 						};
 					})(isLegacy));
 				} else {
-					doRender(false);
+					return {
+						isLegacy,
+						element: doRender.call(inst._renderer, rendering)
+					};
 				}
 			} else if (typeof type === "string") {
 				var text = this.text;
@@ -1711,7 +1793,10 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						};
 					})(isLegacy));;
 				} else {
-					doRender(false);
+					return {
+						isLegacy,
+						element: doRender.call(inst._renderer, rendering)
+					};
 				}
 			}
 
