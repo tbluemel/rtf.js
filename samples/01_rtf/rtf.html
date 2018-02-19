@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="cptable.full.js"></script>
-<script src="symboltable.js"></script>
-<link rel="stylesheet" href="jquery.svg.css">
-<script src="jquery.svg.min.js"></script>
-<script src="jquery.svgfilter.min.js"></script>
-<script src="../rtf.js"></script>
-<script src="../wmf.js"></script>
-<script src="../emf.js"></script>
-<script>
+	<meta charset="UTF-8">
+
+	<script src="../.common/dep/jquery.min.js"></script>
+	<script src="../.common/dep/jquery.svg.min.js"></script>
+	<script src="../.common/dep/jquery.svgfilter.min.js"></script>
+	<script src="../.common/dep/cptable.full.js"></script>
+	<script src="../.common/dep/symboltable.js"></script>
+
+	<script src="../../rtf.js"></script>
+	<script src="../../wmf.js"></script>
+	<script src="../../emf.js"></script>
+
+	<link href="../.common/css/jquery.svg.css" rel="stylesheet" />
+
+	<script>
 function closeDoc(reset) {
 	$("#havemeta").hide();
 	$("#meta").empty();
@@ -124,7 +128,7 @@ $(document).ready(function() {
 		if (file.length == 0) {
 			closeDoc(true);
 		} else {
-			loadRtfFile($(this).val());
+			loadRtfFile('../.common/data/rtf/' + $(this).val());
 		}
 	});
 	$("#showpicborder").change(function() {
@@ -165,7 +169,7 @@ $(document).ready(function() {
 	
 	closeDoc(true);
 });
-</script>
+	</script>
 </head>
 <body>
 <div style="margin: 4pt;">

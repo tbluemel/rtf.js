@@ -31,10 +31,16 @@ if (typeof RTFJS === "undefined") {
 			this.message = message;
 			this.stack = (new Error()).stack;
 		},
-		loggingEnabled: true,
+		loggingEnabled: false,
 		log: function(message){
 			if(RTFJS.loggingEnabled) {
 				console.log(message);
+			}
+		},
+		warningEnabled: true,
+		warn: function(message){
+			if(RTFJS.warningEnabled) {
+				console.warn(message);
 			}
 		},
 		_A: "A".charCodeAt(0),
@@ -45,7 +51,7 @@ if (typeof RTFJS === "undefined") {
 		_z: "z".charCodeAt(0),
 		_0: "0".charCodeAt(0),
 		_9: "9".charCodeAt(0),
-		
+
 		JUSTIFICATION: {
 			LEFT: "left",
 			CENTER: "center",
@@ -91,18 +97,18 @@ if (typeof RTFJS === "undefined") {
 			FIXED: 1,
 			VARIABLE: 2
 		},
-        CHARACTER_TYPE: {
-            LOWANSI: "loch",
-            HIGHANSI: "hich",
-            DOUBLE: "dbch"
-        },
-		
+		CHARACTER_TYPE: {
+			LOWANSI: "loch",
+			HIGHANSI: "hich",
+			DOUBLE: "dbch"
+		},
+
 		_isalpha: function(str) {
 			var len = str.length;
 			for (var i = 0; i < len; i++) {
 				var ch = str.charCodeAt(i);
 				if (!((ch >= this._A && ch <= this._Z) ||
-				      (ch >= this._a && ch <= this._z))) {
+					  (ch >= this._a && ch <= this._z))) {
 					return false;
 				}
 			}
@@ -122,8 +128,8 @@ if (typeof RTFJS === "undefined") {
 			for (var i = 0; i < len; i++) {
 				var ch = str.charCodeAt(i);
 				if (!((ch >= this._0 && ch <= this._9) ||
-				      (ch >= this._a && ch <= this._f) ||
-				      (ch >= this._A && ch <= this._F))) {
+					  (ch >= this._a && ch <= this._f) ||
+					  (ch >= this._A && ch <= this._F))) {
 					return NaN
 				}
 			}
@@ -163,7 +169,7 @@ if (typeof RTFJS === "undefined") {
 			}
 			return bin;
 		},
-		
+
 		_charsetMap: {
 			"0":   1252, // ANSI_CHARSET
 			"77":  10000, // Mac Roman
@@ -198,7 +204,7 @@ if (typeof RTFJS === "undefined") {
 		_mapCharset: function(idx) {
 			return this._charsetMap[idx.toString()];
 		},
-		
+
 		_colorThemeMap: {
 			// TODO
 			maindarkone: null,
@@ -229,6 +235,9 @@ if (typeof RTFJS === "undefined") {
 		},
 		_twipsToPx: function(twips) {
 			return Math.floor(twips / 20 * 96 / 72);
+		},
+		_pxToTwips: function(px) {
+			return Math.floor(px * 20 * 72 / 96);
 		}
 	};
 	RTFJS.Error.prototype = new Error;
@@ -249,13 +258,13 @@ RTFJS.RenderChp.prototype.apply = function(doc, el) {
 		if (fontFamily !== "Symbol")
 			el.css("font-family", fontFamily);
 	}
-		
+
 	var deco = [];
 	if (chp.underline != RTFJS.UNDERLINE.NONE)
 		deco.push("underline");
 	if (chp.strikethrough || chp.dblstrikethrough)
 		deco.push("line-through");
-	
+
 	if (deco.length > 0)
 		el.css("text-decoration", deco.join(" "));
 	if (chp.colorindex != 0) {
@@ -305,7 +314,7 @@ RTFJS.Renderer = function(doc) {
 	this._doc = doc;
 	this._ins = [];
 	this._dom = null;
-	
+
 	this._curRChp = null;
 	this._curRPap = null;
 	this._curpar = null;
@@ -320,7 +329,7 @@ RTFJS.Renderer.prototype.addIns = function(ins) {
 RTFJS.Renderer.prototype.pushContainer = function(contel) {
 	if (this._curpar == null)
 		this.startPar();
-	
+
 	var len = this._curcont.push(contel);
 	if (len > 1) {
 		var prevcontel = this._curcont[len - 1];
@@ -357,7 +366,7 @@ RTFJS.Renderer.prototype._appendToPar = function(el, newsubpar) {
 			subpar.append(el);
 		if (this._curRPap != null)
 			this._curRPap.apply(this._doc, subpar, this._curRChp, false);
-		
+
 		this._cursubpar = subpar;
 		this._curpar.append(subpar);
 	} else if (el) {
@@ -436,13 +445,13 @@ RTFJS.Renderer.prototype.picture = function(mime, data) {
 RTFJS.Renderer.prototype.buildDom = function() {
 	if (this._dom != null)
 		return this._dom;
-	
+
 	this._dom = [];
-	
+
 	this._curRChp = null;
 	this._curRPap = null;
 	this._curpar = null;
-	
+
 	var len = this._ins.length;
 	for (var i = 0; i < len; i++) {
 		var ins = this._ins[i];
@@ -490,9 +499,9 @@ RTFJS.Document.prototype.render = function() {
 
 RTFJS.Document.prototype.parse = function(blob, renderer) {
 	var inst = this;
-	
+
 	var parseKeyword, processKeyword, appendText, parseLoop;
-	
+
 	var Chp = function(parent) {
 		if (parent != null) {
 			this.bold = parent.bold;
@@ -513,7 +522,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.fontsize = 24;
 		}
 	};
-	
+
 	var Pap = function(parent) {
 		if (parent != null) {
 			this.indent = {
@@ -524,7 +533,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.justification = parent.justification;
 			this.spacebefore = parent.spacebefore;
 			this.spaceafter = parent.spaceafter;
-            this.charactertype = parent.charactertype;
+			this.charactertype = parent.charactertype;
 		} else {
 			this.indent = {
 				left: 0,
@@ -536,7 +545,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.spaceafter = 0;
 		}
 	};
-	
+
 	var Sep = function(parent) {
 		if (parent != null) {
 			this.columns = parent.columns;
@@ -556,7 +565,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.pagenumberformat = RTFJS.PAGENUMBER.DECIMAL;
 		}
 	};
-	
+
 	var Dop = function(parent) {
 		if (parent != null) {
 			this.width = parent.width;
@@ -584,7 +593,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.landscape = false;
 		}
 	};
-	
+
 	var State = function(parent) {
 		this.parent = parent;
 		this.first = true;
@@ -610,7 +619,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this.ucn = 1;
 		}
 	};
-	
+
 	var parser = {
 		data: new Uint8Array(blob),
 		pos: 0,
@@ -628,7 +637,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				parser.column++;
 				return String.fromCharCode(this.data[this.pos++]);
 			}
-			
+
 			throw new RTFJS.Error("Unexpected end of file");
 		},
 		unreadChar: function() {
@@ -649,7 +658,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			return buf;
 		}
 	};
-	
+
 	var findParentDestination = function(dest) {
 		var state = parser.state;
 		while (state != null) {
@@ -661,11 +670,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		RTFJS.log("findParentDestination() did not find destination " + dest);
 	};
-	
+
 	var DestinationBase = function(name) {
 		this._name = name;
 	};
-	
+
 	var DestinationTextBase = function(name) {
 		this._name = name;
 		this.text = "";
@@ -673,7 +682,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 	DestinationTextBase.prototype.appendText = function(text) {
 		this.text += text;
 	};
-	
+
 	var DestinationFormattedTextBase = function(name) {
 		this._name = name;
 		this._records = [];
@@ -692,12 +701,12 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		var rtf = findParentDestination("rtf");
 		if (rtf == null)
 			throw new RTFJS.Error("Destination " + this._name + " is not child of rtf destination");
-		
+
 		var len = this._records.length;
 		var doRender = true;
 		if (this.renderBegin != null)
 			doRender = this.renderBegin(rtf, len);
-		
+
 		if (doRender) {
 			for (var i = 0; i < len; i++) {
 				this._records[i](rtf);
@@ -707,7 +716,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		delete this._records;
 	};
-	
+
 	var rtfDestination = function() {
 		var cls = function(name, param) {
 			if (parser.version != null)
@@ -718,7 +727,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			if (param && param != 1)
 				throw new RTFJS.Error("Unsupported rtf version");
 			parser.version = 1;
-			
+
 			this._metadata = {};
 		};
 		cls.prototype = Object.create(DestinationBase.prototype);
@@ -732,7 +741,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.sub = function() {
 			RTFJS.log("[rtf].sub()");
 		}
-		
+
 		var _addInsHandler = function(func) {
 			return function(param) {
 				inst._renderer.addIns(func);
@@ -801,9 +810,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			ansicpg: function(param) {
 				//if the value is 0, use the default charset as 0 is not valid
 				if(param > 0) {
-                    RTFJS.log("[rtf] using charset: " + param);
-                    parser.codepage = param;
-                }
+					RTFJS.log("[rtf] using charset: " + param);
+					parser.codepage = param;
+				}
 			},
 			sectd: function(param) {
 				RTFJS.log("[rtf] reset to section defaults");
@@ -822,9 +831,9 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			cf: _genericFormatSetValRequired("chp", "colorindex"),
 			fs: _genericFormatSetValRequired("chp", "fontsize"),
 			f: _genericFormatSetValRequired("chp", "fontfamily"),
-            loch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.LOWANSI),
-            hich: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.HIGHANSI),
-            dbch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.DOUBLE),
+			loch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.LOWANSI),
+			hich: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.HIGHANSI),
+			dbch: _genericFormatSetNoParam("pap", "charactertype", RTFJS.CHARACTER_TYPE.DOUBLE),
 			strike: _genericFormatOnOff("chp", "strikethrough"),
 			striked: _genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
 			ul: _genericFormatOnOff("chp", "underline", RTFJS.UNDERLINE.CONTINUOUS, RTFJS.UNDERLINE.NONE),
@@ -902,7 +911,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return cls;
 	};
-	
+
 	var genericPropertyDestination = function(parentdest, metaprop) {
 		var cls = function(name) {
 			DestinationTextBase.call(this, name);
@@ -918,7 +927,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var infoDestination = function() {
 		var cls = function(name) {
 			DestinationBase.call(this, name);
@@ -934,7 +943,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return cls;
 	};
-	
+
 	var metaPropertyDestination = function(metaprop) {
 		var cls = function(name) {
 			DestinationTextBase.call(this, name);
@@ -948,7 +957,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var metaPropertyTimeDestination = function(metaprop) {
 		var cls = function(name) {
 			DestinationBase.call(this, name);
@@ -982,7 +991,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				default:
 					return false;
 			}
-			
+
 			if (param == null)
 				throw new RTFJS.Error("No param found for keyword " + keyword);
 			return true;
@@ -1003,7 +1012,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var fonttblDestinationSub = function() {
 		var cls = function(fonttbl) {
 			DestinationBase.call(this, "fonttbl:sub");
@@ -1030,14 +1039,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				case "fdecor":
 				case "ftech":
 				case "fbidi":
-                case "flomajor":
-                case "fhimajor":
-                case "fdbmajor":
-                case "fbimajor":
-                case "flominor":
-                case "fhiminor":
-                case "fdbminor":
-                case "fbiminor":
+				case "flomajor":
+				case "fhimajor":
+				case "fdbmajor":
+				case "fbimajor":
+				case "flominor":
+				case "fhiminor":
+				case "fdbminor":
+				case "fbiminor":
 					this.family = keyword.slice(1);
 					return true;
 				case "fprq":
@@ -1064,11 +1073,11 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 							RTFJS.log("Unknown font charset: " + param);
 					}
 					return true;
-                case "cpg":
-                    if (param != null) {
-                        this.charset = param;
-                    }
-                    return true;
+				case "cpg":
+					if (param != null) {
+						this.charset = param;
+					}
+					return true;
 			}
 			return false;
 		};
@@ -1091,7 +1100,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var fonttblDestination = function() {
 		var cls = function() {
 			DestinationBase.call(this, "fonttbl");
@@ -1125,7 +1134,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var genericSubTextPropertyDestination = function(name, parentDest, propOrFunc) {
 		var cls = function() {
 			DestinationTextBase.call(this, name);
@@ -1144,7 +1153,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return cls;
 	};
-	
+
 	var colortblDestination = function() {
 		var cls = function() {
 			DestinationBase.call(this, "colortbl");
@@ -1191,7 +1200,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.handleKeyword = function(keyword, param) {
 			if (this._current == null)
 				this._startNewColor();
-			
+
 			switch (keyword) {
 				case "red":
 					this._current.r = _validateColorValueRange(keyword, param);
@@ -1215,7 +1224,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					}
 					break;
 			}
-			
+
 			RTFJS.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
 			return false;
 		}
@@ -1233,7 +1242,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return cls;
 	};
-	
+
 	var stylesheetDestinationSub = function() {
 		var _handleKeywordCommon = function(member) {
 			var data = this[member];
@@ -1244,7 +1253,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				return false;
 			};
 		};
-		
+
 		var cls = function(stylesheet) {
 			DestinationBase.call(this, "stylesheet:sub");
 			this._stylesheet = stylesheet;
@@ -1273,7 +1282,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					this.index = param;
 					return true;
 			}
-			
+
 			return this.handler(keyword, param);
 		};
 		cls.prototype.appendText = function(text) {
@@ -1291,7 +1300,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var stylesheetDestination = function() {
 		var cls = function() {
 			DestinationBase.call(this, "stylesheet");
@@ -1316,7 +1325,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var fieldDestination = function() {
 		var cls = function() {
 			DestinationBase.call(this, "field");
@@ -1335,7 +1344,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			this._haveInst = true;
 			if (this._parsedInst != null)
 				throw new RTFJS.Error("Field cannot have multiple fldinst destinations");
-			this._parsedInst = inst;
+			Promise.resolve(inst)
+			.then(_parsedInst => {
+				this._parsedInst = _parsedInst;
+			})
+			.catch(error => {
+				this._parsedInst = null;
+				throw new RTFJS.Error(error.message)
+			})
 		};
 		cls.prototype.getInst = function() {
 			return this._parsedInst;
@@ -1347,7 +1363,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var FieldBase = function(fldinst) {
 		this._fldinst = fldinst;
 	};
@@ -1358,7 +1374,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			});
 		}
 	};
-	
+
 	var FieldHyperlink = function(fldinst, data) {
 		FieldBase.call(this, fldinst);
 		this._url = data;
@@ -1391,8 +1407,16 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return false;
 	};
-	
+
 	var fldinstDestination = function() {
+		var async_inflight = 0
+		var async_complete = () => {
+			async_inflight--
+			if (async_inflight === 0) {
+				window.document.dispatchEvent(new Event('RTFContentLoaded'))
+			}
+		}
+
 		var cls = function() {
 			DestinationTextBase.call(this, "fldinst");
 		};
@@ -1412,10 +1436,83 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					if (end >= 1)
 						data = data.substring(1, end);
 				}
-				var fieldType = this.text.substr(0, sep);
+				var fieldType = this.text.substr(0, sep).toUpperCase();
 				switch (fieldType) {
 					case "HYPERLINK":
 						return new FieldHyperlink(this, data);
+					case "IMPORT":
+						if (typeof inst._settings.onImport === 'function') {
+							let pict
+							async_inflight++
+
+							inst._renderer.addIns(() => {
+								// backup
+								const hook = inst._settings.onPicture
+								inst._settings.onPicture = null
+
+								let {isLegacy, element} = pict.apply(true)
+
+								// restore
+								inst._settings.onPicture = hook
+
+								if (typeof hook === 'function') {
+									element = hook(isLegacy, () => element)
+								}
+
+								if (element != null)
+									inst._renderer.appendElement(element)
+							})
+
+							return new Promise((resolve, reject) => {
+								try {
+									let cb = function(keyword, blob) {
+										if (typeof keyword === 'string' && keyword && blob) {
+											const dims = {
+												w: RTFJS._pxToTwips(window.document.body.clientWidth || window.innerWidth),
+												h: RTFJS._pxToTwips(300)
+											}
+											const cls  = pictDestination();
+											pict = new cls();
+
+											pict.handleBlob(blob);
+											pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
+											pict._displaysize.width  = dims.w
+											pict._displaysize.height = dims.h
+											pict._size.width  = dims.w
+											pict._size.height = dims.h
+
+											const _parsedInst = {
+												renderFieldBegin: () => true,
+												renderFieldEnd: () => true
+											}
+											resolve(_parsedInst);
+										}
+										else {
+											RTFJS.log("[fldinst]: failed to IMPORT image file: " + data);
+											if (keyword instanceof Error) {
+												reject(keyword);
+											}
+											else {
+												resolve(undefined);
+											}
+										}
+									}
+									inst._settings.onImport.call(inst, data, cb)
+								}
+								catch(error) {
+									reject(error)
+								}
+							})
+							.catch(error => {
+								async_complete()
+								throw error
+							})
+							.then(_parsedInst => {
+								async_complete()
+								return _parsedInst
+							})
+							break;
+						}
 					default:
 						RTFJS.log("[fldinst]: unknown field type: " + fieldType);
 						break;
@@ -1424,7 +1521,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var fldrsltDestination = function() {
 		var cls = function() {
 			DestinationFormattedTextBase.call(this, "fldrslt");
@@ -1471,7 +1568,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		};
 		return cls;
 	};
-	
+
 	var pictDestination = function() {
 		var cls = function() {
 			DestinationTextBase.call(this, "pict");
@@ -1611,14 +1708,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		cls.prototype.handleBlob = function(blob) {
 			this._blob = blob;
 		};
-		cls.prototype.apply = function() {
+		cls.prototype.apply = function(rendering=false) {
 			if (this._type == null)
 				throw new RTFJS.Error("Picture type unknown or not specified");
 			//if (this._size.width == null || this._size.height == null)
 			//	throw new RTFJS.Error("Picture dimensions not specified");
 			//if (this._displaysize.width == null || this._displaysize.height == null)
 			//	throw new RTFJS.Error("Picture display dimensions not specified");
-			
+
 			var pictGroup = findParentDestination("pict-group");
 			var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
 
@@ -1632,7 +1729,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						throw new RTFJS.Error("Could not parse picture data");
 					delete this.text;
 				}
-				
+
 				var info = this;
 				var doRender = function(rendering) {
 					var pictrender = type.call(info);
@@ -1659,25 +1756,27 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						}
 					}
 				};
-				
+
 				if (inst._settings.onPicture != null) {
 					inst._renderer.addIns((function(isLegacy) {
 						return function() {
-							var renderer = this;
 							var elem = inst._settings.onPicture.call(inst, isLegacy, function() {
-								return doRender.call(renderer, true);
+								return doRender.call(inst._renderer, true);
 							});
 							if (elem != null)
-								this.appendElement(elem);
+								inst._renderer.appendElement(elem);
 						};
 					})(isLegacy));
 				} else {
-					doRender(false);
+					return {
+						isLegacy,
+						element: doRender.call(inst._renderer, rendering)
+					};
 				}
 			} else if (typeof type === "string") {
 				var text = this.text;
 				var blob = this._blob;
-				
+
 				var doRender = function(rendering) {
 					var bin = blob != null ? RTFJS._blobToBinary(blob) : RTFJS._hexToBinary(text);
 					if (type !== "") {
@@ -1698,7 +1797,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						}
 					}
 				};
-				
+
 				if (inst._settings.onPicture != null) {
 					inst._renderer.addIns((function(isLegacy) {
 						return function() {
@@ -1711,21 +1810,24 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 						};
 					})(isLegacy));;
 				} else {
-					doRender(false);
+					return {
+						isLegacy,
+						element: doRender.call(inst._renderer, rendering)
+					};
 				}
 			}
-			
+
 			delete this.text;
 		}
 		return cls;
 	};
-	
+
 	var requiredDestination = function(name) {
 		return function() {
 			DestinationBase.call(this, name);
 		};
 	};
-	
+
 	var destinations = {
 		rtf: rtfDestination(),
 		info: infoDestination(),
@@ -1772,7 +1874,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		fldinst: fldinstDestination(),
 		fldrslt: fldrsltDestination(),
 	};
-	
+
 	var applyDestination = function(always) {
 		var dest = parser.state.destination;
 		if (dest != null) {
@@ -1783,7 +1885,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			}
 		}
 	};
-	
+
 	var applyText = function() {
 		if (parser.text.length > 0) {
 			var dest = parser.state.destination;
@@ -1794,12 +1896,12 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			parser.text = "";
 		}
 	}
-	
+
 	var pushState = function(forceSkip) {
 		parser.state = new State(parser.state);
 		if (forceSkip)
 			parser.state.skipdestination = true;
-		
+
 		var dest = parser.state.destination;
 		if (dest != null && !parser.state.skipdestination) {
 			if (dest.sub != null) {
@@ -1809,12 +1911,12 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			}
 		}
 	};
-	
+
 	var popState = function() {
 		var state = parser.state;
 		if (state == null)
 			throw new RTFJS.Error("Unexpected end of state");
-		
+
 		applyText();
 		if (state.parent == null || state.destination != state.parent.destination)
 			applyDestination(true);
@@ -1838,7 +1940,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return parser.state;
 	};
-	
+
 	var changeDestination = function(name, param) {
 		applyText();
 		var handler = destinations[name];
@@ -1849,7 +1951,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 		}
 		return false;
 	};
-	
+
 	processKeyword = function(keyword, param) {
 		var first = parser.state.first;
 		if (first) {
@@ -1857,18 +1959,18 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				parser.state.skipunknowndestination = true;
 				return;
 			}
-			
+
 			parser.state.first = false;
 		}
-		
+
 		//if (param != null)
 		//	RTFJS.log("keyword " + keyword + " with param " + param);
 		//else
 		//	RTFJS.log("keyword " + keyword);
-		
+
 		if (parser.state.bindata > 0)
 			throw new RTFJS.Error("Keyword encountered within binary data");
-		
+
 		// Reset if we unexpectedly encounter a keyword
 		parser.state.skipchars = 0;
 		switch (keyword) {
@@ -1886,7 +1988,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			case "}":
 			case "\\":
 				return keyword;
-			
+
 			case "uc":
 				if (param != null && param >= 0)
 					parser.state.ucn = param;
@@ -1903,7 +2005,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					parser.state.skipchars = parser.state.ucn;
 				}
 				return;
-			
+
 			case "bin":
 				if (param == null)
 					throw new RTFJS.Error("Binary data is missing length");
@@ -1911,14 +2013,14 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 					throw new RTFJS.Error("Binary data with invalid length");
 				parser.state.bindata = param;
 				return;
-			
+
 			case "upr":
 				parseLoop(true, null); // skip the first sub destination (ansi)
 				// this will be followed by a \ud sub destination
 				return;
 			case "ud":
 				return;
-			
+
 			default:
 				if (!parser.state.skipdestination) {
 					if (first) {
@@ -1945,10 +2047,10 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				}
 				return;
 		}
-		
+
 		parser.state.skipdestination = false;
 	};
-	
+
 	appendText = function(text) {
 		// Handle characters not found in codepage
 		text = text ? text : "";
@@ -1960,7 +2062,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				parser.state.skipchars -= len;
 				return;
 			}
-			
+
 			if (parser.state.destination == null || !parser.state.skipdestination)
 				parser.text += text.slice(parser.state.skipchars);
 			parser.state.skipchars = 0;
@@ -1968,7 +2070,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			parser.text += text;
 		}
 	};
-	
+
 	var applyBlob = function(blob) {
 		parser.state.first = false;
 		applyText();
@@ -1983,25 +2085,25 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				dest.handleBlob(blob);
 		}
 	};
-	
+
 	parseKeyword = function(process) {
 		if (parser.state == null)
 			throw new RTFJS.Error("No state");
-		
+
 		var param;
 		var ch = parser.readChar();
 		if (!RTFJS._isalpha(ch)) {
 			if (ch == "\'") {
 				var hex = parser.readChar() + parser.readChar();
 				if(parser.state.pap.charactertype === RTFJS.CHARACTER_TYPE.DOUBLE) {
-                    parser.readChar();
-                    parser.readChar();
-                    hex += parser.readChar() + parser.readChar();
-                }
-                param = RTFJS._parseHex(hex);
+					parser.readChar();
+					parser.readChar();
+					hex += parser.readChar() + parser.readChar();
+				}
+				param = RTFJS._parseHex(hex);
 				if (isNaN(param))
 					throw new RTFJS.Error("Could not parse hexadecimal number");
-				
+
 				if (process != null) {
 					// Looking for current fonttbl charset
 					var codepage = parser.codepage;
@@ -2025,7 +2127,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 				keyword += ch;
 				ch = parser.readChar();
 			}
-			
+
 			var num;
 			if (ch == "-") {
 				num = "-";
@@ -2033,24 +2135,24 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			} else {
 				num = "";
 			}
-		
+
 			if (RTFJS._isdigit(ch)) {
 				do {
 					num += ch;
 					ch = parser.readChar();
 				} while (num.length < 20 && RTFJS._isdigit(ch));
-			
+
 				if (num.length >= 20)
 					throw new RTFJS.Error("Param for keyword " + keyword + " too long");
-			
+
 				param = parseInt(num, 10);
 				if (isNaN(param))
 					throw new RTFJS.Error("Invalid keyword " + keyword + " param");
 			}
-		
+
 			if (ch != " ")
 				parser.unreadChar();
-			
+
 			if (process != null) {
 				var text = process(keyword, param);
 				if (text != null)
@@ -2058,7 +2160,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			}
 		}
 	};
-	
+
 	parseLoop = function(skip, process) {
 		try {
 			var initialState = parser.state;
@@ -2104,7 +2206,7 @@ RTFJS.Document.prototype.parse = function(blob, renderer) {
 			throw error;
 		}
 	};
-	
+
 	if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
 		parseLoop(false, processKeyword);
 	}
