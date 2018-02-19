@@ -885,7 +885,14 @@ export class Parser {
                 this._haveInst = true;
                 if (this._parsedInst != null)
                     throw new RTFJSError("Field cannot have multiple fldinst destinations");
-                this._parsedInst = inst;
+                Promise.resolve(inst)
+                    .then(_parsedInst => {
+                        this._parsedInst = _parsedInst;
+                    })
+                    .catch(error => {
+                        this._parsedInst = null;
+                        throw new RTFJSError(error.message);
+                    })
             };
             cls.prototype.getInst = function () {
                 return this._parsedInst;
@@ -943,6 +950,14 @@ export class Parser {
         };
 
         var fldinstDestination = function () {
+            var async_inflight = 0;
+            var async_complete = function() {
+                async_inflight--;
+                if (async_inflight === 0) {
+                    window.document.dispatchEvent(new Event('RTFContentLoaded'));
+                }
+            };
+
             var cls = function () {
                 DestinationTextBase.call(this, "fldinst");
             };
@@ -962,10 +977,83 @@ export class Parser {
                         if (end >= 1)
                             data = data.substring(1, end);
                     }
-                    var fieldType = this.text.substr(0, sep);
+                    var fieldType = this.text.substr(0, sep).toUpperCase();
                     switch (fieldType) {
                         case "HYPERLINK":
                             return new FieldHyperlink(this, data);
+                        case "IMPORT":
+                            if (typeof inst._settings.onImport === 'function') {
+                                let pict
+                                async_inflight++
+
+                                inst.addIns(function() {
+                                    // backup
+                                    const hook = inst._settings.onPicture
+                                    inst._settings.onPicture = null
+
+                                    let {isLegacy, element} = pict.apply(true)
+
+                                    // restore
+                                    inst._settings.onPicture = hook
+
+                                    if (typeof hook === 'function') {
+                                        element = hook(isLegacy, () => element)
+                                    }
+
+                                    if (element != null)
+                                        this.appendElement(element)
+                                })
+
+                                return new Promise((resolve, reject) => {
+                                    try {
+                                        let cb = function({error, keyword, blob, width, height}) {
+                                            if (!error && typeof keyword === 'string' && keyword && blob) {
+                                                const dims = {
+                                                    w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
+                                                    h: Helper._pxToTwips(height || 300)
+                                                }
+                                                const cls  = pictDestination();
+                                                pict = new cls();
+
+                                                pict.handleBlob(blob);
+                                                pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
+                                                pict._displaysize.width  = dims.w
+                                                pict._displaysize.height = dims.h
+                                                pict._size.width  = dims.w
+                                                pict._size.height = dims.h
+
+                                                const _parsedInst = {
+                                                    renderFieldBegin: () => true,
+                                                    renderFieldEnd: () => true
+                                                }
+                                                resolve(_parsedInst);
+                                            }
+                                            else {
+                                                Helper.log("[fldinst]: failed to IMPORT image file: " + data);
+                                                if (error) {
+                                                    error = (error instanceof Error) ? error : new Error(error);
+                                                    reject(error);
+                                                }
+                                                else {
+                                                    resolve(undefined);
+                                                }
+                                            }
+                                        }
+                                        inst._settings.onImport.call(inst, data, cb)
+                                    }
+                                    catch(error) {
+                                        reject(error)
+                                    }
+                                })
+                                    .catch(error => {
+                                        async_complete()
+                                        throw error
+                                    })
+                                    .then(_parsedInst => {
+                                        async_complete()
+                                        return _parsedInst
+                                    })
+                            }
                         default:
                             Helper.log("[fldinst]: unknown field type: " + fieldType);
                             break;
@@ -1161,7 +1249,7 @@ export class Parser {
             cls.prototype.handleBlob = function (blob) {
                 this._blob = blob;
             };
-            cls.prototype.apply = function () {
+            cls.prototype.apply = function (rendering=false) {
                 if (this._type == null)
                     throw new RTFJSError("Picture type unknown or not specified");
                 //if (this._size.width == null || this._size.height == null)
@@ -1222,7 +1310,10 @@ export class Parser {
                             };
                         })(isLegacy));
                     } else {
-                        doRender(false);
+                        return {
+                            isLegacy,
+                            element: doRender.call(renderer, rendering)
+                        };
                     }
                 } else if (typeof type === "string") {
                     var text = this.text;
@@ -1262,7 +1353,10 @@ export class Parser {
                         })(isLegacy));
                         ;
                     } else {
-                        doRender(false);
+                        return {
+                            isLegacy,
+                            element: doRender.call(renderer, rendering)
+                        };
                     }
                 }
 

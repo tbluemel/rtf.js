@@ -234,5 +234,8 @@ export const Helper = {
     },
     _twipsToPx: function(twips) {
         return Math.floor(twips / 20 * 96 / 72);
+    },
+    _pxToTwips: function(px) {
+        return Math.floor(px * 20 * 72 / 96);
     }
 };
