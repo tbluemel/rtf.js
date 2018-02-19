@@ -1,0 +1,27 @@
+{
+  "name": "rtf.js",
+  "version": "1.0.0",
+  "description": "Render RTF documents in HTML. This also includes rendering WMF and EMF images which are often contained in RTF documents.",
+  "main": "rtf.js",
+  "scripts": {
+    "lint": "eclint check *.js",
+    "cleanup": "eclint fix *.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tbluemel/rtf.js.git"
+  },
+  "keywords": [
+    "RTF"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tbluemel/rtf.js/issues"
+  },
+  "homepage": "https://github.com/tbluemel/rtf.js#readme",
+  "devDependencies": {
+    "eclint": "^2.6.0"
+  }
+}
