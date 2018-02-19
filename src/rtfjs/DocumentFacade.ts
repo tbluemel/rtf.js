@@ -27,7 +27,7 @@ SOFTWARE.
 import { Renderer } from './Renderer';
 import { Parser } from './parser/Parser';
 import { Document } from './Document';
-
+import { RTFJSError } from './Helper';
 
 export class DocumentFacade {
     _document;
@@ -46,7 +46,12 @@ export class DocumentFacade {
     }
 
     render() {
-        return this._renderer.buildDom();
+        return Promise.all(this._document._asyncTasks)
+            .then(() => {
+                return this._renderer.buildDom();
+            }).catch(error => {
+                throw new RTFJSError(error);
+            });
     };
 
 };

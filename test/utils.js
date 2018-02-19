@@ -28,9 +28,11 @@ exports.runRtfjs = function(source, callback) {
         var doc = new RTFJS.Document(rtfFile);
 
         var meta = doc.metadata();
-        var html = $("<div>").append(doc.render()).html();
+        doc.render().then(function(htmlElements) {
+            var html = $("<div>").append(htmlElements).html();
 
-        window.done(meta, html);
+            window.done(meta, html);
+        })
     </script>
     `, { resources: "usable",
         runScripts: "dangerously",

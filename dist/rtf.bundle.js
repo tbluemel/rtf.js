@@ -8519,13 +8519,6 @@ var Parser = /** @class */ (function () {
             return false;
         };
         var fldinstDestination = function () {
-            var async_inflight = 0;
-            var async_complete = function () {
-                async_inflight--;
-                if (async_inflight === 0) {
-                    window.document.dispatchEvent(new Event('RTFContentLoaded'));
-                }
-            };
             var cls = function () {
                 DestinationTextBase.call(this, "fldinst");
             };
@@ -8552,7 +8545,6 @@ var Parser = /** @class */ (function () {
                         case "IMPORT":
                             if (typeof inst._settings.onImport === 'function') {
                                 var pict_1;
-                                async_inflight++;
                                 inst.addIns(function () {
                                     // backup
                                     var hook = inst._settings.onPicture;
@@ -8566,7 +8558,7 @@ var Parser = /** @class */ (function () {
                                     if (element != null)
                                         this.appendElement(element);
                                 });
-                                return new Promise(function (resolve, reject) {
+                                var promise = new Promise(function (resolve, reject) {
                                     try {
                                         var cb = function (_a) {
                                             var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
@@ -8605,15 +8597,9 @@ var Parser = /** @class */ (function () {
                                     catch (error) {
                                         reject(error);
                                     }
-                                })
-                                    .catch(function (error) {
-                                    async_complete();
-                                    throw error;
-                                })
-                                    .then(function (_parsedInst) {
-                                    async_complete();
-                                    return _parsedInst;
                                 });
+                                inst._asyncTasks.push(promise);
+                                return promise;
                             }
                         default:
                             Helper.log("[fldinst]: unknown field type: " + fieldType);
@@ -9326,6 +9312,7 @@ var Document = /** @class */ (function () {
         this._colors = [];
         this._autoColor = null;
         this._stylesheets = [];
+        this._asyncTasks = [];
         this._ins = [];
     }
     Document.prototype._lookupColor = function (idx) {
@@ -9380,7 +9367,13 @@ var DocumentFacade = /** @class */ (function () {
         return this._document._meta;
     };
     DocumentFacade.prototype.render = function () {
-        return this._renderer.buildDom();
+        var _this = this;
+        return Promise.all(this._document._asyncTasks)
+            .then(function () {
+            return _this._renderer.buildDom();
+        }).catch(function (error) {
+            throw new RTFJSError(error);
+        });
     };
     return DocumentFacade;
 }());

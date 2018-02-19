@@ -950,14 +950,6 @@ export class Parser {
         };
 
         var fldinstDestination = function () {
-            var async_inflight = 0;
-            var async_complete = function() {
-                async_inflight--;
-                if (async_inflight === 0) {
-                    window.document.dispatchEvent(new Event('RTFContentLoaded'));
-                }
-            };
-
             var cls = function () {
                 DestinationTextBase.call(this, "fldinst");
             };
@@ -984,7 +976,6 @@ export class Parser {
                         case "IMPORT":
                             if (typeof inst._settings.onImport === 'function') {
                                 let pict
-                                async_inflight++
 
                                 inst.addIns(function() {
                                     // backup
@@ -1004,7 +995,7 @@ export class Parser {
                                         this.appendElement(element)
                                 })
 
-                                return new Promise((resolve, reject) => {
+                                const promise = new Promise((resolve, reject) => {
                                     try {
                                         let cb = function({error, keyword, blob, width, height}) {
                                             if (!error && typeof keyword === 'string' && keyword && blob) {
@@ -1044,15 +1035,9 @@ export class Parser {
                                     catch(error) {
                                         reject(error)
                                     }
-                                })
-                                    .catch(error => {
-                                        async_complete()
-                                        throw error
-                                    })
-                                    .then(_parsedInst => {
-                                        async_complete()
-                                        return _parsedInst
-                                    })
+                                });
+                                inst._asyncTasks.push(promise);
+                                return promise;
                             }
                         default:
                             Helper.log("[fldinst]: unknown field type: " + fieldType);

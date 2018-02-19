@@ -33,6 +33,7 @@ export class Document {
     _colors;
     _autoColor;
     _stylesheets;
+    _asyncTasks;
     _ins;
 
     constructor(settings) {
@@ -42,6 +43,7 @@ export class Document {
         this._colors = [];
         this._autoColor = null;
         this._stylesheets = [];
+        this._asyncTasks = [];
         this._ins = [];
     }
 
