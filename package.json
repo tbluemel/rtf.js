@@ -4,8 +4,8 @@
   "description": "Render RTF documents in HTML. This also includes rendering WMF and EMF images which are often contained in RTF documents.",
   "main": "rtf.js",
   "scripts": {
-    "lint": "eclint check **/*.js",
-    "cleanup": "eclint fix **/*.js",
+    "lint": "eclint check *.js",
+    "cleanup": "eclint fix *.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
