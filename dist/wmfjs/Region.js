@@ -428,3 +428,4 @@ var Scan = /** @class */ (function () {
 }());
 export { Scan };
 ;
+//# sourceMappingURL=Region.js.map

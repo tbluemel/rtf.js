@@ -2515,3 +2515,4 @@ EMFJS.Renderer.prototype.render = function (info) {
     var svg = $(img[0]).svg("get");
     return $(svg.root()).attr("width", info.width).attr("height", info.height);
 };
+//# sourceMappingURL=emf.js.map

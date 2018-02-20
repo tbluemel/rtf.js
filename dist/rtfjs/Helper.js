@@ -226,3 +226,4 @@ export var Helper = {
         return Math.floor(twips / 20 * 96 / 72);
     }
 };
+//# sourceMappingURL=Helper.js.map

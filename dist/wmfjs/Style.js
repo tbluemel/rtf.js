@@ -310,3 +310,4 @@ var Palette = /** @class */ (function (_super) {
 }(Obj));
 export { Palette };
 ;
+//# sourceMappingURL=Style.js.map

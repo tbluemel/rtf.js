@@ -25,3 +25,4 @@ SOFTWARE.
 */
 export * from './Renderer';
 export { WMFJSError, loggingEnabled } from './Helper';
+//# sourceMappingURL=index.js.map

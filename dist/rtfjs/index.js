@@ -25,3 +25,4 @@ SOFTWARE.
 */
 export * from './Document';
 export { RTFJSError, loggingEnabled } from './Helper';
+//# sourceMappingURL=index.js.map

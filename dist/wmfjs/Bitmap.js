@@ -261,3 +261,4 @@ var PatternBitmap16 = /** @class */ (function (_super) {
 }(Bitmap16));
 export { PatternBitmap16 };
 ;
+//# sourceMappingURL=Bitmap.js.map

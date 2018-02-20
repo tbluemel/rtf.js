@@ -142,3 +142,4 @@ var WMF = /** @class */ (function () {
 }());
 export { WMF };
 ;
+//# sourceMappingURL=Renderer.js.map
