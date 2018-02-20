@@ -31,7 +31,7 @@ export function RTFJSError(message) {
 }
 RTFJSError.prototype = new Error;
 
-export let loggingEnabled: true;
+export let loggingEnabled = true;
 
 export const Helper = {
     log: function(message){

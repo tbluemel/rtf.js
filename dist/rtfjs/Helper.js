@@ -29,7 +29,7 @@ export function RTFJSError(message) {
     this.stack = (new Error()).stack;
 }
 RTFJSError.prototype = new Error;
-export var loggingEnabled;
+export var loggingEnabled = true;
 export var Helper = {
     log: function (message) {
         if (loggingEnabled) {
