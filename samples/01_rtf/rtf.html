@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
 
     <script src="../.common/dep/jquery.min.js"></script>
-<!--
-    <script src="../.common/dep/jquery.binarytransport.js"></script>
--->
+
     <script src="../.common/dep/jquery.svg.min.js"></script>
     <script src="../.common/dep/jquery.svgfilter.min.js"></script>
-    <script src="../.common/dep/cptable.full.js"></script>
-    <script src="../.common/dep/symboltable.js"></script>
 
-    <script src="../../rtf.js"></script>
-    <script src="../../wmf.js"></script>
-    <script src="../../emf.js"></script>
+    <script src="../../dist/rtf.bundle.js"></script>
+    <script src="../../dist/wmf.js"></script>
+    <script src="../../dist/emf.js"></script>
 
     <link href="../.common/css/jquery.svg.css" rel="stylesheet" />
 
@@ -150,7 +146,7 @@ $(document).ready(function() {
         .on("drop", function(evt) {
             evt.stopPropagation()
             evt.preventDefault();
-            
+
             var files = evt.originalEvent.dataTransfer.files;
             if (files.length > 1) {
                 alert("Please only drop one file!");
@@ -169,7 +165,7 @@ $(document).ready(function() {
             evt.stopPropagation()
             evt.preventDefault();
         });
-    
+
     closeDoc(true);
 });
     </script>

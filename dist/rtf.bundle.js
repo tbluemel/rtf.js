@@ -1,25 +1,772 @@
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.RTFJS = {})));
+}(this, (function (exports) { 'use strict';
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+function RTFJSError(message) {
+    this.name = 'RTFJSError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+RTFJSError.prototype = new Error;
+var loggingEnabled;
+var Helper = {
+    log: function (message) {
+        if (loggingEnabled) {
+            console.log(message);
+        }
+    },
+    _A: "A".charCodeAt(0),
+    _a: "a".charCodeAt(0),
+    _F: "F".charCodeAt(0),
+    _f: "f".charCodeAt(0),
+    _Z: "Z".charCodeAt(0),
+    _z: "z".charCodeAt(0),
+    _0: "0".charCodeAt(0),
+    _9: "9".charCodeAt(0),
+    JUSTIFICATION: {
+        LEFT: "left",
+        CENTER: "center",
+        RIGHT: "right",
+        JUSTIFY: "justify"
+    },
+    BREAKTYPE: {
+        NONE: "none",
+        COL: "col",
+        EVEN: "even",
+        ODD: "odd",
+        PAGE: "page"
+    },
+    PAGENUMBER: {
+        DECIMAL: "decimal",
+        UROM: "urom",
+        LROM: "lrom",
+        ULTR: "ultr",
+        LLTR: "lltr" // TODO: ???
+    },
+    UNDERLINE: {
+        NONE: "none",
+        CONTINUOUS: "continuous",
+        DOTTED: "dotted",
+        DASHED: "dashed",
+        DASHDOTTED: "dashdotted",
+        DASHDOTDOTTED: " dashdotdotted",
+        DOUBLE: "double",
+        HEAVYWAVE: "heavywave",
+        LONGDASHED: "longdashed",
+        THICK: "thick",
+        THICKDOTTED: "thickdotted",
+        THICKDASHED: "thickdashed",
+        THICKDASHDOTTED: "thickdashdotted",
+        THICKDASHDOTDOTTED: "thickdashdotdotted",
+        THICKLONGDASH: "thicklongdash",
+        DOUBLEWAVE: "doublewave",
+        WORD: "word",
+        WAVE: "wave"
+    },
+    FONTPITCH: {
+        DEFAULT: 0,
+        FIXED: 1,
+        VARIABLE: 2
+    },
+    CHARACTER_TYPE: {
+        LOWANSI: "loch",
+        HIGHANSI: "hich",
+        DOUBLE: "dbch"
+    },
+    _isalpha: function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._A && ch <= this._Z) ||
+                (ch >= this._a && ch <= this._z))) {
+                return false;
+            }
+        }
+        return len > 0;
+    },
+    _isdigit: function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (ch < this._0 || ch > this._9)
+                return false;
+        }
+        return len > 0;
+    },
+    _parseHex: function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._0 && ch <= this._9) ||
+                (ch >= this._a && ch <= this._f) ||
+                (ch >= this._A && ch <= this._F))) {
+                return NaN;
+            }
+        }
+        if (len > 0)
+            return parseInt(str, 16);
+        return NaN;
+    },
+    _blobToBinary: function (blob) {
+        var view = new Uint8Array(blob);
+        var ret = "";
+        var len = view.length;
+        for (var i = 0; i < len; i++)
+            ret += String.fromCharCode(view[i]);
+        return ret;
+    },
+    _hexToBlob: function (str) {
+        var len = str.length;
+        var buf = new ArrayBuffer(Math.floor(len-- / 2));
+        var view = new Uint8Array(buf);
+        var d = 0;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val))
+                return null;
+            view[d++] = val;
+        }
+        return buf;
+    },
+    _hexToBinary: function (str) {
+        var bin = "";
+        var len = str.length - 1;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val))
+                return null;
+            bin += String.fromCharCode(val);
+        }
+        return bin;
+    },
+    _charsetMap: {
+        "0": 1252,
+        "77": 10000,
+        "78": 10001,
+        "79": 10003,
+        "80": 10008,
+        "81": 10002,
+        "83": 10005,
+        "84": 10004,
+        "85": 10006,
+        "86": 10081,
+        "87": 10021,
+        "88": 10029,
+        "89": 10007,
+        "128": 932,
+        "129": 949,
+        "130": 1361,
+        "134": 936,
+        "136": 950,
+        "161": 1253,
+        "162": 1254,
+        "163": 1258,
+        "177": 1255,
+        "178": 1256,
+        "186": 1257,
+        "204": 1251,
+        "222": 874,
+        "238": 1250,
+        "254": 437,
+        "255": 850,
+    },
+    _mapCharset: function (idx) {
+        return this._charsetMap[idx.toString()];
+    },
+    _colorThemeMap: {
+        // TODO
+        maindarkone: null,
+        mainlightone: null,
+        maindarktwo: null,
+        mainlighttwo: null,
+        accentone: null,
+        accenttwo: null,
+        accentthree: null,
+        accentfour: null,
+        accentfive: null,
+        accentsix: null,
+        hyperlink: null,
+        followedhyperlink: null,
+        backgroundone: null,
+        textone: null,
+        backgroundtwo: null,
+        texttwo: null,
+    },
+    _mapColorTheme: function (name) {
+        return this._colorThemeMap[name];
+    },
+    _colorToStr: function (color) {
+        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+    },
+    _twipsToPt: function (twips) {
+        return Math.floor(twips / 20);
+    },
+    _twipsToPx: function (twips) {
+        return Math.floor(twips / 20 * 96 / 72);
+    }
+};
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var Renderer = /** @class */ (function () {
+    function Renderer(doc) {
+        this._doc = doc;
+        this._ins = [];
+        this._dom = null;
+        this._curRChp = null;
+        this._curRPap = null;
+        this._curpar = null;
+        this._cursubpar = null;
+        this._curcont = [];
+    }
+    Renderer.prototype.addIns = function (ins) {
+        this._ins.push(ins);
+    };
+    Renderer.prototype.pushContainer = function (contel) {
+        if (this._curpar == null)
+            this.startPar();
+        var len = this._curcont.push(contel);
+        if (len > 1) {
+            var prevcontel = this._curcont[len - 1];
+            prevcontel.content.append(contel);
+        }
+        else {
+            if (this._cursubpar != null)
+                this._cursubpar.append(contel.element);
+            else
+                this._curpar.append(contel.element);
+        }
+    };
+    Renderer.prototype.popContainer = function () {
+        var contel = this._curcont.pop();
+        if (contel == null)
+            throw new RTFJSError("No container on rendering stack");
+    };
+    Renderer.prototype.buildHyperlinkElement = function (url) {
+        return $("<a>").attr("href", url);
+    };
+    Renderer.prototype._appendToPar = function (el, newsubpar) {
+        if (this._curpar == null)
+            this.startPar();
+        if (newsubpar == true) {
+            var subpar = $("<div>");
+            if (this._cursubpar == null) {
+                this._curpar.children().appendTo(subpar);
+                this._curpar.append(subpar);
+                subpar = $("<div>");
+            }
+            if (el)
+                subpar.append(el);
+            if (this._curRPap != null)
+                this._curRPap.apply(this._doc, subpar, this._curRChp, false);
+            this._cursubpar = subpar;
+            this._curpar.append(subpar);
+        }
+        else if (el) {
+            var contelCnt = this._curcont.length;
+            if (contelCnt > 0) {
+                this._curcont[contelCnt - 1].content.append(el);
+            }
+            else if (this._cursubpar != null) {
+                this._cursubpar.append(el);
+            }
+            else {
+                this._curpar.append(el);
+            }
+        }
+    };
+    Renderer.prototype.startPar = function () {
+        this._curpar = $("<div>");
+        if (this._curRPap != null) {
+            this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
+            this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
+        }
+        this._cursubpar = null;
+        this._curcont = [];
+        this._dom.push(this._curpar);
+    };
+    Renderer.prototype.lineBreak = function () {
+        this._appendToPar(null, true);
+    };
+    Renderer.prototype.setChp = function (rchp) {
+        this._curRChp = rchp;
+    };
+    Renderer.prototype.setPap = function (rpap) {
+        this._curRPap = rpap;
+        if (this._cursubpar != null)
+            this._curRPap.apply(this._doc, this._cursubpar, null, false);
+        else if (this._curpar != null) {
+            // Don't have a sub-paragraph at all, apply everything
+            this._curRPap.apply(this._doc, this._curpar, null, true);
+            this._curRPap.apply(this._doc, this._curpar, null, false);
+        }
+    };
+    Renderer.prototype.appendElement = function (element) {
+        this._appendToPar(element);
+    };
+    Renderer.prototype.buildRenderedPicture = function (element) {
+        if (element == null)
+            element = $("<span>").text("[failed to render image]");
+        return element;
+    };
+    Renderer.prototype.renderedPicture = function (element) {
+        this._appendToPar(this.buildRenderedPicture(element));
+    };
+    Renderer.prototype.buildPicture = function (mime, data) {
+        if (data != null) {
+            return $("<img>", {
+                src: "data:" + mime + ";base64," + btoa(data)
+            });
+        }
+        else {
+            return $("<span>").text("[" + mime + "]");
+        }
+    };
+    Renderer.prototype.picture = function (mime, data) {
+        this._appendToPar(this.buildPicture(mime, data));
+    };
+    Renderer.prototype.buildDom = function () {
+        if (this._dom != null)
+            return this._dom;
+        this._dom = [];
+        this._curRChp = null;
+        this._curRPap = null;
+        this._curpar = null;
+        var len = this._ins.length;
+        for (var i = 0; i < len; i++) {
+            var ins = this._ins[i];
+            if (typeof ins === "string") {
+                var span = $("<span>");
+                if (this._curRChp != null)
+                    this._curRChp.apply(this._doc, span);
+                this._appendToPar(span.text(ins));
+            }
+            else {
+                ins.call(this);
+            }
+        }
+        return this._dom;
+    };
+    return Renderer;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderPap = /** @class */ (function () {
+    function RenderPap(pap) {
+        this._pap = pap;
+    }
+    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        var pap = this._pap;
+        if (ismaindiv) {
+            if (pap.spacebefore != 0)
+                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
+            else
+                el.css("margin-top", "");
+            if (pap.spaceafter != 0)
+                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
+            else
+                el.css("margin-bottom", "");
+            if (rchp != null)
+                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+        }
+        else {
+            switch (pap.justification) {
+                case Helper.JUSTIFICATION.LEFT:
+                    el.css("text-align", "left");
+                    break;
+                case Helper.JUSTIFICATION.RIGHT:
+                    el.css("text-align", "right");
+                    break;
+                case Helper.JUSTIFICATION.CENTER:
+                    el.css("text-align", "center");
+                    break;
+                case Helper.JUSTIFICATION.JUSTIFY:
+                    el.css("text-align", "justify");
+                    break;
+            }
+        }
+    };
+    return RenderPap;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderChp = /** @class */ (function () {
+    function RenderChp(chp) {
+        this._chp = chp;
+    }
+    RenderChp.prototype.apply = function (doc, el) {
+        var chp = this._chp;
+        if (chp.bold)
+            el.css("font-weight", "bold");
+        if (chp.italic)
+            el.css("font-style", "italic");
+        if (chp.hasOwnProperty("fontfamily") && doc._fonts[chp.fontfamily]) {
+            var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol")
+                el.css("font-family", fontFamily);
+        }
+        var deco = [];
+        if (chp.underline != Helper.UNDERLINE.NONE)
+            deco.push("underline");
+        if (chp.strikethrough || chp.dblstrikethrough)
+            deco.push("line-through");
+        if (deco.length > 0)
+            el.css("text-decoration", deco.join(" "));
+        if (chp.colorindex != 0) {
+            var color = doc._lookupColor(chp.colorindex);
+            if (color != null)
+                el.css("color", Helper._colorToStr(color));
+        }
+        el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
+    };
+    return RenderChp;
+}());
+
+// The MIT License (MIT)
+//
+// Copyright (c) 2016 Tom Zöhner
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
+var SymbolTable = {
+    "20": "\u0020",
+    "21": "\u0021",
+    "22": "\u2200",
+    "23": "\u0023",
+    "24": "\u2203",
+    "25": "\u0025",
+    "26": "\u0026",
+    "27": "\u220b",
+    "28": "\u0028",
+    "29": "\u0029",
+    "2a": "\u2217",
+    "2b": "\u002b",
+    "2c": "\u002c",
+    "2d": "\u2212",
+    "2e": "\u002e",
+    "2f": "\u002f",
+    "30": "\u0030",
+    "31": "\u0031",
+    "32": "\u0032",
+    "33": "\u0033",
+    "34": "\u0034",
+    "35": "\u0035",
+    "36": "\u0036",
+    "37": "\u0037",
+    "38": "\u0038",
+    "39": "\u0039",
+    "3a": "\u003a",
+    "3b": "\u003b",
+    "3c": "\u003c",
+    "3d": "\u003d",
+    "3e": "\u003e",
+    "3f": "\u003f",
+    "40": "\u2245",
+    "41": "\u0391",
+    "42": "\u0392",
+    "43": "\u03a7",
+    "44": "\u0394",
+    "45": "\u0395",
+    "46": "\u03a6",
+    "47": "\u0393",
+    "48": "\u0397",
+    "49": "\u0399",
+    "4a": "\u03d1",
+    "4b": "\u039a",
+    "4c": "\u039b",
+    "4d": "\u039c",
+    "4e": "\u039d",
+    "4f": "\u039f",
+    "50": "\u03a0",
+    "51": "\u0398",
+    "52": "\u03a1",
+    "53": "\u03a3",
+    "54": "\u03a4",
+    "55": "\u03a5",
+    "56": "\u03c2",
+    "57": "\u03a9",
+    "58": "\u039e",
+    "59": "\u03a8",
+    "5a": "\u0396",
+    "5b": "\u005b",
+    "5c": "\u2234",
+    "5d": "\u005d",
+    "5e": "\u22a5",
+    "5f": "\u005f",
+    "60": "\uf8e5",
+    "61": "\u03b1",
+    "62": "\u03b2",
+    "63": "\u03c7",
+    "64": "\u03b4",
+    "65": "\u03b5",
+    "66": "\u03c6",
+    "67": "\u03b3",
+    "68": "\u03b7",
+    "69": "\u03b9",
+    "6a": "\u03d5",
+    "6b": "\u03ba",
+    "6c": "\u03bb",
+    "6d": "\u00b5",
+    "6e": "\u03bd",
+    "6f": "\u03bf",
+    "70": "\u03c0",
+    "71": "\u03b8",
+    "72": "\u03c1",
+    "73": "\u03c3",
+    "74": "\u03c4",
+    "75": "\u03c5",
+    "76": "\u03d6",
+    "77": "\u03c9",
+    "78": "\u03be",
+    "79": "\u03c8",
+    "7a": "\u03b6",
+    "7b": "\u007b",
+    "7c": "\u007c",
+    "7d": "\u007d",
+    "7e": "\u223c",
+    "a0": "\u20ac",
+    "a1": "\u03d2",
+    "a2": "\u2032",
+    "a3": "\u2264",
+    "a4": "\u2044",
+    "a5": "\u221e",
+    "a6": "\u0192",
+    "a7": "\u2663",
+    "a8": "\u2666",
+    "a9": "\u2665",
+    "aa": "\u2660",
+    "ab": "\u2194",
+    "ac": "\u2190",
+    "ad": "\u2191",
+    "ae": "\u2192",
+    "af": "\u2193",
+    "b0": "\u00b0",
+    "b1": "\u00b1",
+    "b2": "\u2033",
+    "b3": "\u2265",
+    "b4": "\u00d7",
+    "b5": "\u221d",
+    "b6": "\u2202",
+    "b7": "\u2022",
+    "b8": "\u00f7",
+    "b9": "\u2260",
+    "ba": "\u2261",
+    "bb": "\u2248",
+    "bc": "\u2026",
+    "bd": "\uf8e6",
+    "be": "\uf8e7",
+    "bf": "\u21b5",
+    "c0": "\u2135",
+    "c1": "\u2111",
+    "c2": "\u211c",
+    "c3": "\u2118",
+    "c4": "\u2297",
+    "c5": "\u2295",
+    "c6": "\u2205",
+    "c7": "\u2229",
+    "c8": "\u222a",
+    "c9": "\u2283",
+    "ca": "\u2287",
+    "cb": "\u2284",
+    "cc": "\u2282",
+    "cd": "\u2286",
+    "ce": "\u2208",
+    "cf": "\u2209",
+    "d0": "\u2220",
+    "d1": "\u2207",
+    "d2": "\uf6da",
+    "d3": "\uf6d9",
+    "d4": "\uf6db",
+    "d5": "\u220f",
+    "d6": "\u221a",
+    "d7": "\u22c5",
+    "d8": "\u00ac",
+    "d9": "\u2227",
+    "da": "\u2228",
+    "db": "\u21d4",
+    "dc": "\u21d0",
+    "dd": "\u21d1",
+    "de": "\u21d2",
+    "df": "\u21d3",
+    "e0": "\u25ca",
+    "e1": "\u2329",
+    "e2": "\uf8e8",
+    "e3": "\uf8e9",
+    "e4": "\uf8ea",
+    "e5": "\u2211",
+    "e6": "\uf8eb",
+    "e7": "\uf8ec",
+    "e8": "\uf8ed",
+    "e9": "\uf8ee",
+    "ea": "\uf8ef",
+    "eb": "\uf8f0",
+    "ec": "\uf8f1",
+    "ed": "\uf8f2",
+    "ee": "\uf8f3",
+    "ef": "\uf8f4",
+    "f1": "\u232a",
+    "f2": "\u222b",
+    "f3": "\u2320",
+    "f4": "\uf8f5",
+    "f5": "\u2321",
+    "f6": "\uf8f6",
+    "f7": "\uf8f7",
+    "f8": "\uf8f8",
+    "f9": "\uf8f9",
+    "fa": "\uf8fa",
+    "fb": "\uf8fb",
+    "fc": "\uf8fc",
+    "fd": "\uf8fd",
+    "fe": "\uf8fe"
+};
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
+}
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var cptable_1 = createCommonjsModule(function (module) {
 /* cptable.js (C) 2013-present SheetJS -- http://sheetjs.com */
 /*jshint -W100 */
-var cptable = {version:"1.4.0"};
-cptable[37] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®^£¥·©§¶¼½¾[]¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[437] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[500] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ[.<(+!&éêëèíîïìß]$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[737] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρσςτυφχψ░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀ωάέήϊίόύϋώΆΈΉΊΌΎΏ±≥≤ΪΫ÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[775] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ĆüéāäģåćłēŖŗīŹÄÅÉæÆōöĢ¢ŚśÖÜø£Ø×¤ĀĪóŻżź”¦©®¬½¼Ł«»░▒▓│┤ĄČĘĖ╣║╗╝ĮŠ┐└┴┬├─┼ŲŪ╚╔╩╦╠═╬Žąčęėįšųūž┘┌█▄▌▐▀ÓßŌŃõÕµńĶķĻļņĒŅ’­±“¾¶§÷„°∙·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[850] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±‗¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[852] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäůćçłëŐőîŹÄĆÉĹĺôöĽľŚśÖÜŤťŁ×čáíóúĄąŽžĘę¬źČş«»░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐└┴┬├─┼Ăă╚╔╩╦╠═╬¤đĐĎËďŇÍÎě┘┌█▄ŢŮ▀ÓßÔŃńňŠšŔÚŕŰýÝţ´­˝˛ˇ˘§÷¸°¨˙űŘř■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[855] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ђЂѓЃёЁєЄѕЅіІїЇјЈљЉњЊћЋќЌўЎџЏюЮъЪаАбБцЦдДеЕфФгГ«»░▒▓│┤хХиИ╣║╗╝йЙ┐└┴┬├─┼кК╚╔╩╦╠═╬¤лЛмМнНоОп┘┌█▄Пя▀ЯрРсСтТуУжЖвВьЬ№­ыЫзЗшШэЭщЩчЧ§■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[857] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîıÄÅÉæÆôöòûùİÖÜø£ØŞşáíóúñÑĞğ¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ºªÊËÈ�ÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµ�×ÚÛÙìÿ¯´­±�¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[860] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâãàÁçêÊèÍÔìÃÂÉÀÈôõòÚùÌÕÜ¢£Ù₧ÓáíóúñÑªº¿Ò¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[861] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèÐðÞÄÅÉæÆôöþûÝýÖÜø£Ø₧ƒáíóúÁÍÓÚ¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[862] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~אבגדהוזחטיךכלםמןנסעףפץצקרשת¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[863] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâÂà¶çêëèïî‗À§ÉÈÊôËÏûù¤ÔÜ¢£ÙÛƒ¦´óú¨¸³¯Î⌐¬½¼¾«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[864] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$٪&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°·∙√▒─│┼┤┬├┴┐┌└┘β∞φ±½¼≈«»ﻷﻸ��ﻻﻼ� ­ﺂ£¤ﺄ��ﺎﺏﺕﺙ،ﺝﺡﺥ٠١٢٣٤٥٦٧٨٩ﻑ؛ﺱﺵﺹ؟¢ﺀﺁﺃﺅﻊﺋﺍﺑﺓﺗﺛﺟﺣﺧﺩﺫﺭﺯﺳﺷﺻﺿﻁﻅﻋﻏ¦¬÷×ﻉـﻓﻗﻛﻟﻣﻧﻫﻭﻯﻳﺽﻌﻎﻍﻡﹽّﻥﻩﻬﻰﻲﻐﻕﻵﻶﻝﻙﻱ■�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[865] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø₧ƒáíóúñÑªº¿⌐¬½¼¡«¤░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[866] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁёЄєЇїЎў°∙·√№¤■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[869] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~������Ά�·¬¦‘’Έ―ΉΊΪΌ��ΎΫ©Ώ²³ά£έήίϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐└┴┬├─┼ΠΡ╚╔╩╦╠═╬ΣΤΥΦΧΨΩαβγ┘┌█▄δε▀ζηθικλμνξοπρσςτ΄­±υφχ§ψ΅°¨ωϋΰώ■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[874] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€����…�����������‘’“”•–—�������� กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู����฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[875] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ΑΒΓΔΕΖΗΘΙ[.<(+!&ΚΛΜΝΞΟΠΡΣ]$*);^-/ΤΥΦΧΨΩΪΫ|,%_>?¨ΆΈΉ ΊΌΎΏ`:#@'=\"΅abcdefghiαβγδεζ°jklmnopqrηθικλμ´~stuvwxyzνξοπρσ£άέήϊίόύϋώςτυφχψ{ABCDEFGHI­ωΐΰ‘―}JKLMNOPQR±½\u001a·’¦\\\u001aSTUVWXYZ²§\u001a\u001a«¬0123456789³©\u001a\u001a»", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+var cptable = {version:"1.12.0"};
+cptable[37] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®^£¥·©§¶¼½¾[]¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[437] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[500] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ[.<(+!&éêëèíîïìß]$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[737] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρσςτυφχψ░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀ωάέήϊίόύϋώΆΈΉΊΌΎΏ±≥≤ΪΫ÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[775] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ĆüéāäģåćłēŖŗīŹÄÅÉæÆōöĢ¢ŚśÖÜø£Ø×¤ĀĪóŻżź”¦©®¬½¼Ł«»░▒▓│┤ĄČĘĖ╣║╗╝ĮŠ┐└┴┬├─┼ŲŪ╚╔╩╦╠═╬Žąčęėįšųūž┘┌█▄▌▐▀ÓßŌŃõÕµńĶķĻļņĒŅ’­±“¾¶§÷„°∙·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[850] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±‗¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[852] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäůćçłëŐőîŹÄĆÉĹĺôöĽľŚśÖÜŤťŁ×čáíóúĄąŽžĘę¬źČş«»░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐└┴┬├─┼Ăă╚╔╩╦╠═╬¤đĐĎËďŇÍÎě┘┌█▄ŢŮ▀ÓßÔŃńňŠšŔÚŕŰýÝţ´­˝˛ˇ˘§÷¸°¨˙űŘř■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[855] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ђЂѓЃёЁєЄѕЅіІїЇјЈљЉњЊћЋќЌўЎџЏюЮъЪаАбБцЦдДеЕфФгГ«»░▒▓│┤хХиИ╣║╗╝йЙ┐└┴┬├─┼кК╚╔╩╦╠═╬¤лЛмМнНоОп┘┌█▄Пя▀ЯрРсСтТуУжЖвВьЬ№­ыЫзЗшШэЭщЩчЧ§■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[857] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîıÄÅÉæÆôöòûùİÖÜø£ØŞşáíóúñÑĞğ¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ºªÊËÈ�ÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµ�×ÚÛÙìÿ¯´­±�¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[860] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâãàÁçêÊèÍÔìÃÂÉÀÈôõòÚùÌÕÜ¢£Ù₧ÓáíóúñÑªº¿Ò¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[861] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèÐðÞÄÅÉæÆôöþûÝýÖÜø£Ø₧ƒáíóúÁÍÓÚ¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[862] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~אבגדהוזחטיךכלםמןנסעףפץצקרשת¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[863] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâÂà¶çêëèïî‗À§ÉÈÊôËÏûù¤ÔÜ¢£ÙÛƒ¦´óú¨¸³¯Î⌐¬½¼¾«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[864] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$٪&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°·∙√▒─│┼┤┬├┴┐┌└┘β∞φ±½¼≈«»ﻷﻸ��ﻻﻼ� ­ﺂ£¤ﺄ��ﺎﺏﺕﺙ،ﺝﺡﺥ٠١٢٣٤٥٦٧٨٩ﻑ؛ﺱﺵﺹ؟¢ﺀﺁﺃﺅﻊﺋﺍﺑﺓﺗﺛﺟﺣﺧﺩﺫﺭﺯﺳﺷﺻﺿﻁﻅﻋﻏ¦¬÷×ﻉـﻓﻗﻛﻟﻣﻧﻫﻭﻯﻳﺽﻌﻎﻍﻡﹽّﻥﻩﻬﻰﻲﻐﻕﻵﻶﻝﻙﻱ■�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[865] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø₧ƒáíóúñÑªº¿⌐¬½¼¡«¤░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[866] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁёЄєЇїЎў°∙·√№¤■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[869] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~������Ά�·¬¦‘’Έ―ΉΊΪΌ��ΎΫ©Ώ²³ά£έήίϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐└┴┬├─┼ΠΡ╚╔╩╦╠═╬ΣΤΥΦΧΨΩαβγ┘┌█▄δε▀ζηθικλμνξοπρσςτ΄­±υφχ§ψ΅°¨ωϋΰώ■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[874] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€����…�����������‘’“”•–—�������� กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู����฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[875] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ΑΒΓΔΕΖΗΘΙ[.<(+!&ΚΛΜΝΞΟΠΡΣ]$*);^-/ΤΥΦΧΨΩΪΫ|,%_>?¨ΆΈΉ ΊΌΎΏ`:#@'=\"΅abcdefghiαβγδεζ°jklmnopqrηθικλμ´~stuvwxyzνξοπρσ£άέήϊίόύϋώςτυφχψ{ABCDEFGHI­ωΐΰ‘―}JKLMNOPQR±½\u001a·’¦\\\u001aSTUVWXYZ²§\u001a\u001a«¬0123456789³©\u001a\u001a»", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[932] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~���������������������������������｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ��������������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -800,52 +1547,57 @@ for(j = 0; j != D[248].length; ++j) if(D[248][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[249] = "����������������������������������������������������������������纘纛纙臠臡虆虇虈襹襺襼襻觿讘讙躥躤躣鑮鑭鑯鑱鑳靉顲饟鱨鱮鱭鸋鸍鸐鸏鸒鸑麡黵鼉齇齸齻齺齹圞灦籯蠼趲躦釃鑴鑸鑶鑵驠鱴鱳鱱鱵鸔鸓黶鼊����������������������������������龤灨灥糷虪蠾蠽蠿讞貜躩軉靋顳顴飌饡馫驤驦驧鬤鸕鸗齈戇欞爧虌躨钂钀钁驩驨鬮鸙爩虋讟钃鱹麷癵驫鱺鸝灩灪麤齾齉龘碁銹裏墻恒粧嫺╔╦╗╠╬╣╚╩╝╒╤╕╞╪╡╘╧╛╓╥╖╟╫╢╙╨╜║═╭╮╰╯▓�".split("");
 for(j = 0; j != D[249].length; ++j) if(D[249][j].charCodeAt(0) !== 0xFFFD) { e[D[249][j]] = 63744 + j; d[63744 + j] = D[249][j];}
 return {"enc": e, "dec": d }; })();
-cptable[1026] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãå{ñÇ.<(+!&éêëèíîïìßĞİ*);^-/ÂÄÀÁÃÅ[Ñş,%_>?øÉÊËÈÍÎÏÌı:ÖŞ'=ÜØabcdefghi«»}`¦±°jklmnopqrªºæ¸Æ¤µöstuvwxyz¡¿]$@®¢£¥·©§¶¼½¾¬|¯¨´×çABCDEFGHI­ô~òóõğJKLMNOPQR¹û\\ùúÿü÷STUVWXYZ²Ô#ÒÓÕ0123456789³Û\"ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1250] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚�„…†‡�‰Š‹ŚŤŽŹ�‘’“”•–—�™š›śťžź ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż°±˛ł´µ¶·¸ąş»Ľ˝ľżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1251] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1252] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰Š‹Œ�Ž��‘’“”•–—˜™š›œ�žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1253] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡�‰�‹�����‘’“”•–—�™�›���� ΅Ά£¤¥¦§¨©�«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ�ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1254] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰Š‹Œ����‘’“”•–—˜™š›œ��Ÿ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1255] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰�‹�����‘’“”•–—˜™�›���� ¡¢£₪¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾¿ְֱֲֳִֵֶַָֹ�ֻּֽ־ֿ׀ׁׂ׃װױײ׳״�������אבגדהוזחטיךכלםמןנסעףפץצקרשת��‎‏�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1256] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€پ‚ƒ„…†‡ˆ‰ٹ‹Œچژڈگ‘’“”•–—ک™ڑ›œ‌‍ں ،¢£¤¥¦§¨©ھ«¬­®¯°±²³´µ¶·¸¹؛»¼½¾؟ہءآأؤإئابةتثجحخدذرزسشصض×طظعغـفقكàلâمنهوçèéêëىيîïًٌٍَôُِ÷ّùْûü‎‏ے", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1257] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚�„…†‡�‰�‹�¨ˇ¸�‘’“”•–—�™�›�¯˛� �¢£¤�¦§Ø©Ŗ«¬­®Æ°±²³´µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1258] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰�‹Œ����‘’“”•–—˜™�›œ��Ÿ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂĂÄÅÆÇÈÉÊË̀ÍÎÏĐÑ̉ÓÔƠÖ×ØÙÚÛÜỮßàáâăäåæçèéêë́íîïđṇ̃óôơö÷øùúûüư₫ÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10000] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10006] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~Ä¹²É³ÖÜ΅àâä΄¨çéèêë£™îï•½‰ôö¦­ùûü†ΓΔΘΛΞΠß®©ΣΪ§≠°·Α±≤≥¥ΒΕΖΗΙΚΜΦΫΨΩάΝ¬ΟΡ≈Τ«»… ΥΧΆΈœ–―“”‘’÷ΉΊΌΎέήίόΏύαβψδεφγηιξκλμνοπώρστθωςχυζϊϋΐΰ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10007] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ†°¢£§•¶І®©™Ђђ≠Ѓѓ∞±≤≥іµ∂ЈЄєЇїЉљЊњјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю¤", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10029] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄĀāÉĄÖÜáąČäčĆćéŹźĎíďĒēĖóėôöõúĚěü†°Ę£§•¶ß®©™ę¨≠ģĮįĪ≤≥īĶ∂∑łĻļĽľĹĺŅņŃ¬√ńŇ∆«»… ňŐÕőŌ–—“”‘’÷◊ōŔŕŘ‹›řŖŗŠ‚„šŚśÁŤťÍŽžŪÓÔūŮÚůŰűŲųÝýķŻŁżĢˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10079] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûüÝ°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤ÐðÞþý·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10081] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸĞğİıŞş‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙ�ˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28591] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28592] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ą˘Ł¤ĽŚ§¨ŠŞŤŹ­ŽŻ°ą˛ł´ľśˇ¸šşťź˝žżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28593] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ħ˘£¤�Ĥ§¨İŞĞĴ­�Ż°ħ²³´µĥ·¸ışğĵ½�żÀÁÂ�ÄĊĈÇÈÉÊËÌÍÎÏ�ÑÒÓÔĠÖ×ĜÙÚÛÜŬŜßàáâ�äċĉçèéêëìíîï�ñòóôġö÷ĝùúûüŭŝ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28594] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĸŖ¤ĨĻ§¨ŠĒĢŦ­Ž¯°ą˛ŗ´ĩļˇ¸šēģŧŊžŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎĪĐŅŌĶÔÕÖ×ØŲÚÛÜŨŪßāáâãäåæįčéęëėíîīđņōķôõö÷øųúûüũū˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28595] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ЁЂЃЄЅІЇЈЉЊЋЌ­ЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя№ёђѓєѕіїјљњћќ§ўџ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28596] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ���¤�������،­�������������؛���؟�ءآأؤإئابةتثجحخدذرزسشصضطظعغ�����ـفقكلمنهوىيًٌٍَُِّْ�������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28597] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ‘’£€₯¦§¨©ͺ«¬­�―°±²³΄΅Ά·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ�ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28598] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ �¢£¤¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾��������������������������������‗אבגדהוזחטיךכלםמןנסעףפץצקרשת��‎‏�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28599] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28600] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĒĢĪĨĶ§ĻĐŠŦŽ­ŪŊ°ąēģīĩķ·ļđšŧž―ūŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎÏÐŅŌÓÔÕÖŨØŲÚÛÜÝÞßāáâãäåæįčéęëėíîïðņōóôõöũøųúûüýþĸ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28601] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู����฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28603] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ”¢£¤„¦§Ø©Ŗ«¬­®Æ°±²³“µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž’", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28604] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ḃḃ£ĊċḊ§Ẁ©ẂḋỲ­®ŸḞḟĠġṀṁ¶ṖẁṗẃṠỳẄẅṡÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏŴÑÒÓÔÕÖṪØÙÚÛÜÝŶßàáâãäåæçèéêëìíîïŵñòóôõöṫøùúûüýŷÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28605] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£€¥Š§š©ª«¬­®¯°±²³Žµ¶·ž¹º»ŒœŸ¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[28606] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄąŁ€„Š§š©Ș«Ź­źŻ°±ČłŽ”¶·žčș»ŒœŸżÀÁÂĂÄĆÆÇÈÉÊËÌÍÎÏĐŃÒÓÔŐÖŚŰÙÚÛÜĘȚßàáâăäćæçèéêëìíîïđńòóôőöśűùúûüęțÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[708] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~│┤éâ╡à╢çêëèïî╖╕╣║╗╝ô╜╛ûù┐└┴┬├¤─┼╞╟╚╔╩،╦«»░▒▓╠═╬╧╨╤╥╙؛╘╒╓؟╫ءآأؤإئابةتثجحخدذرزسشصضطظعغ█▄▌▐▀ـفقكلمنهوىيًٌٍَُِّْ╪┘┌µ£■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[720] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~éâàçêëèïîّْô¤ـûùءآأؤ£إئابةتثجحخدذرزسشص«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀ضطظعغفµقكلمنهوىي≡ًٌٍَُِ≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[858] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±‗¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[870] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäţáăčçć[.<(+!&éęëůíîľĺß]$*);^-/ÂÄ˝ÁĂČÇĆ|,%_>?ˇÉĘËŮÍÎĽĹ`:#@'=\"˘abcdefghiśňđýřş°jklmnopqrłńš¸˛¤ą~stuvwxyzŚŇĐÝŘŞ˙ĄżŢŻ§žźŽŹŁŃŠ¨´×{ABCDEFGHI­ôöŕóő}JKLMNOPQRĚűüťúě\\÷STUVWXYZďÔÖŔÓŐ0123456789ĎŰÜŤÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1047] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\n\b\u0018\u0019\u001c\u001d\u001e\u001f\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿Ð[Þ®¬£¥·©§¶¼½¾Ý¨¯]´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1140] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ~stuvwxyz¡¿ÐÝÞ®^£¥·©§¶¼½¾[]¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1141] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáãåçñÄ.<(+!&éêëèíîïì~Ü$*);^-/Â[ÀÁÃÅÇÑö,%_>?øÉÊËÈÍÎÏÌ`:#§'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µßstuvwxyz¡¿ÐÝÞ®¢£¥·©@¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõüJKLMNOPQR¹û}ùúÿÖ÷STUVWXYZ²Ô\\ÒÓÕ0123456789³Û]ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1142] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáã}çñ#.<(+!&éêëèíîïìß€Å*);^-/ÂÄÀÁÃ$ÇÑø,%_>?¦ÉÊËÈÍÎÏÌ`:ÆØ'=\"@abcdefghi«»ðýþ±°jklmnopqrªº{¸[]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×æABCDEFGHI­ôöòóõåJKLMNOPQR¹û~ùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1143] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáã}çñ§.<(+!&`êëèíîïìß€Å*);^-/Â#ÀÁÃ$ÇÑö,%_>?ø\\ÊËÈÍÎÏÌé:ÄÖ'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©[¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõåJKLMNOPQR¹û~ùúÿÉ÷STUVWXYZ²Ô@ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1144] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä{áãå\\ñ°.<(+!&]êë}íîï~ßé$*);^-/ÂÄÀÁÃÅÇÑò,%_>?øÉÊËÈÍÎÏÌù:£§'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ€µìstuvwxyz¡¿ÐÝÞ®¢#¥·©@¶¼½¾¬|¯¨´×àABCDEFGHI­ôö¦óõèJKLMNOPQR¹ûü`úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1145] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåç¦[.<(+|&éêëèíîïìß]$*);¬-/ÂÄÀÁÃÅÇ#ñ,%_>?øÉÊËÈÍÎÏÌ`:Ñ@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ¨stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾^!¯~´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1146] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ$.<(+|&éêëèíîïìß!£*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ¯stuvwxyz¡¿ÐÝÞ®¢[¥·©§¶¼½¾^]~¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1147] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä@áãå\\ñ°.<(+!&{êë}íîïìß§$*);^-/ÂÄÀÁÃÅÇÑù,%_>?øÉÊËÈÍÎÏÌµ:£à'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ€`¨stuvwxyz¡¿ÐÝÞ®¢#¥·©]¶¼½¾¬|¯~´×éABCDEFGHI­ôöòóõèJKLMNOPQR¹ûü¦úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1148] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ[.<(+!&éêëèíîïìß]$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ~stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[1149] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÞ.<(+!&éêëèíîïìßÆ$*);Ö-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌð:#Ð'=\"Øabcdefghi«»`ý{±°jklmnopqrªº}¸]€µöstuvwxyz¡¿@Ý[®¢£¥·©§¶¼½¾¬|¯¨\\×þABCDEFGHI­ô~òóõæJKLMNOPQR¹ûüùúÿ´÷STUVWXYZ²Ô^ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1026] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãå{ñÇ.<(+!&éêëèíîïìßĞİ*);^-/ÂÄÀÁÃÅ[Ñş,%_>?øÉÊËÈÍÎÏÌı:ÖŞ'=ÜØabcdefghi«»}`¦±°jklmnopqrªºæ¸Æ¤µöstuvwxyz¡¿]$@®¢£¥·©§¶¼½¾¬|¯¨´×çABCDEFGHI­ô~òóõğJKLMNOPQR¹û\\ùúÿü÷STUVWXYZ²Ô#ÒÓÕ0123456789³Û\"ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1250] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚�„…†‡�‰Š‹ŚŤŽŹ�‘’“”•–—�™š›śťžź ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż°±˛ł´µ¶·¸ąş»Ľ˝ľżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1251] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕїАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1252] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰Š‹Œ�Ž��‘’“”•–—˜™š›œ�žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1253] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡�‰�‹�����‘’“”•–—�™�›���� ΅Ά£¤¥¦§¨©�«¬­®―°±²³΄µ¶·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ�ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1254] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰Š‹Œ����‘’“”•–—˜™š›œ��Ÿ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1255] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰�‹�����‘’“”•–—˜™�›���� ¡¢£₪¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾¿ְֱֲֳִֵֶַָֹ�ֻּֽ־ֿ׀ׁׂ׃װױײ׳״�������אבגדהוזחטיךכלםמןנסעףפץצקרשת��‎‏�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1256] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€پ‚ƒ„…†‡ˆ‰ٹ‹Œچژڈگ‘’“”•–—ک™ڑ›œ‌‍ں ،¢£¤¥¦§¨©ھ«¬­®¯°±²³´µ¶·¸¹؛»¼½¾؟ہءآأؤإئابةتثجحخدذرزسشصض×طظعغـفقكàلâمنهوçèéêëىيîïًٌٍَôُِ÷ّùْûü‎‏ے", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1257] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚�„…†‡�‰�‹�¨ˇ¸�‘’“”•–—�™�›�¯˛� �¢£¤�¦§Ø©Ŗ«¬­®Æ°±²³´µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1258] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€�‚ƒ„…†‡ˆ‰�‹Œ����‘’“”•–—˜™�›œ��Ÿ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂĂÄÅÆÇÈÉÊË̀ÍÎÏĐÑ̉ÓÔƠÖ×ØÙÚÛÜỮßàáâăäåæçèéêë́íîïđṇ̃óôơö÷øùúûüư₫ÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[47451] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥ßƒáíóúñÑªº¿⌐¬½¼¡«»ãõØøœŒÀÃÕ¨´†¶©®™ĳĲאבגדהוזחטיכלמנסעפצקרשתןךםףץ§∧∞αβΓπΣσµτΦΘΩδ∮φ∈∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²³¯", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10000] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10006] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~Ä¹²É³ÖÜ΅àâä΄¨çéèêë£™îï•½‰ôö¦­ùûü†ΓΔΘΛΞΠß®©ΣΪ§≠°·Α±≤≥¥ΒΕΖΗΙΚΜΦΫΨΩάΝ¬ΟΡ≈Τ«»… ΥΧΆΈœ–―“”‘’÷ΉΊΌΎέήίόΏύαβψδεφγηιξκλμνοπώρστθωςχυζϊϋΐΰ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10007] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ†°¢£§•¶І®©™Ђђ≠Ѓѓ∞±≤≥іµ∂ЈЄєЇїЉљЊњјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю¤", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10029] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄĀāÉĄÖÜáąČäčĆćéŹźĎíďĒēĖóėôöõúĚěü†°Ę£§•¶ß®©™ę¨≠ģĮįĪ≤≥īĶ∂∑łĻļĽľĹĺŅņŃ¬√ńŇ∆«»… ňŐÕőŌ–—“”‘’÷◊ōŔŕŘ‹›řŖŗŠ‚„šŚśÁŤťÍŽžŪÓÔūŮÚůŰűŲųÝýķŻŁżĢˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10079] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûüÝ°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤ÐðÞþý·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10081] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸĞğİıŞş‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ�ÒÚÛÙ�ˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28591] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28592] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ą˘Ł¤ĽŚ§¨ŠŞŤŹ­ŽŻ°ą˛ł´ľśˇ¸šşťź˝žżŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢßŕáâăäĺćçčéęëěíîďđńňóôőö÷řůúűüýţ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28593] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ħ˘£¤�Ĥ§¨İŞĞĴ­�Ż°ħ²³´µĥ·¸ışğĵ½�żÀÁÂ�ÄĊĈÇÈÉÊËÌÍÎÏ�ÑÒÓÔĠÖ×ĜÙÚÛÜŬŜßàáâ�äċĉçèéêëìíîï�ñòóôġö÷ĝùúûüŭŝ˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28594] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĸŖ¤ĨĻ§¨ŠĒĢŦ­Ž¯°ą˛ŗ´ĩļˇ¸šēģŧŊžŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎĪĐŅŌĶÔÕÖ×ØŲÚÛÜŨŪßāáâãäåæįčéęëėíîīđņōķôõö÷øųúûüũū˙", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28595] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ЁЂЃЄЅІЇЈЉЊЋЌ­ЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя№ёђѓєѕіїјљњћќ§ўџ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28596] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ���¤�������،­�������������؛���؟�ءآأؤإئابةتثجحخدذرزسشصضطظعغ�����ـفقكلمنهوىيًٌٍَُِّْ�������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28597] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ‘’£€₯¦§¨©ͺ«¬­�―°±²³΄΅Ά·ΈΉΊ»Ό½ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ�ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28598] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ �¢£¤¥¦§¨©×«¬­®¯°±²³´µ¶·¸¹÷»¼½¾��������������������������������‗אבגדהוזחטיךכלםמןנסעףפץצקרשת��‎‏�", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28599] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÛÜİŞßàáâãäåæçèéêëìíîïğñòóôõö÷øùúûüışÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28600] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄĒĢĪĨĶ§ĻĐŠŦŽ­ŪŊ°ąēģīĩķ·ļđšŧž―ūŋĀÁÂÃÄÅÆĮČÉĘËĖÍÎÏÐŅŌÓÔÕÖŨØŲÚÛÜÝÞßāáâãäåæįčéęëėíîïðņōóôõöũøųúûüýþĸ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28601] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู����฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28603] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ”¢£¤„¦§Ø©Ŗ«¬­®Æ°±²³“µ¶·ø¹ŗ»¼½¾æĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽßąįāćäåęēčéźėģķīļšńņóōõö÷ųłśūüżž’", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28604] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ Ḃḃ£ĊċḊ§Ẁ©ẂḋỲ­®ŸḞḟĠġṀṁ¶ṖẁṗẃṠỳẄẅṡÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏŴÑÒÓÔÕÖṪØÙÚÛÜÝŶßàáâãäåæçèéêëìíîïŵñòóôõöṫøùúûüýŷÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28605] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£€¥Š§š©ª«¬­®¯°±²³Žµ¶·ž¹º»ŒœŸ¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[28606] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ĄąŁ€„Š§š©Ș«Ź­źŻ°±ČłŽ”¶·žčș»ŒœŸżÀÁÂĂÄĆÆÇÈÉÊËÌÍÎÏĐŃÒÓÔŐÖŚŰÙÚÛÜĘȚßàáâăäćæçèéêëìíîïđńòóôőöśűùúûüęțÿ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[708] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~│┤éâ╡à╢çêëèïî╖╕╣║╗╝ô╜╛ûù┐└┴┬├¤─┼╞╟╚╔╩،╦«»░▒▓╠═╬╧╨╤╥╙؛╘╒╓؟╫ءآأؤإئابةتثجحخدذرزسشصضطظعغ█▄▌▐▀ـفقكلمنهوىيًٌٍَُِّْ╪┘┌µ£■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[720] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~éâàçêëèïîّْô¤ـûùءآأؤ£إئابةتثجحخدذرزسشص«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀ضطظعغفµقكلمنهوىي≡ًٌٍَُِ≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[808] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁёЄєЇїЎў°∙·√№€■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[858] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐└┴┬├─┼ãÃ╚╔╩╦╠═╬¤ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀ÓßÔÒõÕµþÞÚÛÙýÝ¯´­±‗¾¶§÷¸°¨·¹³²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[870] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäţáăčçć[.<(+!&éęëůíîľĺß]$*);^-/ÂÄ˝ÁĂČÇĆ|,%_>?ˇÉĘËŮÍÎĽĹ`:#@'=\"˘abcdefghiśňđýřş°jklmnopqrłńš¸˛¤ą~stuvwxyzŚŇĐÝŘŞ˙ĄżŢŻ§žźŽŹŁŃŠ¨´×{ABCDEFGHI­ôöŕóő}JKLMNOPQRĚűüťúě\\÷STUVWXYZďÔÖŔÓŐ0123456789ĎŰÜŤÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[872] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ђЂѓЃёЁєЄѕЅіІїЇјЈљЉњЊћЋќЌўЎџЏюЮъЪаАбБцЦдДеЕфФгГ«»░▒▓│┤хХиИ╣║╗╝йЙ┐└┴┬├─┼кК╚╔╩╦╠═╬€лЛмМнНоОп┘┌█▄Пя▀ЯрРсСтТуУжЖвВьЬ№­ыЫзЗшШэЭщЩчЧ§■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1010] = (function(){ var d = "�\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"£$%&’()*+,-./0123456789:;<=>?àABCDEFGHIJKLMNOPQRSTUVWXYZ°ç§ˆ_µabcdefghijklmnopqrstuvwxyzéùè¨���������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1047] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\n\b\u0018\u0019\u001c\u001d\u001e\u001f\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿Ð[Þ®¬£¥·©§¶¼½¾Ý¨¯]´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1132] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~���������������������������������ກຂຄງຈສຊຍດຕຖທນບປຜຝພຟມຢຣລວຫອຮ���ຯະາຳິີຶືຸູຼັົຽ���ເແໂໃໄ່້໊໋໌ໍໆ�ໜໝ₭����������������໐໑໒໓໔໕໖໗໘໙��¢¬¦ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1140] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ~stuvwxyz¡¿ÐÝÞ®^£¥·©§¶¼½¾[]¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1141] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáãåçñÄ.<(+!&éêëèíîïì~Ü$*);^-/Â[ÀÁÃÅÇÑö,%_>?øÉÊËÈÍÎÏÌ`:#§'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µßstuvwxyz¡¿ÐÝÞ®¢£¥·©@¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõüJKLMNOPQR¹û}ùúÿÖ÷STUVWXYZ²Ô\\ÒÓÕ0123456789³Û]ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1142] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáã}çñ#.<(+!&éêëèíîïìß€Å*);^-/ÂÄÀÁÃ$ÇÑø,%_>?¦ÉÊËÈÍÎÏÌ`:ÆØ'=\"@abcdefghi«»ðýþ±°jklmnopqrªº{¸[]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×æABCDEFGHI­ôöòóõåJKLMNOPQR¹û~ùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1143] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáã}çñ§.<(+!&`êëèíîïìß€Å*);^-/Â#ÀÁÃ$ÇÑö,%_>?ø\\ÊËÈÍÎÏÌé:ÄÖ'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©[¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõåJKLMNOPQR¹û~ùúÿÉ÷STUVWXYZ²Ô@ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1144] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä{áãå\\ñ°.<(+!&]êë}íîï~ßé$*);^-/ÂÄÀÁÃÅÇÑò,%_>?øÉÊËÈÍÎÏÌù:£§'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ€µìstuvwxyz¡¿ÐÝÞ®¢#¥·©@¶¼½¾¬|¯¨´×àABCDEFGHI­ôö¦óõèJKLMNOPQR¹ûü`úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1145] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåç¦[.<(+|&éêëèíîïìß]$*);¬-/ÂÄÀÁÃÅÇ#ñ,%_>?øÉÊËÈÍÎÏÌ`:Ñ@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ¨stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾^!¯~´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1146] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ$.<(+|&éêëèíîïìß!£*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ¯stuvwxyz¡¿ÐÝÞ®¢[¥·©§¶¼½¾^]~¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1147] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä@áãå\\ñ°.<(+!&{êë}íîïìß§$*);^-/ÂÄÀÁÃÅÇÑù,%_>?øÉÊËÈÍÎÏÌµ:£à'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ€`¨stuvwxyz¡¿ÐÝÞ®¢#¥·©]¶¼½¾¬|¯~´×éABCDEFGHI­ôöòóõèJKLMNOPQR¹ûü¦úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1148] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ[.<(+!&éêëèíîïìß]$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ€µ~stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[1149] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÞ.<(+!&éêëèíîïìßÆ$*);Ö-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌð:#Ð'=\"Øabcdefghi«»`ý{±°jklmnopqrªº}¸]€µöstuvwxyz¡¿@Ý[®¢£¥·©§¶¼½¾¬|¯¨\\×þABCDEFGHI­ô~òóõæJKLMNOPQR¹ûüùúÿ´÷STUVWXYZ²Ô^ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[1361] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~�����������������������������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -1624,8 +2376,8 @@ for(j = 0; j != D[252].length; ++j) if(D[252][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[253] = "�����������������������������������������������������������������������������������������������������������������������������������������������������������������爻肴酵驍侯候厚后吼喉嗅帿後朽煦珝逅勛勳塤壎焄熏燻薰訓暈薨喧暄煊萱卉喙毁彙徽揮暉煇諱輝麾休携烋畦虧恤譎鷸兇凶匈洶胸黑昕欣炘痕吃屹紇訖欠欽歆吸恰洽翕興僖凞喜噫囍姬嬉希憙憘戱晞曦熙熹熺犧禧稀羲詰�".split("");
 for(j = 0; j != D[253].length; ++j) if(D[253][j].charCodeAt(0) !== 0xFFFD) { e[D[253][j]] = 64768 + j; d[64768 + j] = D[253][j];}
 return {"enc": e, "dec": d }; })();
-cptable[10004] = (function(){ var d = "ےے\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~Ä ÇÉÑÖÜáàâäں«çéèêëí…îïñó»ôö÷úùûü٪،٠١٢٣٤٥٦٧٨٩؛؟٭ءآأؤإئابةتثجحخدذرزسشصضطظعغـفقكلمنهوىيًٌٍَُِّْپٹچەڤگڈڑژے", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10005] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü¤₪„ּֽ… �ִֵֶַ–—“”‘’־ְֱֲֳָֻׁאבגדהוזחטיךכלםמןנסעףפץצקרשת", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10004] = (function(){ var d = "ےے\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~Ä ÇÉÑÖÜáàâäں«çéèêëí…îïñó»ôö÷úùûü٪،٠١٢٣٤٥٦٧٨٩؛؟٭ءآأؤإئابةتثجحخدذرزسشصضطظعغـفقكلمنهوىيًٌٍَُِّْپٹچەڤگڈڑژے", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10005] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü¤₪„ּֽ… �ִֵֶַ–—“”‘’־ְֱֲֳָֻׁאבגדהוזחטיךכלםמןנסעףפץצקרשת", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[10008] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~���������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -1792,10 +2544,10 @@ for(j = 0; j != D[246].length; ++j) if(D[246][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[247] = "�����������������������������������������������������������������������������������������������������������������������������������������������������������������鳌鳍鳎鳏鳐鳓鳔鳕鳗鳘鳙鳜鳝鳟鳢靼鞅鞑鞒鞔鞯鞫鞣鞲鞴骱骰骷鹘骶骺骼髁髀髅髂髋髌髑魅魃魇魉魈魍魑飨餍餮饕饔髟髡髦髯髫髻髭髹鬈鬏鬓鬟鬣麽麾縻麂麇麈麋麒鏖麝麟黛黜黝黠黟黢黩黧黥黪黯鼢鼬鼯鼹鼷鼽鼾齄�".split("");
 for(j = 0; j != D[247].length; ++j) if(D[247][j].charCodeAt(0) !== 0xFFFD) { e[D[247][j]] = 63232 + j; d[63232 + j] = D[247][j];}
 return {"enc": e, "dec": d }; })();
-cptable[10010] = (function(){ var d = "ˇˇ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ĂŞ∞±≤≥¥µ∂∑∏π∫ªºΩăş¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤‹›Ţţ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10017] = (function(){ var d = "¤¤\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ†°Ґ£§•¶І®©™Ђђ≠Ѓѓ∞±≤≥іµґЈЄєЇїЉљЊњјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю¤", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10021] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~�«»…����������“”��•�����������‘’� กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู﻿​–—฿เแโใไๅๆ็่้๊๋์ํ™๏๐๑๒๓๔๕๖๗๘๙®©����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[10082] = (function(){ var d = "ˇˇ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®Š™´¨≠ŽØ∞±≤≥∆µ∂∑∏š∫ªºΩžø¿¡¬√ƒ≈Ć«Č… ÀÃÕŒœĐ—“”‘’÷◊©⁄¤‹›Æ»–·‚„‰ÂćÁčÈÍÎÏÌÓÔđÒÚÛÙıˆ˜¯πË˚¸Êæˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10010] = (function(){ var d = "ˇˇ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ĂŞ∞±≤≥¥µ∂∑∏π∫ªºΩăş¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄¤‹›Ţţ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10017] = (function(){ var d = "¤¤\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ†°Ґ£§•¶І®©™Ђђ≠Ѓѓ∞±≤≥іµґЈЄєЇїЉљЊњјЅ¬√ƒ≈∆«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№Ёёяабвгдежзийклмнопрстуфхцчшщъыьэю¤", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10021] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~�«»…����������“”��•�����������‘’� กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู﻿​–—฿เแโใไๅๆ็่้๊๋์ํ™๏๐๑๒๓๔๕๖๗๘๙®©����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[10082] = (function(){ var d = "ˇˇ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®Š™´¨≠ŽØ∞±≤≥∆µ∂∑∏š∫ªºΩžø¿¡¬√ƒ≈Ć«Č… ÀÃÕŒœĐ—“”‘’÷◊©⁄¤‹›Æ»–·‚„‰ÂćÁčÈÍÎÏÌÓÔđÒÚÛÙıˆ˜¯πË˚¸Êæˇ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[20000] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~����������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -2996,10 +3748,10 @@ for(j = 0; j != D[251].length; ++j) if(D[251][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[252] = "������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[252].length; ++j) if(D[252][j].charCodeAt(0) !== 0xFFFD) { e[D[252][j]] = 64512 + j; d[64512 + j] = D[252][j];}
 return {"enc": e, "dec": d }; })();
-cptable[20105] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#¤%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}‾∇��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20106] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?§ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ^_`abcdefghijklmnopqrstuvwxyzäöüß��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20107] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#¤%&'()*+,-./0123456789:;<=>?ÉABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅÜ_éabcdefghijklmnopqrstuvwxyzäöåü��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20108] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"§$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ^_`abcdefghijklmnopqrstuvwxyzæøå|��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20105] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#¤%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}‾∇��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20106] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?§ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ^_`abcdefghijklmnopqrstuvwxyzäöüß��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20107] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#¤%&'()*+,-./0123456789:;<=>?ÉABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅÜ_éabcdefghijklmnopqrstuvwxyzäöåü��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20108] = (function(){ var d = "��\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"§$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ^_`abcdefghijklmnopqrstuvwxyzæøå|��������������������������������������������������������������������������������������������������������������������������������", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[20261] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"��%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]_abcdefghijklmnopqrstuvwxyz|¡¢£$¥#§¤«°±²³×µ¶·÷»¼½¾¿���������������ΩÆÐªĦĲĿŁØŒºÞŦŊŉĸæđðħıĳŀłøœßþŧŋ".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -3030,25 +3782,25 @@ for(j = 0; j != D[206].length; ++j) if(D[206][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[207] = "��������������������������������ˇ��������������������������������Ǎ�ČĎĚ�Ǧ�Ǐ�ǨĽ�ŇǑ��ŘŠŤǓ����Ž������ǎ�čďě�ǧ�ǐǰǩľ�ňǒ��řšťǔ����ž�������������������������������������������������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[207].length; ++j) if(D[207][j].charCodeAt(0) !== 0xFFFD) { e[D[207][j]] = 52992 + j; d[52992 + j] = D[207][j];}
 return {"enc": e, "dec": d }; })();
-cptable[20269] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"��%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]�_�abcdefghijklmnopqrstuvwxyz{|}��� ¡¢£$¥#§¤‘“«←↑→↓°±²³×µ¶·÷’”»¼½¿�`´^~¯̆̈�̧̨̲̊̋̌―¹®©™♩��⅛⅜⅝⅞ΩÆÐĦ�ĲĿŁØŒºÞŦŊŉĸæđðħıĳŀłøœßþŧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20273] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáãåçñÄ.<(+!&éêëèíîïì~Ü$*);^-/Â[ÀÁÃÅÇÑö,%_>?øÉÊËÈÍÎÏÌ`:#§'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µßstuvwxyz¡¿ÐÝÞ®¢£¥·©@¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõüJKLMNOPQR¹û}ùúÿÖ÷STUVWXYZ²Ô\\ÒÓÕ0123456789³Û]ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20277] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáã}çñ#.<(+!&éêëèíîïìß¤Å*);^-/ÂÄÀÁÃ$ÇÑø,%_>?¦ÉÊËÈÍÎÏÌ`:ÆØ'=\"@abcdefghi«»ðýþ±°jklmnopqrªº{¸[]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×æABCDEFGHI­ôöòóõåJKLMNOPQR¹û~ùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20278] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáã}çñ§.<(+!&`êëèíîïìß¤Å*);^-/Â#ÀÁÃ$ÇÑö,%_>?ø\\ÊËÈÍÎÏÌé:ÄÖ'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©[¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõåJKLMNOPQR¹û~ùúÿÉ÷STUVWXYZ²Ô@ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20280] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä{áãå\\ñ°.<(+!&]êë}íîï~ßé$*);^-/ÂÄÀÁÃÅÇÑò,%_>?øÉÊËÈÍÎÏÌù:£§'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ¤µìstuvwxyz¡¿ÐÝÞ®¢#¥·©@¶¼½¾¬|¯¨´×àABCDEFGHI­ôö¦óõèJKLMNOPQR¹ûü`úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20284] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåç¦[.<(+|&éêëèíîïìß]$*);¬-/ÂÄÀÁÃÅÇ#ñ,%_>?øÉÊËÈÍÎÏÌ`:Ñ@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ¨stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾^!¯~´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20285] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ$.<(+|&éêëèíîïìß!£*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ¯stuvwxyz¡¿ÐÝÞ®¢[¥·©§¶¼½¾^]~¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20290] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ｡｢｣､･ｦｧｨｩ£.<(+|&ｪｫｬｭｮｯ�ｰ�!¥*);¬-/abcdefgh�,%_>?[ijklmnop`:#@'=\"]ｱｲｳｴｵｶｷｸｹｺqｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉr�ﾊﾋﾌ~‾ﾍﾎﾏﾐﾑﾒﾓﾔﾕsﾖﾗﾘﾙ^¢\\tuvwxyzﾚﾛﾜﾝﾞﾟ{ABCDEFGHI������}JKLMNOPQR������$�STUVWXYZ������0123456789�����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20297] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä@áãå\\ñ°.<(+!&{êë}íîïìß§$*);^-/ÂÄÀÁÃÅÇÑù,%_>?øÉÊËÈÍÎÏÌµ:£à'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ¤`¨stuvwxyz¡¿ÐÝÞ®¢#¥·©]¶¼½¾¬|¯~´×éABCDEFGHI­ôöòóõèJKLMNOPQR¹ûü¦úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20420] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ﹼﹽـﺀﺁﺂﺃ¢.<(+|&ﺄﺅ��ﺋﺍﺎﺏﺑ!$*);¬-/ﺓﺕﺗﺙﺛﺝﺟﺡ¦,%_>?ﺣﺥﺧﺩﺫﺭﺯﺳ،:#@'=\"abcdefghiﺷﺻﺿﻃﻇjklmnopqrﻉﻊﻋﻌﻍﻎﻏ÷stuvwxyzﻐﻑﻓﻕﻗﻙﻛﻝﻵﻶﻷﻸ��ﻻﻼﻟﻡﻣﻥﻧﻩ؛ABCDEFGHI­ﻫ�ﻬ�ﻭ؟JKLMNOPQRﻯﻰﻱﻲﻳ٠× STUVWXYZ١٢�٣٤٥0123456789�٦٧٨٩", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20423] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ΑΒΓΔΕΖΗΘΙ[.<(+!&ΚΛΜΝΞΟΠΡΣ]$*);^-/ΤΥΦΧΨΩ��|,%_>?�ΆΈΉ ΊΌΎΏ`:£§'=\"ÄabcdefghiαβγδεζÖjklmnopqrηθικλμÜ¨stuvwxyzνξοπρσ�άέήϊίόύϋώςτυφχψ¸ABCDEFGHI­ωâàäê´JKLMNOPQR±éèëîï°�STUVWXYZ½öôûùü0123456789ÿçÇ��", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20424] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a אבגדהוזחט¢.<(+|&יךכלםמןנס!$*);¬-/עףפץצקרש¦,%_>?�ת�� ���‗`:#@'=\"�abcdefghi«»���±°jklmnopqr���¸�¤µ~stuvwxyz�����®^£¥•©§¶¼½¾[]‾¨´×{ABCDEFGHI­�����}JKLMNOPQR¹�����\\÷STUVWXYZ²�����0123456789³����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20833] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a �ﾠﾡﾢﾣﾤﾥﾦﾧ¢.<(+|&�ﾨﾩﾪﾫﾬﾭﾮﾯ!$*);¬-/ﾰﾱﾲﾳﾴﾵﾶﾷ¦,%_>?[�ﾸﾹﾺﾻﾼﾽﾾ`:#@'=\"]abcdefghiￂￃￄￅￆￇ�jklmnopqrￊￋￌￍￎￏ‾~stuvwxyzￒￓￔￕￖￗ^�\\�������ￚￛￜ���{ABCDEFGHI������}JKLMNOPQR������₩�STUVWXYZ������0123456789�����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20838] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  กขฃคฅฆง[¢.<(+|&�จฉชซฌญฎ]!$*);¬-/ฏฐฑฒณดต^¦,%_>?฿๎ถทธนบปผ`:#@'=\"๏abcdefghiฝพฟภมย๚jklmnopqrรฤลฦวศ๛~stuvwxyzษสหฬอฮ๐๑๒๓๔๕๖๗๘๙ฯะัาำิ{ABCDEFGHI�ีึืุู}JKLMNOPQRฺเแโใไ\\�STUVWXYZๅๆ็่้๊0123456789๋์ํ��", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20866] = (function(){ var d = "ЪЪ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20871] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÞ.<(+!&éêëèíîïìßÆ$*);Ö-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌð:#Ð'=\"Øabcdefghi«»`ý{±°jklmnopqrªº}¸]¤µöstuvwxyz¡¿@Ý[®¢£¥·©§¶¼½¾¬|¯¨\\×þABCDEFGHI­ô~òóõæJKLMNOPQR¹ûüùúÿ´÷STUVWXYZ²Ô^ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20880] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ђѓёєѕіїј[.<(+!&љњћќўџЪ№Ђ]$*);^-/ЃЁЄЅІЇЈЉ|,%_>?ЊЋЌ­ЎЏюаб`:#@'=\"цabcdefghiдефгхийjklmnopqrклмнопя~stuvwxyzрстужвьызшэщчъЮАБЦДЕФГ{ABCDEFGHIХИЙКЛМ}JKLMNOPQRНОПЯРС\\¤STUVWXYZТУЖВЬЫ0123456789ЗШЭЩЧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20905] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàá�ċ{ñÇ.<(+!&éêëèíîïìßĞİ*);^-/ÂÄÀÁ�Ċ[Ñş,%_>?�ÉÊËÈÍÎÏÌı:ÖŞ'=Ü˘abcdefghiħĉŝŭ�|°jklmnopqrĥĝĵ¸�¤µöstuvwxyzĦĈŜŬ�@˙£ż}Ż§]·½$ĤĜĴ¨´×çABCDEFGHI­ô~òóġğJKLMNOPQR`û\\ùú�ü÷STUVWXYZ²Ô#ÒÓĠ0123456789³Û\"ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[20924] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\n\b\u0018\u0019\u001c\u001d\u001e\u001f\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÝ.<(+|&éêëèíîïìß!$*);^-/ÂÄÀÁÃÅÇÑŠ,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæžÆ€µ~stuvwxyz¡¿Ð[Þ®¢£¥·©§¶Œœ�¬š¯]Ž×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20269] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"��%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]�_�abcdefghijklmnopqrstuvwxyz{|}��� ¡¢£$¥#§¤‘“«←↑→↓°±²³×µ¶·÷’”»¼½¿�`´^~¯̆̈�̧̨̲̊̋̌―¹®©™♩��⅛⅜⅝⅞ΩÆÐĦ�ĲĿŁØŒºÞŦŊŉĸæđðħıĳŀłøœßþŧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20273] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáãåçñÄ.<(+!&éêëèíîïì~Ü$*);^-/Â[ÀÁÃÅÇÑö,%_>?øÉÊËÈÍÎÏÌ`:#§'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µßstuvwxyz¡¿ÐÝÞ®¢£¥·©@¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõüJKLMNOPQR¹û}ùúÿÖ÷STUVWXYZ²Ô\\ÒÓÕ0123456789³Û]ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20277] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáã}çñ#.<(+!&éêëèíîïìß¤Å*);^-/ÂÄÀÁÃ$ÇÑø,%_>?¦ÉÊËÈÍÎÏÌ`:ÆØ'=\"@abcdefghi«»ðýþ±°jklmnopqrªº{¸[]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×æABCDEFGHI­ôöòóõåJKLMNOPQR¹û~ùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20278] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  â{àáã}çñ§.<(+!&`êëèíîïìß¤Å*);^-/Â#ÀÁÃ$ÇÑö,%_>?ø\\ÊËÈÍÎÏÌé:ÄÖ'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ]µüstuvwxyz¡¿ÐÝÞ®¢£¥·©[¶¼½¾¬|¯¨´×äABCDEFGHI­ô¦òóõåJKLMNOPQR¹û~ùúÿÉ÷STUVWXYZ²Ô@ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20280] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä{áãå\\ñ°.<(+!&]êë}íîï~ßé$*);^-/ÂÄÀÁÃÅÇÑò,%_>?øÉÊËÈÍÎÏÌù:£§'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ¤µìstuvwxyz¡¿ÐÝÞ®¢#¥·©@¶¼½¾¬|¯¨´×àABCDEFGHI­ôö¦óõèJKLMNOPQR¹ûü`úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20284] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåç¦[.<(+|&éêëèíîïìß]$*);¬-/ÂÄÀÁÃÅÇ#ñ,%_>?øÉÊËÈÍÎÏÌ`:Ñ@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ¨stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾^!¯~´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20285] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ$.<(+|&éêëèíîïìß!£*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ¯stuvwxyz¡¿ÐÝÞ®¢[¥·©§¶¼½¾^]~¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20290] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ｡｢｣､･ｦｧｨｩ£.<(+|&ｪｫｬｭｮｯ�ｰ�!¥*);¬-/abcdefgh�,%_>?[ijklmnop`:#@'=\"]ｱｲｳｴｵｶｷｸｹｺqｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉr�ﾊﾋﾌ~‾ﾍﾎﾏﾐﾑﾒﾓﾔﾕsﾖﾗﾘﾙ^¢\\tuvwxyzﾚﾛﾜﾝﾞﾟ{ABCDEFGHI������}JKLMNOPQR������$�STUVWXYZ������0123456789�����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20297] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âä@áãå\\ñ°.<(+!&{êë}íîïìß§$*);^-/ÂÄÀÁÃÅÇÑù,%_>?øÉÊËÈÍÎÏÌµ:£à'=\"Øabcdefghi«»ðýþ±[jklmnopqrªºæ¸Æ¤`¨stuvwxyz¡¿ÐÝÞ®¢#¥·©]¶¼½¾¬|¯~´×éABCDEFGHI­ôöòóõèJKLMNOPQR¹ûü¦úÿç÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20420] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ﹼﹽـﺀﺁﺂﺃ¢.<(+|&ﺄﺅ��ﺋﺍﺎﺏﺑ!$*);¬-/ﺓﺕﺗﺙﺛﺝﺟﺡ¦,%_>?ﺣﺥﺧﺩﺫﺭﺯﺳ،:#@'=\"abcdefghiﺷﺻﺿﻃﻇjklmnopqrﻉﻊﻋﻌﻍﻎﻏ÷stuvwxyzﻐﻑﻓﻕﻗﻙﻛﻝﻵﻶﻷﻸ��ﻻﻼﻟﻡﻣﻥﻧﻩ؛ABCDEFGHI­ﻫ�ﻬ�ﻭ؟JKLMNOPQRﻯﻰﻱﻲﻳ٠× STUVWXYZ١٢�٣٤٥0123456789�٦٧٨٩", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20423] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a ΑΒΓΔΕΖΗΘΙ[.<(+!&ΚΛΜΝΞΟΠΡΣ]$*);^-/ΤΥΦΧΨΩ��|,%_>?�ΆΈΉ ΊΌΎΏ`:£§'=\"ÄabcdefghiαβγδεζÖjklmnopqrηθικλμÜ¨stuvwxyzνξοπρσ�άέήϊίόύϋώςτυφχψ¸ABCDEFGHI­ωâàäê´JKLMNOPQR±éèëîï°�STUVWXYZ½öôûùü0123456789ÿçÇ��", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20424] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a אבגדהוזחט¢.<(+|&יךכלםמןנס!$*);¬-/עףפץצקרש¦,%_>?�ת�� ���‗`:#@'=\"�abcdefghi«»���±°jklmnopqr���¸�¤µ~stuvwxyz�����®^£¥•©§¶¼½¾[]‾¨´×{ABCDEFGHI­�����}JKLMNOPQR¹�����\\÷STUVWXYZ²�����0123456789³����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20833] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a �ﾠﾡﾢﾣﾤﾥﾦﾧ¢.<(+|&�ﾨﾩﾪﾫﾬﾭﾮﾯ!$*);¬-/ﾰﾱﾲﾳﾴﾵﾶﾷ¦,%_>?[�ﾸﾹﾺﾻﾼﾽﾾ`:#@'=\"]abcdefghiￂￃￄￅￆￇ�jklmnopqrￊￋￌￍￎￏ‾~stuvwxyzￒￓￔￕￖￗ^�\\�������ￚￛￜ���{ABCDEFGHI������}JKLMNOPQR������₩�STUVWXYZ������0123456789�����", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20838] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  กขฃคฅฆง[¢.<(+|&�จฉชซฌญฎ]!$*);¬-/ฏฐฑฒณดต^¦,%_>?฿๎ถทธนบปผ`:#@'=\"๏abcdefghiฝพฟภมย๚jklmnopqrรฤลฦวศ๛~stuvwxyzษสหฬอฮ๐๑๒๓๔๕๖๗๘๙ฯะัาำิ{ABCDEFGHI�ีึืุู}JKLMNOPQRฺเแโใไ\\�STUVWXYZๅๆ็่้๊0123456789๋์ํ��", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20866] = (function(){ var d = "ЪЪ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20871] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÞ.<(+!&éêëèíîïìßÆ$*);Ö-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌð:#Ð'=\"Øabcdefghi«»`ý{±°jklmnopqrªº}¸]¤µöstuvwxyz¡¿@Ý[®¢£¥·©§¶¼½¾¬|¯¨\\×þABCDEFGHI­ô~òóõæJKLMNOPQR¹ûüùúÿ´÷STUVWXYZ²Ô^ÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20880] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ђѓёєѕіїј[.<(+!&љњћќўџЪ№Ђ]$*);^-/ЃЁЄЅІЇЈЉ|,%_>?ЊЋЌ­ЎЏюаб`:#@'=\"цabcdefghiдефгхийjklmnopqrклмнопя~stuvwxyzрстужвьызшэщчъЮАБЦДЕФГ{ABCDEFGHIХИЙКЛМ}JKLMNOPQRНОПЯРС\\¤STUVWXYZТУЖВЬЫ0123456789ЗШЭЩЧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20905] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàá�ċ{ñÇ.<(+!&éêëèíîïìßĞİ*);^-/ÂÄÀÁ�Ċ[Ñş,%_>?�ÉÊËÈÍÎÏÌı:ÖŞ'=Ü˘abcdefghiħĉŝŭ�|°jklmnopqrĥĝĵ¸�¤µöstuvwxyzĦĈŜŬ�@˙£ż}Ż§]·½$ĤĜĴ¨´×çABCDEFGHI­ô~òóġğJKLMNOPQR`û\\ùú�ü÷STUVWXYZ²Ô#ÒÓĠ0123456789³Û\"ÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[20924] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\n\b\u0018\u0019\u001c\u001d\u001e\u001f\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñÝ.<(+|&éêëèíîïìß!$*);^-/ÂÄÀÁÃÅÇÑŠ,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæžÆ€µ~stuvwxyz¡¿Ð[Þ®¢£¥·©§¶Œœ�¬š¯]Ž×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[20932] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~�����������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -3585,11 +4337,11 @@ for(j = 0; j != D[252].length; ++j) if(D[252][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[253] = "�����������������������������������������������������������������������������������������������������������������������������������������������������������������爻肴酵驍侯候厚后吼喉嗅帿後朽煦珝逅勛勳塤壎焄熏燻薰訓暈薨喧暄煊萱卉喙毁彙徽揮暉煇諱輝麾休携烋畦虧恤譎鷸兇凶匈洶胸黑昕欣炘痕吃屹紇訖欠欽歆吸恰洽翕興僖凞喜噫囍姬嬉希憙憘戱晞曦熙熹熺犧禧稀羲詰�".split("");
 for(j = 0; j != D[253].length; ++j) if(D[253][j].charCodeAt(0) !== 0xFFFD) { e[D[253][j]] = 64768 + j; d[64768 + j] = D[253][j];}
 return {"enc": e, "dec": d }; })();
-cptable[21025] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ђѓёєѕіїј[.<(+!&љњћќўџЪ№Ђ]$*);^-/ЃЁЄЅІЇЈЉ|,%_>?ЊЋЌ­ЎЏюаб`:#@'=\"цabcdefghiдефгхийjklmnopqrклмнопя~stuvwxyzрстужвьызшэщчъЮАБЦДЕФГ{ABCDEFGHIХИЙКЛМ}JKLMNOPQRНОПЯРС\\§STUVWXYZТУЖВЬЫ0123456789ЗШЭЩЧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[21027] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f\u0000 \u0000｡｢｣､･ｦｧｨ¢.<(+|&ｩｪｫｬｭｮｯｰｱ!$*);¬-/ｲｳｴｵｶｷｹ\u0000,%_>?ｺｻｼｽｾｿﾀﾁﾂ`:#@'\"\u0000abcdefghiﾃﾄﾅﾆﾈ\u0000jklmnopqrﾉﾊﾋﾌﾍﾎ¯~stuvwxyzﾏﾐﾑ[ﾒﾓ^£¥ﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ]ﾞﾟ{ABCDEFG\u0000\u0000}JKLMNOP\u0000\\\u0000STUVWX\u0000\u000001234567", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[21866] = (function(){ var d = "ЪЪ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ёє╔ії╗╘╙╚╛ґў╞╟╠╡ЁЄ╣ІЇ╦╧╨╩╪ҐЎ©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[29001] = (function(){ var d = "ΈΉΊΌΎ°◘○◙♂♀♪♬☼▶◀↕‼¶§£Ώ↑↓→←Ë↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùΑÖÜøαØάΒáíóúñÑβΓγΔδΕεέΖζΗηή│ªÁÂÀΘθ║╗╝ΙΪ┐└º¡¿─΄ãÃ╚╔ιίϊ═ΐΚκΛÊλΜμÍΝν┘┌ΞξΟοόÓßÔΠõÕπΡρÚΣςσΤτΥΫυύϋΰΦφΧχΨ·ψΩωώ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[38598] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¢£¤¥¦§¨©×«¬­®‾°±²³´µ¶·¸¹÷»¼½¾‗אבגדהוזחטיךכלםמןנסעףפץצקרשת", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[21025] = (function(){ var d = "\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  ђѓёєѕіїј[.<(+!&љњћќўџЪ№Ђ]$*);^-/ЃЁЄЅІЇЈЉ|,%_>?ЊЋЌ­ЎЏюаб`:#@'=\"цabcdefghiдефгхийjklmnopqrклмнопя~stuvwxyzрстужвьызшэщчъЮАБЦДЕФГ{ABCDEFGHIХИЙКЛМ}JKLMNOPQRНОПЯРС\\§STUVWXYZТУЖВЬЫ0123456789ЗШЭЩЧ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[21027] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f\u0000 \u0000｡｢｣､･ｦｧｨ¢.<(+|&ｩｪｫｬｭｮｯｰｱ!$*);¬-/ｲｳｴｵｶｷｹ\u0000,%_>?ｺｻｼｽｾｿﾀﾁﾂ`:#@'\"\u0000abcdefghiﾃﾄﾅﾆﾈ\u0000jklmnopqrﾉﾊﾋﾌﾍﾎ¯~stuvwxyzﾏﾐﾑ[ﾒﾓ^£¥ﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ]ﾞﾟ{ABCDEFG\u0000\u0000}JKLMNOP\u0000\\\u0000STUVWX\u0000\u000001234567", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[21866] = (function(){ var d = "ЪЪ\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ёє╔ії╗╘╙╚╛ґў╞╟╠╡ЁЄ╣ІЇ╦╧╨╩╪ҐЎ©юабцдефгхийклмнопярстужвьызшэщчъЮАБЦДЕФГХИЙКЛМНОПЯРСТУЖВЬЫЗШЭЩЧЪ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[29001] = (function(){ var d = "ΈΉΊΌΎ°◘○◙♂♀♪♬☼▶◀↕‼¶§£Ώ↑↓→←Ë↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùΑÖÜøαØάΒáíóúñÑβΓγΔδΕεέΖζΗηή│ªÁÂÀΘθ║╗╝ΙΪ┐└º¡¿─΄ãÃ╚╔ιίϊ═ΐΚκΛÊλΜμÍΝν┘┌ΞξΟοόÓßÔΠõÕπΡρÚΣςσΤτΥΫυύϋΰΦφΧχΨ·ψΩωώ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[38598] = (function(){ var d = "\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¢£¤¥¦§¨©×«¬­®‾°±²³´µ¶·¸¹÷»¼½¾‗אבגדהוזחטיךכלםמןנסעףפץצקרשת", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[50220] = (function(){ var d = [], e = {}, D = [], j;
 D[0] = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u0000\u0000\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~�������������������������������｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ�����������������������������".split("");
 for(j = 0; j != D[0].length; ++j) if(D[0][j].charCodeAt(0) !== 0xFFFD) { e[D[0][j]] = 0 + j; d[0 + j] = D[0][j];}
@@ -6336,22 +7088,28 @@ for(j = 0; j != D[201].length; ++j) if(D[201][j].charCodeAt(0) !== 0xFFFD) { e[D
 D[239] = "����������������������������������������������������������������੯੯੯੯੯੯੯੯੯੯੯੯������������������������������������������������������������������������������������������������������������������������������������������������������������������������������������".split("");
 for(j = 0; j != D[239].length; ++j) if(D[239][j].charCodeAt(0) !== 0xFFFD) { e[D[239][j]] = 61184 + j; d[61184 + j] = D[239][j];}
 return {"enc": e, "dec": d }; })();
-cptable[620] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàąçêëèïîćÄĄĘęłôöĆûùŚÖÜ¢Ł¥śƒŹŻóÓńŃźż¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-cptable[895] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ČüéďäĎŤčěĚĹÍľǪÄÁÉžŽôöÓůÚýÖÜŠĽÝŘťáíóúňŇŮÔšřŕŔ¼§«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d[i]] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
-if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
+cptable[620] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàąçêëèïîćÄĄĘęłôöĆûùŚÖÜ¢Ł¥śƒŹŻóÓńŃźż¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+cptable[895] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ČüéďäĎŤčěĚĹÍľǪÄÁÉžŽôöÓůÚýÖÜŠĽÝŘťáíóúňŇŮÔšřŕŔ¼§«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
+// eslint-disable-next-line no-undef
+if ('object' !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = cptable;
+});
+
+var cputils = createCommonjsModule(function (module) {
 /* cputils.js (C) 2013-present SheetJS -- http://sheetjs.com */
+/* vim: set ft=javascript: */
 /*jshint newcap: false */
-(function(root, factory){
-  "use strict";
+(function(root, factory) {
   if(typeof cptable === "undefined") {
-    if(typeof require !== "undefined"){
-      var cpt = require('./cpt' + 'able');
-      if (typeof module !== 'undefined' && module.exports) module.exports = factory(cpt);
+    if(typeof commonjsRequire !== "undefined"){
+      var cpt = cptable_1;
+      if ('object' !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);
       else root.cptable = factory(cpt);
     } else throw new Error("cptable not found");
   } else cptable = factory(cptable);
-}(this, function(cpt){
-  "use strict";
+  /*eslint-enable */
+  /*jshint ignore:end */
+}(commonjsGlobal, function(cpt){
+  /*global module, Buffer */
   var magic = {
     "1200":"utf16le",
     "1201":"utf16be",
@@ -6368,11 +7126,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
   var magic_cache = [65001];
   var magic_decode = {};
   var magic_encode = {};
-  var cpecache = {};
   var cpdcache = {};
+  var cpecache = {};
 
   var sfcc = function sfcc(x) { return String.fromCharCode(x); };
-  var cca = function cca(x){ return x.charCodeAt(0); };
+  var cca = function cca(x) { return x.charCodeAt(0); };
 
   var has_buf = (typeof Buffer !== 'undefined');
   if(has_buf) {
@@ -6391,12 +7149,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       var EE = make_EE(cpt[cp].enc);
       return function sbcs_e(data, ofmt) {
         var len = data.length;
-        var out, i, j, D, w;
+        var out, i=0, j=0, D=0, w=0;
         if(typeof data === 'string') {
-          out = Buffer(len);
+          out = new Buffer(len);
           for(i = 0; i < len; ++i) out[i] = EE[data.charCodeAt(i)];
         } else if(Buffer.isBuffer(data)) {
-          out = Buffer(2*len);
+          out = new Buffer(2*len);
           j = 0;
           for(i = 0; i < len; ++i) {
             D = data[i];
@@ -6411,24 +7169,24 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
           }
           out = out.slice(0,j);
         } else {
-          out = Buffer(len);
+          out = new Buffer(len);
           for(i = 0; i < len; ++i) out[i] = EE[data[i].charCodeAt(0)];
         }
-        if(ofmt === undefined || ofmt === 'buf') return out;
+        if(!ofmt || ofmt === 'buf') return out;
         if(ofmt !== 'arr') return out.toString('binary');
         return [].slice.call(out);
       };
     };
     var sbcs_decode = function make_sbcs_decode(cp) {
       var D = cpt[cp].dec;
-      var DD = new Buffer(131072), d=0, c;
+      var DD = new Buffer(131072), d=0, c="";
       for(d=0;d<D.length;++d) {
         if(!(c=D[d])) continue;
         var w = c.charCodeAt(0);
         DD[2*d] = w&255; DD[2*d+1] = w>>8;
       }
       return function sbcs_d(data) {
-        var len = data.length, i=0, j;
+        var len = data.length, i=0, j=0;
         if(2 * len > mdl) { mdl = 2 * len; mdb = new Buffer(mdl); }
         if(Buffer.isBuffer(data)) {
           for(i = 0; i < len; i++) {
@@ -6460,7 +7218,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         EE[2*f] = E[e] & 255; EE[2*f+1] = E[e]>>8;
       }
       return function dbcs_e(data, ofmt) {
-        var len = data.length, out = new Buffer(2*len), i, j, jj, k, D;
+        var len = data.length, out = new Buffer(2*len), i=0, j=0, jj=0, k=0, D=0;
         if(typeof data === 'string') {
           for(i = k = 0; i < len; ++i) {
             j = data.charCodeAt(i)*2;
@@ -6487,7 +7245,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
             out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
           }
         }
-        if(ofmt === undefined || ofmt === 'buf') return out;
+        if(!ofmt || ofmt === 'buf') return out;
         if(ofmt !== 'arr') return out.toString('binary');
         return [].slice.call(out);
       };
@@ -6503,7 +7261,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         DD[j] = w&255; DD[j+1] = w>>8;
       }
       return function dbcs_d(data) {
-        var len = data.length, out = new Buffer(2*len), i, j, k=0;
+        var len = data.length, out = new Buffer(2*len), i=0, j=0, k=0;
         if(Buffer.isBuffer(data)) {
           for(i = 0; i < len; i++) {
             j = 2*data[i];
@@ -6527,6 +7285,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       };
     };
     magic_decode[65001] = function utf8_d(data) {
+      if(typeof data === "string") return utf8_d(data.split("").map(cca));
       var len = data.length, w = 0, ww = 0;
       if(4 * len > mdl) { mdl = 4 * len; mdb = new Buffer(mdl); }
       var i = 0;
@@ -6546,6 +7305,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       return mdb.slice(0,k).toString('ucs2');
     };
     magic_encode[65001] = function utf8_e(data, ofmt) {
+      if(has_buf && Buffer.isBuffer(data)) {
+        if(!ofmt || ofmt === 'buf') return data;
+        if(ofmt !== 'arr') return data.toString('binary');
+        return [].slice.call(data);
+      }
       var len = data.length, w = 0, ww = 0, j = 0;
       var direct = typeof data === "string";
       if(4 * len > mdl) { mdl = 4 * len; mdb = new Buffer(mdl); }
@@ -6568,7 +7332,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
           mdb[j++] = 128 + (w&63);
         }
       }
-      if(ofmt === undefined || ofmt === 'buf') return mdb.slice(0,j);
+      if(!ofmt || ofmt === 'buf') return mdb.slice(0,j);
       if(ofmt !== 'arr') return mdb.slice(0,j).toString('binary');
       return [].slice.call(mdb, 0, j);
     };
@@ -6577,7 +7341,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
   var encache = function encache() {
     if(has_buf) {
       if(cpdcache[sbcs_cache[0]]) return;
-      var i, s;
+      var i=0, s=0;
       for(i = 0; i < sbcs_cache.length; ++i) {
         s = sbcs_cache[i];
         if(cpt[s]) {
@@ -6599,7 +7363,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       }
     }
   };
-  var cp_decache = function cp_decache(cp) { cpdcache[cp] = cpecache[cp] = undefined; };
+  var null_enc = function(data, ofmt) { return ""; };
+  var cp_decache = function cp_decache(cp) { delete cpdcache[cp]; delete cpecache[cp]; };
   var decache = function decache() {
     if(has_buf) {
       if(!cpdcache[sbcs_cache[0]]) return;
@@ -6607,7 +7372,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       dbcs_cache.forEach(cp_decache);
       magic_cache.forEach(cp_decache);
     }
-    last_enc = last_cp = undefined;
+    last_enc = null_enc; last_cp = 0;
   };
   var cache = {
     encache: encache,
@@ -6620,34 +7385,34 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
 
   var BM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   var SetD = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'(),-./:?";
-  var last_enc, last_cp;
+  var last_enc = null_enc, last_cp = 0;
   var encode = function encode(cp, data, ofmt) {
-    if(cp === last_cp) { return last_enc(data, ofmt); }
-    if(cpecache[cp] !== undefined) { last_enc = cpecache[last_cp=cp]; return last_enc(data, ofmt); }
+    if(cp === last_cp && last_enc) { return last_enc(data, ofmt); }
+    if(cpecache[cp]) { last_enc = cpecache[last_cp=cp]; return last_enc(data, ofmt); }
     if(has_buf && Buffer.isBuffer(data)) data = data.toString('utf8');
     var len = data.length;
-    var out = has_buf ? new Buffer(4*len) : [], w, i, j = 0, c, tt, ww;
-    var C = cpt[cp], E, M;
+    var out = has_buf ? new Buffer(4*len) : [], w=0, i=0, j = 0, ww=0;
+    var C = cpt[cp], E, M = "";
+    var isstr = typeof data === 'string';
     if(C && (E=C.enc)) for(i = 0; i < len; ++i, ++j) {
-      w = E[data[i]];
-      out[j] = w&255;
+      w = E[isstr? data.charAt(i) : data[i]];
       if(w > 255) {
         out[j] = w>>8;
         out[++j] = w&255;
-      }
+      } else out[j] = w&255;
     }
     else if((M=magic[cp])) switch(M) {
       case "utf8":
-        if(has_buf && typeof data === "string") { out = new Buffer(data, M); j = out.length; break; }
+        if(has_buf && isstr) { out = new Buffer(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i, ++j) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w <= 0x007F) out[j] = w;
           else if(w <= 0x07FF) {
             out[j]   = 192 + (w >> 6);
             out[++j] = 128 + (w&63);
           } else if(w >= 0xD800 && w <= 0xDFFF) {
             w -= 0xD800;
-            ww = data[++i].charCodeAt(0) - 0xDC00 + (w << 10);
+            ww = (isstr ? data.charCodeAt(++i) : data[++i].charCodeAt(0)) - 0xDC00 + (w << 10);
             out[j]   = 240 + ((ww>>>18) & 0x07);
             out[++j] = 144 + ((ww>>>12) & 0x3F);
             out[++j] = 128 + ((ww>>>6) & 0x3F);
@@ -6662,7 +7427,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       case "ascii":
         if(has_buf && typeof data === "string") { out = new Buffer(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i, ++j) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w <= 0x007F) out[j] = w;
           else throw new Error("bad ascii " + w);
         }
@@ -6670,21 +7435,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
       case "utf16le":
         if(has_buf && typeof data === "string") { out = new Buffer(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           out[j++] = w&255;
           out[j++] = w>>8;
         }
         break;
       case "utf16be":
         for(i = 0; i < len; ++i) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           out[j++] = w>>8;
           out[j++] = w&255;
         }
         break;
       case "utf32le":
         for(i = 0; i < len; ++i) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
           out[j++] = w&255; w >>= 8;
           out[j++] = w&255; w >>= 8;
@@ -6694,21 +7459,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         break;
       case "utf32be":
         for(i = 0; i < len; ++i) {
-          w = data[i].charCodeAt(0);
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
           out[j+3] = w&255; w >>= 8;
           out[j+2] = w&255; w >>= 8;
           out[j+1] = w&255; w >>= 8;
-          out[j] = w&255; w >>= 8;
+          out[j] = w&255;
           j+=4;
         }
         break;
       case "utf7":
         for(i = 0; i < len; i++) {
-          c = data[i];
+          var c = isstr ? data.charAt(i) : data[i].charAt(0);
           if(c === "+") { out[j++] = 0x2b; out[j++] = 0x2d; continue; }
           if(SetD.indexOf(c) > -1) { out[j++] = c.charCodeAt(0); continue; }
-          tt = encode(1201, c);
+          var tt = encode(1201, c);
           out[j++] = 0x2b;
           out[j++] = BM.charCodeAt(tt[0]>>2);
           out[j++] = BM.charCodeAt(((tt[0]&0x03)<<4) + ((tt[1]||0)>>4));
@@ -6720,31 +7485,30 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
     }
     else throw new Error("Unrecognized CP: " + cp);
     out = out.slice(0,j);
-    if(typeof Buffer === 'undefined') return (ofmt == 'str') ? out.map(sfcc).join("") : out;
-    if(ofmt === undefined || ofmt === 'buf') return out;
+    if(!has_buf) return (ofmt == 'str') ? (out).map(sfcc).join("") : out;
+    if(!ofmt || ofmt === 'buf') return out;
     if(ofmt !== 'arr') return out.toString('binary');
     return [].slice.call(out);
   };
   var decode = function decode(cp, data) {
     var F; if((F=cpdcache[cp])) return F(data);
-    var len = data.length, out = new Array(len), w, i, j = 1, k = 0, ww;
-    var C = cpt[cp], D, M;
+    if(typeof data === "string") return decode(cp, data.split("").map(cca));
+    var len = data.length, out = new Array(len), s="", w=0, i=0, j=1, k=0, ww=0;
+    var C = cpt[cp], D, M="";
     if(C && (D=C.dec)) {
-      if(typeof data === "string") data = data.split("").map(cca);
       for(i = 0; i < len; i+=j) {
         j = 2;
-        w = D[(data[i]<<8)+ data[i+1]];
-        if(!w) {
+        s = D[(data[i]<<8)+ data[i+1]];
+        if(!s) {
           j = 1;
-          w = D[data[i]];
+          s = D[data[i]];
         }
-        if(!w) throw new Error('Unrecognized code: ' + data[i] + ' ' + data[i+j-1] + ' ' + i + ' ' + j + ' ' + D[data[i]]);
-        out[k++] = w;
+        if(!s) throw new Error('Unrecognized code: ' + data[i] + ' ' + data[i+j-1] + ' ' + i + ' ' + j + ' ' + D[data[i]]);
+        out[k++] = s;
       }
     }
     else if((M=magic[cp])) switch(M) {
       case "utf8":
-        i = 0;
         if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
         for(; i < len; i+=j) {
           j = 1;
@@ -6764,24 +7528,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         for(i = 0; i < len; i++) out[i] = String.fromCharCode(data[i]);
         k = len; break;
       case "utf16le":
-        i = 0;
         if(len >= 2 && data[0] == 0xFF) if(data[1] == 0xFE) i = 2;
         if(has_buf && Buffer.isBuffer(data)) return data.toString(M);
         j = 2;
-        for(; i < len; i+=j) {
+        for(; i+1 < len; i+=j) {
           out[k++] = String.fromCharCode((data[i+1]<<8) + data[i]);
         }
         break;
       case "utf16be":
-        i = 0;
         if(len >= 2 && data[0] == 0xFE) if(data[1] == 0xFF) i = 2;
         j = 2;
-        for(; i < len; i+=j) {
+        for(; i+1 < len; i+=j) {
           out[k++] = String.fromCharCode((data[i]<<8) + data[i+1]);
         }
         break;
       case "utf32le":
-        i = 0;
         if(len >= 4 && data[0] == 0xFF) if(data[1] == 0xFE && data[2] === 0 && data[3] === 0) i = 4;
         j = 4;
         for(; i < len; i+=j) {
@@ -6795,7 +7556,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         }
         break;
       case "utf32be":
-        i = 0;
         if(len >= 4 && data[3] == 0xFF) if(data[2] == 0xFE && data[1] === 0 && data[0] === 0) i = 4;
         j = 4;
         for(; i < len; i+=j) {
@@ -6809,7 +7569,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
         }
         break;
       case "utf7":
-        i = 0;
         if(len >= 4 && data[0] == 0x2B && data[1] == 0x2F && data[2] == 0x76) {
           if(len >= 5 && data[3] == 0x38 && data[4] == 0x2D) i = 5;
           else if(data[3] == 0x38 || data[3] == 0x39 || data[3] == 0x2B || data[3] == 0x2F) i = 4;
@@ -6818,13 +7577,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
           if(data[i] !== 0x2b) { j=1; out[k++] = String.fromCharCode(data[i]); continue; }
           j=1;
           if(data[i+1] === 0x2d) { j = 2; out[k++] = "+"; continue; }
+          // eslint-disable-next-line no-useless-escape
           while(String.fromCharCode(data[i+j]).match(/[A-Za-z0-9+\/]/)) j++;
           var dash = 0;
           if(data[i+j] === 0x2d) { ++j; dash=1; }
           var tt = [];
-          var o64;
-          var c1, c2, c3;
-          var e1, e2, e3, e4;
+          var o64 = "";
+          var c1=0, c2=0, c3=0;
+          var e1=0, e2=0, e3=0, e4=0;
           for(var l = 1; l < j - dash;) {
             e1 = BM.indexOf(String.fromCharCode(data[i+l++]));
             e2 = BM.indexOf(String.fromCharCode(data[i+l++]));
@@ -6839,9 +7599,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
             c3 = (e3 & 3) << 6 | e4;
             if(e4 < 64) tt.push(c3);
           }
-          if((tt.length & 1) === 1) tt.length--;
           o64 = decode(1201, tt);
-          for(l = 0; l < o64.length; ++l) out[k++] = o64[l];
+          for(l = 0; l < o64.length; ++l) out[k++] = o64.charAt(l);
         }
         break;
       default: throw new Error("Unsupported magic: " + cp + " " + magic[cp]);
@@ -6849,7 +7608,1631 @@ if (typeof module !== 'undefined' && module.exports) module.exports = cptable;
     else throw new Error("Unrecognized CP: " + cp);
     return out.slice(0,k).join("");
   };
-  var hascp = function hascp(cp) { return cpt[cp] || magic[cp]; };
+  var hascp = function hascp(cp) { return !!(cpt[cp] || magic[cp]); };
   cpt.utils = { decode: decode, encode: encode, hascp: hascp, magic: magic, cache:cache };
   return cpt;
 }));
+});
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var Document = /** @class */ (function () {
+    function Document(blob, settings) {
+        this._settings = settings || {};
+        this._meta = {};
+        this._fonts = [];
+        this._colors = [];
+        this._autoColor = null;
+        this._stylesheets = [];
+        this._renderer = new Renderer(this);
+        this.parse(blob, this._renderer);
+    }
+    Document.prototype._lookupColor = function (idx) {
+        if (idx == 0) {
+            if (this._autoColor == null)
+                return null;
+            return this._colors[this._autoColor];
+        }
+        if (idx < 0 || idx >= this._colors.length)
+            throw new RTFJSError("Invalid color index");
+        return this._colors[idx];
+    };
+    Document.prototype.metadata = function () {
+        return this._meta;
+    };
+    Document.prototype.render = function () {
+        return this._renderer.buildDom();
+    };
+    Document.prototype.parse = function (blob, renderer) {
+        var inst = this;
+        var parseKeyword, processKeyword, appendText, parseLoop;
+        var Chp = function (parent) {
+            if (parent != null) {
+                this.bold = parent.bold;
+                this.underline = parent.underline;
+                this.italic = parent.italic;
+                this.strikethrough = parent.strikethrough;
+                this.dblstrikethrough = parent.dblstrikethrough;
+                this.colorindex = parent.colorindex;
+                this.fontsize = parent.fontsize;
+                this.fontfamily = parent.fontfamily;
+            }
+            else {
+                this.bold = false;
+                this.underline = Helper.UNDERLINE.NONE;
+                this.italic = false;
+                this.strikethrough = false;
+                this.dblstrikethrough = false;
+                this.colorindex = 0;
+                this.fontsize = 24;
+            }
+        };
+        var Pap = function (parent) {
+            if (parent != null) {
+                this.indent = {
+                    left: parent.indent.left,
+                    right: parent.indent.right,
+                    firstline: parent.indent.firstline
+                };
+                this.justification = parent.justification;
+                this.spacebefore = parent.spacebefore;
+                this.spaceafter = parent.spaceafter;
+                this.charactertype = parent.charactertype;
+            }
+            else {
+                this.indent = {
+                    left: 0,
+                    right: 0,
+                    firstline: 0
+                };
+                this.justification = Helper.JUSTIFICATION.LEFT;
+                this.spacebefore = 0;
+                this.spaceafter = 0;
+            }
+        };
+        var Sep = function (parent) {
+            if (parent != null) {
+                this.columns = parent.columns;
+                this.breaktype = parent.breaktype;
+                this.pagenumber = {
+                    x: parent.pagenumber.x,
+                    y: parent.pagenumber.y
+                };
+                this.pagenumberformat = parent.pagenumberformat;
+            }
+            else {
+                this.columns = 0;
+                this.breaktype = Helper.BREAKTYPE.NONE;
+                this.pagenumber = {
+                    x: 0,
+                    y: 0,
+                };
+                this.pagenumberformat = Helper.PAGENUMBER.DECIMAL;
+            }
+        };
+        var Dop = function (parent) {
+            if (parent != null) {
+                this.width = parent.width;
+                this.height = parent.height;
+                this.margin = {
+                    left: parent.margin.left,
+                    top: parent.margin.top,
+                    right: parent.margin.right,
+                    bottom: parent.margin.bottom
+                };
+                this.pagenumberstart = parent.pagenumberstart;
+                this.facingpages = parent.facingpages;
+                this.landscape = parent.landscape;
+            }
+            else {
+                this.width = 0;
+                this.height = 0;
+                this.margin = {
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0
+                };
+                this.pagenumberstart = 0;
+                this.facingpages = false;
+                this.landscape = false;
+            }
+        };
+        var State = function (parent) {
+            this.parent = parent;
+            this.first = true;
+            this.skipchars = 0;
+            this.bindata = 0;
+            if (parent != null) {
+                this.chp = new Chp(parent.chp);
+                this.pap = new Pap(parent.pap);
+                this.sep = new Sep(parent.sep);
+                this.dop = new Dop(parent.dop);
+                this.destination = parent.destination;
+                this.skipunknowndestination = parent.skipunknowndestination;
+                this.skipdestination = parent.skipdestination;
+                this.ucn = parent.ucn;
+            }
+            else {
+                this.chp = new Chp(null);
+                this.pap = new Pap(null);
+                this.sep = new Sep(null);
+                this.dop = new Dop(null);
+                this.destination = null;
+                this.skipunknowndestination = false;
+                this.skipdestination = false;
+                this.ucn = 1;
+            }
+        };
+        var parser = {
+            data: new Uint8Array(blob),
+            pos: 0,
+            line: 1,
+            column: 0,
+            state: null,
+            version: null,
+            text: "",
+            codepage: 1252,
+            eof: function () {
+                return this.pos >= this.data.length;
+            },
+            readChar: function () {
+                if (this.pos < this.data.length) {
+                    parser.column++;
+                    return String.fromCharCode(this.data[this.pos++]);
+                }
+                throw new RTFJSError("Unexpected end of file");
+            },
+            unreadChar: function () {
+                if (this.pos > 0) {
+                    parser.column--;
+                    this.pos--;
+                }
+                else {
+                    throw new RTFJSError("Already at beginning of file");
+                }
+            },
+            readBlob: function (cnt) {
+                if (this.pos + cnt > this.data.length)
+                    throw new RTFJSError("Cannot read binary data: too long");
+                var buf = new ArrayBuffer(cnt);
+                var view = new Uint8Array(buf);
+                for (var i = 0; i < cnt; i++)
+                    view[i] = this.data[this.pos + i];
+                return buf;
+            }
+        };
+        var findParentDestination = function (dest) {
+            var state = parser.state;
+            while (state != null) {
+                if (state.destination == null)
+                    break;
+                if (state.destination._name == dest)
+                    return state.destination;
+                state = state.parent;
+            }
+            Helper.log("findParentDestination() did not find destination " + dest);
+        };
+        var DestinationBase = function (name) {
+            this._name = name;
+        };
+        var DestinationTextBase = function (name) {
+            this._name = name;
+            this.text = "";
+        };
+        DestinationTextBase.prototype.appendText = function (text) {
+            this.text += text;
+        };
+        var DestinationFormattedTextBase = function (name) {
+            this._name = name;
+            this._records = [];
+        };
+        DestinationFormattedTextBase.prototype.appendText = function (text) {
+            this._records.push(function (rtf) {
+                rtf.appendText(text);
+            });
+        };
+        DestinationFormattedTextBase.prototype.handleKeyword = function (keyword, param) {
+            this._records.push(function (rtf) {
+                return rtf.handleKeyword(keyword, param);
+            });
+        };
+        DestinationFormattedTextBase.prototype.apply = function () {
+            var rtf = findParentDestination("rtf");
+            if (rtf == null)
+                throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+            var len = this._records.length;
+            var doRender = true;
+            if (this.renderBegin != null)
+                doRender = this.renderBegin(rtf, len);
+            if (doRender) {
+                for (var i = 0; i < len; i++) {
+                    this._records[i](rtf);
+                }
+                if (this.renderEnd != null)
+                    this.renderEnd(rtf, len);
+            }
+            delete this._records;
+        };
+        var rtfDestination = function () {
+            var cls = function (name, param) {
+                if (parser.version != null)
+                    throw new RTFJSError("Unexpected rtf destination");
+                DestinationBase.call(this, name);
+                // This parameter should be one, but older versions of the spec allow for omission of the version number
+                if (param && param != 1)
+                    throw new RTFJSError("Unsupported rtf version");
+                parser.version = 1;
+                this._metadata = {};
+            };
+            cls.prototype = Object.create(DestinationBase.prototype);
+            cls.prototype.addIns = function (func) {
+                inst._renderer.addIns(func);
+            };
+            cls.prototype.appendText = function (text) {
+                Helper.log("[rtf] output: " + text);
+                inst._renderer.addIns(text);
+            };
+            cls.prototype.sub = function () {
+                Helper.log("[rtf].sub()");
+            };
+            var _addInsHandler = function (func) {
+                return function (param) {
+                    inst._renderer.addIns(func);
+                };
+            };
+            var _addFormatIns = function (ptype, props) {
+                switch (ptype) {
+                    case "chp":
+                        var rchp = new RenderChp(new Chp(props));
+                        inst._renderer.addIns(function () {
+                            this.setChp(rchp);
+                        });
+                        break;
+                    case "pap":
+                        var rpap = new RenderPap(new Pap(props));
+                        inst._renderer.addIns(function () {
+                            this.setPap(rpap);
+                        });
+                        break;
+                }
+            };
+            var _genericFormatSetNoParam = function (ptype, prop, val) {
+                return function (param) {
+                    var props = parser.state[ptype];
+                    props[prop] = val;
+                    Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+                    _addFormatIns(ptype, props);
+                };
+            };
+            var _genericFormatOnOff = function (ptype, prop, onval, offval) {
+                return function (param) {
+                    var props = parser.state[ptype];
+                    props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+                    Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+                    _addFormatIns(ptype, props);
+                };
+            };
+            var _genericFormatSetVal = function (ptype, prop, defaultval) {
+                return function (param) {
+                    var props = parser.state[ptype];
+                    props[prop] = (param == null) ? defaultval : param;
+                    Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+                    _addFormatIns(ptype, props);
+                };
+            };
+            var _genericFormatSetValRequired = function (ptype, prop) {
+                return function (param) {
+                    if (param == null)
+                        throw new RTFJSError("Keyword without required param");
+                    var props = parser.state[ptype];
+                    props[prop] = param;
+                    Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+                    _addFormatIns(ptype, props);
+                };
+            };
+            var _genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+                return function (param) {
+                    var props = parser.state[ptype];
+                    var members = props[prop];
+                    members[member] = (param == null) ? defaultval : param;
+                    Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+                    _addFormatIns(ptype, props);
+                };
+            };
+            var _charFormatHandlers = {
+                ansicpg: function (param) {
+                    //if the value is 0, use the default charset as 0 is not valid
+                    if (param > 0) {
+                        Helper.log("[rtf] using charset: " + param);
+                        parser.codepage = param;
+                    }
+                },
+                sectd: function (param) {
+                    Helper.log("[rtf] reset to section defaults");
+                    parser.state.sep = new Sep(null);
+                },
+                plain: function (param) {
+                    Helper.log("[rtf] reset to character defaults");
+                    parser.state.chp = new Chp(null);
+                },
+                pard: function (param) {
+                    Helper.log("[rtf] reset to paragraph defaults");
+                    parser.state.pap = new Pap(null);
+                },
+                b: _genericFormatOnOff("chp", "bold"),
+                i: _genericFormatOnOff("chp", "italic"),
+                cf: _genericFormatSetValRequired("chp", "colorindex"),
+                fs: _genericFormatSetValRequired("chp", "fontsize"),
+                f: _genericFormatSetValRequired("chp", "fontfamily"),
+                loch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
+                hich: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
+                dbch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
+                strike: _genericFormatOnOff("chp", "strikethrough"),
+                striked: _genericFormatOnOff("chp", "dblstrikethrough"),
+                ul: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
+                uld: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
+                uldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
+                uldashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
+                uldashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
+                uldb: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
+                ulhwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
+                ulldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
+                ulnone: _genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
+                ulth: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
+                ulthd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
+                ulthdash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
+                ulthdashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
+                ulthdashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
+                ululdbwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
+                ulw: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
+                ulwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
+                li: _genericFormatSetMemberVal("pap", "indent", "left", 0),
+                ri: _genericFormatSetMemberVal("pap", "indent", "right", 0),
+                fi: _genericFormatSetMemberVal("pap", "indent", "firstline", 0),
+                sa: _genericFormatSetValRequired("pap", "spaceafter"),
+                sb: _genericFormatSetValRequired("pap", "spacebefore"),
+                cols: _genericFormatSetVal("sep", "columns", 0),
+                sbknone: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
+                sbkcol: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
+                sbkeven: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
+                sbkodd: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
+                sbkpage: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
+                pgnx: _genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
+                pgny: _genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
+                pgndec: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
+                pgnucrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
+                pgnlcrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
+                pgnucltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
+                pgnlcltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
+                qc: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
+                ql: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
+                qr: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
+                qj: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
+                paperw: _genericFormatSetVal("dop", "width", 12240),
+                paperh: _genericFormatSetVal("dop", "height", 15480),
+                margl: _genericFormatSetMemberVal("dop", "margin", "left", 1800),
+                margr: _genericFormatSetMemberVal("dop", "margin", "right", 1800),
+                margt: _genericFormatSetMemberVal("dop", "margin", "top", 1440),
+                margb: _genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
+                pgnstart: _genericFormatSetVal("dop", "pagenumberstart", 1),
+                facingp: _genericFormatSetNoParam("dop", "facingpages", true),
+                landscape: _genericFormatSetNoParam("dop", "landscape", true),
+                par: _addInsHandler(function () {
+                    this.startPar();
+                }),
+                line: _addInsHandler(function () {
+                    this.lineBreak();
+                }),
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                var handler = _charFormatHandlers[keyword];
+                if (handler != null) {
+                    handler(param);
+                    return true;
+                }
+                //Helper.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
+                return false;
+            };
+            cls.prototype.apply = function () {
+                Helper.log("[rtf] apply()");
+                for (var prop in this._metadata)
+                    inst._meta[prop] = this._metadata[prop];
+                delete this._metadata;
+            };
+            cls.prototype.setMetadata = function (prop, val) {
+                this._metadata[prop] = val;
+            };
+            return cls;
+        };
+        var genericPropertyDestination = function (parentdest, metaprop) {
+            var cls = function (name) {
+                DestinationTextBase.call(this, name);
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            cls.prototype.apply = function () {
+                var dest = findParentDestination(parentdest);
+                if (dest == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+                if (dest.setMetadata == null)
+                    throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+                dest.setMetadata(metaprop, this.text);
+            };
+            return cls;
+        };
+        var infoDestination = function () {
+            var cls = function (name) {
+                DestinationBase.call(this, name);
+                this._metadata = {};
+            };
+            cls.prototype.apply = function () {
+                for (var prop in this._metadata)
+                    inst._meta[prop] = this._metadata[prop];
+                delete this._metadata;
+            };
+            cls.prototype.setMetadata = function (prop, val) {
+                this._metadata[prop] = val;
+            };
+            return cls;
+        };
+        var metaPropertyDestination = function (metaprop) {
+            var cls = function (name) {
+                DestinationTextBase.call(this, name);
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            cls.prototype.apply = function () {
+                var info = findParentDestination("info");
+                if (info == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                info.setMetadata(metaprop, this.text);
+            };
+            return cls;
+        };
+        var metaPropertyTimeDestination = function (metaprop) {
+            var cls = function (name) {
+                DestinationBase.call(this, name);
+                this._yr = null;
+                this._mo = null;
+                this._dy = null;
+                this._hr = null;
+                this._min = null;
+                this._sec = null;
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "yr":
+                        this._yr = param;
+                        break;
+                    case "mo":
+                        this._mo = param;
+                        break;
+                    case "dy":
+                        this._dy = param;
+                        break;
+                    case "hr":
+                        this._hr = param;
+                        break;
+                    case "min":
+                        this._min = param;
+                        break;
+                    case "sec":
+                        this._sec = param;
+                        break;
+                    default:
+                        return false;
+                }
+                if (param == null)
+                    throw new RTFJSError("No param found for keyword " + keyword);
+                return true;
+            };
+            cls.prototype.apply = function () {
+                var info = findParentDestination("info");
+                if (info == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                var date = new Date(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0);
+                info.setMetadata(metaprop, date);
+            };
+            return cls;
+        };
+        var fonttblDestinationSub = function () {
+            var cls = function (fonttbl) {
+                DestinationBase.call(this, "fonttbl:sub");
+                this._fonttbl = fonttbl;
+                this.index = null;
+                this.fontname = null;
+                this.altfontname = null;
+                this.family = null;
+                this.pitch = Helper.FONTPITCH.DEFAULT;
+                this.bias = 0;
+                this.charset = null;
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "f":
+                        this.index = param;
+                        return true;
+                    case "fnil":
+                        return true;
+                    case "froman":
+                    case "fswiss":
+                    case "fmodern":
+                    case "fscript":
+                    case "fdecor":
+                    case "ftech":
+                    case "fbidi":
+                    case "flomajor":
+                    case "fhimajor":
+                    case "fdbmajor":
+                    case "fbimajor":
+                    case "flominor":
+                    case "fhiminor":
+                    case "fdbminor":
+                    case "fbiminor":
+                        this.family = keyword.slice(1);
+                        return true;
+                    case "fprq":
+                        switch (param) {
+                            case 0:
+                                this.pitch = Helper.FONTPITCH.DEFAULT;
+                                break;
+                            case 1:
+                                this.pitch = Helper.FONTPITCH.FIXED;
+                                break;
+                            case 2:
+                                this.pitch = Helper.FONTPITCH.VARIABLE;
+                                break;
+                        }
+                        return true;
+                    case "fbias":
+                        if (param != null)
+                            this.bias = param;
+                        return true;
+                    case "fcharset":
+                        if (param != null) {
+                            this.charset = Helper._mapCharset(param);
+                            if (this.charset == null)
+                                Helper.log("Unknown font charset: " + param);
+                        }
+                        return true;
+                    case "cpg":
+                        if (param != null) {
+                            this.charset = param;
+                        }
+                        return true;
+                }
+                return false;
+            };
+            cls.prototype.appendText = function (text) {
+                if (this.fontname == null)
+                    this.fontname = text;
+                else
+                    this.fontname += text;
+            };
+            cls.prototype.apply = function () {
+                if (this.index == null)
+                    throw new RTFJSError("No font index provided");
+                if (this.fontname == null)
+                    throw new RTFJSError("No font name provided");
+                this._fonttbl.addSub(this);
+                delete this._fonttbl;
+            };
+            cls.prototype.setAltFontName = function (name) {
+                this.altfontname = name;
+            };
+            return cls;
+        };
+        var fonttblDestination = function () {
+            var cls = function () {
+                DestinationBase.call(this, "fonttbl");
+                this._fonts = [];
+                this._sub = null;
+            };
+            cls.prototype.sub = function () {
+                var subCls = fonttblDestinationSub();
+                return new subCls(this);
+            };
+            cls.prototype.apply = function () {
+                Helper.log("[fonttbl] apply()");
+                for (var idx in this._fonts) {
+                    Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
+                }
+                inst._fonts = this._fonts;
+                delete this._fonts;
+            };
+            cls.prototype.appendText = function (text) {
+                this._sub.appendText(text);
+                this._sub.apply();
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                if (keyword === "f") {
+                    this._sub = this.sub();
+                }
+                this._sub.handleKeyword(keyword, param);
+            };
+            cls.prototype.addSub = function (sub) {
+                this._fonts[sub.index] = sub;
+            };
+            return cls;
+        };
+        var genericSubTextPropertyDestination = function (name, parentDest, propOrFunc) {
+            var cls = function () {
+                DestinationTextBase.call(this, name);
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            cls.prototype.apply = function () {
+                var dest = findParentDestination(parentDest);
+                if (dest == null)
+                    throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
+                if (dest[propOrFunc] == null)
+                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                if (dest[propOrFunc] instanceof Function)
+                    dest[propOrFunc](this.text);
+                else
+                    dest[propOrFunc] = this.text;
+            };
+            return cls;
+        };
+        var colortblDestination = function () {
+            var cls = function () {
+                DestinationBase.call(this, "colortbl");
+                this._colors = [];
+                this._current = null;
+                this._autoIndex = null;
+            };
+            cls.prototype._startNewColor = function () {
+                this._current = {
+                    r: 0,
+                    g: 0,
+                    b: 0,
+                    tint: 255,
+                    shade: 255,
+                    theme: null
+                };
+                return this._current;
+            };
+            cls.prototype.appendText = function (text) {
+                var len = text.length;
+                for (var i = 0; i < len; i++) {
+                    if (text[i] != ";")
+                        throw new RTFJSError("Error parsing colortbl destination");
+                    if (this._current == null) {
+                        if (this._autoIndex != null)
+                            throw new RTFJSError("colortbl cannot define more than one auto color");
+                        this._autoIndex = this._colors.length;
+                        this._startNewColor();
+                    }
+                    else {
+                        if (this._current.tint < 255 && this._current.shade < 255)
+                            throw new RTFJSError("colortbl cannot define shade and tint at the same time");
+                    }
+                    this._colors.push(this._current);
+                    this._current = null;
+                }
+            };
+            var _validateColorValueRange = function (keyword, param) {
+                if (param == null)
+                    throw new RTFJSError(keyword + " has no param");
+                if (param < 0 || param > 255)
+                    throw new RTFJSError(keyword + " has invalid param value");
+                return param;
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                if (this._current == null)
+                    this._startNewColor();
+                switch (keyword) {
+                    case "red":
+                        this._current.r = _validateColorValueRange(keyword, param);
+                        return true;
+                    case "green":
+                        this._current.g = _validateColorValueRange(keyword, param);
+                        return true;
+                    case "blue":
+                        this._current.b = _validateColorValueRange(keyword, param);
+                        return true;
+                    case "ctint":
+                        this._current.tint = _validateColorValueRange(keyword, param);
+                        return true;
+                    case "cshade":
+                        this._current.shade = _validateColorValueRange(keyword, param);
+                        return true;
+                    default:
+                        if (keyword[0] == "c") {
+                            this._current.theme = Helper._mapColorTheme(keyword.slice(1));
+                            return true;
+                        }
+                        break;
+                }
+                Helper.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
+                return false;
+            };
+            cls.prototype.apply = function () {
+                Helper.log("[colortbl] apply()");
+                if (this._autoIndex == null)
+                    this._autoIndex = 0;
+                if (this._autoIndex >= this._colors.length)
+                    throw new RTFJSError("colortbl doesn't define auto color");
+                for (var idx in this._colors)
+                    Helper.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
+                inst._colors = this._colors;
+                inst._autoColor = this._autoIndex;
+                delete this._colors;
+            };
+            return cls;
+        };
+        var stylesheetDestinationSub = function () {
+            var _handleKeywordCommon = function (member) {
+                var data = this[member];
+                if (data == null)
+                    this[member] = data = {};
+                return function (keyword, param) {
+                    Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+                    return false;
+                };
+            };
+            var cls = function (stylesheet) {
+                DestinationBase.call(this, "stylesheet:sub");
+                this._stylesheet = stylesheet;
+                this.index = 0;
+                this.name = null;
+                this.handler = _handleKeywordCommon("paragraph");
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "s":
+                        this.index = param;
+                        return true;
+                    case "cs":
+                        delete this.paragraph;
+                        this.handler = _handleKeywordCommon("character");
+                        this.index = param;
+                        return true;
+                    case "ds":
+                        delete this.paragraph;
+                        this.handler = _handleKeywordCommon("section");
+                        this.index = param;
+                        return true;
+                    case "ts":
+                        delete this.paragraph;
+                        this.handler = _handleKeywordCommon("table");
+                        this.index = param;
+                        return true;
+                }
+                return this.handler(keyword, param);
+            };
+            cls.prototype.appendText = function (text) {
+                if (this.name == null)
+                    this.name = text;
+                else
+                    this.name += text;
+            };
+            cls.prototype.apply = function () {
+                this._stylesheet.addSub({
+                    index: this.index,
+                    name: this.name
+                });
+                delete this._stylesheet;
+            };
+            return cls;
+        };
+        var stylesheetDestination = function () {
+            var cls = function () {
+                DestinationBase.call(this, "stylesheet");
+                this._stylesheets = [];
+            };
+            cls.prototype.sub = function () {
+                var subCls = stylesheetDestinationSub();
+                return new subCls(this);
+            };
+            cls.prototype.apply = function () {
+                Helper.log("[stylesheet] apply()");
+                for (var idx in this._stylesheets)
+                    Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
+                inst._stylesheets = this._stylesheets;
+                delete this._stylesheets;
+            };
+            cls.prototype.addSub = function (sub) {
+                //Some documents will redefine stylesheets
+                // if (this._stylesheets[sub.index] != null)
+                //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
+                this._stylesheets[sub.index] = sub;
+            };
+            return cls;
+        };
+        var fieldDestination = function () {
+            var cls = function () {
+                DestinationBase.call(this, "field");
+                this._haveInst = false;
+                this._parsedInst = null; // FieldBase
+                this._result = null;
+            };
+            cls.prototype.apply = function () {
+                if (!this._haveInst)
+                    throw new RTFJSError("Field has no fldinst destination");
+                //A fldrslt destination should be included but is not required
+                // if (this._result == null)
+                //     throw new RTFJSError("Field has no fldrslt destination");
+            };
+            cls.prototype.setInst = function (inst) {
+                this._haveInst = true;
+                if (this._parsedInst != null)
+                    throw new RTFJSError("Field cannot have multiple fldinst destinations");
+                this._parsedInst = inst;
+            };
+            cls.prototype.getInst = function () {
+                return this._parsedInst;
+            };
+            cls.prototype.setResult = function (inst) {
+                if (this._result != null)
+                    throw new RTFJSError("Field cannot have multiple fldrslt destinations");
+                this._result = inst;
+            };
+            return cls;
+        };
+        var FieldBase = function (fldinst) {
+            this._fldinst = fldinst;
+        };
+        FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
+            if (records > 0) {
+                rtf.addIns(function () {
+                    this.popContainer();
+                });
+            }
+        };
+        var FieldHyperlink = function (fldinst, data) {
+            FieldBase.call(this, fldinst);
+            this._url = data;
+        };
+        FieldHyperlink.prototype = Object.create(FieldBase.prototype);
+        FieldHyperlink.prototype.url = function () {
+            return this._url;
+        };
+        FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
+            var self = this;
+            if (records > 0) {
+                rtf.addIns(function () {
+                    var renderer = this;
+                    var create = function () {
+                        return renderer.buildHyperlinkElement(self._url);
+                    };
+                    var container;
+                    if (inst._settings.onHyperlink != null) {
+                        container = inst._settings.onHyperlink.call(inst, create, self);
+                    }
+                    else {
+                        var elem = create();
+                        container = {
+                            element: elem,
+                            content: elem
+                        };
+                    }
+                    this.pushContainer(container);
+                });
+                return true;
+            }
+            return false;
+        };
+        var fldinstDestination = function () {
+            var cls = function () {
+                DestinationTextBase.call(this, "fldinst");
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            cls.prototype.apply = function () {
+                var field = findParentDestination("field");
+                if (field == null)
+                    throw new RTFJSError("fldinst destination must be child of field destination");
+                field.setInst(this.parseType());
+            };
+            cls.prototype.parseType = function () {
+                var sep = this.text.indexOf(" ");
+                if (sep > 0) {
+                    var data = this.text.substr(sep + 1);
+                    if (data.length >= 2 && data[0] == "\"") {
+                        var end = data.indexOf("\"", 1);
+                        if (end >= 1)
+                            data = data.substring(1, end);
+                    }
+                    var fieldType = this.text.substr(0, sep);
+                    switch (fieldType) {
+                        case "HYPERLINK":
+                            return new FieldHyperlink(this, data);
+                        default:
+                            Helper.log("[fldinst]: unknown field type: " + fieldType);
+                            break;
+                    }
+                }
+            };
+            return cls;
+        };
+        var fldrsltDestination = function () {
+            var cls = function () {
+                DestinationFormattedTextBase.call(this, "fldrslt");
+            };
+            cls.prototype = Object.create(DestinationFormattedTextBase.prototype);
+            var baseApply = cls.prototype.apply;
+            cls.prototype.apply = function () {
+                var field = findParentDestination("field");
+                if (field != null) {
+                    field.setResult(this);
+                }
+                baseApply.call(this);
+            };
+            cls.prototype.renderBegin = function (rtf, records) {
+                var field = findParentDestination("field");
+                if (field != null) {
+                    var inst = field.getInst();
+                    if (inst != null)
+                        return inst.renderFieldBegin(field, rtf, records);
+                }
+                return false;
+            };
+            cls.prototype.renderEnd = function (rtf, records) {
+                var field = findParentDestination("field");
+                if (field != null) {
+                    var inst = field.getInst();
+                    if (inst != null)
+                        inst.renderFieldEnd(field, rtf, records);
+                }
+            };
+            return cls;
+        };
+        var pictGroupDestination = function (legacy) {
+            var cls = function () {
+                DestinationTextBase.call(this, "pict-group");
+                this._legacy = legacy;
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            cls.prototype.isLegacy = function () {
+                return this._legacy;
+            };
+            return cls;
+        };
+        var pictDestination = function () {
+            var cls = function () {
+                DestinationTextBase.call(this, "pict");
+                this._type = null;
+                this._blob = null;
+                this._displaysize = {
+                    width: null,
+                    height: null
+                };
+                this._size = {
+                    width: null,
+                    height: null
+                };
+            };
+            cls.prototype = Object.create(DestinationTextBase.prototype);
+            var _setPropValueRequired = function (member, prop) {
+                return function (param) {
+                    if (param == null)
+                        throw new RTFJSError("Picture property has no value");
+                    Helper.log("[pict] set " + member + "." + prop + " = " + param);
+                    var obj = (member != null ? this[member] : this);
+                    obj[prop] = param;
+                };
+            };
+            var _pictHandlers = {
+                picw: _setPropValueRequired("_size", "width"),
+                pich: _setPropValueRequired("_size", "height"),
+                picwgoal: _setPropValueRequired("_displaysize", "width"),
+                pichgoal: _setPropValueRequired("_displaysize", "height")
+            };
+            var _pictTypeHandler = {
+                emfblip: (function () {
+                    if (typeof EMFJS !== "undefined") {
+                        return function () {
+                            return {
+                                load: function () {
+                                    try {
+                                        return new EMFJS.Renderer(this._blob);
+                                    }
+                                    catch (e) {
+                                        if (e instanceof EMFJS.Error)
+                                            return e.message;
+                                        else
+                                            throw e;
+                                    }
+                                },
+                                render: function (img) {
+                                    return img.render({
+                                        width: Helper._twipsToPt(this._displaysize.width) + "pt",
+                                        height: Helper._twipsToPt(this._displaysize.height) + "pt",
+                                        wExt: this._size.width,
+                                        hExt: this._size.width,
+                                        xExt: this._size.width,
+                                        yExt: this._size.height,
+                                        mapMode: 8
+                                    });
+                                }
+                            };
+                        };
+                    }
+                    else {
+                        return "";
+                    }
+                })(),
+                pngblip: "image/png",
+                jpegblip: "image/jpeg",
+                macpict: "",
+                pmmetafile: "",
+                wmetafile: (function () {
+                    if (typeof WMFJS !== "undefined") {
+                        return function (param) {
+                            if (param == null || param < 0 || param > 8)
+                                throw new RTFJSError("Insufficient metafile information");
+                            return {
+                                load: function () {
+                                    try {
+                                        return new WMFJS.Renderer(this._blob);
+                                    }
+                                    catch (e) {
+                                        if (e instanceof WMFJS.Error)
+                                            return e.message;
+                                        else
+                                            throw e;
+                                    }
+                                },
+                                render: function (img) {
+                                    return img.render({
+                                        width: Helper._twipsToPt(this._displaysize.width) + "pt",
+                                        height: Helper._twipsToPt(this._displaysize.height) + "pt",
+                                        xExt: this._size.width,
+                                        yExt: this._size.height,
+                                        mapMode: param
+                                    });
+                                }
+                            };
+                        };
+                    }
+                    else {
+                        return "";
+                    }
+                })(),
+                dibitmap: "",
+                wbitmap: "" // TODO
+            };
+            cls.prototype.handleKeyword = function (keyword, param) {
+                var handler = _pictHandlers[keyword];
+                if (handler != null) {
+                    handler.call(this, param);
+                    return true;
+                }
+                var inst = this;
+                var type = _pictTypeHandler[keyword];
+                if (type != null) {
+                    if (this._type == null) {
+                        if (typeof type === "function") {
+                            var info = type.call(this, param);
+                            if (info != null) {
+                                if (typeof info === "string") {
+                                    this._type = info;
+                                }
+                                else {
+                                    this._type = function () {
+                                        var renderer = info.load.call(inst);
+                                        if (renderer != null) {
+                                            if (typeof renderer === "string")
+                                                return renderer;
+                                            return function () {
+                                                return info.render.call(inst, renderer);
+                                            };
+                                        }
+                                    };
+                                }
+                            }
+                        }
+                        else {
+                            this._type = type;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            };
+            cls.prototype.handleBlob = function (blob) {
+                this._blob = blob;
+            };
+            cls.prototype.apply = function () {
+                if (this._type == null)
+                    throw new RTFJSError("Picture type unknown or not specified");
+                //if (this._size.width == null || this._size.height == null)
+                //    throw new RTFJSError("Picture dimensions not specified");
+                //if (this._displaysize.width == null || this._displaysize.height == null)
+                //    throw new RTFJSError("Picture display dimensions not specified");
+                var pictGroup = findParentDestination("pict-group");
+                var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
+                var type = this._type;
+                if (typeof type === "function") {
+                    // type is the trampoline function that executes the .load function
+                    // and returns a renderer trampoline that ends up calling the .render function
+                    if (this._blob == null) {
+                        this._blob = Helper._hexToBlob(this.text);
+                        if (this._blob == null)
+                            throw new RTFJSError("Could not parse picture data");
+                        delete this.text;
+                    }
+                    var info = this;
+                    var doRender = function (rendering) {
+                        var pictrender = type.call(info);
+                        if (pictrender != null) {
+                            if (typeof pictrender === "string") {
+                                Helper.log("[pict] Could not load image: " + pictrender);
+                                if (rendering) {
+                                    return this.buildPicture(pictrender, null);
+                                }
+                                else {
+                                    inst._renderer.addIns(function () {
+                                        this.picture(pictrender, null);
+                                    });
+                                }
+                            }
+                            else {
+                                if (typeof pictrender !== "function")
+                                    throw new RTFJSError("Expected a picture render function");
+                                if (rendering) {
+                                    return this.buildRenderedPicture(pictrender());
+                                }
+                                else {
+                                    inst._renderer.addIns(function () {
+                                        this.renderedPicture(pictrender());
+                                    });
+                                }
+                            }
+                        }
+                    };
+                    if (inst._settings.onPicture != null) {
+                        inst._renderer.addIns((function (isLegacy) {
+                            return function () {
+                                var renderer = this;
+                                var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
+                                    return doRender.call(renderer, true);
+                                });
+                                if (elem != null)
+                                    this.appendElement(elem);
+                            };
+                        })(isLegacy));
+                    }
+                    else {
+                        doRender(false);
+                    }
+                }
+                else if (typeof type === "string") {
+                    var text = this.text;
+                    var blob = this._blob;
+                    var doRender = function (rendering) {
+                        var bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
+                        if (type !== "") {
+                            if (rendering) {
+                                return this.buildPicture(type, bin);
+                            }
+                            else {
+                                inst._renderer.addIns(function () {
+                                    this.picture(type, bin);
+                                });
+                            }
+                        }
+                        else {
+                            if (rendering) {
+                                return this.buildPicture("Unsupported image format", null);
+                            }
+                            else {
+                                inst._renderer.addIns(function () {
+                                    this.picture("Unsupported image format", null);
+                                });
+                            }
+                        }
+                    };
+                    if (inst._settings.onPicture != null) {
+                        inst._renderer.addIns((function (isLegacy) {
+                            return function () {
+                                var renderer = this;
+                                var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
+                                    return doRender.call(renderer, true);
+                                });
+                                if (elem != null)
+                                    this.appendElement(elem);
+                            };
+                        })(isLegacy));
+                    }
+                    else {
+                        doRender(false);
+                    }
+                }
+                delete this.text;
+            };
+            return cls;
+        };
+        var requiredDestination = function (name) {
+            return function () {
+                DestinationBase.call(this, name);
+            };
+        };
+        var destinations = {
+            rtf: rtfDestination(),
+            info: infoDestination(),
+            title: metaPropertyDestination("title"),
+            subject: metaPropertyDestination("subject"),
+            author: metaPropertyDestination("author"),
+            manager: metaPropertyDestination("manager"),
+            company: metaPropertyDestination("company"),
+            operator: metaPropertyDestination("operator"),
+            category: metaPropertyDestination("category"),
+            keywords: metaPropertyDestination("keywords"),
+            doccomm: metaPropertyDestination("doccomm"),
+            hlinkbase: metaPropertyDestination("hlinkbase"),
+            generator: genericPropertyDestination("rtf", "generator"),
+            creatim: metaPropertyTimeDestination("creatim"),
+            revtim: metaPropertyTimeDestination("revtim"),
+            printim: metaPropertyTimeDestination("printim"),
+            buptim: metaPropertyTimeDestination("buptim"),
+            fonttbl: fonttblDestination(),
+            falt: genericSubTextPropertyDestination("falt", "fonttbl:sub", "setAltFontName"),
+            colortbl: colortblDestination(),
+            stylesheet: stylesheetDestination(),
+            footer: requiredDestination("footer"),
+            footerf: requiredDestination("footerf"),
+            footerl: requiredDestination("footerl"),
+            footerr: requiredDestination("footerr"),
+            footnote: requiredDestination("footnote"),
+            ftncn: requiredDestination("ftncn"),
+            ftnsep: requiredDestination("ftnsep"),
+            ftnsepc: requiredDestination("ftnsepc"),
+            header: requiredDestination("header"),
+            headerf: requiredDestination("headerf"),
+            headerl: requiredDestination("headerl"),
+            headerr: requiredDestination("headerr"),
+            pict: pictDestination(),
+            shppict: pictGroupDestination(false),
+            nonshppict: pictGroupDestination(true),
+            private1: requiredDestination("private1"),
+            rxe: requiredDestination("rxe"),
+            tc: requiredDestination("tc"),
+            txe: requiredDestination("txe"),
+            xe: requiredDestination("xe"),
+            field: fieldDestination(),
+            fldinst: fldinstDestination(),
+            fldrslt: fldrsltDestination(),
+        };
+        var applyDestination = function (always) {
+            var dest = parser.state.destination;
+            if (dest != null) {
+                if (always || parser.state.parent == null || parser.state.parent.destination != parser.state.destination) {
+                    if (dest.apply != null)
+                        dest.apply();
+                    parser.state.destination = null;
+                }
+            }
+        };
+        var applyText = function () {
+            if (parser.text.length > 0) {
+                var dest = parser.state.destination;
+                if (dest == null)
+                    throw new RTFJSError("Cannot route text to destination");
+                if (dest != null && dest.appendText != null && !parser.state.skipdestination)
+                    dest.appendText(parser.text);
+                parser.text = "";
+            }
+        };
+        var pushState = function (forceSkip) {
+            parser.state = new State(parser.state);
+            if (forceSkip)
+                parser.state.skipdestination = true;
+            var dest = parser.state.destination;
+            if (dest != null && !parser.state.skipdestination) {
+                if (dest.sub != null) {
+                    var sub = dest.sub();
+                    if (sub != null)
+                        parser.state.destination = sub;
+                }
+            }
+        };
+        var popState = function () {
+            var state = parser.state;
+            if (state == null)
+                throw new RTFJSError("Unexpected end of state");
+            applyText();
+            if (state.parent == null || state.destination != state.parent.destination)
+                applyDestination(true);
+            parser.state = state.parent;
+            if (parser.state !== null) {
+                renderer._ins.push((function (state) {
+                    return function () {
+                        this.setChp(new RenderChp(state.chp));
+                    };
+                })(parser.state));
+                renderer._ins.push((function (state) {
+                    return function () {
+                        this.setPap(new RenderPap(state.pap));
+                    };
+                })(parser.state));
+            }
+            return parser.state;
+        };
+        var changeDestination = function (name, param) {
+            applyText();
+            var handler = destinations[name];
+            if (handler != null) {
+                applyDestination(false);
+                parser.state.destination = new handler(name, param);
+                return true;
+            }
+            return false;
+        };
+        processKeyword = function (keyword, param) {
+            var first = parser.state.first;
+            if (first) {
+                if (keyword == "*") {
+                    parser.state.skipunknowndestination = true;
+                    return;
+                }
+                parser.state.first = false;
+            }
+            //if (param != null)
+            //    Helper.log("keyword " + keyword + " with param " + param);
+            //else
+            //    Helper.log("keyword " + keyword);
+            if (parser.state.bindata > 0)
+                throw new RTFJSError("Keyword encountered within binary data");
+            // Reset if we unexpectedly encounter a keyword
+            parser.state.skipchars = 0;
+            switch (keyword) {
+                case "\n":
+                    return "\n";
+                case "\r":
+                    return "\r";
+                case "tab":
+                    return "\t";
+                case "ldblquote":
+                    return "“";
+                case "rdblquote":
+                    return "”";
+                case "{":
+                case "}":
+                case "\\":
+                    return keyword;
+                case "uc":
+                    if (param != null && param >= 0)
+                        parser.state.ucn = param;
+                    break;
+                case "u":
+                    if (param != null) {
+                        if (param < 0)
+                            param += 65536;
+                        if (param < 0 || param > 65535)
+                            throw new RTFJSError("Invalid unicode character encountered");
+                        var symbol = SymbolTable[param.toString(16).substring(2)];
+                        appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
+                        parser.state.skipchars = parser.state.ucn;
+                    }
+                    return;
+                case "bin":
+                    if (param == null)
+                        throw new RTFJSError("Binary data is missing length");
+                    if (param < 0)
+                        throw new RTFJSError("Binary data with invalid length");
+                    parser.state.bindata = param;
+                    return;
+                case "upr":
+                    parseLoop(true, null); // skip the first sub destination (ansi)
+                    // this will be followed by a \ud sub destination
+                    return;
+                case "ud":
+                    return;
+                default:
+                    if (!parser.state.skipdestination) {
+                        if (first) {
+                            if (!changeDestination(keyword, param)) {
+                                var handled = false;
+                                var dest = parser.state.destination;
+                                if (dest != null) {
+                                    if (dest.handleKeyword != null)
+                                        handled = dest.handleKeyword(keyword, param);
+                                }
+                                if (!handled && parser.state.skipunknowndestination)
+                                    parser.state.skipdestination = true;
+                            }
+                        }
+                        else {
+                            applyText();
+                            var dest = parser.state.destination;
+                            if (dest != null) {
+                                if (dest.handleKeyword != null)
+                                    dest.handleKeyword(keyword, param);
+                            }
+                            else {
+                                Helper.log("Unhandled keyword: " + keyword + " param: " + param);
+                            }
+                        }
+                    }
+                    return;
+            }
+            parser.state.skipdestination = false;
+        };
+        appendText = function (text) {
+            // Handle characters not found in codepage
+            text = text ? text : "";
+            parser.state.first = false;
+            if (parser.state.skipchars > 0) {
+                var len = text.length;
+                if (parser.state.skipchars >= len) {
+                    parser.state.skipchars -= len;
+                    return;
+                }
+                if (parser.state.destination == null || !parser.state.skipdestination)
+                    parser.text += text.slice(parser.state.skipchars);
+                parser.state.skipchars = 0;
+            }
+            else if (parser.state.destination == null || !parser.state.skipdestination) {
+                parser.text += text;
+            }
+        };
+        var applyBlob = function (blob) {
+            parser.state.first = false;
+            applyText();
+            if (parser.state.skipchars > 0) {
+                // \bin and all its data is considered one character for skipping purposes
+                parser.state.skipchars--;
+            }
+            else {
+                var dest = parser.state.destination;
+                if (dest == null)
+                    throw new RTFJSError("Cannot route binary to destination");
+                if (dest != null && dest.handleBlob != null && !parser.state.skipdestination)
+                    dest.handleBlob(blob);
+            }
+        };
+        parseKeyword = function (process) {
+            if (parser.state == null)
+                throw new RTFJSError("No state");
+            var param;
+            var ch = parser.readChar();
+            if (!Helper._isalpha(ch)) {
+                if (ch == "\'") {
+                    var hex = parser.readChar() + parser.readChar();
+                    if (parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
+                        parser.readChar();
+                        parser.readChar();
+                        hex += parser.readChar() + parser.readChar();
+                    }
+                    param = Helper._parseHex(hex);
+                    if (isNaN(param))
+                        throw new RTFJSError("Could not parse hexadecimal number");
+                    if (process != null) {
+                        // Looking for current fonttbl charset
+                        var codepage = parser.codepage;
+                        if (parser.state.chp.hasOwnProperty("fontfamily")) {
+                            var idx = parser.state.chp.fontfamily;
+                            if (inst._fonts != undefined && inst._fonts[idx] != null && inst._fonts[idx].charset != undefined)
+                                codepage = inst._fonts[idx].charset;
+                        }
+                        appendText(cputils[codepage].dec[param]);
+                    }
+                }
+                else if (process != null) {
+                    var text = process(ch, param);
+                    if (text != null)
+                        appendText(text);
+                }
+            }
+            else {
+                var keyword = ch;
+                ch = parser.readChar();
+                while (keyword.length < 30 && Helper._isalpha(ch)) {
+                    keyword += ch;
+                    ch = parser.readChar();
+                }
+                var num;
+                if (ch == "-") {
+                    num = "-";
+                    ch = parser.readChar();
+                }
+                else {
+                    num = "";
+                }
+                if (Helper._isdigit(ch)) {
+                    do {
+                        num += ch;
+                        ch = parser.readChar();
+                    } while (num.length < 20 && Helper._isdigit(ch));
+                    if (num.length >= 20)
+                        throw new RTFJSError("Param for keyword " + keyword + " too long");
+                    param = parseInt(num, 10);
+                    if (isNaN(param))
+                        throw new RTFJSError("Invalid keyword " + keyword + " param");
+                }
+                if (ch != " ")
+                    parser.unreadChar();
+                if (process != null) {
+                    var text = process(keyword, param);
+                    if (text != null)
+                        appendText(text);
+                }
+            }
+        };
+        parseLoop = function (skip, process) {
+            try {
+                var initialState = parser.state;
+                main_loop: while (!parser.eof()) {
+                    if (parser.state != null && parser.state.bindata > 0) {
+                        var blob = parser.readBlob(parser.state.bindata);
+                        parser.state.bindata = 0;
+                        applyBlob(blob);
+                    }
+                    else {
+                        var ch = parser.readChar();
+                        switch (ch) {
+                            case "\r":
+                                continue;
+                            case "\n":
+                                parser.line++;
+                                parser.column = 0;
+                                continue;
+                            case "{":
+                                pushState(skip);
+                                break;
+                            case "}":
+                                if (initialState == parser.state) {
+                                    parser.unreadChar();
+                                    break main_loop;
+                                }
+                                else if (popState() == initialState)
+                                    break main_loop;
+                                break;
+                            case "\\":
+                                parseKeyword(!skip ? process : null);
+                                break;
+                            default:
+                                if (!skip)
+                                    appendText(ch);
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                if (error instanceof RTFJSError) {
+                    error.message += " (line: " + parser.line + "; column: " + parser.column + ")";
+                }
+                throw error;
+            }
+        };
+        if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
+            parseLoop(false, processKeyword);
+        }
+        if (parser.version == null)
+            throw new RTFJSError("Not a valid rtf document");
+        if (parser.state != null)
+            throw new RTFJSError("File truncated");
+    };
+    return Document;
+}());
+
+exports.RTFJSError = RTFJSError;
+exports.loggingEnabled = loggingEnabled;
+exports.Document = Document;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
