@@ -5,9 +5,9 @@ export default {
     input: 'dist/rtfjs/index.js',
     output: {
         file: 'dist/rtf.bundle.js',
-        format: 'umd'
+        format: 'umd',
+        name: 'RTFJS'
     },
-    name: 'RTFJS',
     plugins: [
         resolve(),
         commonjs()
