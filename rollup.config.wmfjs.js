@@ -1,7 +1,7 @@
 import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default {
-    input: 'dist/wmfjs/index.js',
+    input: 'build/wmfjs/index.js',
     output: {
         file: 'dist/wmf.bundle.js',
         format: 'umd',

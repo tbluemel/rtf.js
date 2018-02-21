@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eclint check src/* src/**/* test/*.js",
         "fix": "eclint fix src/* src/**/* test/*.js",
-        "clean": "rimraf dist",
+        "clean": "rimraf build && rimraf dist",
         "compile": "tsc",
         "bundle": "rollup --config rollup.config.rtfjs.js && rollup --config rollup.config.wmfjs.js",
         "build": "npm run clean && npm run compile && npm run bundle",
