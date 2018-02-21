@@ -23,6 +23,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-export * from './Document';
+export { DocumentFacade as Document } from './DocumentFacade';
 export { RTFJSError, loggingEnabled } from './Helper';
 //# sourceMappingURL=index.js.map

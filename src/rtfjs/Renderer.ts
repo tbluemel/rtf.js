@@ -28,7 +28,6 @@ import { RTFJSError } from './Helper';
 
 export class Renderer {
     _doc;
-    _ins;
     _dom;
 
     _curRChp;
@@ -39,7 +38,6 @@ export class Renderer {
 
     constructor(doc) {
         this._doc = doc;
-        this._ins = [];
         this._dom = null;
 
         this._curRChp = null;
@@ -48,10 +46,6 @@ export class Renderer {
         this._cursubpar = null;
         this._curcont = [];
     }
-
-    addIns(ins) {
-        this._ins.push(ins);
-    };
 
     pushContainer(contel) {
         if (this._curpar == null)
@@ -179,9 +173,9 @@ export class Renderer {
         this._curRPap = null;
         this._curpar = null;
 
-        var len = this._ins.length;
+        var len = this._doc._ins.length;
         for (var i = 0; i < len; i++) {
-            var ins = this._ins[i];
+            var ins = this._doc._ins[i];
             if (typeof ins === "string") {
                 var span = $("<span>");
                 if (this._curRChp != null)

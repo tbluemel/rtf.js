@@ -261,7 +261,6 @@ SOFTWARE.
 var Renderer = /** @class */ (function () {
     function Renderer(doc) {
         this._doc = doc;
-        this._ins = [];
         this._dom = null;
         this._curRChp = null;
         this._curRPap = null;
@@ -269,9 +268,6 @@ var Renderer = /** @class */ (function () {
         this._cursubpar = null;
         this._curcont = [];
     }
-    Renderer.prototype.addIns = function (ins) {
-        this._ins.push(ins);
-    };
     Renderer.prototype.pushContainer = function (contel) {
         if (this._curpar == null)
             this.startPar();
@@ -382,9 +378,9 @@ var Renderer = /** @class */ (function () {
         this._curRChp = null;
         this._curRPap = null;
         this._curpar = null;
-        var len = this._ins.length;
+        var len = this._doc._ins.length;
         for (var i = 0; i < len; i++) {
-            var ins = this._ins[i];
+            var ins = this._doc._ins[i];
             if (typeof ins === "string") {
                 var span = $("<span>");
                 if (this._curRChp != null)
@@ -398,126 +394,6 @@ var Renderer = /** @class */ (function () {
         return this._dom;
     };
     return Renderer;
-}());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var RenderPap = /** @class */ (function () {
-    function RenderPap(pap) {
-        this._pap = pap;
-    }
-    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        var pap = this._pap;
-        if (ismaindiv) {
-            if (pap.spacebefore != 0)
-                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
-            else
-                el.css("margin-top", "");
-            if (pap.spaceafter != 0)
-                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
-            else
-                el.css("margin-bottom", "");
-            if (rchp != null)
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
-        }
-        else {
-            switch (pap.justification) {
-                case Helper.JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
-                    break;
-                case Helper.JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
-                    break;
-                case Helper.JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
-                    break;
-                case Helper.JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
-                    break;
-            }
-        }
-    };
-    return RenderPap;
-}());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var RenderChp = /** @class */ (function () {
-    function RenderChp(chp) {
-        this._chp = chp;
-    }
-    RenderChp.prototype.apply = function (doc, el) {
-        var chp = this._chp;
-        if (chp.bold)
-            el.css("font-weight", "bold");
-        if (chp.italic)
-            el.css("font-style", "italic");
-        if (chp.hasOwnProperty("fontfamily") && doc._fonts[chp.fontfamily]) {
-            var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol")
-                el.css("font-family", fontFamily);
-        }
-        var deco = [];
-        if (chp.underline != Helper.UNDERLINE.NONE)
-            deco.push("underline");
-        if (chp.strikethrough || chp.dblstrikethrough)
-            deco.push("line-through");
-        if (deco.length > 0)
-            el.css("text-decoration", deco.join(" "));
-        if (chp.colorindex != 0) {
-            var color = doc._lookupColor(chp.colorindex);
-            if (color != null)
-                el.css("color", Helper._colorToStr(color));
-        }
-        el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
-    };
-    return RenderChp;
 }());
 
 // The MIT License (MIT)
@@ -733,6 +609,69 @@ var SymbolTable = {
     "fd": "\uf8fd",
     "fe": "\uf8fe"
 };
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderPap = /** @class */ (function () {
+    function RenderPap(pap) {
+        this._pap = pap;
+    }
+    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        var pap = this._pap;
+        if (ismaindiv) {
+            if (pap.spacebefore != 0)
+                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
+            else
+                el.css("margin-top", "");
+            if (pap.spaceafter != 0)
+                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
+            else
+                el.css("margin-bottom", "");
+            if (rchp != null)
+                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+        }
+        else {
+            switch (pap.justification) {
+                case Helper.JUSTIFICATION.LEFT:
+                    el.css("text-align", "left");
+                    break;
+                case Helper.JUSTIFICATION.RIGHT:
+                    el.css("text-align", "right");
+                    break;
+                case Helper.JUSTIFICATION.CENTER:
+                    el.css("text-align", "center");
+                    break;
+                case Helper.JUSTIFICATION.JUSTIFY:
+                    el.css("text-align", "justify");
+                    break;
+            }
+        }
+    };
+    return RenderPap;
+}());
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -7639,35 +7578,69 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var Document = /** @class */ (function () {
-    function Document(blob, settings) {
-        this._settings = settings || {};
-        this._meta = {};
-        this._fonts = [];
-        this._colors = [];
-        this._autoColor = null;
-        this._stylesheets = [];
-        this._renderer = new Renderer(this);
-        this.parse(blob, this._renderer);
+var RenderChp = /** @class */ (function () {
+    function RenderChp(chp) {
+        this._chp = chp;
     }
-    Document.prototype._lookupColor = function (idx) {
-        if (idx == 0) {
-            if (this._autoColor == null)
-                return null;
-            return this._colors[this._autoColor];
+    RenderChp.prototype.apply = function (doc, el) {
+        var chp = this._chp;
+        if (chp.bold)
+            el.css("font-weight", "bold");
+        if (chp.italic)
+            el.css("font-style", "italic");
+        if (chp.hasOwnProperty("fontfamily") && doc._fonts[chp.fontfamily]) {
+            var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol")
+                el.css("font-family", fontFamily);
         }
-        if (idx < 0 || idx >= this._colors.length)
-            throw new RTFJSError("Invalid color index");
-        return this._colors[idx];
+        var deco = [];
+        if (chp.underline != Helper.UNDERLINE.NONE)
+            deco.push("underline");
+        if (chp.strikethrough || chp.dblstrikethrough)
+            deco.push("line-through");
+        if (deco.length > 0)
+            el.css("text-decoration", deco.join(" "));
+        if (chp.colorindex != 0) {
+            var color = doc._lookupColor(chp.colorindex);
+            if (color != null)
+                el.css("color", Helper._colorToStr(color));
+        }
+        el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
     };
-    Document.prototype.metadata = function () {
-        return this._meta;
-    };
-    Document.prototype.render = function () {
-        return this._renderer.buildDom();
-    };
-    Document.prototype.parse = function (blob, renderer) {
-        var inst = this;
+    return RenderChp;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var Parser = /** @class */ (function () {
+    function Parser(document) {
+        this.inst = document;
+    }
+    Parser.prototype.parse = function (blob, renderer) {
+        var inst = this.inst;
         var parseKeyword, processKeyword, appendText, parseLoop;
         var Chp = function (parent) {
             if (parent != null) {
@@ -7890,31 +7863,31 @@ var Document = /** @class */ (function () {
             };
             cls.prototype = Object.create(DestinationBase.prototype);
             cls.prototype.addIns = function (func) {
-                inst._renderer.addIns(func);
+                inst.addIns(func);
             };
             cls.prototype.appendText = function (text) {
                 Helper.log("[rtf] output: " + text);
-                inst._renderer.addIns(text);
+                inst.addIns(text);
             };
             cls.prototype.sub = function () {
                 Helper.log("[rtf].sub()");
             };
             var _addInsHandler = function (func) {
                 return function (param) {
-                    inst._renderer.addIns(func);
+                    inst.addIns(func);
                 };
             };
             var _addFormatIns = function (ptype, props) {
                 switch (ptype) {
                     case "chp":
                         var rchp = new RenderChp(new Chp(props));
-                        inst._renderer.addIns(function () {
+                        inst.addIns(function () {
                             this.setChp(rchp);
                         });
                         break;
                     case "pap":
                         var rpap = new RenderPap(new Pap(props));
-                        inst._renderer.addIns(function () {
+                        inst.addIns(function () {
                             this.setPap(rpap);
                         });
                         break;
@@ -8783,7 +8756,7 @@ var Document = /** @class */ (function () {
                                     return this.buildPicture(pictrender, null);
                                 }
                                 else {
-                                    inst._renderer.addIns(function () {
+                                    inst.addIns(function () {
                                         this.picture(pictrender, null);
                                     });
                                 }
@@ -8795,7 +8768,7 @@ var Document = /** @class */ (function () {
                                     return this.buildRenderedPicture(pictrender());
                                 }
                                 else {
-                                    inst._renderer.addIns(function () {
+                                    inst.addIns(function () {
                                         this.renderedPicture(pictrender());
                                     });
                                 }
@@ -8803,7 +8776,7 @@ var Document = /** @class */ (function () {
                         }
                     };
                     if (inst._settings.onPicture != null) {
-                        inst._renderer.addIns((function (isLegacy) {
+                        inst.addIns((function (isLegacy) {
                             return function () {
                                 var renderer = this;
                                 var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
@@ -8828,7 +8801,7 @@ var Document = /** @class */ (function () {
                                 return this.buildPicture(type, bin);
                             }
                             else {
-                                inst._renderer.addIns(function () {
+                                inst.addIns(function () {
                                     this.picture(type, bin);
                                 });
                             }
@@ -8838,14 +8811,14 @@ var Document = /** @class */ (function () {
                                 return this.buildPicture("Unsupported image format", null);
                             }
                             else {
-                                inst._renderer.addIns(function () {
+                                inst.addIns(function () {
                                     this.picture("Unsupported image format", null);
                                 });
                             }
                         }
                     };
                     if (inst._settings.onPicture != null) {
-                        inst._renderer.addIns((function (isLegacy) {
+                        inst.addIns((function (isLegacy) {
                             return function () {
                                 var renderer = this;
                                 var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
@@ -8957,12 +8930,12 @@ var Document = /** @class */ (function () {
                 applyDestination(true);
             parser.state = state.parent;
             if (parser.state !== null) {
-                renderer._ins.push((function (state) {
+                inst._ins.push((function (state) {
                     return function () {
                         this.setChp(new RenderChp(state.chp));
                     };
                 })(parser.state));
-                renderer._ins.push((function (state) {
+                inst._ins.push((function (state) {
                     return function () {
                         this.setPap(new RenderPap(state.pap));
                     };
@@ -9226,6 +9199,57 @@ var Document = /** @class */ (function () {
         if (parser.state != null)
             throw new RTFJSError("File truncated");
     };
+    return Parser;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var Document = /** @class */ (function () {
+    function Document(settings) {
+        this._settings = settings || {};
+        this._meta = {};
+        this._fonts = [];
+        this._colors = [];
+        this._autoColor = null;
+        this._stylesheets = [];
+        this._ins = [];
+    }
+    Document.prototype._lookupColor = function (idx) {
+        if (idx == 0) {
+            if (this._autoColor == null)
+                return null;
+            return this._colors[this._autoColor];
+        }
+        if (idx < 0 || idx >= this._colors.length)
+            throw new RTFJSError("Invalid color index");
+        return this._colors[idx];
+    };
+    Document.prototype.addIns = function (ins) {
+        this._ins.push(ins);
+    };
     return Document;
 }());
 
@@ -9254,10 +9278,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+var DocumentFacade = /** @class */ (function () {
+    function DocumentFacade(blob, settings) {
+        this._document = new Document(settings);
+        this._renderer = new Renderer(this._document);
+        this._parser = new Parser(this._document);
+        this._parser.parse(blob, this._renderer);
+    }
+    DocumentFacade.prototype.metadata = function () {
+        return this._document._meta;
+    };
+    DocumentFacade.prototype.render = function () {
+        return this._renderer.buildDom();
+    };
+    return DocumentFacade;
+}());
 
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+exports.Document = DocumentFacade;
 exports.RTFJSError = RTFJSError;
 exports.loggingEnabled = loggingEnabled;
-exports.Document = Document;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
