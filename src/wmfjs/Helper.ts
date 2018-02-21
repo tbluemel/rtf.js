@@ -31,11 +31,14 @@ export function WMFJSError(message) {
 }
 WMFJSError.prototype = new Error;
 
-export let loggingEnabled = true;
+let isLoggingEnabled = true;
+export function loggingEnabled(enabled: boolean){
+    isLoggingEnabled = enabled;
+}
 
 export const Helper = {
     log: function(message){
-        if(loggingEnabled) {
+        if(isLoggingEnabled) {
             console.log(message);
         }
     },

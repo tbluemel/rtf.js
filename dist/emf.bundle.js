@@ -36,10 +36,13 @@ function EMFJSError(message) {
     this.stack = (new Error()).stack;
 }
 EMFJSError.prototype = new Error;
-var loggingEnabled = true;
+var isLoggingEnabled = true;
+function loggingEnabled(enabled) {
+    isLoggingEnabled = enabled;
+}
 var Helper = {
     log: function (message) {
-        if (loggingEnabled) {
+        if (isLoggingEnabled) {
             console.log(message);
         }
     },
