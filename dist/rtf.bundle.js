@@ -8357,9 +8357,6 @@ var Parser = /** @class */ (function () {
         };
         var stylesheetDestinationSub = function () {
             var _handleKeywordCommon = function (member) {
-                var data = this[member];
-                if (data == null)
-                    this[member] = data = {};
                 return function (keyword, param) {
                     Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
                     return false;
