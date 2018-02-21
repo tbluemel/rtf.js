@@ -2,7 +2,8 @@
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Thomas Bluemel
+Copyright (c) 2016 Tom Zoehner
+Copyright (c) 2018 Thomas Bluemel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +25,11 @@ SOFTWARE.
 
 */
 
+import { Obj, PointL } from './Primitives';
 import { Helper } from './Helper';
-import { Obj, PointS } from './Primitives';
-import { Bitmap16, DIBitmap, PatternBitmap16 } from './Bitmap';
+import { DIBitmap } from './Bitmap';
 
-export class ColorRef {
+export  class ColorRef {
     r;
     g;
     b;
@@ -80,11 +81,11 @@ export class Font extends Obj{
     constructor(reader, copy) {
         super("font");
         if (reader != null) {
-            this.height = reader.readInt16();
-            this.width = reader.readInt16();
-            this.escapement = reader.readInt16();
-            this.orientation = reader.readInt16();
-            this.weight = reader.readInt16();
+            this.height = reader.readInt32();
+            this.width = reader.readInt32();
+            this.escapement = reader.readInt32();
+            this.orientation = reader.readInt32();
+            this.weight = reader.readInt32();
             this.italic = reader.readUint8();
             this.underline = reader.readUint8();
             this.strikeout = reader.readUint8();
@@ -98,7 +99,7 @@ export class Font extends Obj{
 
             var dataLength = copy;
             var start = reader.pos;
-            this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
+            this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
         } else if (copy != null) {
             this.height = copy.height;
             this.width = copy.width;
@@ -145,47 +146,37 @@ export class Font extends Obj{
     };
 };
 
-export class Brush extends Obj {
+export class Brush extends Obj{
     style;
     color;
     pattern;
-    colorusage;
     dibpatternpt;
     hatchstyle;
+    colorusage;
 
-    constructor(reader, copy, forceDibPattern?) {
+    constructor(reader, copy?, bitmapInfo?) {
         super("brush");
         if (reader != null) {
-            var dataLength = copy;
             var start = reader.pos;
 
-            if (forceDibPattern === true || forceDibPattern === false) {
-                this.style = reader.readUint16();
-                if (forceDibPattern && this.style != Helper.GDI.BrushStyle.BS_PATTERN)
-                    this.style = Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
-                switch (this.style) {
-                    case Helper.GDI.BrushStyle.BS_SOLID:
-                        this.color = new ColorRef(reader);
-                        break;
-                    case Helper.GDI.BrushStyle.BS_PATTERN:
-                        reader.skip(forceDibPattern ? 2 : 6);
-                        this.pattern = new Bitmap16(reader, dataLength - (reader.pos - start));
-                        break;
-                    case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                        this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
-                        if (!forceDibPattern)
-                            reader.skip(2);
-                        this.dibpatternpt = new DIBitmap(reader, dataLength - (reader.pos - start));
-                        break;
-                    case Helper.GDI.BrushStyle.BS_HATCHED:
-                        this.color = new ColorRef(reader);
-                        this.hatchstyle = reader.readUint16();
-                        break;
-                }
-            } else if (forceDibPattern instanceof PatternBitmap16) {
-                this.style = Helper.GDI.BrushStyle.BS_PATTERN;
-                this.pattern = forceDibPattern;
+            this.style = reader.readUint32();
+            switch (this.style) {
+                case Helper.GDI.BrushStyle.BS_SOLID:
+                    this.color = new ColorRef(reader);
+                    break;
+                case Helper.GDI.BrushStyle.BS_PATTERN:
+                    this.pattern = new DIBitmap(reader, bitmapInfo);
+                    break;
+                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    this.dibpatternpt = new DIBitmap(reader, bitmapInfo);
+                    break;
+                case Helper.GDI.BrushStyle.BS_HATCHED:
+                    this.color = new ColorRef(reader);
+                    this.hatchstyle = reader.readUint32();
+                    break;
             }
+
+            reader.seek(start + 12);
         } else {
             this.style = copy.style;
             switch (this.style) {
@@ -216,7 +207,7 @@ export class Brush extends Obj {
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
-                break
+                break;
             case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                 ret += ", colorusage: " + this.colorusage;
                 break;
@@ -231,88 +222,42 @@ export class Brush extends Obj {
 export class Pen extends Obj{
     style;
     width;
+    brush;
     color;
-    linecap;
-    join;
 
-    constructor(reader, style?, width?, color?, linecap?, join?) {
-        super("pen")
+    constructor(reader, style?, width?, color?, brush?) {
+        super("pen");
         if (reader != null) {
-            var style = reader.readUint16();
-            this.style = style & 0xFF;
-            this.width = new PointS(reader);
-            this.color = new ColorRef(reader);
-            this.linecap = (style & (Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
-            this.join = (style & (Helper.GDI.PenStyle.PS_JOIN_BEVEL | Helper.GDI.PenStyle.PS_JOIN_MITER));
+            if (style != null) {
+                // LogPenEx
+                var bitmapInfo = style;
+
+                this.style = reader.readUint32() & 0xFF;
+                this.width = reader.readUint32();
+                this.brush = new Brush(reader);
+                this.color = this.brush.color != null ? this.brush.color.clone() : new ColorRef(null, 0, 0, 0);
+                // TODO: NumStyleEntries, StyleEntry
+            } else {
+                // LogPen
+                this.style = reader.readUint32() & 0xFF;
+                this.width = (new PointL(reader)).x;
+                this.color = new ColorRef(reader);
+            }
         } else {
             this.style = style;
             this.width = width;
-            this.color = color;
-            this.linecap = linecap;
-            this.join = join;
+            if (color != null)
+                this.color = color;
+            if (brush != null)
+                this.brush = brush;
         }
     }
 
     clone() {
-        return new Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
+        return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
     };
 
     toString() {
-        return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
-    };
-};
-
-export class PaletteEntry {
-    flag;
-    b;
-    g;
-    r;
-
-    constructor(reader, copy?) {
-        if (reader != null) {
-            this.flag = reader.readUint8();
-            this.b = reader.readUint8();
-            this.g = reader.readUint8();
-            this.r = reader.readUint8();
-        } else {
-            this.flag = copy.flag;
-            this.b = copy.b;
-            this.g = copy.g;
-            this.r = copy.r;
-        }
-    }
-
-    clone() {
-        return new PaletteEntry(null, this);
-    };
-};
-
-export class Palette extends Obj{
-    start;
-    entries;
-
-    constructor(reader, copy?) {
-        super("palette");
-        if (reader != null) {
-            this.start = reader.readUint16();
-            var cnt = reader.readUint16();
-            this.entries = [];
-            while (cnt > 0)
-                this.entries.push(new PaletteEntry(reader));
-        } else {
-            this.start = copy.start;
-            this.entries = [];
-            var len = copy.entries.length;
-            for (var i = 0; i < len; i++)
-                this.entries.push(copy.entries[i]);
-        }
-    }
-
-    clone() {
-        return new Palette(null, this);
-    };
-
-    toString() {
-        return "{ #entries: " + this.entries.length + "}"; // TODO
+        return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
     };
 };
