@@ -9321,7 +9321,7 @@ SOFTWARE.
 */
 
 exports.Document = DocumentFacade;
-exports.RTFJSError = RTFJSError;
+exports.Error = RTFJSError;
 exports.loggingEnabled = loggingEnabled;
 
 Object.defineProperty(exports, '__esModule', { value: true });

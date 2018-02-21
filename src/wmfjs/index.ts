@@ -25,4 +25,4 @@ SOFTWARE.
 */
 
 export * from './Renderer';
-export { WMFJSError, loggingEnabled } from './Helper';
+export { WMFJSError as Error, loggingEnabled } from './Helper';

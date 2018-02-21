@@ -2909,7 +2909,7 @@ SOFTWARE.
 
 */
 
-exports.EMFJSError = EMFJSError;
+exports.Error = EMFJSError;
 exports.loggingEnabled = loggingEnabled;
 exports.Renderer = Renderer;
 exports.EMF = EMF;

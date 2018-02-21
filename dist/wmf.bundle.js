@@ -2755,7 +2755,7 @@ SOFTWARE.
 
 */
 
-exports.WMFJSError = WMFJSError;
+exports.Error = WMFJSError;
 exports.loggingEnabled = loggingEnabled;
 exports.Renderer = Renderer;
 exports.WMFRect16 = WMFRect16;

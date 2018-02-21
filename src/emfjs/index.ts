@@ -26,4 +26,4 @@ SOFTWARE.
 */
 
 export * from './Renderer';
-export { EMFJSError, loggingEnabled } from './Helper';
+export { EMFJSError as Error, loggingEnabled } from './Helper';
