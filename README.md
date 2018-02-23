@@ -19,3 +19,9 @@ The code of this project is licensed under the MIT license.  See the file LICENS
 * [RTF document rendering](https://tbluemel.github.io/rtf.js/samples/01_rtf/rtf.html)
 * [WMF image rendering](https://tbluemel.github.io/rtf.js/samples/02_wmf/wmf.html)
 * [EMF image rendering](https://tbluemel.github.io/rtf.js/samples/03_emf/emf.html)
+
+# Tests
+To run the test suite first install the dependencies using `npm install` and then run 
+```
+$ npm run test
+```
