@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eclint check *.js",
     "cleanup": "eclint fix *.js",
+    "generate-testcase": "node test/generate-testcase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +23,8 @@
   },
   "homepage": "https://github.com/tbluemel/rtf.js#readme",
   "devDependencies": {
-    "eclint": "^2.6.0"
+    "eclint": "^2.6.0",
+    "jsdom": "^11.6.2",
+    "pretty": "^2.0.0"
   }
 }
