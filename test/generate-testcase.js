@@ -24,10 +24,10 @@ fs.mkdir(destRoot, function(err) {
 
     fs.copyFile(testFileSource, path.join(destRoot, "source.rtf"), function (err) {
         if(err) {
-           console.error("Could not copy '" + testFileSource + "' to the testcase directory.");
-           console.error(err);
-           process.exit(1);
-           return;
+            console.error("Could not copy '" + testFileSource + "' to the testcase directory.");
+            console.error(err);
+            process.exit(1);
+            return;
         }
         runRtfjs(destRoot);
     });

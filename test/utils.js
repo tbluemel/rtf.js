@@ -22,7 +22,7 @@ exports.runRtfjs = function(source, callback) {
     <script src="../rtf.js"></script>
     <script src="../wmf.js"></script>
     <script src="../emf.js"></script>
-    
+
     <script>
         RTFJS.loggingEnabled = false;
         WMFJS.loggingEnabled = false;
@@ -31,7 +31,7 @@ exports.runRtfjs = function(source, callback) {
 
         var meta = doc.metadata();
         var html = $("<div>").append(doc.render()).html();
-        
+
         window.done(meta, html);
     </script>
     `, { resources: "usable",
