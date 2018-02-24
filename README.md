@@ -8,7 +8,6 @@ The code of this project is licensed under the MIT license.  See the file LICENS
 * rtf.js requires:
   * [jquery](https://jquery.com/)
   * [js-codepage](https://github.com/SheetJS/js-codepage/) (Apache 2.0 license)
-  * symboltable.js (provided in the sample directory)
 * wmf.js and emf.js require:
   * [jquery](https://jquery.com/)
   * [jquery.svg.js plugin](https://github.com/kbwood/svg) with the jquery.svgfilter.js extension.
@@ -20,8 +19,17 @@ The code of this project is licensed under the MIT license.  See the file LICENS
 * [WMF image rendering](https://tbluemel.github.io/rtf.js/samples/02_wmf/wmf.html)
 * [EMF image rendering](https://tbluemel.github.io/rtf.js/samples/03_emf/emf.html)
 
-# Tests
-To run the test suite first install the dependencies using `npm install` and then run 
+# Developing
+To develop first install the dependencies using `npm install`.
+
+## Building
+To build the entire project and create the bundles run:
+```
+$ npm run build
+```
+
+## Tests
+To run the test suite run:
 ```
 $ npm run test
 ```

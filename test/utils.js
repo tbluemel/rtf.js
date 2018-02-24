@@ -16,17 +16,15 @@ exports.runRtfjs = function(source, callback) {
 
     <script src="../samples/.common/dep/jquery.svg.min.js"></script>
     <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
-    <script src="../samples/.common/dep/cptable.full.js"></script>
-    <script src="../samples/.common/dep/symboltable.js"></script>
 
-    <script src="../rtf.js"></script>
-    <script src="../wmf.js"></script>
-    <script src="../emf.js"></script>
+    <script src="../dist/rtf.bundle.js"></script>
+    <script src="../dist/wmf.bundle.js"></script>
+    <script src="../dist/emf.bundle.js"></script>
 
     <script>
-        RTFJS.loggingEnabled = false;
-        WMFJS.loggingEnabled = false;
-        EMFJS.loggingEnabled = false;
+        RTFJS.loggingEnabled(false);
+        WMFJS.loggingEnabled(false);
+        EMFJS.loggingEnabled(false);
         var doc = new RTFJS.Document(rtfFile);
 
         var meta = doc.metadata();
