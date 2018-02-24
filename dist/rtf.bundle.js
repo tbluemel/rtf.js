@@ -233,6 +233,9 @@ var Helper = {
     },
     _twipsToPx: function (twips) {
         return Math.floor(twips / 20 * 96 / 72);
+    },
+    _pxToTwips: function (px) {
+        return Math.floor(px * 20 * 72 / 96);
     }
 };
 
@@ -7640,6 +7643,7 @@ SOFTWARE.
 */
 var Parser = /** @class */ (function () {
     function Parser(document) {
+        this._asyncTasks = [];
         this.inst = document;
     }
     Parser.prototype.parse = function (blob, renderer) {
@@ -8449,10 +8453,18 @@ var Parser = /** @class */ (function () {
                 //     throw new RTFJSError("Field has no fldrslt destination");
             };
             cls.prototype.setInst = function (inst) {
+                var _this = this;
                 this._haveInst = true;
                 if (this._parsedInst != null)
                     throw new RTFJSError("Field cannot have multiple fldinst destinations");
-                this._parsedInst = inst;
+                Promise.resolve(inst)
+                    .then(function (_parsedInst) {
+                    _this._parsedInst = _parsedInst;
+                })
+                    .catch(function (error) {
+                    _this._parsedInst = null;
+                    throw new RTFJSError(error.message);
+                });
             };
             cls.prototype.getInst = function () {
                 return this._parsedInst;
@@ -8527,10 +8539,69 @@ var Parser = /** @class */ (function () {
                         if (end >= 1)
                             data = data.substring(1, end);
                     }
-                    var fieldType = this.text.substr(0, sep);
+                    var fieldType = this.text.substr(0, sep).toUpperCase();
                     switch (fieldType) {
                         case "HYPERLINK":
                             return new FieldHyperlink(this, data);
+                        case "IMPORT":
+                            if (typeof inst._settings.onImport === 'function') {
+                                var pict_1;
+                                inst.addIns(function () {
+                                    // backup
+                                    var hook = inst._settings.onPicture;
+                                    inst._settings.onPicture = null;
+                                    var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
+                                    // restore
+                                    inst._settings.onPicture = hook;
+                                    if (typeof hook === 'function') {
+                                        element = hook(isLegacy, function () { return element; });
+                                    }
+                                    if (element != null)
+                                        this.appendElement(element);
+                                });
+                                var promise = new Promise(function (resolve, reject) {
+                                    try {
+                                        var cb = function (_a) {
+                                            var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
+                                            if (!error && typeof keyword === 'string' && keyword && blob) {
+                                                var dims = {
+                                                    w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
+                                                    h: Helper._pxToTwips(height || 300)
+                                                };
+                                                var cls_1 = pictDestination();
+                                                pict_1 = new cls_1();
+                                                pict_1.handleBlob(blob);
+                                                pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
+                                                pict_1._displaysize.width = dims.w;
+                                                pict_1._displaysize.height = dims.h;
+                                                pict_1._size.width = dims.w;
+                                                pict_1._size.height = dims.h;
+                                                var _parsedInst = {
+                                                    renderFieldBegin: function () { return true; },
+                                                    renderFieldEnd: function () { return true; }
+                                                };
+                                                resolve(_parsedInst);
+                                            }
+                                            else {
+                                                Helper.log("[fldinst]: failed to IMPORT image file: " + data);
+                                                if (error) {
+                                                    error = (error instanceof Error) ? error : new Error(error);
+                                                    reject(error);
+                                                }
+                                                else {
+                                                    resolve(undefined);
+                                                }
+                                            }
+                                        };
+                                        inst._settings.onImport.call(inst, data, cb);
+                                    }
+                                    catch (error) {
+                                        reject(error);
+                                    }
+                                });
+                                this._asyncTasks.push(promise);
+                                return promise;
+                            }
                         default:
                             Helper.log("[fldinst]: unknown field type: " + fieldType);
                             break;
@@ -8727,7 +8798,8 @@ var Parser = /** @class */ (function () {
             cls.prototype.handleBlob = function (blob) {
                 this._blob = blob;
             };
-            cls.prototype.apply = function () {
+            cls.prototype.apply = function (rendering) {
+                if (rendering === void 0) { rendering = false; }
                 if (this._type == null)
                     throw new RTFJSError("Picture type unknown or not specified");
                 //if (this._size.width == null || this._size.height == null)
@@ -8788,7 +8860,10 @@ var Parser = /** @class */ (function () {
                         })(isLegacy));
                     }
                     else {
-                        doRender(false);
+                        return {
+                            isLegacy: isLegacy,
+                            element: doRender.call(renderer, rendering)
+                        };
                     }
                 }
                 else if (typeof type === "string") {
@@ -8830,7 +8905,10 @@ var Parser = /** @class */ (function () {
                         })(isLegacy));
                     }
                     else {
-                        doRender(false);
+                        return {
+                            isLegacy: isLegacy,
+                            element: doRender.call(renderer, rendering)
+                        };
                     }
                 }
                 delete this.text;
@@ -9193,6 +9271,7 @@ var Parser = /** @class */ (function () {
         };
         if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
             parseLoop(false, processKeyword);
+            return Promise.all(this._asyncTasks).then(function () { });
         }
         if (parser.version == null)
             throw new RTFJSError("Not a valid rtf document");
@@ -9282,14 +9361,20 @@ var DocumentFacade = /** @class */ (function () {
     function DocumentFacade(blob, settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
-        this._parser = new Parser(this._document);
-        this._parser.parse(blob, this._renderer);
+        var parser = new Parser(this._document);
+        this._parsed = parser.parse(blob, this._renderer);
     }
     DocumentFacade.prototype.metadata = function () {
         return this._document._meta;
     };
     DocumentFacade.prototype.render = function () {
-        return this._renderer.buildDom();
+        var _this = this;
+        return this._parsed
+            .then(function () {
+            return _this._renderer.buildDom();
+        }).catch(function (error) {
+            throw new RTFJSError(error);
+        });
     };
     return DocumentFacade;
 }());

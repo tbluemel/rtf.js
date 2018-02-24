@@ -84,11 +84,13 @@ function displayRtfFile(blob) {
         }
         if (haveMeta)
             $("#havemeta").show();
-        $("#content").empty().append(doc.render());
-        $("#closed_doc").hide();
-        $("#opened_doc").show();
-        $("#tools").show();
-        console.log("All done!");
+        doc.render().then(html => {
+            $("#content").empty().append(html);
+            $("#closed_doc").hide();
+            $("#opened_doc").show();
+            $("#tools").show();
+            console.log("All done!");
+        })
     } catch(e) {
         if (e instanceof RTFJS.Error)
             $("#content").text("Error: " + e.message);
