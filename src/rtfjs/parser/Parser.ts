@@ -35,13 +35,15 @@ declare const WMFJS: any;
 declare const EMFJS: any;
 
 export class Parser {
+    _asyncTasks;
     inst;
 
     constructor(document: Document) {
+        this._asyncTasks = [];
         this.inst = document;
     }
 
-    parse(blob, renderer) {
+    parse(blob, renderer): Promise<void> {
         var inst = this.inst;
         var parseKeyword, processKeyword, appendText, parseLoop;
 
@@ -1036,7 +1038,7 @@ export class Parser {
                                         reject(error)
                                     }
                                 });
-                                inst._asyncTasks.push(promise);
+                                this._asyncTasks.push(promise);
                                 return promise;
                             }
                         default:
@@ -1737,6 +1739,7 @@ export class Parser {
 
         if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
             parseLoop(false, processKeyword);
+            return Promise.all(this._asyncTasks).then(()=>{});
         }
         if (parser.version == null)
             throw new RTFJSError("Not a valid rtf document");

@@ -32,13 +32,13 @@ import { RTFJSError } from './Helper';
 export class DocumentFacade {
     _document;
     _renderer;
-    _parser;
+    _parsed;
 
     constructor(blob, settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
-        this._parser = new Parser(this._document);
-        this._parser.parse(blob, this._renderer);
+        const parser = new Parser(this._document);
+        this._parsed = parser.parse(blob, this._renderer);
     }
 
     metadata() {
@@ -46,7 +46,7 @@ export class DocumentFacade {
     }
 
     render() {
-        return Promise.all(this._document._asyncTasks)
+        return this._parsed
             .then(() => {
                 return this._renderer.buildDom();
             }).catch(error => {

@@ -7643,6 +7643,7 @@ SOFTWARE.
 */
 var Parser = /** @class */ (function () {
     function Parser(document) {
+        this._asyncTasks = [];
         this.inst = document;
     }
     Parser.prototype.parse = function (blob, renderer) {
@@ -8598,7 +8599,7 @@ var Parser = /** @class */ (function () {
                                         reject(error);
                                     }
                                 });
-                                inst._asyncTasks.push(promise);
+                                this._asyncTasks.push(promise);
                                 return promise;
                             }
                         default:
@@ -9270,6 +9271,7 @@ var Parser = /** @class */ (function () {
         };
         if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
             parseLoop(false, processKeyword);
+            return Promise.all(this._asyncTasks).then(function () { });
         }
         if (parser.version == null)
             throw new RTFJSError("Not a valid rtf document");
@@ -9312,7 +9314,6 @@ var Document = /** @class */ (function () {
         this._colors = [];
         this._autoColor = null;
         this._stylesheets = [];
-        this._asyncTasks = [];
         this._ins = [];
     }
     Document.prototype._lookupColor = function (idx) {
@@ -9360,15 +9361,15 @@ var DocumentFacade = /** @class */ (function () {
     function DocumentFacade(blob, settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
-        this._parser = new Parser(this._document);
-        this._parser.parse(blob, this._renderer);
+        var parser = new Parser(this._document);
+        this._parsed = parser.parse(blob, this._renderer);
     }
     DocumentFacade.prototype.metadata = function () {
         return this._document._meta;
     };
     DocumentFacade.prototype.render = function () {
         var _this = this;
-        return Promise.all(this._document._asyncTasks)
+        return this._parsed
             .then(function () {
             return _this._renderer.buildDom();
         }).catch(function (error) {
