@@ -11,6 +11,7 @@
         "bundle": "rollup --config rollup.config.rtfjs.js && rollup --config rollup.config.wmfjs.js && rollup --config rollup.config.emfjs.js",
         "build": "npm run clean && npm run compile && npm run bundle",
         "generate-testcase": "node test/generate-testcase.js",
+        "regenerate-testcase": "node test/regenerate-testcase.js",
         "test": "mocha test/test-rtfjs.js"
     },
     "repository": {
