@@ -28,7 +28,7 @@ import { RTFJSError } from './Helper';
 
 export class Renderer {
     _doc;
-    _dom;
+    _dom: JQuery[];
 
     _curRChp;
     _curRPap;
@@ -163,7 +163,7 @@ export class Renderer {
         this._appendToPar(this.buildPicture(mime, data));
     };
 
-    buildDom() {
+    buildDom(): JQuery[] {
         if (this._dom != null)
             return this._dom;
 

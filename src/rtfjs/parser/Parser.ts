@@ -1339,7 +1339,6 @@ export class Parser {
                                     this.appendElement(elem);
                             };
                         })(isLegacy));
-                        ;
                     } else {
                         return {
                             isLegacy,

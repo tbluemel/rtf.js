@@ -30,9 +30,9 @@ import { Document } from './Document';
 import { RTFJSError } from './Helper';
 
 export class DocumentFacade {
-    _document;
-    _renderer;
-    _parsed;
+    _document: Document;
+    _renderer: Renderer;
+    _parsed: Promise<void>;
 
     constructor(blob, settings) {
         this._document = new Document(settings);
@@ -45,7 +45,7 @@ export class DocumentFacade {
         return this._document._meta;
     }
 
-    render() {
+    render(): Promise<JQuery[]> {
         return this._parsed
             .then(() => {
                 return this._renderer.buildDom();
