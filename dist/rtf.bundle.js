@@ -8133,7 +8133,7 @@ var Parser = /** @class */ (function () {
                 var info = findParentDestination("info");
                 if (info == null)
                     throw new RTFJSError("Destination " + this._name + " must be within info destination");
-                var date = new Date(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0);
+                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
                 info.setMetadata(metaprop, date);
             };
             return cls;
