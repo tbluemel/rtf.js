@@ -1,6 +1,5 @@
 var path = require("path");
 var fs = require("fs");
-var pretty = require("pretty");
 
 var utils = require('./utils');
 
@@ -33,18 +32,11 @@ fs.mkdir(destRoot, function(err) {
     });
 });
 
-function indentHtml(html) {
-    return pretty(html, {
-        indent_size: 4,
-        unformatted: ['code', 'pre', 'em', 'strong']
-    });
-}
-
 function runRtfjs(destRoot) {
     fs.readFile(path.join(destRoot, "source.rtf"), "utf8", function(err, data) {
         utils.runRtfjs(data, function (meta, html) {
-            fs.writeFileSync(path.join(destRoot, "expected-metadata.json"), JSON.stringify(meta, null, 4) + "\n");
-            fs.writeFileSync(path.join(destRoot, "expected.html"), indentHtml(html) + "\n");
+            fs.writeFileSync(path.join(destRoot, "expected-metadata.json"), meta + "\n");
+            fs.writeFileSync(path.join(destRoot, "expected.html"), html + "\n");
         })
     });
 }

@@ -11,10 +11,6 @@ function readFile(filePath) {
     return fs.readFileSync(filePath, {encoding: "utf-8"}).trim();
 }
 
-function readJSON(jsonPath) {
-    return JSON.parse(readFile(jsonPath));
-}
-
 function getTestFiles() {
     var testFileRoot = path.join(__dirname, "test-files");
 
@@ -23,7 +19,7 @@ function getTestFiles() {
             dir: dir,
             source: readFile(path.join(testFileRoot, dir, "source.rtf")),
             expectedHtml: readFile(path.join(testFileRoot, dir, "expected.html")),
-            expectedMetadata: readJSON(path.join(testFileRoot, dir, "expected-metadata.json")),
+            expectedMetadata: JSON.parse(readFile(path.join(testFileRoot, dir, "expected-metadata.json"))),
         };
     });
 };
@@ -41,7 +37,7 @@ describe("Test files", function() {
                 utils.runRtfjs(testFile.source, function (meta, html) {
                     result = {
                         html: html,
-                        metadata: meta
+                        metadata: JSON.parse(meta)
                     };
                     done();
                 });

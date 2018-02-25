@@ -1,5 +1,6 @@
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
+var html = require("html");
 
 function stringToBinaryArray(string) {
     var buffer = new ArrayBuffer(string.length);
@@ -8,6 +9,12 @@ function stringToBinaryArray(string) {
         bufferView[i] = string.charCodeAt(i);
     }
     return buffer;
+}
+
+function indentHtml(rawHtml) {
+    return html.prettyPrint(rawHtml, {
+        indent_size: 2
+    });
 }
 
 exports.runRtfjs = function(source, callback) {
@@ -40,7 +47,7 @@ exports.runRtfjs = function(source, callback) {
         beforeParse(window) {
             window.rtfFile = stringToBinaryArray(source);
             window.done = function(meta, html){
-                callback(meta, html);
+                callback(JSON.stringify(meta, null, 4), indentHtml(html));
             }
         }});
 }
