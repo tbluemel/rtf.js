@@ -7648,6 +7648,7 @@ var Parser = /** @class */ (function () {
     }
     Parser.prototype.parse = function (blob, renderer) {
         var inst = this.inst;
+        var _asyncTasks = this._asyncTasks;
         var parseKeyword, processKeyword, appendText, parseLoop;
         var Chp = function (parent) {
             if (parent != null) {
@@ -8599,7 +8600,7 @@ var Parser = /** @class */ (function () {
                                         reject(error);
                                     }
                                 });
-                                this._asyncTasks.push(promise);
+                                _asyncTasks.push(promise);
                                 return promise;
                             }
                         default:
