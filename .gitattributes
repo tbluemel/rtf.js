@@ -1,0 +1,4 @@
+samples/.common/css/* linguist-vendored
+samples/.common/dep/* linguist-vendored
+dist/* linguist-generated=true
+test/test-files* linguist-generated=true
