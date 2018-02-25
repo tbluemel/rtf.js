@@ -34,7 +34,7 @@ fs.mkdir(destRoot, function(err) {
 
 function runRtfjs(destRoot) {
     fs.readFile(path.join(destRoot, "source.rtf"), "utf8", function(err, data) {
-        utils.runRtfjs(data, function (meta, html) {
+        utils.runRtfjs(destRoot, data, function (meta, html) {
             fs.writeFileSync(path.join(destRoot, "expected-metadata.json"), meta + "\n");
             fs.writeFileSync(path.join(destRoot, "expected.html"), html + "\n");
         })

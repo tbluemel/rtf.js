@@ -1,6 +1,5 @@
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
-var html = require("html");
 
 function stringToBinaryArray(string) {
     var buffer = new ArrayBuffer(string.length);
@@ -12,12 +11,15 @@ function stringToBinaryArray(string) {
 }
 
 function indentHtml(rawHtml) {
-    return html.prettyPrint(rawHtml, {
-        indent_size: 2
-    });
+    return rawHtml
+        .replace(/</g, "\n<")
+        .replace("\n", "");
 }
 
-exports.runRtfjs = function(source, callback) {
+exports.runRtfjs = function(path, source, callback) {
+    const virtualConsole = new jsdom.VirtualConsole();
+    virtualConsole.sendTo(console);
+
     var dom = new JSDOM(`
     <script src="../samples/.common/dep/jquery.min.js"></script>
 
@@ -32,22 +34,64 @@ exports.runRtfjs = function(source, callback) {
         RTFJS.loggingEnabled(false);
         WMFJS.loggingEnabled(false);
         EMFJS.loggingEnabled(false);
-        var doc = new RTFJS.Document(rtfFile);
+
+        var baseURL = path + "/";
+        var settings = {
+            onImport: function(relURL, cb) {
+                const file = baseURL + relURL;
+                const ext  = relURL.replace(/^.*\\.([^\\.]+)$/, '$1').toLowerCase();
+                let keyword;
+                switch(ext) {
+                    case 'emf':
+                        keyword = 'emfblip';
+                        break;
+                    case 'wmf':
+                        keyword = 'wmetafile';
+                        break;
+                    default:
+                        return cb({error});
+                }
+
+                var request = new XMLHttpRequest();
+                request.open("GET", file, true);
+                request.responseType = "arraybuffer";
+
+                request.onload = function (event) {
+                    var blob = request.response;
+                    if (blob) {
+                        let height = 300;
+                        cb({keyword, blob, height});
+                    } else {
+                        let error = new Error(request.statusText);
+                        cb({error});
+                    }
+                };
+
+                request.send(null);
+            }
+        }
+
+        var doc = new RTFJS.Document(rtfFile, settings);
 
         var meta = doc.metadata();
         doc.render().then(function(htmlElements) {
             var html = $("<div>").append(htmlElements).html();
 
             window.done(meta, html);
-        })
+        }).catch(error => window.logger(error))
     </script>
     `, { resources: "usable",
         runScripts: "dangerously",
         url: "file://" + __dirname + "/",
+        virtualConsole,
         beforeParse(window) {
+            window.path = path;
             window.rtfFile = stringToBinaryArray(source);
             window.done = function(meta, html){
                 callback(JSON.stringify(meta, null, 4), indentHtml(html));
+            };
+            window.logger = function (error) {
+                console.error(error);
             }
         }});
 }

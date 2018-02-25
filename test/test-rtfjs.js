@@ -16,7 +16,8 @@ function getTestFiles() {
 
     return fs.readdirSync(testFileRoot).map(function(dir) {
         return {
-            dir: dir,
+            name: dir,
+            dir: path.join(testFileRoot, dir),
             source: readFile(path.join(testFileRoot, dir, "source.rtf")),
             expectedHtml: readFile(path.join(testFileRoot, dir, "expected.html")),
             expectedMetadata: JSON.parse(readFile(path.join(testFileRoot, dir, "expected-metadata.json"))),
@@ -28,13 +29,13 @@ var testFiles = getTestFiles();
 
 describe("Test files", function() {
     testFiles.forEach(function(testFile) {
-        describe(testFile.dir, function() {
+        describe(testFile.name, function() {
             this.timeout(10000);
 
             var result;
 
             before(function(done) {
-                utils.runRtfjs(testFile.source, function (meta, html) {
+                utils.runRtfjs(testFile.dir, testFile.source, function (meta, html) {
                     result = {
                         html: html,
                         metadata: JSON.parse(meta)
