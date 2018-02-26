@@ -37,8 +37,8 @@ export class DocumentFacade {
     constructor(blob: ArrayBuffer, settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
-        const parser = new Parser(this._document);
-        this._parsed = parser.parse(blob, this._renderer);
+        const parser = new Parser(this._document, blob, this._renderer);
+        this._parsed = parser.parse();
     }
 
     metadata() {

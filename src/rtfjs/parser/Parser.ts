@@ -35,388 +35,386 @@ import { destinations } from './Destinations';
 import { Renderer } from '../Renderer';
 
 export class Parser {
-    inst: Document;
+    private inst: Document;
+    private parser: GlobalState;
 
-    constructor(document: Document) {
+    constructor(document: Document, blob: ArrayBuffer, renderer: Renderer) {
         this.inst = document;
+        this.parser = new GlobalState(blob, renderer);
     }
 
-    parse(blob: ArrayBuffer, renderer: Renderer): Promise<void> {
-        var inst = this.inst;
+    private eof() {
+        return this.parser.pos >= this.parser.data.length;
+    }
 
-        var parser = new GlobalState(blob, renderer);
-
-        var eof = function (parser) {
-            return parser.pos >= parser.data.length;
+    private readChar() {
+        if (this.parser.pos < this.parser.data.length) {
+            this.parser.column++;
+            return String.fromCharCode(this.parser.data[this.parser.pos++]);
         }
 
-        var readChar = function (parser) {
-            if (parser.pos < parser.data.length) {
-                parser.column++;
-                return String.fromCharCode(parser.data[parser.pos++]);
-            }
+        throw new RTFJSError("Unexpected end of file");
+    }
 
-            throw new RTFJSError("Unexpected end of file");
+    private unreadChar() {
+        if (this.parser.pos > 0) {
+            this.parser.column--;
+            this.parser.pos--;
+        } else {
+            throw new RTFJSError("Already at beginning of file");
         }
+    }
 
-        var unreadChar = function (parser) {
-            if (parser.pos > 0) {
-                parser.column--;
-                parser.pos--;
-            } else {
-                throw new RTFJSError("Already at beginning of file");
-            }
-        }
+    private readBlob(cnt) {
+        if (this.parser.pos + cnt > this.parser.data.length)
+            throw new RTFJSError("Cannot read binary data: too long");
+        var buf = new ArrayBuffer(cnt);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < cnt; i++)
+            view[i] = this.parser.data[this.parser.pos + i];
+        return buf;
+    }
 
-        var readBlob = function (parser, cnt) {
-            if (parser.pos + cnt > parser.data.length)
-                throw new RTFJSError("Cannot read binary data: too long");
-            var buf = new ArrayBuffer(cnt);
-            var view = new Uint8Array(buf);
-            for (var i = 0; i < cnt; i++)
-                view[i] = parser.data[parser.pos + i];
-            return buf;
-        }
-
-        var applyDestination = function (always) {
-            var dest = parser.state.destination;
-            if (dest != null) {
-                if (always || parser.state.parent == null || parser.state.parent.destination != parser.state.destination) {
-                    if (dest.apply != null)
-                        dest.apply();
-                    parser.state.destination = null;
-                }
-            }
-        };
-
-        var applyText = function () {
-            if (parser.text.length > 0) {
-                var dest = parser.state.destination;
-                if (dest == null)
-                    throw new RTFJSError("Cannot route text to destination");
-                if (dest != null && dest.appendText != null && !parser.state.skipdestination)
-                    dest.appendText(parser.text);
-                parser.text = "";
+    private applyDestination(always) {
+        var dest = this.parser.state.destination;
+        if (dest != null) {
+            if (always || this.parser.state.parent == null || this.parser.state.parent.destination != this.parser.state.destination) {
+                if (dest.apply != null)
+                    dest.apply();
+                this.parser.state.destination = null;
             }
         }
+    };
 
-        var pushState = function (forceSkip) {
-            parser.state = new State(parser.state);
-            if (forceSkip)
-                parser.state.skipdestination = true;
+    private applyText() {
+        if (this.parser.text.length > 0) {
+            var dest = this.parser.state.destination;
+            if (dest == null)
+                throw new RTFJSError("Cannot route text to destination");
+            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination)
+                dest.appendText(this.parser.text);
+            this.parser.text = "";
+        }
+    }
 
-            var dest = parser.state.destination;
-            if (dest != null && !parser.state.skipdestination) {
-                if (dest.sub != null) {
-                    var sub = dest.sub();
-                    if (sub != null)
-                        parser.state.destination = sub;
-                }
+    private pushState(forceSkip) {
+        this.parser.state = new State(this.parser.state);
+        if (forceSkip)
+            this.parser.state.skipdestination = true;
+
+        var dest = this.parser.state.destination;
+        if (dest != null && !this.parser.state.skipdestination) {
+            if (dest.sub != null) {
+                var sub = dest.sub();
+                if (sub != null)
+                    this.parser.state.destination = sub;
             }
-        };
+        }
+    };
 
-        var popState = function () {
-            var state = parser.state;
-            if (state == null)
-                throw new RTFJSError("Unexpected end of state");
+    private popState() {
+        var state = this.parser.state;
+        if (state == null)
+            throw new RTFJSError("Unexpected end of state");
 
-            applyText();
-            if (state.parent == null || state.destination != state.parent.destination)
-                applyDestination(true);
-            parser.state = state.parent;
+        this.applyText();
+        if (state.parent == null || state.destination != state.parent.destination)
+            this.applyDestination(true);
+        this.parser.state = state.parent;
 
-            if (parser.state !== null) {
-                inst._ins.push(
-                    (function (state) {
-                        return function () {
-                            this.setChp(new RenderChp(state.chp));
-                        }
-                    })(parser.state)
-                );
-                inst._ins.push(
-                    (function (state) {
-                        return function () {
-                            this.setPap(new RenderPap(state.pap));
-                        }
-                    })(parser.state)
-                );
-            }
-            return parser.state;
-        };
-
-        var changeDestination = function (name: string, param) {
-            applyText();
-            var handler = destinations[name];
-            if (handler != null) {
-                applyDestination(false);
-                parser.state.destination = new handler(parser, inst, name, param);
-                return true;
-            }
-            return false;
-        };
-
-        var processKeyword = function (keyword, param) {
-            var first = parser.state.first;
-            if (first) {
-                if (keyword == "*") {
-                    parser.state.skipunknowndestination = true;
-                    return;
-                }
-
-                parser.state.first = false;
-            }
-
-            //if (param != null)
-            //    Helper.log("keyword " + keyword + " with param " + param);
-            //else
-            //    Helper.log("keyword " + keyword);
-
-            if (parser.state.bindata > 0)
-                throw new RTFJSError("Keyword encountered within binary data");
-
-            // Reset if we unexpectedly encounter a keyword
-            parser.state.skipchars = 0;
-            switch (keyword) {
-                case "\n":
-                    return "\n";
-                case "\r":
-                    return "\r";
-                case "tab":
-                    return "\t";
-                case "ldblquote":
-                    return "“";
-                case "rdblquote":
-                    return "”";
-                case "{":
-                case "}":
-                case "\\":
-                    return keyword;
-
-                case "uc":
-                    if (param != null && param >= 0)
-                        parser.state.ucn = param;
-                    break;
-                case "u":
-                    if (param != null) {
-                        if (param < 0)
-                            param += 65536;
-                        if (param < 0 || param > 65535)
-                            throw new RTFJSError("Invalid unicode character encountered");
-
-                        var symbol = SymbolTable[param.toString(16).substring(2)]
-                        appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
-                        parser.state.skipchars = parser.state.ucn;
+        if (this.parser.state !== null) {
+            this.inst._ins.push(
+                (function (state) {
+                    return function () {
+                        this.setChp(new RenderChp(state.chp));
                     }
-                    return;
+                })(this.parser.state)
+            );
+            this.inst._ins.push(
+                (function (state) {
+                    return function () {
+                        this.setPap(new RenderPap(state.pap));
+                    }
+                })(this.parser.state)
+            );
+        }
+        return this.parser.state;
+    };
 
-                case "bin":
-                    if (param == null)
-                        throw new RTFJSError("Binary data is missing length");
+    private changeDestination(name: string, param) {
+        this.applyText();
+        var handler = destinations[name];
+        if (handler != null) {
+            this.applyDestination(false);
+            this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            return true;
+        }
+        return false;
+    };
+
+    private processKeyword(keyword, param) {
+        var first = this.parser.state.first;
+        if (first) {
+            if (keyword == "*") {
+                this.parser.state.skipunknowndestination = true;
+                return;
+            }
+
+            this.parser.state.first = false;
+        }
+
+        //if (param != null)
+        //    Helper.log("keyword " + keyword + " with param " + param);
+        //else
+        //    Helper.log("keyword " + keyword);
+
+        if (this.parser.state.bindata > 0)
+            throw new RTFJSError("Keyword encountered within binary data");
+
+        // Reset if we unexpectedly encounter a keyword
+        this.parser.state.skipchars = 0;
+        switch (keyword) {
+            case "\n":
+                return "\n";
+            case "\r":
+                return "\r";
+            case "tab":
+                return "\t";
+            case "ldblquote":
+                return "“";
+            case "rdblquote":
+                return "”";
+            case "{":
+            case "}":
+            case "\\":
+                return keyword;
+
+            case "uc":
+                if (param != null && param >= 0)
+                    this.parser.state.ucn = param;
+                break;
+            case "u":
+                if (param != null) {
                     if (param < 0)
-                        throw new RTFJSError("Binary data with invalid length");
-                    parser.state.bindata = param;
-                    return;
+                        param += 65536;
+                    if (param < 0 || param > 65535)
+                        throw new RTFJSError("Invalid unicode character encountered");
 
-                case "upr":
-                    parseLoop(true, null); // skip the first sub destination (ansi)
-                    // this will be followed by a \ud sub destination
-                    return;
-                case "ud":
-                    return;
+                    var symbol = SymbolTable[param.toString(16).substring(2)]
+                    this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
+                    this.parser.state.skipchars = this.parser.state.ucn;
+                }
+                return;
 
-                default:
-                    if (!parser.state.skipdestination) {
-                        if (first) {
-                            if (!changeDestination(keyword, param)) {
-                                var handled = false;
-                                var dest = parser.state.destination;
-                                if (dest != null) {
-                                    if (dest.handleKeyword != null)
-                                        handled = dest.handleKeyword(keyword, param);
-                                }
-                                if (!handled && parser.state.skipunknowndestination)
-                                    parser.state.skipdestination = true;
-                            }
-                        } else {
-                            applyText();
-                            var dest = parser.state.destination;
+            case "bin":
+                if (param == null)
+                    throw new RTFJSError("Binary data is missing length");
+                if (param < 0)
+                    throw new RTFJSError("Binary data with invalid length");
+                this.parser.state.bindata = param;
+                return;
+
+            case "upr":
+                this.parseLoop(true, false); // skip the first sub destination (ansi)
+                // this will be followed by a \ud sub destination
+                return;
+            case "ud":
+                return;
+
+            default:
+                if (!this.parser.state.skipdestination) {
+                    if (first) {
+                        if (!this.changeDestination(keyword, param)) {
+                            var handled = false;
+                            var dest = this.parser.state.destination;
                             if (dest != null) {
                                 if (dest.handleKeyword != null)
-                                    dest.handleKeyword(keyword, param);
-                            } else {
-                                Helper.log("Unhandled keyword: " + keyword + " param: " + param);
+                                    handled = dest.handleKeyword(keyword, param);
                             }
+                            if (!handled && this.parser.state.skipunknowndestination)
+                                this.parser.state.skipdestination = true;
                         }
-                    }
-                    return;
-            }
-
-            parser.state.skipdestination = false;
-        };
-
-        var appendText = function (text) {
-            // Handle characters not found in codepage
-            text = text ? text : "";
-
-            parser.state.first = false;
-            if (parser.state.skipchars > 0) {
-                var len = text.length;
-                if (parser.state.skipchars >= len) {
-                    parser.state.skipchars -= len;
-                    return;
-                }
-
-                if (parser.state.destination == null || !parser.state.skipdestination)
-                    parser.text += text.slice(parser.state.skipchars);
-                parser.state.skipchars = 0;
-            } else if (parser.state.destination == null || !parser.state.skipdestination) {
-                parser.text += text;
-            }
-        };
-
-        var applyBlob = function (blob) {
-            parser.state.first = false;
-            applyText();
-            if (parser.state.skipchars > 0) {
-                // \bin and all its data is considered one character for skipping purposes
-                parser.state.skipchars--;
-            } else {
-                var dest = parser.state.destination;
-                if (dest == null)
-                    throw new RTFJSError("Cannot route binary to destination");
-                if (dest != null && dest.handleBlob != null && !parser.state.skipdestination)
-                    dest.handleBlob(blob);
-            }
-        };
-
-        var parseKeyword = function (process) {
-            if (parser.state == null)
-                throw new RTFJSError("No state");
-
-            var param;
-            var ch = readChar(parser);
-            if (!Helper._isalpha(ch)) {
-                if (ch == "\'") {
-                    var hex = readChar(parser) + readChar(parser);
-                    if (parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
-                        readChar(parser);
-                        readChar(parser);
-                        hex += readChar(parser) + readChar(parser);
-                    }
-                    param = Helper._parseHex(hex);
-                    if (isNaN(param))
-                        throw new RTFJSError("Could not parse hexadecimal number");
-
-                    if (process != null) {
-                        // Looking for current fonttbl charset
-                        var codepage = parser.codepage;
-                        if (parser.state.chp.hasOwnProperty("fontfamily")) {
-                            var idx = parser.state.chp.fontfamily;
-                            if (inst._fonts != undefined && inst._fonts[idx] != null && inst._fonts[idx].charset != undefined)
-                                codepage = inst._fonts[idx].charset;
-                        }
-
-                        appendText(cptable[codepage].dec[param]);
-                    }
-                } else if (process != null) {
-                    var text = process(ch, param);
-                    if (text != null)
-                        appendText(text);
-                }
-            } else {
-                var keyword = ch;
-                ch = readChar(parser);
-                while (keyword.length < 30 && Helper._isalpha(ch)) {
-                    keyword += ch;
-                    ch = readChar(parser);
-                }
-
-                var num;
-                if (ch == "-") {
-                    num = "-";
-                    ch = readChar(parser);
-                } else {
-                    num = "";
-                }
-
-                if (Helper._isdigit(ch)) {
-                    do {
-                        num += ch;
-                        ch = readChar(parser);
-                    } while (num.length < 20 && Helper._isdigit(ch));
-
-                    if (num.length >= 20)
-                        throw new RTFJSError("Param for keyword " + keyword + " too long");
-
-                    param = parseInt(num, 10);
-                    if (isNaN(param))
-                        throw new RTFJSError("Invalid keyword " + keyword + " param");
-                }
-
-                if (ch != " ")
-                    unreadChar(parser);
-
-                if (process != null) {
-                    var text = process(keyword, param);
-                    if (text != null)
-                        appendText(text);
-                }
-            }
-        };
-
-        var parseLoop = function (skip, process) {
-            try {
-                var initialState = parser.state;
-                main_loop: while (!eof(parser)) {
-                    if (parser.state != null && parser.state.bindata > 0) {
-                        var blob = readBlob(parser, parser.state.bindata);
-                        parser.state.bindata = 0;
-                        applyBlob(blob);
                     } else {
-                        var ch = readChar(parser);
-                        switch (ch) {
-                            case "\r":
-                                continue;
-                            case "\n":
-                                parser.line++;
-                                parser.column = 0;
-                                continue;
-                            case "{":
-                                pushState(skip);
-                                break;
-                            case "}":
-                                if (initialState == parser.state) {
-                                    unreadChar(parser);
-                                    break main_loop;
-                                }
-                                else if (popState() == initialState)
-                                    break main_loop;
-                                break;
-                            case "\\":
-                                parseKeyword(!skip ? process : null);
-                                break;
-                            default:
-                                if (!skip)
-                                    appendText(ch);
-                                break;
+                        this.applyText();
+                        var dest = this.parser.state.destination;
+                        if (dest != null) {
+                            if (dest.handleKeyword != null)
+                                dest.handleKeyword(keyword, param);
+                        } else {
+                            Helper.log("Unhandled keyword: " + keyword + " param: " + param);
                         }
                     }
                 }
-            } catch (error) {
-                if (error instanceof RTFJSError) {
-                    error.message += " (line: " + parser.line + "; column: " + parser.column + ")";
-                }
-                throw error;
-            }
-        };
-
-        if (parser.data.length > 1 && String.fromCharCode(parser.data[0]) == "{") {
-            parseLoop(false, processKeyword);
-            return Promise.all(parser._asyncTasks).then(()=>{});
+                return;
         }
-        if (parser.version == null)
+
+        this.parser.state.skipdestination = false;
+    };
+
+    private appendText(text) {
+        // Handle characters not found in codepage
+        text = text ? text : "";
+
+        this.parser.state.first = false;
+        if (this.parser.state.skipchars > 0) {
+            var len = text.length;
+            if (this.parser.state.skipchars >= len) {
+                this.parser.state.skipchars -= len;
+                return;
+            }
+
+            if (this.parser.state.destination == null || !this.parser.state.skipdestination)
+                this.parser.text += text.slice(this.parser.state.skipchars);
+            this.parser.state.skipchars = 0;
+        } else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+            this.parser.text += text;
+        }
+    };
+
+    private applyBlob(blob) {
+        this.parser.state.first = false;
+        this.applyText();
+        if (this.parser.state.skipchars > 0) {
+            // \bin and all its data is considered one character for skipping purposes
+            this.parser.state.skipchars--;
+        } else {
+            var dest = this.parser.state.destination;
+            if (dest == null)
+                throw new RTFJSError("Cannot route binary to destination");
+            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination)
+                dest.handleBlob(blob);
+        }
+    };
+
+    private parseKeyword(process: boolean) {
+        if (this.parser.state == null)
+            throw new RTFJSError("No state");
+
+        var param;
+        var ch = this.readChar();
+        if (!Helper._isalpha(ch)) {
+            if (ch == "\'") {
+                var hex = this.readChar() + this.readChar();
+                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
+                    this.readChar();
+                    this.readChar();
+                    hex += this.readChar() + this.readChar();
+                }
+                param = Helper._parseHex(hex);
+                if (isNaN(param))
+                    throw new RTFJSError("Could not parse hexadecimal number");
+
+                if (process) {
+                    // Looking for current fonttbl charset
+                    var codepage = this.parser.codepage;
+                    if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
+                        var idx = this.parser.state.chp.fontfamily;
+                        if (this.inst._fonts != undefined && this.inst._fonts[idx] != null && this.inst._fonts[idx].charset != undefined)
+                            codepage = this.inst._fonts[idx].charset;
+                    }
+
+                    this.appendText(cptable[codepage].dec[param]);
+                }
+            } else if (process) {
+                var text = this.processKeyword(ch, param);
+                if (text != null)
+                    this.appendText(text);
+            }
+        } else {
+            var keyword = ch;
+            ch = this.readChar();
+            while (keyword.length < 30 && Helper._isalpha(ch)) {
+                keyword += ch;
+                ch = this.readChar();
+            }
+
+            var num;
+            if (ch == "-") {
+                num = "-";
+                ch = this.readChar();
+            } else {
+                num = "";
+            }
+
+            if (Helper._isdigit(ch)) {
+                do {
+                    num += ch;
+                    ch = this.readChar();
+                } while (num.length < 20 && Helper._isdigit(ch));
+
+                if (num.length >= 20)
+                    throw new RTFJSError("Param for keyword " + keyword + " too long");
+
+                param = parseInt(num, 10);
+                if (isNaN(param))
+                    throw new RTFJSError("Invalid keyword " + keyword + " param");
+            }
+
+            if (ch != " ")
+                this.unreadChar();
+
+            if (process) {
+                var text = this.processKeyword(keyword, param);
+                if (text != null)
+                    this.appendText(text);
+            }
+        }
+    };
+
+    private parseLoop(skip, process: boolean) {
+        try {
+            var initialState = this.parser.state;
+            main_loop: while (!this.eof()) {
+                if (this.parser.state != null && this.parser.state.bindata > 0) {
+                    var blob = this.readBlob(this.parser.state.bindata);
+                    this.parser.state.bindata = 0;
+                    this.applyBlob(blob);
+                } else {
+                    var ch = this.readChar();
+                    switch (ch) {
+                        case "\r":
+                            continue;
+                        case "\n":
+                            this.parser.line++;
+                            this.parser.column = 0;
+                            continue;
+                        case "{":
+                            this.pushState(skip);
+                            break;
+                        case "}":
+                            if (initialState == this.parser.state) {
+                                this.unreadChar();
+                                break main_loop;
+                            }
+                            else if (this.popState() == initialState)
+                                break main_loop;
+                            break;
+                        case "\\":
+                            this.parseKeyword(!skip ? process : null);
+                            break;
+                        default:
+                            if (!skip)
+                                this.appendText(ch);
+                            break;
+                    }
+                }
+            }
+        } catch (error) {
+            if (error instanceof RTFJSError) {
+                error.message += " (line: " + this.parser.line + "; column: " + this.parser.column + ")";
+            }
+            throw error;
+        }
+    };
+
+    public parse(): Promise<void> {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
+            this.parseLoop(false, true);
+            return Promise.all(this.parser._asyncTasks).then(()=>{});
+        }
+        if (this.parser.version == null)
             throw new RTFJSError("Not a valid rtf document");
-        if (parser.state != null)
+        if (this.parser.state != null)
             throw new RTFJSError("File truncated");
     }
 }
