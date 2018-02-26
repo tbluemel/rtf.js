@@ -2109,7 +2109,7 @@ var WMFRecords = /** @class */ (function () {
         this._records = [];
         var all = false;
         var curpos = first;
-        main_loop: while (!all) {
+        var _loop_1 = function () {
             reader.seek(curpos);
             var size = reader.readUint32();
             if (size < 3)
@@ -2118,292 +2118,264 @@ var WMFRecords = /** @class */ (function () {
             switch (type) {
                 case Helper.GDI.RecordType.META_EOF:
                     all = true;
-                    break main_loop;
-                case Helper.GDI.RecordType.META_SETMAPMODE:
-                    var mapMode = reader.readUint16();
-                    this._records.push((function (mapMode) {
-                        return function (gdi) {
-                            gdi.setMapMode(mapMode);
-                        };
-                    })(mapMode));
+                    return "break-main_loop";
+                case Helper.GDI.RecordType.META_SETMAPMODE: {
+                    var mapMode_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setMapMode(mapMode_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETWINDOWORG:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.setWindowOrg(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_SETWINDOWORG: {
+                    var y_1 = reader.readInt16();
+                    var x_1 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setWindowOrg(x_1, y_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETWINDOWEXT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.setWindowExt(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_SETWINDOWEXT: {
+                    var y_2 = reader.readInt16();
+                    var x_2 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setWindowExt(x_2, y_2);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETWINDOWORG:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push((function (offY, offX) {
-                        return function (gdi) {
-                            gdi.offsetWindowOrg(offX, offY);
-                        };
-                    })(offY, offX));
+                }
+                case Helper.GDI.RecordType.META_OFFSETWINDOWORG: {
+                    var offY_1 = reader.readInt16();
+                    var offX_1 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.offsetWindowOrg(offX_1, offY_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETVIEWPORTORG:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.setViewportOrg(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_SETVIEWPORTORG: {
+                    var y_3 = reader.readInt16();
+                    var x_3 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setViewportOrg(x_3, y_3);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETVIEWPORTEXT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.setViewportExt(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_SETVIEWPORTEXT: {
+                    var y_4 = reader.readInt16();
+                    var x_4 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setViewportExt(x_4, y_4);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETVIEWPORTORG:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push((function (offY, offX) {
-                        return function (gdi) {
-                            gdi.offsetViewportOrg(offX, offY);
-                        };
-                    })(offY, offX));
+                }
+                case Helper.GDI.RecordType.META_OFFSETVIEWPORTORG: {
+                    var offY_2 = reader.readInt16();
+                    var offX_2 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.offsetViewportOrg(offX_2, offY_2);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SAVEDC:
-                    this._records.push(function (gdi) {
+                }
+                case Helper.GDI.RecordType.META_SAVEDC: {
+                    this_1._records.push(function (gdi) {
                         gdi.saveDC();
                     });
                     break;
-                case Helper.GDI.RecordType.META_RESTOREDC:
-                    var saved = reader.readInt16();
-                    this._records.push((function (saved) {
-                        return function (gdi) {
-                            gdi.restoreDC(saved);
-                        };
-                    })(saved));
+                }
+                case Helper.GDI.RecordType.META_RESTOREDC: {
+                    var saved_1 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.restoreDC(saved_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETSTRETCHBLTMODE:
-                    var stretchMode = reader.readUint16();
-                    this._records.push((function (stretchMode) {
-                        return function (gdi) {
-                            gdi.setStretchBltMode(stretchMode);
-                        };
-                    })(stretchMode));
+                }
+                case Helper.GDI.RecordType.META_SETSTRETCHBLTMODE: {
+                    var stretchMode_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setStretchBltMode(stretchMode_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DIBSTRETCHBLT:
-                    var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
-                    var srcH = reader.readInt16();
-                    var srcW = reader.readInt16();
-                    var srcY = reader.readInt16();
-                    var srcX = reader.readInt16();
-                    var destH = reader.readInt16();
-                    var destW = reader.readInt16();
-                    var destY = reader.readInt16();
-                    var destX = reader.readInt16();
+                }
+                case Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
+                    var rasterOp_1 = reader.readUint16() | (reader.readUint16() << 16);
+                    var srcH_1 = reader.readInt16();
+                    var srcW_1 = reader.readInt16();
+                    var srcY_1 = reader.readInt16();
+                    var srcX_1 = reader.readInt16();
+                    var destH_1 = reader.readInt16();
+                    var destW_1 = reader.readInt16();
+                    var destY_1 = reader.readInt16();
+                    var destX_1 = reader.readInt16();
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var dib = new DIBitmap(reader, datalength);
-                    this._records.push((function (rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
-                        return function (gdi) {
-                            gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
-                        };
-                    })(rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib));
+                    var dib_1 = new DIBitmap(reader, datalength);
+                    this_1._records.push(function (gdi) {
+                        gdi.stretchDibBits(srcX_1, srcY_1, srcW_1, srcH_1, destX_1, destY_1, destW_1, destH_1, rasterOp_1, dib_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_STRETCHDIB:
-                    var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
-                    var colorUsage = reader.readInt16();
-                    var srcH = reader.readInt16();
-                    var srcW = reader.readInt16();
-                    var srcY = reader.readInt16();
-                    var srcX = reader.readInt16();
-                    var destH = reader.readInt16();
-                    var destW = reader.readInt16();
-                    var destY = reader.readInt16();
-                    var destX = reader.readInt16();
+                }
+                case Helper.GDI.RecordType.META_STRETCHDIB: {
+                    var rasterOp_2 = reader.readUint16() | (reader.readUint16() << 16);
+                    var colorUsage_1 = reader.readInt16();
+                    var srcH_2 = reader.readInt16();
+                    var srcW_2 = reader.readInt16();
+                    var srcY_2 = reader.readInt16();
+                    var srcX_2 = reader.readInt16();
+                    var destH_2 = reader.readInt16();
+                    var destW_2 = reader.readInt16();
+                    var destY_2 = reader.readInt16();
+                    var destX_2 = reader.readInt16();
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var dib = new DIBitmap(reader, datalength);
-                    this._records.push((function (rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
-                        return function (gdi) {
-                            gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
-                        };
-                    })(rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib));
+                    var dib_2 = new DIBitmap(reader, datalength);
+                    this_1._records.push(function (gdi) {
+                        gdi.stretchDib(srcX_2, srcY_2, srcW_2, srcH_2, destX_2, destY_2, destW_2, destH_2, rasterOp_2, colorUsage_1, dib_2);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ESCAPE:
-                    var func = reader.readUint16();
-                    var count = reader.readUint16();
-                    var offset = reader.pos;
-                    var blob = new Blob(reader, offset);
-                    this._records.push((function (func, count, offset, blob) {
-                        return function (gdi) {
-                            gdi.escape(func, blob, offset, count);
-                        };
-                    })(func, count, offset, blob));
+                }
+                case Helper.GDI.RecordType.META_ESCAPE: {
+                    var func_1 = reader.readUint16();
+                    var count_1 = reader.readUint16();
+                    var offset_1 = reader.pos;
+                    var blob_1 = new Blob(reader, offset_1);
+                    this_1._records.push(function (gdi) {
+                        gdi.escape(func_1, blob_1, offset_1, count_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETTEXTALIGN:
-                    var textAlign = reader.readUint16();
-                    this._records.push((function (textAlign) {
-                        return function (gdi) {
-                            gdi.setTextAlign(textAlign);
-                        };
-                    })(textAlign));
+                }
+                case Helper.GDI.RecordType.META_SETTEXTALIGN: {
+                    var textAlign_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setTextAlign(textAlign_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETBKMODE:
-                    var bkMode = reader.readUint16();
-                    this._records.push((function (bkMode) {
-                        return function (gdi) {
-                            gdi.setBkMode(bkMode);
-                        };
-                    })(bkMode));
+                }
+                case Helper.GDI.RecordType.META_SETBKMODE: {
+                    var bkMode_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setBkMode(bkMode_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETTEXTCOLOR:
-                    var textColor = new ColorRef(reader);
-                    this._records.push((function (textColor) {
-                        return function (gdi) {
-                            gdi.setTextColor(textColor);
-                        };
-                    })(textColor));
+                }
+                case Helper.GDI.RecordType.META_SETTEXTCOLOR: {
+                    var textColor_1 = new ColorRef(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.setTextColor(textColor_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETBKCOLOR:
-                    var bkColor = new ColorRef(reader);
-                    this._records.push((function (bkColor) {
-                        return function (gdi) {
-                            gdi.setBkColor(bkColor);
-                        };
-                    })(bkColor));
+                }
+                case Helper.GDI.RecordType.META_SETBKCOLOR: {
+                    var bkColor_1 = new ColorRef(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.setBkColor(bkColor_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT:
+                }
+                case Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var brush = new Brush(reader, datalength, false);
-                    this._records.push((function (brush, datalength) {
-                        return function (gdi) {
-                            gdi.createBrush(brush);
-                        };
-                    })(brush, datalength));
+                    var brush_1 = new Brush(reader, datalength, false);
+                    this_1._records.push(function (gdi) {
+                        gdi.createBrush(brush_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
+                }
+                case Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var brush = new Brush(reader, datalength, true);
-                    this._records.push((function (brush, datalength) {
-                        return function (gdi) {
-                            gdi.createBrush(brush);
-                        };
-                    })(brush, datalength));
+                    var brush_2 = new Brush(reader, datalength, true);
+                    this_1._records.push(function (gdi) {
+                        gdi.createBrush(brush_2);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPENINDIRECT:
-                    var pen = new Pen(reader);
-                    this._records.push((function (pen) {
-                        return function (gdi) {
-                            gdi.createPen(pen);
-                        };
-                    })(pen));
+                }
+                case Helper.GDI.RecordType.META_CREATEPENINDIRECT: {
+                    var pen_1 = new Pen(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.createPen(pen_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEFONTINDIRECT:
+                }
+                case Helper.GDI.RecordType.META_CREATEFONTINDIRECT: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var font = new Font(reader, datalength);
-                    this._records.push((function (font, datalength) {
-                        return function (gdi) {
-                            gdi.createFont(font);
-                        };
-                    })(font, datalength));
+                    var font_1 = new Font(reader, datalength);
+                    this_1._records.push(function (gdi) {
+                        gdi.createFont(font_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTOBJECT:
-                    var idx = reader.readUint16();
-                    this._records.push((function (idx) {
-                        return function (gdi) {
-                            gdi.selectObject(idx, null);
-                        };
-                    })(idx));
+                }
+                case Helper.GDI.RecordType.META_SELECTOBJECT: {
+                    var idx_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.selectObject(idx_1, null);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTPALETTE:
-                    var idx = reader.readUint16();
-                    this._records.push((function (idx) {
-                        return function (gdi) {
-                            gdi.selectObject(idx, "palette");
-                        };
-                    })(idx));
+                }
+                case Helper.GDI.RecordType.META_SELECTPALETTE: {
+                    var idx_2 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.selectObject(idx_2, "palette");
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTCLIPREGION:
-                    var idx = reader.readUint16();
-                    this._records.push((function (idx) {
-                        return function (gdi) {
-                            gdi.selectObject(idx, "region");
-                        };
-                    })(idx));
+                }
+                case Helper.GDI.RecordType.META_SELECTCLIPREGION: {
+                    var idx_3 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.selectObject(idx_3, "region");
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DELETEOBJECT:
-                    var idx = reader.readUint16();
-                    this._records.push((function (idx) {
-                        return function (gdi) {
-                            gdi.deleteObject(idx);
-                        };
-                    })(idx));
+                }
+                case Helper.GDI.RecordType.META_DELETEOBJECT: {
+                    var idx_4 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.deleteObject(idx_4);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_RECTANGLE:
-                    var rect = new Rect(reader);
-                    this._records.push((function (rect) {
-                        return function (gdi) {
-                            gdi.rectangle(rect, 0, 0);
-                        };
-                    })(rect));
+                }
+                case Helper.GDI.RecordType.META_RECTANGLE: {
+                    var rect_1 = new Rect(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.rectangle(rect_1, 0, 0);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ROUNDRECT:
-                    var rh = reader.readInt16();
-                    var rw = reader.readInt16();
-                    var rect = new Rect(reader);
-                    this._records.push((function (rh, rw, rect) {
-                        return function (gdi) {
-                            gdi.rectangle(rect, rw, rh);
-                        };
-                    })(rh, rw, rect));
+                }
+                case Helper.GDI.RecordType.META_ROUNDRECT: {
+                    var rh_1 = reader.readInt16();
+                    var rw_1 = reader.readInt16();
+                    var rect_2 = new Rect(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.rectangle(rect_2, rw_1, rh_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_LINETO:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.lineTo(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_LINETO: {
+                    var y_5 = reader.readInt16();
+                    var x_5 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.lineTo(x_5, y_5);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_MOVETO:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push((function (y, x) {
-                        return function (gdi) {
-                            gdi.moveTo(x, y);
-                        };
-                    })(y, x));
+                }
+                case Helper.GDI.RecordType.META_MOVETO: {
+                    var y_6 = reader.readInt16();
+                    var x_6 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.moveTo(x_6, y_6);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_TEXTOUT:
+                }
+                case Helper.GDI.RecordType.META_TEXTOUT: {
                     var len = reader.readInt16();
                     if (len > 0) {
-                        var text = reader.readString(len);
+                        var text_1 = reader.readString(len);
                         reader.skip(len % 2);
-                        var y = reader.readInt16();
-                        var x = reader.readInt16();
-                        this._records.push((function (text, y, x) {
-                            return function (gdi) {
-                                gdi.textOut(x, y, text);
-                            };
-                        })(text, y, x));
+                        var y_7 = reader.readInt16();
+                        var x_7 = reader.readInt16();
+                        this_1._records.push(function (gdi) {
+                            gdi.textOut(x_7, y_7, text_1);
+                        });
                     }
                     break;
-                case Helper.GDI.RecordType.META_EXTTEXTOUT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
+                }
+                case Helper.GDI.RecordType.META_EXTTEXTOUT: {
+                    var y_8 = reader.readInt16();
+                    var x_8 = reader.readInt16();
                     var len = reader.readInt16();
-                    var fwOpts = reader.readUint16();
+                    var fwOpts_1 = reader.readUint16();
                     var hasRect = null;
                     var hasDx = null;
                     if (size * 2 === 14 + len + len % 2) {
@@ -2422,135 +2394,123 @@ var WMFRecords = /** @class */ (function () {
                         hasRect = true;
                         hasDx = true;
                     }
-                    var rect = hasRect ? new Rect(reader) : null;
+                    var rect_3 = hasRect ? new Rect(reader) : null;
                     if (len > 0) {
-                        var text = reader.readString(len);
+                        var text_2 = reader.readString(len);
                         reader.skip(len % 2);
-                        var dx = [];
+                        var dx_1 = [];
                         if (hasDx) {
-                            for (var i = 0; i < text.length; i++) {
-                                dx.push(reader.readInt16());
+                            for (var i = 0; i < text_2.length; i++) {
+                                dx_1.push(reader.readInt16());
                             }
                         }
-                        this._records.push((function (x, y, text, fwOpts, rect, dx) {
-                            return function (gdi) {
-                                gdi.extTextOut(x, y, text, fwOpts, rect, dx);
-                            };
-                        })(x, y, text, fwOpts, rect, dx));
+                        this_1._records.push(function (gdi) {
+                            gdi.extTextOut(x_8, y_8, text_2, fwOpts_1, rect_3, dx_1);
+                        });
                     }
                     break;
-                case Helper.GDI.RecordType.META_EXCLUDECLIPRECT:
-                    var rect = new Rect(reader);
-                    this._records.push((function (rect) {
-                        return function (gdi) {
-                            gdi.excludeClipRect(rect);
-                        };
-                    })(rect));
+                }
+                case Helper.GDI.RecordType.META_EXCLUDECLIPRECT: {
+                    var rect_4 = new Rect(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.excludeClipRect(rect_4);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_INTERSECTCLIPRECT:
-                    var rect = new Rect(reader);
-                    this._records.push((function (rect) {
-                        return function (gdi) {
-                            gdi.intersectClipRect(rect);
-                        };
-                    })(rect));
+                }
+                case Helper.GDI.RecordType.META_INTERSECTCLIPRECT: {
+                    var rect_5 = new Rect(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.intersectClipRect(rect_5);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYGON:
+                }
+                case Helper.GDI.RecordType.META_POLYGON: {
                     var cnt = reader.readInt16();
-                    var points = [];
+                    var points_1 = [];
                     while (cnt > 0) {
-                        points.push(new PointS(reader));
+                        points_1.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push((function (points) {
-                        return function (gdi) {
-                            gdi.polygon(points, true);
-                        };
-                    })(points));
+                    this_1._records.push(function (gdi) {
+                        gdi.polygon(points_1, true);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETPOLYFILLMODE:
-                    var polyfillmode = reader.readUint16();
-                    this._records.push((function (polyfillmode) {
-                        return function (gdi) {
-                            gdi.setPolyFillMode(polyfillmode);
-                        };
-                    })(polyfillmode));
+                }
+                case Helper.GDI.RecordType.META_SETPOLYFILLMODE: {
+                    var polyfillmode_1 = reader.readUint16();
+                    this_1._records.push(function (gdi) {
+                        gdi.setPolyFillMode(polyfillmode_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYPOLYGON:
+                }
+                case Helper.GDI.RecordType.META_POLYPOLYGON: {
                     var cnt = reader.readUint16();
                     var polygonsPtCnts = [];
                     for (var i = 0; i < cnt; i++)
                         polygonsPtCnts.push(reader.readUint16());
-                    var polygons = [];
+                    var polygons_1 = [];
                     for (var i = 0; i < cnt; i++) {
                         var ptCnt = polygonsPtCnts[i];
                         var p = [];
                         for (var ip = 0; ip < ptCnt; ip++)
                             p.push(new PointS(reader));
-                        polygons.push(p);
+                        polygons_1.push(p);
                     }
-                    this._records.push((function (polygons) {
-                        return function (gdi) {
-                            gdi.polyPolygon(polygons);
-                        };
-                    })(polygons));
+                    this_1._records.push(function (gdi) {
+                        gdi.polyPolygon(polygons_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYLINE:
+                }
+                case Helper.GDI.RecordType.META_POLYLINE: {
                     var cnt = reader.readInt16();
-                    var points = [];
+                    var points_2 = [];
                     while (cnt > 0) {
-                        points.push(new PointS(reader));
+                        points_2.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push((function (points) {
-                        return function (gdi) {
-                            gdi.polyline(points);
-                        };
-                    })(points));
+                    this_1._records.push(function (gdi) {
+                        gdi.polyline(points_2);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ELLIPSE:
-                    var rect = new Rect(reader);
-                    this._records.push((function (rect) {
-                        return function (gdi) {
-                            gdi.ellipse(rect);
-                        };
-                    })(rect));
+                }
+                case Helper.GDI.RecordType.META_ELLIPSE: {
+                    var rect_6 = new Rect(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.ellipse(rect_6);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPALETTE:
-                    var palette = new Palette(reader);
-                    this._records.push((function (palette) {
-                        return function (gdi) {
-                            gdi.createPalette(palette);
-                        };
-                    })(palette));
+                }
+                case Helper.GDI.RecordType.META_CREATEPALETTE: {
+                    var palette_1 = new Palette(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.createPalette(palette_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEREGION:
-                    var region = new Region(reader);
-                    this._records.push((function (region) {
-                        return function (gdi) {
-                            gdi.createRegion(region);
-                        };
-                    })(region));
+                }
+                case Helper.GDI.RecordType.META_CREATEREGION: {
+                    var region_1 = new Region(reader);
+                    this_1._records.push(function (gdi) {
+                        gdi.createRegion(region_1);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPATTERNBRUSH:
+                }
+                case Helper.GDI.RecordType.META_CREATEPATTERNBRUSH: {
                     var datalength = size * 2 - (reader.pos - curpos);
                     var patternBitmap = new PatternBitmap16(reader, datalength);
-                    var brush = new Brush(reader, datalength, patternBitmap);
-                    this._records.push((function (brush) {
-                        return function (gdi) {
-                            gdi.createPatternBrush(brush);
-                        };
-                    })(brush));
+                    var brush_3 = new Brush(reader, datalength, patternBitmap);
+                    this_1._records.push(function (gdi) {
+                        gdi.createPatternBrush(brush_3);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETCLIPRGN:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push((function (offY, offX) {
-                        return function (gdi) {
-                            gdi.offsetClipRgn(offX, offY);
-                        };
-                    })(offY, offX));
+                }
+                case Helper.GDI.RecordType.META_OFFSETCLIPRGN: {
+                    var offY_3 = reader.readInt16();
+                    var offX_3 = reader.readInt16();
+                    this_1._records.push(function (gdi) {
+                        gdi.offsetClipRgn(offX_3, offY_3);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.META_REALIZEPALETTE:
                 case Helper.GDI.RecordType.META_SETPALENTRIES:
                 case Helper.GDI.RecordType.META_SETROP2:
@@ -2578,19 +2538,27 @@ var WMFRecords = /** @class */ (function () {
                 case Helper.GDI.RecordType.META_BITBLT:
                 case Helper.GDI.RecordType.META_SETDIBTODEV:
                 case Helper.GDI.RecordType.META_DIBBITBLT:
-                default:
+                default: {
                     var recordName = "UNKNOWN";
-                    for (var name in Helper.GDI.RecordType) {
-                        if (Helper.GDI.RecordType[name] == type) {
-                            recordName = name;
+                    for (var name_1 in Helper.GDI.RecordType) {
+                        if (Helper.GDI.RecordType[name_1] == type) {
+                            recordName = name_1;
                             break;
                         }
                     }
                     Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
                     //throw new WMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
+                }
             }
             curpos += size * 2;
+        };
+        var this_1 = this;
+        main_loop: while (!all) {
+            var state_1 = _loop_1();
+            switch (state_1) {
+                case "break-main_loop": break main_loop;
+            }
         }
         if (!all)
             throw new WMFJSError("Could not read all records");

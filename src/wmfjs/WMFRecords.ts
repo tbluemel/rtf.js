@@ -37,365 +37,279 @@ export class WMFRecords {
     constructor(reader, first) {
         this._records = [];
 
-        var all = false;
-        var curpos = first;
+        let all = false;
+        let curpos = first;
         main_loop: while (!all) {
             reader.seek(curpos);
-            var size = reader.readUint32();
+            const size = reader.readUint32();
             if (size < 3)
                 throw new WMFJSError("Invalid record size");
-            var type = reader.readUint16();
+            const type = reader.readUint16();
             switch (type) {
                 case Helper.GDI.RecordType.META_EOF:
                     all = true;
                     break main_loop;
-                case Helper.GDI.RecordType.META_SETMAPMODE:
-                    var mapMode = reader.readUint16();
-                    this._records.push(
-                        (function (mapMode) {
-                            return function (gdi) {
-                                gdi.setMapMode(mapMode);
-                            }
-                        })(mapMode)
-                    );
+                case Helper.GDI.RecordType.META_SETMAPMODE: {
+                    const mapMode = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.setMapMode(mapMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETWINDOWORG:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setWindowOrg(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETWINDOWORG:{
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.setWindowOrg(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETWINDOWEXT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setWindowExt(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETWINDOWEXT: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.setWindowExt(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETWINDOWORG:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push(
-                        (function (offY, offX) {
-                            return function (gdi) {
-                                gdi.offsetWindowOrg(offX, offY);
-                            }
-                        })(offY, offX)
-                    );
+                }
+                case Helper.GDI.RecordType.META_OFFSETWINDOWORG: {
+                    const offY = reader.readInt16();
+                    const offX = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.offsetWindowOrg(offX, offY);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETVIEWPORTORG:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setViewportOrg(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETVIEWPORTORG: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.setViewportOrg(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETVIEWPORTEXT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setViewportExt(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETVIEWPORTEXT: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.setViewportExt(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETVIEWPORTORG:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push(
-                        (function (offY, offX) {
-                            return function (gdi) {
-                                gdi.offsetViewportOrg(offX, offY);
-                            }
-                        })(offY, offX)
-                    );
+                }
+                case Helper.GDI.RecordType.META_OFFSETVIEWPORTORG: {
+                    const offY = reader.readInt16();
+                    const offX = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.offsetViewportOrg(offX, offY);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SAVEDC:
-                    this._records.push(function (gdi) {
+                }
+                case Helper.GDI.RecordType.META_SAVEDC: {
+                    this._records.push(gdi => {
                         gdi.saveDC();
                     });
                     break;
-                case Helper.GDI.RecordType.META_RESTOREDC:
-                    var saved = reader.readInt16();
-                    this._records.push(
-                        (function (saved) {
-                            return function (gdi) {
-                                gdi.restoreDC(saved);
-                            }
-                        })(saved)
-                    );
+                }
+                case Helper.GDI.RecordType.META_RESTOREDC: {
+                    const saved = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.restoreDC(saved);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETSTRETCHBLTMODE:
-                    var stretchMode = reader.readUint16();
-                    this._records.push(
-                        (function (stretchMode) {
-                            return function (gdi) {
-                                gdi.setStretchBltMode(stretchMode);
-                            }
-                        })(stretchMode)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETSTRETCHBLTMODE: {
+                    const stretchMode = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.setStretchBltMode(stretchMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DIBSTRETCHBLT:
-                    var haveSrcDib = ((type >> 8) + 3 != size);
-                    var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
-                    var srcH = reader.readInt16();
-                    var srcW = reader.readInt16();
-                    var srcY = reader.readInt16();
-                    var srcX = reader.readInt16();
-                    var destH = reader.readInt16();
-                    var destW = reader.readInt16();
-                    var destY = reader.readInt16();
-                    var destX = reader.readInt16();
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var dib = new DIBitmap(reader, datalength);
-                    this._records.push(
-                        (function (rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
-                            return function (gdi) {
-                                gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
-                            }
-                        })(rasterOp, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib)
-                    );
+                }
+                case Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
+                    const haveSrcDib = ((type >> 8) + 3 != size);
+                    const rasterOp = reader.readUint16() | (reader.readUint16() << 16);
+                    const srcH = reader.readInt16();
+                    const srcW = reader.readInt16();
+                    const srcY = reader.readInt16();
+                    const srcX = reader.readInt16();
+                    const destH = reader.readInt16();
+                    const destW = reader.readInt16();
+                    const destY = reader.readInt16();
+                    const destX = reader.readInt16();
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const dib = new DIBitmap(reader, datalength);
+                    this._records.push(gdi => {
+                        gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_STRETCHDIB:
-                    var rasterOp = reader.readUint16() | (reader.readUint16() << 16);
-                    var colorUsage = reader.readInt16();
-                    var srcH = reader.readInt16();
-                    var srcW = reader.readInt16();
-                    var srcY = reader.readInt16();
-                    var srcX = reader.readInt16();
-                    var destH = reader.readInt16();
-                    var destW = reader.readInt16();
-                    var destY = reader.readInt16();
-                    var destX = reader.readInt16();
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var dib = new DIBitmap(reader, datalength);
-                    this._records.push(
-                        (function (rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib) {
-                            return function (gdi) {
-                                gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
-                            }
-                        })(rasterOp, colorUsage, srcH, srcW, srcY, srcX, destH, destW, destY, destX, dib)
-                    );
+                }
+                case Helper.GDI.RecordType.META_STRETCHDIB: {
+                    const rasterOp = reader.readUint16() | (reader.readUint16() << 16);
+                    const colorUsage = reader.readInt16();
+                    const srcH = reader.readInt16();
+                    const srcW = reader.readInt16();
+                    const srcY = reader.readInt16();
+                    const srcX = reader.readInt16();
+                    const destH = reader.readInt16();
+                    const destW = reader.readInt16();
+                    const destY = reader.readInt16();
+                    const destX = reader.readInt16();
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const dib = new DIBitmap(reader, datalength);
+                    this._records.push(gdi => {
+                        gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ESCAPE:
-                    var func = reader.readUint16();
-                    var count = reader.readUint16();
-                    var offset = reader.pos;
-                    var blob = new Blob(reader, offset);
-                    this._records.push(
-                        (function (func, count, offset, blob) {
-                            return function (gdi) {
-                                gdi.escape(func, blob, offset, count);
-                            }
-                        })(func, count, offset, blob)
-                    );
+                }
+                case Helper.GDI.RecordType.META_ESCAPE: {
+                    const func = reader.readUint16();
+                    const count = reader.readUint16();
+                    const offset = reader.pos;
+                    const blob = new Blob(reader, offset);
+                    this._records.push(gdi => {
+                        gdi.escape(func, blob, offset, count);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETTEXTALIGN:
-                    var textAlign = reader.readUint16();
-                    this._records.push(
-                        (function (textAlign) {
-                            return function (gdi) {
-                                gdi.setTextAlign(textAlign);
-                            }
-                        })(textAlign)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETTEXTALIGN: {
+                    const textAlign = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.setTextAlign(textAlign);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETBKMODE:
-                    var bkMode = reader.readUint16();
-                    this._records.push(
-                        (function (bkMode) {
-                            return function (gdi) {
-                                gdi.setBkMode(bkMode);
-                            }
-                        })(bkMode)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETBKMODE: {
+                    const bkMode = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.setBkMode(bkMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETTEXTCOLOR:
-                    var textColor = new ColorRef(reader);
-                    this._records.push(
-                        (function (textColor) {
-                            return function (gdi) {
-                                gdi.setTextColor(textColor);
-                            }
-                        })(textColor)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETTEXTCOLOR: {
+                    const textColor = new ColorRef(reader);
+                    this._records.push(gdi => {
+                        gdi.setTextColor(textColor);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETBKCOLOR:
-                    var bkColor = new ColorRef(reader);
-                    this._records.push(
-                        (function (bkColor) {
-                            return function (gdi) {
-                                gdi.setBkColor(bkColor);
-                            }
-                        })(bkColor)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETBKCOLOR: {
+                    const bkColor = new ColorRef(reader);
+                    this._records.push(gdi => {
+                        gdi.setBkColor(bkColor);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT:
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var brush = new Brush(reader, datalength, false);
-                    this._records.push(
-                        (function (brush, datalength) {
-                            return function (gdi) {
-                                gdi.createBrush(brush);
-                            }
-                        })(brush, datalength)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT: {
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const brush = new Brush(reader, datalength, false);
+                    this._records.push(gdi => {
+                        gdi.createBrush(brush);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH:
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var brush = new Brush(reader, datalength, true);
-                    this._records.push(
-                        (function (brush, datalength) {
-                            return function (gdi) {
-                                gdi.createBrush(brush);
-                            }
-                        })(brush, datalength)
-                    );
+                }
+                case Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH: {
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const brush = new Brush(reader, datalength, true);
+                    this._records.push(gdi => {
+                        gdi.createBrush(brush);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPENINDIRECT:
-                    var pen = new Pen(reader);
-                    this._records.push(
-                        (function (pen) {
-                            return function (gdi) {
-                                gdi.createPen(pen);
-                            }
-                        })(pen)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEPENINDIRECT: {
+                    const pen = new Pen(reader);
+                    this._records.push(gdi => {
+                        gdi.createPen(pen);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEFONTINDIRECT:
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var font = new Font(reader, datalength);
-                    this._records.push(
-                        (function (font, datalength) {
-                            return function (gdi) {
-                                gdi.createFont(font);
-                            }
-                        })(font, datalength)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEFONTINDIRECT: {
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const font = new Font(reader, datalength);
+                    this._records.push(gdi => {
+                        gdi.createFont(font);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTOBJECT:
-                    var idx = reader.readUint16();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.selectObject(idx, null);
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SELECTOBJECT: {
+                    const idx = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.selectObject(idx, null);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTPALETTE:
-                    var idx = reader.readUint16();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.selectObject(idx, "palette");
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SELECTPALETTE: {
+                    const idx = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.selectObject(idx, "palette");
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SELECTCLIPREGION:
-                    var idx = reader.readUint16();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.selectObject(idx, "region");
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SELECTCLIPREGION: {
+                    const idx = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.selectObject(idx, "region");
+                    });
                     break;
-                case Helper.GDI.RecordType.META_DELETEOBJECT:
-                    var idx = reader.readUint16();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.deleteObject(idx);
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.META_DELETEOBJECT: {
+                    const idx = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.deleteObject(idx);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_RECTANGLE:
-                    var rect = new Rect(reader);
-                    this._records.push(
-                        (function (rect) {
-                            return function (gdi) {
-                                gdi.rectangle(rect, 0, 0);
-                            }
-                        })(rect)
-                    );
+                }
+                case Helper.GDI.RecordType.META_RECTANGLE: {
+                    const rect = new Rect(reader);
+                    this._records.push(gdi => {
+                        gdi.rectangle(rect, 0, 0);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ROUNDRECT:
-                    var rh = reader.readInt16();
-                    var rw = reader.readInt16();
-                    var rect = new Rect(reader);
-                    this._records.push(
-                        (function (rh, rw, rect) {
-                            return function (gdi) {
-                                gdi.rectangle(rect, rw, rh);
-                            }
-                        })(rh, rw, rect)
-                    );
+                }
+                case Helper.GDI.RecordType.META_ROUNDRECT: {
+                    const rh = reader.readInt16();
+                    const rw = reader.readInt16();
+                    const rect = new Rect(reader);
+                    this._records.push(gdi => {
+                        gdi.rectangle(rect, rw, rh);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_LINETO:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.lineTo(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_LINETO: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.lineTo(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_MOVETO:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.moveTo(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.META_MOVETO: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.moveTo(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_TEXTOUT:
-                    var len = reader.readInt16();
+                }
+                case Helper.GDI.RecordType.META_TEXTOUT: {
+                    const len = reader.readInt16();
                     if (len > 0) {
-                        var text = reader.readString(len);
+                        const text = reader.readString(len);
                         reader.skip(len % 2);
-                        var y = reader.readInt16();
-                        var x = reader.readInt16();
-                        this._records.push(
-                            (function (text, y, x) {
-                                return function (gdi) {
-                                    gdi.textOut(x, y, text);
-                                }
-                            })(text, y, x)
-                        );
+                        const y = reader.readInt16();
+                        const x = reader.readInt16();
+                        this._records.push(gdi => {
+                            gdi.textOut(x, y, text);
+                        });
                     }
                     break;
-                case Helper.GDI.RecordType.META_EXTTEXTOUT:
-                    var y = reader.readInt16();
-                    var x = reader.readInt16();
-                    var len = reader.readInt16();
-                    var fwOpts = reader.readUint16();
+                }
+                case Helper.GDI.RecordType.META_EXTTEXTOUT: {
+                    const y = reader.readInt16();
+                    const x = reader.readInt16();
+                    const len = reader.readInt16();
+                    const fwOpts = reader.readUint16();
 
-                    var hasRect = null;
-                    var hasDx = null;
+                    let hasRect = null;
+                    let hasDx = null;
                     if (size * 2 === 14 + len + len % 2) {
                         hasRect = false;
                         hasDx = false;
@@ -413,163 +327,127 @@ export class WMFRecords {
                         hasDx = true;
                     }
 
-                    var rect = hasRect ? new Rect(reader) : null;
+                    const rect = hasRect ? new Rect(reader) : null;
                     if (len > 0) {
-                        var text = reader.readString(len);
+                        const text = reader.readString(len);
                         reader.skip(len % 2);
 
-                        var dx = [];
+                        const dx = [];
                         if (hasDx) {
-                            for (var i = 0; i < text.length; i++) {
+                            for (let i = 0; i < text.length; i++) {
                                 dx.push(reader.readInt16());
                             }
                         }
 
-                        this._records.push(
-                            (function (x, y, text, fwOpts, rect, dx) {
-                                return function (gdi) {
-                                    gdi.extTextOut(x, y, text, fwOpts, rect, dx);
-                                }
-                            })(x, y, text, fwOpts, rect, dx)
-                        );
+                        this._records.push(gdi => {
+                            gdi.extTextOut(x, y, text, fwOpts, rect, dx);
+                        });
                     }
                     break;
-                case Helper.GDI.RecordType.META_EXCLUDECLIPRECT:
-                    var rect = new Rect(reader);
-                    this._records.push(
-                        (function (rect) {
-                            return function (gdi) {
-                                gdi.excludeClipRect(rect);
-                            }
-                        })(rect)
-                    );
+                }
+                case Helper.GDI.RecordType.META_EXCLUDECLIPRECT: {
+                    const rect = new Rect(reader);
+                    this._records.push(gdi => {
+                        gdi.excludeClipRect(rect);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_INTERSECTCLIPRECT:
-                    var rect = new Rect(reader);
-                    this._records.push(
-                        (function (rect) {
-                            return function (gdi) {
-                                gdi.intersectClipRect(rect);
-                            }
-                        })(rect)
-                    );
+                }
+                case Helper.GDI.RecordType.META_INTERSECTCLIPRECT: {
+                    const rect = new Rect(reader);
+                    this._records.push(gdi => {
+                        gdi.intersectClipRect(rect);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYGON:
-                    var cnt = reader.readInt16();
-                    var points = [];
+                }
+                case Helper.GDI.RecordType.META_POLYGON: {
+                    let cnt = reader.readInt16();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (points) {
-                            return function (gdi) {
-                                gdi.polygon(points, true);
-                            }
-                        })(points)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polygon(points, true);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_SETPOLYFILLMODE:
-                    var polyfillmode = reader.readUint16();
-                    this._records.push(
-                        (function (polyfillmode) {
-                            return function (gdi) {
-                                gdi.setPolyFillMode(polyfillmode);
-                            }
-                        })(polyfillmode)
-                    );
+                }
+                case Helper.GDI.RecordType.META_SETPOLYFILLMODE: {
+                    const polyfillmode = reader.readUint16();
+                    this._records.push(gdi => {
+                        gdi.setPolyFillMode(polyfillmode);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYPOLYGON:
-                    var cnt = reader.readUint16();
-                    var polygonsPtCnts = [];
-                    for (var i = 0; i < cnt; i++)
+                }
+                case Helper.GDI.RecordType.META_POLYPOLYGON: {
+                    const cnt = reader.readUint16();
+                    const polygonsPtCnts = [];
+                    for (let i = 0; i < cnt; i++)
                         polygonsPtCnts.push(reader.readUint16());
 
-                    var polygons = [];
-                    for (var i = 0; i < cnt; i++) {
-                        var ptCnt = polygonsPtCnts[i];
+                    const polygons = [];
+                    for (let i = 0; i < cnt; i++) {
+                        const ptCnt = polygonsPtCnts[i];
 
-                        var p = [];
-                        for (var ip = 0; ip < ptCnt; ip++)
+                        const p = [];
+                        for (let ip = 0; ip < ptCnt; ip++)
                             p.push(new PointS(reader));
                         polygons.push(p);
                     }
-                    this._records.push(
-                        (function (polygons) {
-                            return function (gdi) {
-                                gdi.polyPolygon(polygons);
-                            }
-                        })(polygons)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polyPolygon(polygons);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_POLYLINE:
-                    var cnt = reader.readInt16();
-                    var points = [];
+                }
+                case Helper.GDI.RecordType.META_POLYLINE: {
+                    let cnt = reader.readInt16();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (points) {
-                            return function (gdi) {
-                                gdi.polyline(points);
-                            }
-                        })(points)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polyline(points);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_ELLIPSE:
-                    var rect = new Rect(reader);
-                    this._records.push(
-                        (function (rect) {
-                            return function (gdi) {
-                                gdi.ellipse(rect);
-                            }
-                        })(rect)
-                    );
+                }
+                case Helper.GDI.RecordType.META_ELLIPSE: {
+                    const rect = new Rect(reader);
+                    this._records.push(gdi => {
+                        gdi.ellipse(rect);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPALETTE:
-                    var palette = new Palette(reader);
-                    this._records.push(
-                        (function (palette) {
-                            return function (gdi) {
-                                gdi.createPalette(palette);
-                            }
-                        })(palette)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEPALETTE: {
+                    const palette = new Palette(reader);
+                    this._records.push(gdi => {
+                        gdi.createPalette(palette);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEREGION:
-                    var region = new Region(reader);
-                    this._records.push(
-                        (function (region) {
-                            return function (gdi) {
-                                gdi.createRegion(region);
-                            }
-                        })(region)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEREGION: {
+                    const region = new Region(reader);
+                    this._records.push(gdi => {
+                        gdi.createRegion(region);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_CREATEPATTERNBRUSH:
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var patternBitmap = new PatternBitmap16(reader, datalength);
-                    var brush = new Brush(reader, datalength, patternBitmap);
-                    this._records.push(
-                        (function (brush) {
-                            return function (gdi) {
-                                gdi.createPatternBrush(brush);
-                            }
-                        })(brush)
-                    );
+                }
+                case Helper.GDI.RecordType.META_CREATEPATTERNBRUSH: {
+                    const datalength = size * 2 - (reader.pos - curpos);
+                    const patternBitmap = new PatternBitmap16(reader, datalength);
+                    const brush = new Brush(reader, datalength, patternBitmap);
+                    this._records.push(gdi => {
+                        gdi.createPatternBrush(brush);
+                    });
                     break;
-                case Helper.GDI.RecordType.META_OFFSETCLIPRGN:
-                    var offY = reader.readInt16();
-                    var offX = reader.readInt16();
-                    this._records.push(
-                        (function (offY, offX) {
-                            return function (gdi) {
-                                gdi.offsetClipRgn(offX, offY);
-                            }
-                        })(offY, offX)
-                    );
+                }
+                case Helper.GDI.RecordType.META_OFFSETCLIPRGN: {
+                    const offY = reader.readInt16();
+                    const offX = reader.readInt16();
+                    this._records.push(gdi => {
+                        gdi.offsetClipRgn(offX, offY);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.META_REALIZEPALETTE:
                 case Helper.GDI.RecordType.META_SETPALENTRIES:
                 case Helper.GDI.RecordType.META_SETROP2:
@@ -597,9 +475,9 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_BITBLT:
                 case Helper.GDI.RecordType.META_SETDIBTODEV:
                 case Helper.GDI.RecordType.META_DIBBITBLT:
-                default:
-                    var recordName = "UNKNOWN";
-                    for (var name in Helper.GDI.RecordType) {
+                default: {
+                    let recordName = "UNKNOWN";
+                    for (const name in Helper.GDI.RecordType) {
                         if (Helper.GDI.RecordType[name] == type) {
                             recordName = name;
                             break;
@@ -608,6 +486,7 @@ export class WMFRecords {
                     Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
                     //throw new WMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
+                }
             }
 
             curpos += size * 2;
@@ -618,9 +497,9 @@ export class WMFRecords {
     }
 
     play(gdi) {
-        var len = this._records.length;
-        for (var i = 0; i < len; i++) {
+        const len = this._records.length;
+        for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);
         }
     };
-};
+}

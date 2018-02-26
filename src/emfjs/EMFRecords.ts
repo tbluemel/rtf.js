@@ -44,7 +44,7 @@ export class EmfHeader {
     displayDevCyUm;
 
     constructor(reader, headerSize) {
-        var recordStart = reader.pos - 8;
+        const recordStart = reader.pos - 8;
 
         this.size = headerSize;
         this.bounds = new RectL(reader);
@@ -56,15 +56,15 @@ export class EmfHeader {
         reader.skip(4); // number of records
         reader.skip(2); // number of handles
         reader.skip(2); // reserved
-        var descriptionLen = reader.readUint32();
-        var descriptionOff = reader.readUint32();
+        const descriptionLen = reader.readUint32();
+        const descriptionOff = reader.readUint32();
         this.nPalEntries = reader.readUint32();
         this.refDevCx = reader.readUint32();
         this.refDevCy = reader.readUint32();
         this.refDevCxMm = reader.readUint32();
         this.refDevCyMm = reader.readUint32();
 
-        var hdrSize = headerSize;
+        let hdrSize = headerSize;
         if (descriptionLen > 0) {
             if (descriptionOff < 88)
                 throw new EMFJSError("Invalid header description offset");
@@ -73,7 +73,7 @@ export class EmfHeader {
             if (hdrSize > headerSize)
                 throw new EMFJSError("Invalid header description length");
 
-            var prevPos = reader.pos;
+            const prevPos = reader.pos;
             reader.seek(recordStart + descriptionOff);
             this.description = reader.readFixedSizeUnicodeString(descriptionLen);
             reader.seek(prevPos);
@@ -83,9 +83,9 @@ export class EmfHeader {
 
         if (hdrSize >= 100) {
             // We have a EmfMetafileHeaderExtension1 record
-            var pixelFormatSize = reader.readUint32();
-            var pixelFormatOff = reader.readUint32();
-            var haveOpenGl = reader.readUint32();
+            const pixelFormatSize = reader.readUint32();
+            const pixelFormatOff = reader.readUint32();
+            const haveOpenGl = reader.readUint32();
             if (haveOpenGl != 0)
                 throw new EMFJSError("OpenGL records are not yet supported");
 
@@ -122,137 +122,108 @@ export class EMFRecords {
 
         this._header = new EmfHeader(reader, first);
 
-        var all = false;
-        var curpos = first;
+        let all = false;
+        let curpos = first;
         main_loop: while (!all) {
             reader.seek(curpos);
-            var type = reader.readUint32();
-            var size = reader.readUint32();
+            const type = reader.readUint32();
+            const size = reader.readUint32();
             if (size < 8)
                 throw new EMFJSError("Invalid record size");
             switch (type) {
                 case Helper.GDI.RecordType.EMR_EOF:
                     all = true;
                     break main_loop;
-                case Helper.GDI.RecordType.EMR_SETMAPMODE:
-                    var mapMode = reader.readInt32();
-                    this._records.push(
-                        (function (mapMode) {
-                            return function (gdi) {
-                                gdi.setMapMode(mapMode);
-                            }
-                        })(mapMode)
-                    );
+                case Helper.GDI.RecordType.EMR_SETMAPMODE: {
+                    const mapMode = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.setMapMode(mapMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETWINDOWORGEX:
-                    var x = reader.readInt32();
-                    var y = reader.readInt32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setWindowOrgEx(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETWINDOWORGEX: {
+                    const x = reader.readInt32();
+                    const y = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.setWindowOrgEx(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETWINDOWEXTEX:
-                    var x = reader.readUint32();
-                    var y = reader.readUint32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setWindowExtEx(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETWINDOWEXTEX: {
+                    const x = reader.readUint32();
+                    const y = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setWindowExtEx(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETVIEWPORTORGEX:
-                    var x = reader.readInt32();
-                    var y = reader.readInt32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setViewportOrgEx(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETVIEWPORTORGEX: {
+                    const x = reader.readInt32();
+                    const y = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.setViewportOrgEx(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETVIEWPORTEXTEX:
-                    var x = reader.readUint32();
-                    var y = reader.readUint32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.setViewportExtEx(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETVIEWPORTEXTEX: {
+                    const x = reader.readUint32();
+                    const y = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setViewportExtEx(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SAVEDC:
-                    this._records.push(function (gdi) {
+                }
+                case Helper.GDI.RecordType.EMR_SAVEDC: {
+                    this._records.push(gdi => {
                         gdi.saveDC();
                     });
                     break;
-                case Helper.GDI.RecordType.EMR_RESTOREDC:
-                    var saved = reader.readInt32();
-                    this._records.push(
-                        (function (saved) {
-                            return function (gdi) {
-                                gdi.restoreDC(saved);
-                            }
-                        })(saved)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_RESTOREDC: {
+                    const saved = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.restoreDC(saved);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETBKMODE:
-                    var bkMode = reader.readUint32();
-                    this._records.push(
-                        (function (bkMode) {
-                            return function (gdi) {
-                                gdi.setBkMode(bkMode);
-                            }
-                        })(bkMode)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETBKMODE: {
+                    const bkMode = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setBkMode(bkMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETBKCOLOR:
-                    var bkColor = new ColorRef(reader);
-                    this._records.push(
-                        (function (bkColor) {
-                            return function (gdi) {
-                                gdi.setBkColor(bkColor);
-                            }
-                        })(bkColor)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETBKCOLOR: {
+                    const bkColor = new ColorRef(reader);
+                    this._records.push(gdi => {
+                        gdi.setBkColor(bkColor);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_CREATEBRUSHINDIRECT:
-                    var index = reader.readUint32();
-                    var datalength = size - (reader.pos - curpos);
-                    var brush = new Brush(reader, datalength);
-                    this._records.push(
-                        (function (index, brush) {
-                            return function (gdi) {
-                                gdi.createBrush(index, brush);
-                            }
-                        })(index, brush)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_CREATEBRUSHINDIRECT: {
+                    const index = reader.readUint32();
+                    const datalength = size - (reader.pos - curpos);
+                    const brush = new Brush(reader, datalength);
+                    this._records.push(gdi => {
+                        gdi.createBrush(index, brush);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_CREATEPEN:
-                    var index = reader.readUint32();
-                    var pen = new Pen(reader, null);
-                    this._records.push(
-                        (function (index, pen) {
-                            return function (gdi) {
-                                gdi.createPen(index, pen);
-                            }
-                        })(index, pen)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_CREATEPEN: {
+                    const index = reader.readUint32();
+                    const pen = new Pen(reader, null);
+                    this._records.push(gdi => {
+                        gdi.createPen(index, pen);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_EXTCREATEPEN:
-                    var index = reader.readUint32();
-                    var offBmi = reader.readUint32();
-                    var cbBmi = reader.readUint32();
-                    var offBits = reader.readUint32();
-                    var cbBits = reader.readUint32();
-                    var pen = new Pen(reader, {
+                }
+                case Helper.GDI.RecordType.EMR_EXTCREATEPEN: {
+                    const index = reader.readUint32();
+                    const offBmi = reader.readUint32();
+                    const cbBmi = reader.readUint32();
+                    const offBits = reader.readUint32();
+                    const cbBits = reader.readUint32();
+                    const pen = new Pen(reader, {
                         header: {
                             off: offBmi,
                             size: cbBmi
@@ -262,329 +233,248 @@ export class EMFRecords {
                             size: cbBits
                         }
                     });
-                    this._records.push(
-                        (function (index, pen) {
-                            return function (gdi) {
-                                gdi.createPen(index, pen);
-                            }
-                        })(index, pen)
-                    );
+                    this._records.push(gdi => {
+                        gdi.createPen(index, pen);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SELECTOBJECT:
-                    var idx = reader.readUint32();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.selectObject(idx, null);
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SELECTOBJECT: {
+                    const idx = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.selectObject(idx, null);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_DELETEOBJECT:
-                    var idx = reader.readUint32();
-                    this._records.push(
-                        (function (idx) {
-                            return function (gdi) {
-                                gdi.deleteObject(idx);
-                            }
-                        })(idx)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_DELETEOBJECT: {
+                    const idx = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.deleteObject(idx);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_RECTANGLE:
-                    var rect = new RectL(reader);
-                    this._records.push(
-                        (function (rect) {
-                            return function (gdi) {
-                                gdi.rectangle(rect, 0, 0);
-                            }
-                        })(rect)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_RECTANGLE: {
+                    const rect = new RectL(reader);
+                    this._records.push(gdi => {
+                        gdi.rectangle(rect, 0, 0);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_ROUNDRECT:
-                    var rect = new RectL(reader);
-                    var corner = new SizeL(reader);
-                    this._records.push(
-                        (function (rect, corner) {
-                            return function (gdi) {
-                                gdi.rectangle(rect, corner.cx, corner.cy);
-                            }
-                        })(rect, corner)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_ROUNDRECT: {
+                    const rect = new RectL(reader);
+                    const corner = new SizeL(reader);
+                    this._records.push(gdi => {
+                        gdi.rectangle(rect, corner.cx, corner.cy);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_LINETO:
-                    var x = reader.readInt32();
-                    var y = reader.readInt32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.lineTo(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_LINETO: {
+                    const x = reader.readInt32();
+                    const y = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.lineTo(x, y);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_MOVETOEX:
-                    var x = reader.readInt32();
-                    var y = reader.readInt32();
-                    this._records.push(
-                        (function (y, x) {
-                            return function (gdi) {
-                                gdi.moveToEx(x, y);
-                            }
-                        })(y, x)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_MOVETOEX: {
+                    const x = reader.readInt32();
+                    const y = reader.readInt32();
+                    this._records.push(gdi => {
+                        gdi.moveToEx(x, y);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.EMR_POLYGON:
-                case Helper.GDI.RecordType.EMR_POLYGON16:
-                    var isSmall = (type == Helper.GDI.RecordType.EMR_POLYGON16);
-                    var bounds = new RectL(reader);
-                    var cnt = reader.readUint32();
-                    var points = [];
+                case Helper.GDI.RecordType.EMR_POLYGON16: {
+                    const isSmall = (type == Helper.GDI.RecordType.EMR_POLYGON16);
+                    const bounds = new RectL(reader);
+                    let cnt = reader.readUint32();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(isSmall ? new PointS(reader) : new PointL(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (points) {
-                            return function (gdi) {
-                                gdi.polygon(points, bounds, true);
-                            }
-                        })(points)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polygon(points, bounds, true);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.EMR_POLYPOLYGON:
-                case Helper.GDI.RecordType.EMR_POLYPOLYGON16:
-                    var isSmall = (type == Helper.GDI.RecordType.EMR_POLYPOLYGON16);
-                    var bounds = new RectL(reader);
-                    var polyCnt = reader.readUint32();
+                case Helper.GDI.RecordType.EMR_POLYPOLYGON16: {
+                    const isSmall = (type == Helper.GDI.RecordType.EMR_POLYPOLYGON16);
+                    const bounds = new RectL(reader);
+                    const polyCnt = reader.readUint32();
                     reader.skip(4); // count
-                    var polygonsPtCnts = [];
-                    for (var i = 0; i < cnt; i++)
+                    const polygonsPtCnts = [];
+                    for (let i = 0; i < polyCnt; i++)
                         polygonsPtCnts.push(reader.readUint32());
 
-                    var polygons = [];
-                    for (var i = 0; i < cnt; i++) {
-                        var ptCnt = polygonsPtCnts[i];
+                    const polygons = [];
+                    for (let i = 0; i < polyCnt; i++) {
+                        const ptCnt = polygonsPtCnts[i];
 
-                        var p = [];
-                        for (var ip = 0; ip < ptCnt; ip++)
+                        const p = [];
+                        for (let ip = 0; ip < ptCnt; ip++)
                             p.push(isSmall ? new PointS(reader) : new PointL(reader));
                         polygons.push(p);
                     }
-                    this._records.push(
-                        (function (points, bounds) {
-                            return function (gdi) {
-                                gdi.polyPolygon(points, bounds);
-                            }
-                        })(points, bounds)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polyPolygon(polygons, bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETPOLYFILLMODE:
-                    var polyfillmode = reader.readUint32();
-                    this._records.push(
-                        (function (polyfillmode) {
-                            return function (gdi) {
-                                gdi.setPolyFillMode(polyfillmode);
-                            }
-                        })(polyfillmode)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETPOLYFILLMODE: {
+                    const polyfillmode = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setPolyFillMode(polyfillmode);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.EMR_POLYLINE16:
-                case Helper.GDI.RecordType.EMR_POLYLINETO16:
-                    var isLineTo = (type == Helper.GDI.RecordType.EMR_POLYLINETO16);
-                    var bounds = new RectL(reader);
-                    var cnt = reader.readUint32();
-                    var points = [];
+                case Helper.GDI.RecordType.EMR_POLYLINETO16: {
+                    const isLineTo = (type == Helper.GDI.RecordType.EMR_POLYLINETO16);
+                    const bounds = new RectL(reader);
+                    let cnt = reader.readUint32();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (isLineTo, points, bounds) {
-                            return function (gdi) {
-                                gdi.polyline(isLineTo, points, bounds);
-                            }
-                        })(isLineTo, points, bounds)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polyline(isLineTo, points, bounds);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.EMR_POLYBEZIER:
-                case Helper.GDI.RecordType.EMR_POLYBEZIERTO:
-                    var isPolyBezierTo = (type == Helper.GDI.RecordType.EMR_POLYBEZIERTO);
-                    var bounds = new RectL(reader);
-                    var cnt = reader.readUint32();
-                    var points = [];
+                case Helper.GDI.RecordType.EMR_POLYBEZIERTO: {
+                    const isPolyBezierTo = (type == Helper.GDI.RecordType.EMR_POLYBEZIERTO);
+                    const bounds = new RectL(reader);
+                    let cnt = reader.readUint32();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(new PointL(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (isPolyBezierTo, points, bounds) {
-                            return function (gdi) {
-                                gdi.polybezier(isPolyBezierTo, points, bounds);
-                            }
-                        })(isPolyBezierTo, points, bounds)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polybezier(isPolyBezierTo, points, bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_POLYBEZIER16:
-                    var bounds = new RectL(reader);
-                    var start = new PointL(reader);
-                    var cnt = reader.readUint32();
-                    var points: any[] = [start];
+                }
+                case Helper.GDI.RecordType.EMR_POLYBEZIER16: {
+                    const bounds = new RectL(reader);
+                    const start = new PointL(reader);
+                    let cnt = reader.readUint32();
+                    const points = [start];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (points, bounds) {
-                            return function (gdi) {
-                                gdi.polybezier(false, points, bounds);
-                            }
-                        })(points, bounds)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polybezier(false, points, bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_POLYBEZIERTO16:
-                    var bounds = new RectL(reader);
-                    var cnt = reader.readUint32();
-                    var points = [];
+                }
+                case Helper.GDI.RecordType.EMR_POLYBEZIERTO16: {
+                    const bounds = new RectL(reader);
+                    let cnt = reader.readUint32();
+                    const points = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(
-                        (function (points, bounds) {
-                            return function (gdi) {
-                                gdi.polybezier(true, points, bounds);
-                            }
-                        })(points, bounds)
-                    );
+                    this._records.push(gdi => {
+                        gdi.polybezier(true, points, bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETTEXTALIGN:
-                    var textAlign = reader.readUint32();
-                    this._records.push(
-                        (function (textAlign) {
-                            return function (gdi) {
-                                gdi.setTextAlign(textAlign);
-                            }
-                        })(textAlign)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETTEXTALIGN: {
+                    const textAlign = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setTextAlign(textAlign);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETSTRETCHBLTMODE:
-                    var stretchMode = reader.readUint32();
-                    this._records.push(
-                        (function (stretchMode) {
-                            return function (gdi) {
-                                gdi.setStretchBltMode(stretchMode);
-                            }
-                        })(stretchMode)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETSTRETCHBLTMODE: {
+                    const stretchMode = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setStretchBltMode(stretchMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETBRUSHORGEX:
-                    var origin = new PointL(reader);
-                    this._records.push(
-                        (function (origin) {
-                            return function (gdi) {
-                                gdi.setBrushOrgEx(origin);
-                            }
-                        })(origin)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETBRUSHORGEX: {
+                    const origin = new PointL(reader);
+                    this._records.push(gdi => {
+                        gdi.setBrushOrgEx(origin);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_BEGINPATH:
-                    this._records.push(
-                        (function () {
-                            return function (gdi) {
-                                gdi.beginPath();
-                            }
-                        })()
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_BEGINPATH: {
+                    this._records.push(gdi => {
+                        gdi.beginPath();
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_ENDPATH:
-                    this._records.push(
-                        (function () {
-                            return function (gdi) {
-                                gdi.endPath();
-                            }
-                        })()
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_ENDPATH: {
+                    this._records.push(gdi => {
+                        gdi.endPath();
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_ABORTPATH:
-                    this._records.push(
-                        (function () {
-                            return function (gdi) {
-                                gdi.abortPath();
-                            }
-                        })()
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_ABORTPATH: {
+                    this._records.push(gdi => {
+                        gdi.abortPath();
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_CLOSEFIGURE:
-                    this._records.push(
-                        (function () {
-                            return function (gdi) {
-                                gdi.closeFigure();
-                            }
-                        })()
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_CLOSEFIGURE: {
+                    this._records.push(gdi => {
+                        gdi.closeFigure();
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_FILLPATH:
-                    var bounds = new RectL(reader);
-                    this._records.push(
-                        (function (bounds) {
-                            return function (gdi) {
-                                gdi.fillPath(bounds);
-                            }
-                        })(bounds)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_FILLPATH: {
+                    const bounds = new RectL(reader);
+                    this._records.push(gdi => {
+                        gdi.fillPath(bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_STROKEPATH:
-                    var bounds = new RectL(reader);
-                    this._records.push(
-                        (function (bounds) {
-                            return function (gdi) {
-                                gdi.strokePath(bounds);
-                            }
-                        })(bounds)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_STROKEPATH: {
+                    const bounds = new RectL(reader);
+                    this._records.push(gdi => {
+                        gdi.strokePath(bounds);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SELECTCLIPPATH:
-                    var rgnMode = reader.readUint32();
-                    this._records.push(
-                        (function (rgnMode) {
-                            return function (gdi) {
-                                gdi.selectClipPath(rgnMode);
-                            }
-                        })(rgnMode)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SELECTCLIPPATH: {
+                    const rgnMode = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.selectClipPath(rgnMode);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_EXTSELECTCLIPRGN:
+                }
+                case Helper.GDI.RecordType.EMR_EXTSELECTCLIPRGN: {
                     reader.skip(4);
-                    var rgnMode = reader.readUint32();
-                    var region = rgnMode != Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
-                    this._records.push(
-                        (function (rgnMode, region) {
-                            return function (gdi) {
-                                gdi.selectClipRgn(rgnMode, region);
-                            }
-                        })(rgnMode, region)
-                    );
+                    const rgnMode = reader.readUint32();
+                    const region = rgnMode != Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
+                    this._records.push(gdi => {
+                        gdi.selectClipRgn(rgnMode, region);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_OFFSETCLIPRGN:
-                    var offset = new PointL(reader);
-                    this._records.push(
-                        (function (offset) {
-                            return function (gdi) {
-                                gdi.offsetClipRgn(offset);
-                            }
-                        })(offset)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_OFFSETCLIPRGN: {
+                    const offset = new PointL(reader);
+                    this._records.push(gdi => {
+                        gdi.offsetClipRgn(offset);
+                    });
                     break;
-                case Helper.GDI.RecordType.EMR_SETMITERLIMIT:
-                    var miterLimit = reader.readUint32();
-                    this._records.push(
-                        (function (miterLimit) {
-                            return function (gdi) {
-                                gdi.setMiterLimit(miterLimit);
-                            }
-                        })(miterLimit)
-                    );
+                }
+                case Helper.GDI.RecordType.EMR_SETMITERLIMIT: {
+                    const miterLimit = reader.readUint32();
+                    this._records.push(gdi => {
+                        gdi.setMiterLimit(miterLimit);
+                    });
                     break;
+                }
                 case Helper.GDI.RecordType.EMR_POLYLINE:
                 case Helper.GDI.RecordType.EMR_POLYLINETO:
                 case Helper.GDI.RecordType.EMR_POLYPOLYLINE:
@@ -660,9 +550,9 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_SETTEXTJUSTIFICATION:
                 case Helper.GDI.RecordType.EMR_COLORMATCHTOTARGETW:
                 case Helper.GDI.RecordType.EMR_CREATECOLORSPACEW:
-                default:
-                    var recordName = "UNKNOWN";
-                    for (var name in Helper.GDI.RecordType) {
+                default: {
+                    let recordName = "UNKNOWN";
+                    for (let name in Helper.GDI.RecordType) {
                         if (Helper.GDI.RecordType[name] == type) {
                             recordName = name;
                             break;
@@ -671,6 +561,7 @@ export class EMFRecords {
                     Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
                     //throw new EMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
+                }
             }
 
             curpos += size;
@@ -681,9 +572,9 @@ export class EMFRecords {
     }
 
     play(gdi) {
-        var len = this._records.length;
-        for (var i = 0; i < len; i++) {
+        const len = this._records.length;
+        for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);
         }
     };
-};
+}
