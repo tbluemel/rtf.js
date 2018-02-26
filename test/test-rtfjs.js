@@ -30,7 +30,7 @@ var testFiles = getTestFiles();
 describe("Test files", function() {
     testFiles.forEach(function(testFile) {
         describe(testFile.name, function() {
-            this.timeout(10000);
+            this.timeout(0);
 
             var result;
 
