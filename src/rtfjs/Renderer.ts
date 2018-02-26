@@ -24,19 +24,27 @@ SOFTWARE.
 
 */
 
+import { Document } from './Document';
 import { RTFJSError } from './Helper';
+import { RenderChp } from './parser/RenderChp';
+import { RenderPap } from './parser/RenderPap';
+
+export interface ContainerElement {
+    element: JQuery,
+    content: JQuery
+}
 
 export class Renderer {
-    _doc;
+    _doc: Document;
     _dom: JQuery[];
 
-    _curRChp;
-    _curRPap;
-    _curpar;
-    _cursubpar;
-    _curcont;
+    _curRChp: RenderChp;
+    _curRPap: RenderPap;
+    _curpar: JQuery;
+    _cursubpar: JQuery;
+    _curcont: ContainerElement[];
 
-    constructor(doc) {
+    constructor(doc: Document) {
         this._doc = doc;
         this._dom = null;
 
@@ -47,14 +55,14 @@ export class Renderer {
         this._curcont = [];
     }
 
-    pushContainer(contel) {
+    private pushContainer(contel: ContainerElement) {
         if (this._curpar == null)
             this.startPar();
 
         var len = this._curcont.push(contel);
         if (len > 1) {
             var prevcontel = this._curcont[len - 1];
-            prevcontel.content.append(contel);
+            prevcontel.content.append(contel.element);
         } else {
             if (this._cursubpar != null)
                 this._cursubpar.append(contel.element);
@@ -63,17 +71,17 @@ export class Renderer {
         }
     };
 
-    popContainer() {
+    private popContainer() {
         var contel = this._curcont.pop();
         if (contel == null)
             throw new RTFJSError("No container on rendering stack");
     };
 
-    buildHyperlinkElement(url) {
+    private buildHyperlinkElement(url: string): JQuery {
         return $("<a>").attr("href", url);
     };
 
-    _appendToPar(el, newsubpar?) {
+    private _appendToPar(el: JQuery, newsubpar?: boolean) {
         if (this._curpar == null)
             this.startPar();
         if (newsubpar == true) {
@@ -102,7 +110,7 @@ export class Renderer {
         }
     };
 
-    startPar() {
+    private startPar() {
         this._curpar = $("<div>");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
@@ -113,15 +121,15 @@ export class Renderer {
         this._dom.push(this._curpar);
     };
 
-    lineBreak() {
+    private lineBreak() {
         this._appendToPar(null, true);
     };
 
-    setChp(rchp) {
+    private setChp(rchp: RenderChp) {
         this._curRChp = rchp;
     };
 
-    setPap(rpap) {
+    private setPap(rpap: RenderPap) {
         this._curRPap = rpap;
         if (this._cursubpar != null)
             this._curRPap.apply(this._doc, this._cursubpar, null, false);
@@ -132,21 +140,21 @@ export class Renderer {
         }
     };
 
-    appendElement(element) {
+    private appendElement(element: JQuery) {
         this._appendToPar(element);
     };
 
-    buildRenderedPicture(element) {
+    private buildRenderedPicture(element: JQuery): JQuery {
         if (element == null)
             element = $("<span>").text("[failed to render image]")
         return element;
     };
 
-    renderedPicture(element) {
+    private renderedPicture(element: JQuery) {
         this._appendToPar(this.buildRenderedPicture(element));
     };
 
-    buildPicture(mime, data) {
+    private buildPicture(mime: string, data: string): JQuery {
         if (data != null) {
             return $("<img>", {
                 src: "data:" + mime + ";base64," + btoa(data)
@@ -159,11 +167,11 @@ export class Renderer {
         }
     };
 
-    picture(mime, data) {
+    private picture(mime: string, data: string) {
         this._appendToPar(this.buildPicture(mime, data));
     };
 
-    buildDom(): JQuery[] {
+    public buildDom(): JQuery[] {
         if (this._dom != null)
             return this._dom;
 

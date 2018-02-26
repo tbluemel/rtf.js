@@ -280,7 +280,7 @@ var Renderer = /** @class */ (function () {
         var len = this._curcont.push(contel);
         if (len > 1) {
             var prevcontel = this._curcont[len - 1];
-            prevcontel.content.append(contel);
+            prevcontel.content.append(contel.element);
         }
         else {
             if (this._cursubpar != null)
