@@ -27,7 +27,8 @@ SOFTWARE.
 import { Helper, RTFJSError } from '../Helper';
 import { RenderChp } from './RenderChp';
 import { RenderPap } from './RenderPap';
-import { Pap, Chp, Sep } from './Containers';
+import { Pap, Chp, Sep, GlobalState } from './Containers';
+import { Document } from '../Document';
 
 declare const WMFJS: any;
 declare const EMFJS: any;
@@ -1208,7 +1209,7 @@ var requiredDestination = function (name) {
     };
 };
 
-export const destinations = {
+export const destinations: { [s: string]: (parser: GlobalState, inst: Document, name: string, param: any) => void } = {
     rtf: rtfDestination(),
     info: infoDestination(),
     title: metaPropertyDestination("title"),

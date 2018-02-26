@@ -30,7 +30,7 @@ import cptable from 'codepage';
 import { Helper, RTFJSError } from '../Helper';
 import { RenderChp } from './RenderChp';
 import { Document } from '../Document';
-import { State } from './Containers';
+import { GlobalState, State } from './Containers';
 import { destinations } from './Destinations';
 import { Renderer } from '../Renderer';
 
@@ -43,48 +43,40 @@ export class Parser {
 
     parse(blob: ArrayBuffer, renderer: Renderer): Promise<void> {
         var inst = this.inst;
-        var parseKeyword, processKeyword, appendText, parseLoop;
 
-        var parser = {
-            data: new Uint8Array(blob),
-            pos: 0,
-            line: 1,
-            column: 0,
-            state: null,
-            version: null,
-            text: "",
-            codepage: 1252,
-            _asyncTasks: [],
-            renderer: renderer,
-            eof: function () {
-                return this.pos >= this.data.length;
-            },
-            readChar: function () {
-                if (this.pos < this.data.length) {
-                    parser.column++;
-                    return String.fromCharCode(this.data[this.pos++]);
-                }
+        var parser = new GlobalState(blob, renderer);
 
-                throw new RTFJSError("Unexpected end of file");
-            },
-            unreadChar: function () {
-                if (this.pos > 0) {
-                    parser.column--;
-                    this.pos--;
-                } else {
-                    throw new RTFJSError("Already at beginning of file");
-                }
-            },
-            readBlob: function (cnt) {
-                if (this.pos + cnt > this.data.length)
-                    throw new RTFJSError("Cannot read binary data: too long");
-                var buf = new ArrayBuffer(cnt);
-                var view = new Uint8Array(buf);
-                for (var i = 0; i < cnt; i++)
-                    view[i] = this.data[this.pos + i];
-                return buf;
+        var eof = function (parser) {
+            return parser.pos >= parser.data.length;
+        }
+
+        var readChar = function (parser) {
+            if (parser.pos < parser.data.length) {
+                parser.column++;
+                return String.fromCharCode(parser.data[parser.pos++]);
             }
-        };
+
+            throw new RTFJSError("Unexpected end of file");
+        }
+
+        var unreadChar = function (parser) {
+            if (parser.pos > 0) {
+                parser.column--;
+                parser.pos--;
+            } else {
+                throw new RTFJSError("Already at beginning of file");
+            }
+        }
+
+        var readBlob = function (parser, cnt) {
+            if (parser.pos + cnt > parser.data.length)
+                throw new RTFJSError("Cannot read binary data: too long");
+            var buf = new ArrayBuffer(cnt);
+            var view = new Uint8Array(buf);
+            for (var i = 0; i < cnt; i++)
+                view[i] = parser.data[parser.pos + i];
+            return buf;
+        }
 
         var applyDestination = function (always) {
             var dest = parser.state.destination;
@@ -152,7 +144,7 @@ export class Parser {
             return parser.state;
         };
 
-        var changeDestination = function (name, param) {
+        var changeDestination = function (name: string, param) {
             applyText();
             var handler = destinations[name];
             if (handler != null) {
@@ -163,7 +155,7 @@ export class Parser {
             return false;
         };
 
-        processKeyword = function (keyword, param) {
+        var processKeyword = function (keyword, param) {
             var first = parser.state.first;
             if (first) {
                 if (keyword == "*") {
@@ -262,7 +254,7 @@ export class Parser {
             parser.state.skipdestination = false;
         };
 
-        appendText = function (text) {
+        var appendText = function (text) {
             // Handle characters not found in codepage
             text = text ? text : "";
 
@@ -297,19 +289,19 @@ export class Parser {
             }
         };
 
-        parseKeyword = function (process) {
+        var parseKeyword = function (process) {
             if (parser.state == null)
                 throw new RTFJSError("No state");
 
             var param;
-            var ch = parser.readChar();
+            var ch = readChar(parser);
             if (!Helper._isalpha(ch)) {
                 if (ch == "\'") {
-                    var hex = parser.readChar() + parser.readChar();
+                    var hex = readChar(parser) + readChar(parser);
                     if (parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
-                        parser.readChar();
-                        parser.readChar();
-                        hex += parser.readChar() + parser.readChar();
+                        readChar(parser);
+                        readChar(parser);
+                        hex += readChar(parser) + readChar(parser);
                     }
                     param = Helper._parseHex(hex);
                     if (isNaN(param))
@@ -333,16 +325,16 @@ export class Parser {
                 }
             } else {
                 var keyword = ch;
-                ch = parser.readChar();
+                ch = readChar(parser);
                 while (keyword.length < 30 && Helper._isalpha(ch)) {
                     keyword += ch;
-                    ch = parser.readChar();
+                    ch = readChar(parser);
                 }
 
                 var num;
                 if (ch == "-") {
                     num = "-";
-                    ch = parser.readChar();
+                    ch = readChar(parser);
                 } else {
                     num = "";
                 }
@@ -350,7 +342,7 @@ export class Parser {
                 if (Helper._isdigit(ch)) {
                     do {
                         num += ch;
-                        ch = parser.readChar();
+                        ch = readChar(parser);
                     } while (num.length < 20 && Helper._isdigit(ch));
 
                     if (num.length >= 20)
@@ -362,7 +354,7 @@ export class Parser {
                 }
 
                 if (ch != " ")
-                    parser.unreadChar();
+                    unreadChar(parser);
 
                 if (process != null) {
                     var text = process(keyword, param);
@@ -372,16 +364,16 @@ export class Parser {
             }
         };
 
-        parseLoop = function (skip, process) {
+        var parseLoop = function (skip, process) {
             try {
                 var initialState = parser.state;
-                main_loop: while (!parser.eof()) {
+                main_loop: while (!eof(parser)) {
                     if (parser.state != null && parser.state.bindata > 0) {
-                        var blob = parser.readBlob(parser.state.bindata);
+                        var blob = readBlob(parser, parser.state.bindata);
                         parser.state.bindata = 0;
                         applyBlob(blob);
                     } else {
-                        var ch = parser.readChar();
+                        var ch = readChar(parser);
                         switch (ch) {
                             case "\r":
                                 continue;
@@ -394,7 +386,7 @@ export class Parser {
                                 break;
                             case "}":
                                 if (initialState == parser.state) {
-                                    parser.unreadChar();
+                                    unreadChar(parser);
                                     break main_loop;
                                 }
                                 else if (popState() == initialState)

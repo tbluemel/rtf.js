@@ -25,6 +25,7 @@ SOFTWARE.
 */
 
 import { Helper } from '../Helper';
+import { Renderer } from '../Renderer';
 
 export class Chp {
     bold;
@@ -191,5 +192,31 @@ export class State {
             this.skipdestination = false;
             this.ucn = 1;
         }
+    }
+};
+
+export class GlobalState {
+    data: Uint8Array;
+    pos: number;
+    line: number;
+    column: number;
+    state: State;
+    version: number;
+    text: string;
+    codepage: number;
+    _asyncTasks: Promise<any>[];
+    renderer: Renderer;
+
+    constructor(blob: ArrayBuffer, renderer: Renderer) {
+        this.data = new Uint8Array(blob);
+        this.pos = 0;
+        this.line = 1;
+        this.column = 0;
+        this.state = null;
+        this.version = null;
+        this.text = "";
+        this. codepage = 1252;
+        this._asyncTasks = [];
+        this.renderer = renderer;
     }
 };
