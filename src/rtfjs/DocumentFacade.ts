@@ -34,7 +34,7 @@ export class DocumentFacade {
     _renderer: Renderer;
     _parsed: Promise<void>;
 
-    constructor(blob, settings) {
+    constructor(blob: ArrayBuffer, settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
         const parser = new Parser(this._document);

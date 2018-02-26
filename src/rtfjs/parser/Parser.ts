@@ -32,15 +32,16 @@ import { RenderChp } from './RenderChp';
 import { Document } from '../Document';
 import { State } from './Containers';
 import { destinations } from './Destinations';
+import { Renderer } from '../Renderer';
 
 export class Parser {
-    inst;
+    inst: Document;
 
     constructor(document: Document) {
         this.inst = document;
     }
 
-    parse(blob, renderer): Promise<void> {
+    parse(blob: ArrayBuffer, renderer: Renderer): Promise<void> {
         var inst = this.inst;
         var parseKeyword, processKeyword, appendText, parseLoop;
 

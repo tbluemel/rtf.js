@@ -7641,124 +7641,139 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var Chp = function (parent) {
-    if (parent != null) {
-        this.bold = parent.bold;
-        this.underline = parent.underline;
-        this.italic = parent.italic;
-        this.strikethrough = parent.strikethrough;
-        this.dblstrikethrough = parent.dblstrikethrough;
-        this.colorindex = parent.colorindex;
-        this.fontsize = parent.fontsize;
-        this.fontfamily = parent.fontfamily;
+var Chp = /** @class */ (function () {
+    function Chp(parent) {
+        if (parent != null) {
+            this.bold = parent.bold;
+            this.underline = parent.underline;
+            this.italic = parent.italic;
+            this.strikethrough = parent.strikethrough;
+            this.dblstrikethrough = parent.dblstrikethrough;
+            this.colorindex = parent.colorindex;
+            this.fontsize = parent.fontsize;
+            this.fontfamily = parent.fontfamily;
+        }
+        else {
+            this.bold = false;
+            this.underline = Helper.UNDERLINE.NONE;
+            this.italic = false;
+            this.strikethrough = false;
+            this.dblstrikethrough = false;
+            this.colorindex = 0;
+            this.fontsize = 24;
+        }
     }
-    else {
-        this.bold = false;
-        this.underline = Helper.UNDERLINE.NONE;
-        this.italic = false;
-        this.strikethrough = false;
-        this.dblstrikethrough = false;
-        this.colorindex = 0;
-        this.fontsize = 24;
+    return Chp;
+}());
+var Pap = /** @class */ (function () {
+    function Pap(parent) {
+        if (parent != null) {
+            this.indent = {
+                left: parent.indent.left,
+                right: parent.indent.right,
+                firstline: parent.indent.firstline
+            };
+            this.justification = parent.justification;
+            this.spacebefore = parent.spacebefore;
+            this.spaceafter = parent.spaceafter;
+            this.charactertype = parent.charactertype;
+        }
+        else {
+            this.indent = {
+                left: 0,
+                right: 0,
+                firstline: 0
+            };
+            this.justification = Helper.JUSTIFICATION.LEFT;
+            this.spacebefore = 0;
+            this.spaceafter = 0;
+        }
     }
-};
-var Pap = function (parent) {
-    if (parent != null) {
-        this.indent = {
-            left: parent.indent.left,
-            right: parent.indent.right,
-            firstline: parent.indent.firstline
-        };
-        this.justification = parent.justification;
-        this.spacebefore = parent.spacebefore;
-        this.spaceafter = parent.spaceafter;
-        this.charactertype = parent.charactertype;
+    return Pap;
+}());
+var Sep = /** @class */ (function () {
+    function Sep(parent) {
+        if (parent != null) {
+            this.columns = parent.columns;
+            this.breaktype = parent.breaktype;
+            this.pagenumber = {
+                x: parent.pagenumber.x,
+                y: parent.pagenumber.y
+            };
+            this.pagenumberformat = parent.pagenumberformat;
+        }
+        else {
+            this.columns = 0;
+            this.breaktype = Helper.BREAKTYPE.NONE;
+            this.pagenumber = {
+                x: 0,
+                y: 0,
+            };
+            this.pagenumberformat = Helper.PAGENUMBER.DECIMAL;
+        }
     }
-    else {
-        this.indent = {
-            left: 0,
-            right: 0,
-            firstline: 0
-        };
-        this.justification = Helper.JUSTIFICATION.LEFT;
-        this.spacebefore = 0;
-        this.spaceafter = 0;
+    return Sep;
+}());
+var Dop = /** @class */ (function () {
+    function Dop(parent) {
+        if (parent != null) {
+            this.width = parent.width;
+            this.height = parent.height;
+            this.margin = {
+                left: parent.margin.left,
+                top: parent.margin.top,
+                right: parent.margin.right,
+                bottom: parent.margin.bottom
+            };
+            this.pagenumberstart = parent.pagenumberstart;
+            this.facingpages = parent.facingpages;
+            this.landscape = parent.landscape;
+        }
+        else {
+            this.width = 0;
+            this.height = 0;
+            this.margin = {
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0
+            };
+            this.pagenumberstart = 0;
+            this.facingpages = false;
+            this.landscape = false;
+        }
     }
-};
-var Sep = function (parent) {
-    if (parent != null) {
-        this.columns = parent.columns;
-        this.breaktype = parent.breaktype;
-        this.pagenumber = {
-            x: parent.pagenumber.x,
-            y: parent.pagenumber.y
-        };
-        this.pagenumberformat = parent.pagenumberformat;
+    return Dop;
+}());
+var State = /** @class */ (function () {
+    function State(parent) {
+        this.parent = parent;
+        this.first = true;
+        this.skipchars = 0;
+        this.bindata = 0;
+        if (parent != null) {
+            this.chp = new Chp(parent.chp);
+            this.pap = new Pap(parent.pap);
+            this.sep = new Sep(parent.sep);
+            this.dop = new Dop(parent.dop);
+            this.destination = parent.destination;
+            this.skipunknowndestination = parent.skipunknowndestination;
+            this.skipdestination = parent.skipdestination;
+            this.ucn = parent.ucn;
+        }
+        else {
+            this.chp = new Chp(null);
+            this.pap = new Pap(null);
+            this.sep = new Sep(null);
+            this.dop = new Dop(null);
+            this.destination = null;
+            this.skipunknowndestination = false;
+            this.skipdestination = false;
+            this.ucn = 1;
+        }
     }
-    else {
-        this.columns = 0;
-        this.breaktype = Helper.BREAKTYPE.NONE;
-        this.pagenumber = {
-            x: 0,
-            y: 0,
-        };
-        this.pagenumberformat = Helper.PAGENUMBER.DECIMAL;
-    }
-};
-var Dop = function (parent) {
-    if (parent != null) {
-        this.width = parent.width;
-        this.height = parent.height;
-        this.margin = {
-            left: parent.margin.left,
-            top: parent.margin.top,
-            right: parent.margin.right,
-            bottom: parent.margin.bottom
-        };
-        this.pagenumberstart = parent.pagenumberstart;
-        this.facingpages = parent.facingpages;
-        this.landscape = parent.landscape;
-    }
-    else {
-        this.width = 0;
-        this.height = 0;
-        this.margin = {
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0
-        };
-        this.pagenumberstart = 0;
-        this.facingpages = false;
-        this.landscape = false;
-    }
-};
-var State = function (parent) {
-    this.parent = parent;
-    this.first = true;
-    this.skipchars = 0;
-    this.bindata = 0;
-    if (parent != null) {
-        this.chp = new Chp(parent.chp);
-        this.pap = new Pap(parent.pap);
-        this.sep = new Sep(parent.sep);
-        this.dop = new Dop(parent.dop);
-        this.destination = parent.destination;
-        this.skipunknowndestination = parent.skipunknowndestination;
-        this.skipdestination = parent.skipdestination;
-        this.ucn = parent.ucn;
-    }
-    else {
-        this.chp = new Chp(null);
-        this.pap = new Pap(null);
-        this.sep = new Sep(null);
-        this.dop = new Dop(null);
-        this.destination = null;
-        this.skipunknowndestination = false;
-        this.skipdestination = false;
-        this.ucn = 1;
-    }
-};
+    return State;
+}());
 
 /*
 
