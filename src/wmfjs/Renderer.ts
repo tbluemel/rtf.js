@@ -29,15 +29,23 @@ import { GDIContext } from './GDIContext';
 import { Blob } from './Blob';
 import { WMFRecords } from './WMFRecords';
 
-export class Renderer {
-    _img;
+export class RendererSettings {
+    width: string;
+    height: string;
+    xExt: number;
+    yExt: number;
+    mapMode: number;
+}
 
-    constructor(blob) {
+export class Renderer {
+    _img: WMF;
+
+    constructor(blob: ArrayBuffer) {
         this.parse(blob);
         Helper.log("WMFJS.Renderer instantiated");
     }
 
-    parse(blob) {
+    parse(blob: ArrayBuffer) {
         this._img = null;
 
         var reader = new Blob(blob);
@@ -73,7 +81,7 @@ export class Renderer {
             throw new WMFJSError("Format not recognized");
     };
 
-    _render(svg, mapMode, xExt, yExt) {
+    _render(svg: any, mapMode: number, xExt: number, yExt: number) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
         var gdi = new GDIContext(svg);
         gdi.setViewportExt(xExt, yExt);
@@ -83,11 +91,11 @@ export class Renderer {
         Helper.log("[WMF] <--- DONE RENDERING");
     };
 
-    render(info) {
+    render(info: RendererSettings) {
         var inst = this;
         var img = (function(mapMode, xExt, yExt) {
             return (<any>$("<div>")).svg({
-                onLoad: function(svg) {
+                onLoad: function(svg: any) {
                     return inst._render.call(inst, svg, mapMode, xExt, yExt);
                 },
                 settings: {
@@ -102,12 +110,12 @@ export class Renderer {
 };
 
 export class WMFRect16 {
-    left;
-    top;
-    right;
-    bottom;
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
 
-    constructor(reader) {
+    constructor(reader: Blob) {
         this.left = reader.readInt16();
         this.top = reader.readInt16();
         this.right = reader.readInt16();
@@ -120,10 +128,10 @@ export class WMFRect16 {
 };
 
 export class WMFPlacable {
-    boundingBox;
-    unitsPerInch;
+    boundingBox: WMFRect16;
+    unitsPerInch: number;
 
-    constructor(reader) {
+    constructor(reader: Blob) {
         reader.skip(2);
         this.boundingBox = new WMFRect16(reader);
         this.unitsPerInch = reader.readInt16();
@@ -134,24 +142,22 @@ export class WMFPlacable {
 };
 
 export class WMF {
-    _reader;
-    _version;
-    _hdrsize;
-    _placable;
-    _img;
-    _records;
+    _reader: Blob;
+    _version: number;
+    _hdrsize: number;
+    _placable: WMFPlacable;
+    _records: WMFRecords;
 
-    constructor(reader, placable, version, hdrsize) {
+    constructor(reader: Blob, placable: WMFPlacable, version: number, hdrsize: number) {
         this._reader = reader;
         this._version = version;
         this._hdrsize = hdrsize;
         this._placable = placable;
-        this._img = null;
         this._records = new WMFRecords(reader, this._hdrsize);
     }
 
 
-    render(gdi) {
+    render(gdi: GDIContext) {
         this._records.play(gdi);
     };
 };

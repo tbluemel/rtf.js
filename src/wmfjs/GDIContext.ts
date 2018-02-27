@@ -25,36 +25,47 @@ SOFTWARE.
 */
 
 import { Helper, WMFJSError } from './Helper';
-import { CreateSimpleRegion } from './Region';
-import { Brush, ColorRef, Font, Pen } from './Style';
-import { PointS } from './Primitives';
+import { CreateSimpleRegion, Region } from './Region';
+import { Brush, ColorRef, Font, Palette, Pen } from './Style';
+import { Obj, PointS, Rect } from './Primitives';
+import { DIBitmap } from './Bitmap';
+import { Blob } from './Blob';
+
+interface SelectedStyle {
+    brush?: Brush;
+    pen?: Pen;
+    font?: Font;
+    palette?: Palette;
+    region?: Region;
+    [key: string]: Obj;
+}
 
 export class GDIContextState {
-    _svggroup;
-    _svgclipChanged;
-    _svgtextbkfilter;
-    mapmode;
-    stretchmode;
-    textalign;
-    bkmode;
-    textcolor;
-    bkcolor;
-    polyfillmode;
-    wx;
-    wy;
-    ww;
-    wh;
-    vx;
-    vy;
-    vw;
-    vh;
-    x;
-    y;
-    clip;
-    ownclip;
-    selected;
+    _svggroup: any;
+    _svgclipChanged: boolean;
+    _svgtextbkfilter: any;
+    mapmode: number;
+    stretchmode: number;
+    textalign: number;
+    bkmode: number;
+    textcolor: ColorRef;
+    bkcolor: ColorRef;
+    polyfillmode: number;
+    wx: number;
+    wy: number;
+    ww: number;
+    wh: number;
+    vx: number;
+    vy: number;
+    vw: number;
+    vh: number;
+    x: number;
+    y: number;
+    clip: Region;
+    ownclip: boolean;
+    selected: SelectedStyle;
 
-    constructor(copy, defObjects?) {
+    constructor(copy: GDIContextState, defObjects?: SelectedStyle) {
         if (copy != null) {
             this._svggroup = copy._svggroup;
             this._svgclipChanged = copy._svgclipChanged;
@@ -118,23 +129,23 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    _svg;
-    _svgdefs;
-    _svgPatterns;
-    _svgClipPaths;
-    defObjects;
-    state;
-    statestack;
-    objects;
+    _svg: any;
+    _svgdefs: any;
+    _svgPatterns: {[string: string]: Brush};
+    _svgClipPaths: {[string: string]: Region};
+    defObjects: SelectedStyle;
+    state: GDIContextState;
+    statestack: GDIContextState[];
+    objects: {[string: string]: Obj};
 
-    constructor(svg) {
+    constructor(svg: any) {
         this._svg = svg;
         this._svgdefs = null;
         this._svgPatterns = {};
         this._svgClipPaths = {};
 
         this.defObjects = {
-            brush: new Brush(null, Helper.GDI.BrushStyle.BS_SOLID, new ColorRef(null, 0, 0, 0)),
+            brush: new Brush(null, null),
             pen: new Pen(null, Helper.GDI.PenStyle.PS_SOLID, new PointS(null, 1, 1), new ColorRef(null, 0, 0, 0), 0, 0),
             font: new Font(null, null),
             palette: null,
@@ -151,7 +162,7 @@ export class GDIContext {
             this.state._svgclipChanged = false;
             this.state._svgtextbkfilter = null;
 
-            var settings = {
+            var settings: any = {
                 viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
                 preserveAspectRatio: "none"
             };
@@ -166,7 +177,7 @@ export class GDIContext {
         }
     };
 
-    _storeObject(obj) {
+    _storeObject(obj: Obj) {
         var i = 0;
         while (this.objects[i.toString()] != null && i <= 65535)
             i++;
@@ -179,7 +190,7 @@ export class GDIContext {
         return i;
     };
 
-    _getObject(objIdx) {
+    _getObject(objIdx: number) {
         var obj = this.objects[objIdx.toString()];
         if (obj == null)
             Helper.log("[gdi] No object with handle " + objIdx);
@@ -193,7 +204,7 @@ export class GDIContext {
     };
 
 
-    _getSvgClipPathForRegion(region) {
+    _getSvgClipPathForRegion(region: Region) {
         for (var id in this._svgClipPaths) {
             var rgn = this._svgClipPaths[id];
             if (rgn == region)
@@ -224,7 +235,7 @@ export class GDIContext {
         return id;
     };
 
-    _getSvgPatternForBrush(brush) {
+    _getSvgPatternForBrush(brush: Brush) {
         for (var id in this._svgPatterns) {
             var pat = this._svgPatterns[id];
             if (pat == brush)
@@ -253,13 +264,13 @@ export class GDIContext {
         return id;
     };
 
-    _selectObject(obj) {
+    _selectObject(obj: Obj) {
         this.state.selected[obj.type] = obj;
         if (obj.type == "region")
             this.state._svgclipChanged = true;
     };
 
-    _deleteObject(objIdx) {
+    _deleteObject(objIdx: number) {
         var obj = this.objects[objIdx.toString()];
         if (obj != null) {
             for (var i = 0; i < this.statestack.length; i++) {
@@ -289,96 +300,96 @@ export class GDIContext {
         return this.state.clip;
     };
 
-    _todevX(val) {
+    _todevX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
     };
 
-    _todevY(val) {
+    _todevY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
     };
 
-    _todevW(val) {
+    _todevW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
     };
 
-    _todevH(val) {
+    _todevH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
     };
 
-    _tologicalX(val) {
+    _tologicalX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
     };
 
-    _tologicalY(val) {
+    _tologicalY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
     };
 
-    _tologicalW(val) {
+    _tologicalW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
     };
 
-    _tologicalH(val) {
+    _tologicalH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
     };
 
-    setMapMode(mode) {
+    setMapMode(mode: number) {
         Helper.log("[gdi] setMapMode: mode=" + mode);
         this.state.mapmode = mode;
         this.state._svggroup = null;
     };
 
-    setWindowOrg(x, y) {
+    setWindowOrg(x: number, y: number) {
         Helper.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
         this.state.wx = x;
         this.state.wy = y;
         this.state._svggroup = null;
     };
 
-    setWindowExt(x, y) {
+    setWindowExt(x: number, y: number) {
         Helper.log("[gdi] setWindowExt: x=" + x + " y=" + y);
         this.state.ww = x;
         this.state.wh = y;
         this.state._svggroup = null;
     };
 
-    offsetWindowOrg(offX, offY) {
+    offsetWindowOrg(offX: number, offY: number) {
         Helper.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
         this.state.wx += offX;
         this.state.wy += offY;
         this.state._svggroup = null;
     };
 
-    setViewportOrg(x, y) {
+    setViewportOrg(x: number, y: number) {
         Helper.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
         this.state.vx = x;
         this.state.vy = y;
         this.state._svggroup = null;
     };
 
-    setViewportExt(x, y) {
+    setViewportExt(x: number, y: number) {
         Helper.log("[gdi] setViewportExt: x=" + x + " y=" + y);
         this.state.vw = x;
         this.state.vh = y;
         this.state._svggroup = null;
     };
 
-    offsetViewportOrg(offX, offY) {
+    offsetViewportOrg(offX: number, offY: number) {
         Helper.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
         this.state.vx += offX;
         this.state.vy += offY;
@@ -393,7 +404,7 @@ export class GDIContext {
         this.state._svggroup = null;
     };
 
-    restoreDC(saved) {
+    restoreDC(saved: number) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
             if (saved == -1) {
@@ -410,15 +421,15 @@ export class GDIContext {
         this.state._svggroup = null;
     };
 
-    escape(func, blob, offset, count) {
+    escape(func: number, blob: Blob, offset: number, count: number) {
         Helper.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
     };
 
-    setStretchBltMode(stretchMode) {
+    setStretchBltMode(stretchMode: number) {
         Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
     };
 
-    stretchDib(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
+    stretchDib(srcX: number, srcY: number, srcW: number, srcH: number, dstX: number, dstY: number, dstW: number, dstH: number, rasterOp: number, colorUsage: number, dib: DIBitmap) {
         Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
@@ -433,7 +444,7 @@ export class GDIContext {
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
 
-    stretchDibBits(srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
+    stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number, dstX: number, dstY: number, dstW: number, dstH: number, rasterOp: number, dib: DIBitmap) {
         Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
@@ -448,7 +459,7 @@ export class GDIContext {
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
 
-    _applyOpts(opts, usePen, useBrush, useFont) {
+    _applyOpts(opts: any, usePen: boolean, useBrush: boolean, useFont: boolean) {
         if (opts == null)
             opts = {};
         if (usePen) {
@@ -522,7 +533,7 @@ export class GDIContext {
         return opts;
     };
 
-    rectangle(rect, rw, rh) {
+    rectangle(rect: Rect, rw: number, rh: number) {
         Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
@@ -537,7 +548,7 @@ export class GDIContext {
         this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
     };
 
-    textOut(x, y, text) {
+    textOut(x: number, y: number, text: string) {
         Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
@@ -563,7 +574,7 @@ export class GDIContext {
         this._svg.text(this.state._svggroup, x, y, text, opts);
     };
 
-    extTextOut(x, y, text, fwOpts, rect, dx) {
+    extTextOut(x: number, y: number, text: string, fwOpts: number, rect: Rect, dx: number[]) {
         Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
@@ -589,7 +600,7 @@ export class GDIContext {
         this._svg.text(this.state._svggroup, x, y, text, opts);
     };
 
-    lineTo(x, y) {
+    lineTo(x: number, y: number) {
         Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
         var toX = this._todevX(x);
         var toY = this._todevY(y);
@@ -607,13 +618,13 @@ export class GDIContext {
         this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
     }
 
-    moveTo(x, y) {
+    moveTo(x: number, y: number) {
         Helper.log("[gdi] moveTo: x=" + x + " y=" + y);
         this.state.x = x;
         this.state.y = y;
     }
 
-    polygon(points, first) {
+    polygon(points: PointS[], first: boolean) {
         Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
@@ -630,7 +641,7 @@ export class GDIContext {
         this._svg.polygon(this.state._svggroup, pts, opts);
     };
 
-    polyPolygon(polygons) {
+    polyPolygon(polygons: PointS[][]) {
         Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 
         var cnt = polygons.length;
@@ -638,7 +649,7 @@ export class GDIContext {
             this.polygon(polygons[i], i == 0);
     };
 
-    polyline(points) {
+    polyline(points: PointS[]) {
         Helper.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
@@ -651,7 +662,7 @@ export class GDIContext {
         this._svg.polyline(this.state._svggroup, pts, opts);
     };
 
-    ellipse(rect) {
+    ellipse(rect: Rect) {
         Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
@@ -665,78 +676,78 @@ export class GDIContext {
         this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
     };
 
-    excludeClipRect(rect) {
+    excludeClipRect(rect: Rect) {
         Helper.log("[gdi] excludeClipRect: rect=" + rect.toString());
         this._getClipRgn().subtract(rect);
     };
 
-    intersectClipRect(rect) {
+    intersectClipRect(rect: Rect) {
         Helper.log("[gdi] intersectClipRect: rect=" + rect.toString());
         this._getClipRgn().intersect(rect);
     };
 
-    offsetClipRgn(offX, offY) {
+    offsetClipRgn(offX: number, offY: number) {
         Helper.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
         this._getClipRgn().offset(offX, offY);
     };
 
-    setTextAlign(textAlignmentMode) {
+    setTextAlign(textAlignmentMode: number) {
         Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
         this.state.textalign = textAlignmentMode;
     };
 
-    setBkMode(bkMode) {
+    setBkMode(bkMode: number) {
         Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
         this.state.bkmode = bkMode;
     };
 
-    setTextColor(textColor) {
+    setTextColor(textColor: ColorRef) {
         Helper.log("[gdi] setTextColor: textColor=" + textColor.toString());
         this.state.textcolor = textColor;
     };
 
-    setBkColor(bkColor) {
+    setBkColor(bkColor: ColorRef) {
         Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
         this.state.bkcolor = bkColor;
         this.state._svgtextbkfilter = null;
     };
 
-    setPolyFillMode(polyFillMode) {
+    setPolyFillMode(polyFillMode: number) {
         Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
         this.state.polyfillmode = polyFillMode;
     };
 
-    createBrush(brush) {
+    createBrush(brush: Brush) {
         var idx = this._storeObject(brush);
         Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
     };
 
-    createFont(font) {
+    createFont(font: Font) {
         var idx = this._storeObject(font);
         Helper.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
     };
 
-    createPen(pen) {
+    createPen(pen: Pen) {
         var idx = this._storeObject(pen);
         Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
     };
 
-    createPalette(palette) {
+    createPalette(palette: Palette) {
         var idx = this._storeObject(palette);
         Helper.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
     };
 
-    createRegion(region) {
+    createRegion(region: Region) {
         var idx = this._storeObject(region);
         Helper.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
     };
 
-    createPatternBrush(patternBrush) {
+    createPatternBrush(patternBrush: Brush) {
         var idx = this._storeObject(patternBrush);
         Helper.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
     };
 
-    selectObject(objIdx, checkType) {
+    selectObject(objIdx: number, checkType: string) {
         var obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type == checkType)) {
             this._selectObject(obj);
@@ -746,7 +757,7 @@ export class GDIContext {
         }
     };
 
-    deleteObject(objIdx) {
+    deleteObject(objIdx: number) {
         var ret = this._deleteObject(objIdx);
         Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
     };

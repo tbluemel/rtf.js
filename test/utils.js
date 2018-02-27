@@ -92,6 +92,9 @@ exports.runRtfjs = function(path, source, callback) {
             };
             window.logger = function (error) {
                 console.error(error);
+            };
+            window.alert = function (message) {
+                console.error(message);
             }
         }});
 }

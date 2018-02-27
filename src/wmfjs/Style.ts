@@ -27,13 +27,14 @@ SOFTWARE.
 import { Helper } from './Helper';
 import { Obj, PointS } from './Primitives';
 import { Bitmap16, DIBitmap, PatternBitmap16 } from './Bitmap';
+import { Blob } from './Blob';
 
 export class ColorRef {
-    r;
-    g;
-    b;
+    r: number;
+    g: number;
+    b: number;
 
-    constructor(reader, r?, g?, b?) {
+    constructor(reader: Blob, r?: number, g?: number, b?: number) {
         if (reader != null) {
             this.r = reader.readUint8();
             this.g = reader.readUint8();
@@ -61,23 +62,23 @@ export class ColorRef {
 };
 
 export class Font extends Obj{
-    height;
-    width;
-    escapement;
-    orientation;
-    weight;
-    italic;
-    underline;
-    strikeout;
-    charset;
-    outprecision;
-    clipprecision;
-    quality;
-    pitch;
-    family;
-    facename;
+    height: number;
+    width: number;
+    escapement: number;
+    orientation: number;
+    weight: number;
+    italic: number;
+    underline: number;
+    strikeout: number;
+    charset: number;
+    outprecision: number;
+    clipprecision: number;
+    quality: number;
+    pitch: number;
+    family: number;
+    facename: string;
 
-    constructor(reader, copy) {
+    constructor(reader: Blob, copy: Font | number) {
         super("font");
         if (reader != null) {
             this.height = reader.readInt16();
@@ -96,10 +97,11 @@ export class Font extends Obj{
             this.pitch = pitchAndFamily & 0xf; // TODO: double check
             this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
 
-            var dataLength = copy;
+            var dataLength = <number>copy;
             var start = reader.pos;
             this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
         } else if (copy != null) {
+            copy = <Font> copy;
             this.height = copy.height;
             this.width = copy.width;
             this.escapement = copy.escapement;
@@ -146,17 +148,17 @@ export class Font extends Obj{
 };
 
 export class Brush extends Obj {
-    style;
-    color;
-    pattern;
-    colorusage;
-    dibpatternpt;
-    hatchstyle;
+    style: number;
+    color: ColorRef;
+    pattern: Bitmap16;
+    colorusage: number;
+    dibpatternpt: DIBitmap;
+    hatchstyle: number;
 
-    constructor(reader, copy, forceDibPattern?) {
+    constructor(reader: Blob, copy: Brush | number, forceDibPattern?: boolean | PatternBitmap16) {
         super("brush");
         if (reader != null) {
-            var dataLength = copy;
+            var dataLength = <number>copy;
             var start = reader.pos;
 
             if (forceDibPattern === true || forceDibPattern === false) {
@@ -186,7 +188,8 @@ export class Brush extends Obj {
                 this.style = Helper.GDI.BrushStyle.BS_PATTERN;
                 this.pattern = forceDibPattern;
             }
-        } else {
+        } else if(copy != null) {
+            copy = <Brush> copy;
             this.style = copy.style;
             switch (this.style) {
                 case Helper.GDI.BrushStyle.BS_SOLID:
@@ -229,16 +232,16 @@ export class Brush extends Obj {
 };
 
 export class Pen extends Obj{
-    style;
-    width;
-    color;
-    linecap;
-    join;
+    style: number;
+    width: PointS;
+    color: ColorRef;
+    linecap: number;
+    join: number;
 
-    constructor(reader, style?, width?, color?, linecap?, join?) {
+    constructor(reader: Blob, style?: number, width?: PointS, color?: ColorRef, linecap?: number, join?: number) {
         super("pen")
         if (reader != null) {
-            var style = reader.readUint16();
+            var style: number = reader.readUint16();
             this.style = style & 0xFF;
             this.width = new PointS(reader);
             this.color = new ColorRef(reader);
@@ -263,12 +266,12 @@ export class Pen extends Obj{
 };
 
 export class PaletteEntry {
-    flag;
-    b;
-    g;
-    r;
+    flag: number;
+    b: number;
+    g: number;
+    r: number;
 
-    constructor(reader, copy?) {
+    constructor(reader: Blob, copy?: PaletteEntry) {
         if (reader != null) {
             this.flag = reader.readUint8();
             this.b = reader.readUint8();
@@ -288,10 +291,10 @@ export class PaletteEntry {
 };
 
 export class Palette extends Obj{
-    start;
-    entries;
+    start: number;
+    entries: PaletteEntry[];
 
-    constructor(reader, copy?) {
+    constructor(reader: Blob, copy?: Palette) {
         super("palette");
         if (reader != null) {
             this.start = reader.readUint16();

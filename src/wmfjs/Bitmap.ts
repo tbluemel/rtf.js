@@ -25,24 +25,25 @@ SOFTWARE.
 */
 
 import { Helper, WMFJSError } from './Helper';
+import { Blob } from './Blob';
 
 export class BitmapBase {
     getWidth() {
-        throw WMFJSError("getWidth not implemented");
+        throw new WMFJSError("getWidth not implemented");
     }
 
     getHeight() {
-        throw WMFJSError("getHeight not implemented");
+        throw new WMFJSError("getHeight not implemented");
     }
 }
 
 export class BitmapCoreHeader {
-    width;
-    height;
-    planes;
-    bitcount;
+    width: number;
+    height: number;
+    planes: number;
+    bitcount: number;
 
-    constructor(reader, skipsize) {
+    constructor(reader: Blob, skipsize: boolean) {
         if (skipsize)
             reader.skip(4);
         this.width = reader.readUint16();
@@ -58,18 +59,18 @@ export class BitmapCoreHeader {
 }
 
 export class BitmapInfoHeader {
-    width;
-    height;
-    planes;
-    bitcount;
-    compression;
-    sizeimage;
-    xpelspermeter;
-    ypelspermeter;
-    clrused;
-    clrimportant;
+    width: number;
+    height: number;
+    planes: number;
+    bitcount: number;
+    compression: number;
+    sizeimage: number;
+    xpelspermeter: number;
+    ypelspermeter: number;
+    clrused: number;
+    clrimportant: number;
 
-    constructor(reader, skipsize) {
+    constructor(reader: Blob, skipsize: boolean) {
         if (skipsize)
             reader.skip(4);
         this.width = reader.readInt32();
@@ -94,13 +95,13 @@ export class BitmapInfoHeader {
 };
 
 export class BitmapInfo extends BitmapBase{
-    _reader;
-    _offset;
-    _usergb;
-    _infosize;
-    _header;
+    _reader: Blob;
+    _offset: number;
+    _usergb: boolean;
+    _infosize: number;
+    _header: BitmapCoreHeader | BitmapInfoHeader;
 
-    constructor(reader, usergb) {
+    constructor(reader: Blob, usergb: boolean) {
         super();
         this._reader = reader;
         this._offset = reader.pos;
@@ -113,7 +114,7 @@ export class BitmapInfo extends BitmapBase{
         }
         else {
             this._header = new BitmapInfoHeader(reader, false);
-            var masks = this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            var masks = (<BitmapInfoHeader>this._header).compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
                 this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             this._infosize += this._header.colors() * (usergb ? 4 : 2);
@@ -138,12 +139,12 @@ export class BitmapInfo extends BitmapBase{
 };
 
 export class DIBitmap extends BitmapBase {
-    _reader;
-    _offset;
-    _size;
-    _info;
+    _reader: Blob;
+    _offset: number;
+    _size: number;
+    _info: BitmapInfo;
 
-    constructor(reader, size) {
+    constructor(reader: Blob, size: number) {
         super();
         this._reader = reader;
         this._offset = reader.pos;
@@ -175,7 +176,7 @@ export class DIBitmap extends BitmapBase {
         var mime = "image/bmp";
         var header = this._info.header();
         var data;
-        if (header.compression != null) {
+        if (header instanceof  BitmapInfoHeader && header.compression != null) {
             switch (header.compression) {
                 case Helper.GDI.BitmapCompression.BI_JPEG:
                     mime = "data:image/jpeg";
@@ -203,20 +204,21 @@ export class DIBitmap extends BitmapBase {
 };
 
 export class Bitmap16 extends BitmapBase {
-    _reader;
-    _offset;
-    _size;
-    type;
-    width;
-    height;
-    widthBytes;
-    planes;
-    bitsPixel;
-    bitsOffset;
-    bitsSize;
-    constructor(reader, size) {
+    _reader: Blob;
+    _offset: number;
+    _size: number;
+    type: number;
+    width: number;
+    height: number;
+    widthBytes: number;
+    planes: number;
+    bitsPixel: number;
+    bitsOffset: number;
+    bitsSize: number;
+    constructor(reader: Blob, size: number | Bitmap16) {
         super()
         if (reader != null) {
+            size = <number> size;
             this._reader = reader;
             this._offset = reader.pos;
             this._size = size;
@@ -231,7 +233,7 @@ export class Bitmap16 extends BitmapBase {
             if (this.bitsSize > size - 10)
                 throw new WMFJSError("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
         } else {
-            var copy = size;
+            var copy = <Bitmap16>size;
             this._reader = copy._reader;
             this._offset = copy._offset;
             this._size = copy._size;
@@ -260,14 +262,14 @@ export class Bitmap16 extends BitmapBase {
 };
 
 export class PatternBitmap16 extends Bitmap16 {
-    constructor(reader, size) {
+    constructor(reader: Blob, size: number | Bitmap16) {
         super(reader, size);
         if (reader != null) {
             this.bitsOffset += 22; // skip bits (4 bytes) + reserved (18 bytes)
         }
     }
 
-    clone() {
+    clone(): PatternBitmap16 {
         return new PatternBitmap16(null, this);
     };
 };

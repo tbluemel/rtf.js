@@ -25,12 +25,13 @@ SOFTWARE.
 */
 
 import { WMFJSError } from "./Helper";
+import { Blob } from './Blob';
 
 export class PointS {
-    x;
-    y;
+    x: number;
+    y: number;
 
-    constructor(reader, x?, y?) {
+    constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
             this.x = reader.readInt16();
             this.y = reader.readInt16();
@@ -50,12 +51,12 @@ export class PointS {
 };
 
 export class Rect {
-    bottom;
-    right;
-    top;
-    left;
+    bottom: number;
+    right: number;
+    top: number;
+    left: number;
 
-    constructor(reader, left?, top?, right?, bottom?) {
+    constructor(reader: Blob, left?: number, top?: number, right?: number, bottom?: number) {
         if (reader != null) {
             this.bottom = reader.readInt16();
             this.right = reader.readInt16();
@@ -81,7 +82,7 @@ export class Rect {
         return this.left >= this.right || this.top >= this.bottom;
     };
 
-    intersect(rect) {
+    intersect(rect: Rect) {
         if (this.empty() || rect.empty())
             return null;
         if (this.left >= rect.right || this.top >= rect.bottom ||
@@ -93,13 +94,13 @@ export class Rect {
 };
 
 export class Obj {
-    type;
+    type: string;
 
-    constructor(type) {
+    constructor(type: string) {
         this.type = type;
     }
 
-    clone() {
+    clone(): Obj {
         throw new WMFJSError("clone not implemented");
     }
 

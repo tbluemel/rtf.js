@@ -25,11 +25,17 @@ SOFTWARE.
 
 */
 
-export function EMFJSError(message) {
+interface EMFJSError {
+    name: string;
+    message: string;
+    stack: string;
+}
+
+export const EMFJSError = function(message: string) {
     this.name = 'EMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+} as any as { new (message: string): EMFJSError; }
 EMFJSError.prototype = new Error;
 
 let isLoggingEnabled = true;

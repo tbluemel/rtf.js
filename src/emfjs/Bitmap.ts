@@ -30,11 +30,11 @@ import { WMFJSError } from '../wmfjs/Helper';
 
 export class BitmapBase {
     getWidth() {
-        throw WMFJSError("getWidth not implemented");
+        throw new WMFJSError("getWidth not implemented");
     }
 
     getHeight() {
-        throw WMFJSError("getHeight not implemented");
+        throw new WMFJSError("getHeight not implemented");
     }
 }
 export class BitmapCoreHeader {

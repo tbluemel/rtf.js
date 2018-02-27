@@ -30,11 +30,12 @@ import { PointS, Rect } from './Primitives';
 import { Region } from './Region';
 import { DIBitmap, PatternBitmap16 } from './Bitmap';
 import { Brush, ColorRef, Font, Palette, Pen } from './Style';
+import { GDIContext } from './GDIContext';
 
 export class WMFRecords {
-    _records;
+    _records: ((gdi: GDIContext) => void)[];
 
-    constructor(reader, first) {
+    constructor(reader: Blob, first: number) {
         this._records = [];
 
         let all = false;
@@ -332,7 +333,7 @@ export class WMFRecords {
                         const text = reader.readString(len);
                         reader.skip(len % 2);
 
-                        const dx = [];
+                        const dx: number[] = [];
                         if (hasDx) {
                             for (let i = 0; i < text.length; i++) {
                                 dx.push(reader.readInt16());
@@ -361,7 +362,7 @@ export class WMFRecords {
                 }
                 case Helper.GDI.RecordType.META_POLYGON: {
                     let cnt = reader.readInt16();
-                    const points = [];
+                    const points: PointS[] = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
@@ -384,7 +385,7 @@ export class WMFRecords {
                     for (let i = 0; i < cnt; i++)
                         polygonsPtCnts.push(reader.readUint16());
 
-                    const polygons = [];
+                    const polygons: PointS[][] = [];
                     for (let i = 0; i < cnt; i++) {
                         const ptCnt = polygonsPtCnts[i];
 
@@ -400,7 +401,7 @@ export class WMFRecords {
                 }
                 case Helper.GDI.RecordType.META_POLYLINE: {
                     let cnt = reader.readInt16();
-                    const points = [];
+                    const points: PointS[] = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
@@ -478,7 +479,8 @@ export class WMFRecords {
                 default: {
                     let recordName = "UNKNOWN";
                     for (const name in Helper.GDI.RecordType) {
-                        if (Helper.GDI.RecordType[name] == type) {
+                        let recordTypes: any = Helper.GDI.RecordType;
+                        if (recordTypes[name] == type) {
                             recordName = name;
                             break;
                         }
@@ -496,7 +498,7 @@ export class WMFRecords {
             throw new WMFJSError("Could not read all records");
     }
 
-    play(gdi) {
+    play(gdi: GDIContext) {
         const len = this._records.length;
         for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);

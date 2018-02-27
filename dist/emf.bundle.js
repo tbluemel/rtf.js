@@ -30,11 +30,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-function EMFJSError(message) {
+var EMFJSError = function (message) {
     this.name = 'EMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+};
 EMFJSError.prototype = new Error;
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
@@ -636,11 +636,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-function WMFJSError(message) {
+var WMFJSError = function (message) {
     this.name = 'WMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+};
 WMFJSError.prototype = new Error;
 
 /*
@@ -683,10 +683,10 @@ var BitmapBase = /** @class */ (function () {
     function BitmapBase() {
     }
     BitmapBase.prototype.getWidth = function () {
-        throw WMFJSError("getWidth not implemented");
+        throw new WMFJSError("getWidth not implemented");
     };
     BitmapBase.prototype.getHeight = function () {
-        throw WMFJSError("getHeight not implemented");
+        throw new WMFJSError("getHeight not implemented");
     };
     return BitmapBase;
 }());

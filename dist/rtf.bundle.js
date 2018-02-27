@@ -29,11 +29,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-function RTFJSError(message) {
+var RTFJSError = function (message) {
     this.name = 'RTFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+};
 RTFJSError.prototype = new Error;
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {

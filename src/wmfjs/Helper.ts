@@ -24,11 +24,17 @@ SOFTWARE.
 
 */
 
-export function WMFJSError(message) {
+interface WMFJSError {
+    name: string;
+    message: string;
+    stack: string;
+}
+
+export const WMFJSError = function(message: string) {
     this.name = 'WMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+} as any as { new (message: string): WMFJSError; }
 WMFJSError.prototype = new Error;
 
 let isLoggingEnabled = true;
@@ -37,7 +43,7 @@ export function loggingEnabled(enabled: boolean){
 }
 
 export const Helper = {
-    log: function(message){
+    log: function(message: string){
         if(isLoggingEnabled) {
             console.log(message);
         }
@@ -273,16 +279,16 @@ export const Helper = {
         },
     },
     _uniqueId: 0,
-    _makeUniqueId: function(prefix) {
+    _makeUniqueId: function(prefix: string) {
         return "wmfjs_" + prefix + (this._uniqueId++);
     },
-    _writeUint32Val: function(uint8arr, pos, val) {
+    _writeUint32Val: function(uint8arr: Uint8Array, pos: number, val: number) {
         uint8arr[pos++] = val & 0xff;
         uint8arr[pos++] = (val >>> 8) & 0xff;
         uint8arr[pos++] = (val >>> 16) & 0xff;
         uint8arr[pos++] = (val >>> 24) & 0xff;
     },
-    _blobToBinary: function(blob) {
+    _blobToBinary: function(blob: Uint8Array) {
         var ret = "";
         var len = blob.length;
         for (var i = 0; i < len; i++)

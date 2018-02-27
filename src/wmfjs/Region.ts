@@ -26,13 +26,14 @@ SOFTWARE.
 
 import { Helper, WMFJSError } from './Helper';
 import { Obj, Rect } from './Primitives';
+import { Blob } from './Blob';
 
 export class Region extends Obj{
-    bounds;
-    scans;
-    complexity;
+    bounds: Rect;
+    scans: Scan[];
+    complexity: number;
 
-    constructor(reader, copy?) {
+    constructor(reader: Blob, copy?: Region) {
         super("region");
         if (reader != null) {
             reader.skip(2);
@@ -103,7 +104,7 @@ export class Region extends Obj{
         }
     };
 
-    subtract(rect) {
+    subtract(rect: Rect) {
         Helper.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
 
         if (this.bounds != null) {
@@ -113,8 +114,9 @@ export class Region extends Obj{
                     // We currently have a simple region and there is some kind of an overlap.
                     // We need to create scanlines now.  Simplest method is to fake one scan line
                     // that equals the simple region and re-use the same logic as for complex regions
-                    this.scans = new Scan(null, null, this.bounds.top, this.bounds.bottom,
-                        [{left: this.bounds.left, right: this.bounds.right}]);
+                    this.scans = [];
+                    this.scans.push( new Scan(null, null, this.bounds.top, this.bounds.bottom,
+                        [{left: this.bounds.left, right: this.bounds.right}]));
                     this.complexity = 2;
                 }
 
@@ -192,12 +194,12 @@ export class Region extends Obj{
                         if (i == len - 1)
                             bottom = scan.bottom;
 
-                        var slen = scan.scanline.length;
+                        var slen = scan.scanlines.length;
                         if (slen > 0) {
-                            var scanline = scan.scanline[0];
+                            var scanline = scan.scanlines[0];
                             if (left == null || scanline.left < left)
                                 left = scanline.left;
-                            scanline = scan.scanline[slen - 1];
+                            scanline = scan.scanlines[slen - 1];
                             if (right == null || scanline.right > right)
                                 right = scanline.right;
                         }
@@ -221,7 +223,7 @@ export class Region extends Obj{
         Helper.log("[wmf] Region subtraction -> " + this.toString());
     };
 
-    intersect(rect) {
+    intersect(rect: Rect) {
         Helper.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
         if (this.bounds != null) {
             this.bounds = this.bounds.intersect(rect);
@@ -278,7 +280,7 @@ export class Region extends Obj{
         Helper.log("[wmf] Region intersection -> " + this.toString());
     };
 
-    offset(offX, offY) {
+    offset(offX: number, offY: number) {
         if (this.bounds != null) {
             this.bounds.left += offX;
             this.bounds.top += offY;
@@ -304,7 +306,7 @@ export class Region extends Obj{
     };
 };
 
-export function CreateSimpleRegion (left, top, right, bottom) {
+export function CreateSimpleRegion (left: number, top: number, right: number, bottom: number) {
     var rgn = new Region(null, null);
     rgn.bounds = new Rect(null, left, top, right, bottom);
     rgn._updateComplexity();
@@ -313,11 +315,11 @@ export function CreateSimpleRegion (left, top, right, bottom) {
 
 
 export class Scan {
-    top;
-    bottom;
-    scanlines;
+    top: number;
+    bottom: number;
+    scanlines: {left: number, right: number}[];
 
-    constructor(reader, copy?, top?, bottom?, scanlines?) {
+    constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number, scanlines?: {left: number, right: number}[]) {
         if (reader != null) {
             var cnt = reader.readUint16();
             this.top = reader.readUint16();
@@ -348,7 +350,7 @@ export class Scan {
         return new Scan(null, this);
     };
 
-    subtract(left, right) {
+    subtract(left: number, right: number) {
         var i;
 
         // Keep everything on the left side
@@ -391,7 +393,7 @@ export class Scan {
         return this.scanlines.length > 0;
     };
 
-    intersect(left, right) {
+    intersect(left: number, right: number) {
         // Get rid of anything that falls entirely outside to the left
         for (var i = 0; i < this.scanlines.length; i++) {
             var scanline = this.scanlines[i];

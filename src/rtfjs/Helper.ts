@@ -24,11 +24,17 @@ SOFTWARE.
 
 */
 
-export function RTFJSError(message) {
+interface RTFJSError {
+    name: string;
+    message: string;
+    stack: string;
+}
+
+export const RTFJSError = function(message: string) {
     this.name = 'RTFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+} as any as { new (message: string): RTFJSError; }
 RTFJSError.prototype = new Error;
 
 let isLoggingEnabled = true;

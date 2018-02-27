@@ -29,11 +29,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-function WMFJSError(message) {
+var WMFJSError = function (message) {
     this.name = 'WMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;
-}
+};
 WMFJSError.prototype = new Error;
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
@@ -506,7 +506,8 @@ var Region = /** @class */ (function (_super) {
                     // We currently have a simple region and there is some kind of an overlap.
                     // We need to create scanlines now.  Simplest method is to fake one scan line
                     // that equals the simple region and re-use the same logic as for complex regions
-                    this.scans = new Scan(null, null, this.bounds.top, this.bounds.bottom, [{ left: this.bounds.left, right: this.bounds.right }]);
+                    this.scans = [];
+                    this.scans.push(new Scan(null, null, this.bounds.top, this.bounds.bottom, [{ left: this.bounds.left, right: this.bounds.right }]));
                     this.complexity = 2;
                 }
                 // We (now) have a complex region.  First we skip any scans that are entirely above rect.top
@@ -580,12 +581,12 @@ var Region = /** @class */ (function (_super) {
                             top = scan.top;
                         if (i == len - 1)
                             bottom = scan.bottom;
-                        var slen = scan.scanline.length;
+                        var slen = scan.scanlines.length;
                         if (slen > 0) {
-                            var scanline = scan.scanline[0];
+                            var scanline = scan.scanlines[0];
                             if (left == null || scanline.left < left)
                                 left = scanline.left;
-                            scanline = scan.scanline[slen - 1];
+                            scanline = scan.scanlines[slen - 1];
                             if (right == null || scanline.right > right)
                                 right = scanline.right;
                         }
@@ -839,10 +840,10 @@ var BitmapBase = /** @class */ (function () {
     function BitmapBase() {
     }
     BitmapBase.prototype.getWidth = function () {
-        throw WMFJSError("getWidth not implemented");
+        throw new WMFJSError("getWidth not implemented");
     };
     BitmapBase.prototype.getHeight = function () {
-        throw WMFJSError("getHeight not implemented");
+        throw new WMFJSError("getHeight not implemented");
     };
     return BitmapBase;
 }());
@@ -950,7 +951,7 @@ var DIBitmap = /** @class */ (function (_super) {
         var mime = "image/bmp";
         var header = this._info.header();
         var data;
-        if (header.compression != null) {
+        if (header instanceof BitmapInfoHeader && header.compression != null) {
             switch (header.compression) {
                 case Helper.GDI.BitmapCompression.BI_JPEG:
                     mime = "data:image/jpeg";
@@ -981,6 +982,7 @@ var Bitmap16 = /** @class */ (function (_super) {
     function Bitmap16(reader, size) {
         var _this = _super.call(this) || this;
         if (reader != null) {
+            size = size;
             _this._reader = reader;
             _this._offset = reader.pos;
             _this._size = size;
@@ -1123,6 +1125,7 @@ var Font = /** @class */ (function (_super) {
             _this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
         }
         else if (copy != null) {
+            copy = copy;
             _this.height = copy.height;
             _this.width = copy.width;
             _this.escapement = copy.escapement;
@@ -1204,7 +1207,8 @@ var Brush = /** @class */ (function (_super) {
                 _this.pattern = forceDibPattern;
             }
         }
-        else {
+        else if (copy != null) {
+            copy = copy;
             _this.style = copy.style;
             switch (_this.style) {
                 case Helper.GDI.BrushStyle.BS_SOLID:
@@ -1416,7 +1420,7 @@ var GDIContext = /** @class */ (function () {
         this._svgPatterns = {};
         this._svgClipPaths = {};
         this.defObjects = {
-            brush: new Brush(null, Helper.GDI.BrushStyle.BS_SOLID, new ColorRef(null, 0, 0, 0)),
+            brush: new Brush(null, null),
             pen: new Pen(null, Helper.GDI.PenStyle.PS_SOLID, new PointS(null, 1, 1), new ColorRef(null, 0, 0, 0), 0, 0),
             font: new Font(null, null),
             palette: null,
@@ -2541,7 +2545,8 @@ var WMFRecords = /** @class */ (function () {
                 default: {
                     var recordName = "UNKNOWN";
                     for (var name_1 in Helper.GDI.RecordType) {
-                        if (Helper.GDI.RecordType[name_1] == type) {
+                        var recordTypes = Helper.GDI.RecordType;
+                        if (recordTypes[name_1] == type) {
                             recordName = name_1;
                             break;
                         }
@@ -2597,6 +2602,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+var RendererSettings = /** @class */ (function () {
+    function RendererSettings() {
+    }
+    return RendererSettings;
+}());
 var Renderer = /** @class */ (function () {
     function Renderer(blob) {
         this.parse(blob);
@@ -2691,7 +2701,6 @@ var WMF = /** @class */ (function () {
         this._version = version;
         this._hdrsize = hdrsize;
         this._placable = placable;
-        this._img = null;
         this._records = new WMFRecords(reader, this._hdrsize);
     }
     WMF.prototype.render = function (gdi) {
@@ -2728,6 +2737,7 @@ SOFTWARE.
 
 exports.Error = WMFJSError;
 exports.loggingEnabled = loggingEnabled;
+exports.RendererSettings = RendererSettings;
 exports.Renderer = Renderer;
 exports.WMFRect16 = WMFRect16;
 exports.WMFPlacable = WMFPlacable;
