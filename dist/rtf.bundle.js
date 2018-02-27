@@ -646,21 +646,20 @@ var RenderPap = /** @class */ (function () {
         this._pap = pap;
     }
     RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        var pap = this._pap;
         if (ismaindiv) {
-            if (pap.spacebefore != 0)
-                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
+            if (this._pap.spacebefore != 0)
+                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
             else
                 el.css("margin-top", "");
-            if (pap.spaceafter != 0)
-                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
+            if (this._pap.spaceafter != 0)
+                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
             else
                 el.css("margin-bottom", "");
             if (rchp != null)
                 el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
         }
         else {
-            switch (pap.justification) {
+            switch (this._pap.justification) {
                 case Helper.JUSTIFICATION.LEFT:
                     el.css("text-align", "left");
                     break;
@@ -7589,29 +7588,28 @@ var RenderChp = /** @class */ (function () {
         this._chp = chp;
     }
     RenderChp.prototype.apply = function (doc, el) {
-        var chp = this._chp;
-        if (chp.bold)
+        if (this._chp.bold)
             el.css("font-weight", "bold");
-        if (chp.italic)
+        if (this._chp.italic)
             el.css("font-style", "italic");
-        if (chp.hasOwnProperty("fontfamily") && doc._fonts[chp.fontfamily]) {
-            var fontFamily = doc._fonts[chp.fontfamily].fontname.replace(";", "");
+        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
+            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
             if (fontFamily !== "Symbol")
                 el.css("font-family", fontFamily);
         }
         var deco = [];
-        if (chp.underline != Helper.UNDERLINE.NONE)
+        if (this._chp.underline != Helper.UNDERLINE.NONE)
             deco.push("underline");
-        if (chp.strikethrough || chp.dblstrikethrough)
+        if (this._chp.strikethrough || this._chp.dblstrikethrough)
             deco.push("line-through");
         if (deco.length > 0)
             el.css("text-decoration", deco.join(" "));
-        if (chp.colorindex != 0) {
-            var color = doc._lookupColor(chp.colorindex);
+        if (this._chp.colorindex != 0) {
+            var color = doc._lookupColor(this._chp.colorindex);
             if (color != null)
                 el.css("color", Helper._colorToStr(color));
         }
-        el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
+        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
     };
     return RenderChp;
 }());

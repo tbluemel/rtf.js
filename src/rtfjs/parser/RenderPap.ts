@@ -25,29 +25,31 @@ SOFTWARE.
 */
 
 import { Helper } from '../Helper';
+import { Document } from '../Document';
+import { Pap } from './Containers';
+import { RenderChp } from './RenderChp';
 
 export class RenderPap {
-    _pap;
+    _pap: Pap;
 
-    constructor(pap) {
+    constructor(pap: Pap) {
         this._pap = pap;
     }
 
-    apply(doc, el, rchp, ismaindiv) {
-        var pap = this._pap;
+    apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
         if (ismaindiv) {
-            if (pap.spacebefore != 0)
-                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
+            if (this._pap.spacebefore != 0)
+                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
             else
                 el.css("margin-top", "");
-            if (pap.spaceafter != 0)
-                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
+            if (this._pap.spaceafter != 0)
+                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
             else
                 el.css("margin-bottom", "");
             if (rchp != null)
                 el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
         } else {
-            switch (pap.justification) {
+            switch (this._pap.justification) {
                 case Helper.JUSTIFICATION.LEFT:
                     el.css("text-align", "left");
                     break;
