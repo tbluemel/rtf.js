@@ -26,12 +26,13 @@ SOFTWARE.
 */
 
 import { EMFJSError } from './Helper';
+import { Blob } from './Blob';
 
 export class PointS {
-    x;
-    y;
+    x: number;
+    y: number;
 
-    constructor(reader, x?, y?) {
+    constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
             this.x = reader.readInt16();
             this.y = reader.readInt16();
@@ -51,10 +52,10 @@ export class PointS {
 };
 
 export class PointL {
-    x;
-    y;
+    x: number;
+    y: number;
 
-    constructor(reader, x?, y?) {
+    constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
             this.x = reader.readInt32();
             this.y = reader.readInt32();
@@ -74,12 +75,12 @@ export class PointL {
 };
 
 export class RectL {
-    left;
-    top;
-    right;
-    bottom;
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
 
-    constructor(reader, left?, top?, right?, bottom?) {
+    constructor(reader: Blob, left?: number, top?: number, right?: number, bottom?: number) {
         if (reader != null) {
             this.left = reader.readInt32();
             this.top = reader.readInt32();
@@ -105,7 +106,7 @@ export class RectL {
         return this.left >= this.right || this.top >= this.bottom;
     };
 
-    intersect(rectL) {
+    intersect(rectL: RectL) {
         if (this.empty() || rectL.empty())
             return null;
         if (this.left >= rectL.right || this.top >= rectL.bottom ||
@@ -117,12 +118,12 @@ export class RectL {
 };
 
 export class SizeL {
-    cx;
-    cy;
+    cx: number;
+    cy: number;
 
-    constructor(reader, cx?, cy?) {
+    constructor(reader: Blob, cx?: number, cy?: number) {
         if (reader != null) {
-            this.cx = reader.readUin32();
+            this.cx = reader.readUint32();
             this.cy = reader.readUint32();
         } else {
             this.cx = cx;
@@ -140,13 +141,13 @@ export class SizeL {
 }
 
 export class Obj {
-    type;
+    type: string;
 
-    constructor(type) {
+    constructor(type: string) {
         this.type = type;
     }
 
-    clone() {
+    clone(): Obj {
         throw new EMFJSError("clone not implemented");
     }
 

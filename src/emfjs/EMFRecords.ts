@@ -29,21 +29,23 @@ import { Helper, EMFJSError } from './Helper';
 import { Brush, ColorRef, Pen } from './Style';
 import { PointS, PointL, RectL, SizeL } from './Primitives';
 import { Region } from './Region';
+import { Blob } from './Blob';
+import { GDIContext } from './GDIContext';
 
 export class EmfHeader {
-    size;
-    bounds;
-    frame;
-    nPalEntries;
-    refDevCx;
-    refDevCy;
-    refDevCxMm;
-    refDevCyMm;
-    description;
-    displayDevCxUm;
-    displayDevCyUm;
+    size: number;
+    bounds: RectL;
+    frame: RectL;
+    nPalEntries: number;
+    refDevCx: number;
+    refDevCy: number;
+    refDevCxMm: number;
+    refDevCyMm: number;
+    description: string;
+    displayDevCxUm: number;
+    displayDevCyUm: number;
 
-    constructor(reader, headerSize) {
+    constructor(reader: Blob, headerSize: number) {
         const recordStart = reader.pos - 8;
 
         this.size = headerSize;
@@ -114,10 +116,10 @@ export class EmfHeader {
 }
 
 export class EMFRecords {
-    _records;
-    _header;
+    _records: ((gdi: GDIContext) => void)[];
+    _header: EmfHeader;
 
-    constructor(reader, first) {
+    constructor(reader: Blob, first: number) {
         this._records = [];
 
         this._header = new EmfHeader(reader, first);
@@ -202,8 +204,7 @@ export class EMFRecords {
                 }
                 case Helper.GDI.RecordType.EMR_CREATEBRUSHINDIRECT: {
                     const index = reader.readUint32();
-                    const datalength = size - (reader.pos - curpos);
-                    const brush = new Brush(reader, datalength);
+                    const brush = new Brush(reader);
                     this._records.push(gdi => {
                         gdi.createBrush(index, brush);
                     });
@@ -288,7 +289,7 @@ export class EMFRecords {
                     const isSmall = (type == Helper.GDI.RecordType.EMR_POLYGON16);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
-                    const points = [];
+                    const points: PointS[] | PointL[] = [];
                     while (cnt > 0) {
                         points.push(isSmall ? new PointS(reader) : new PointL(reader));
                         cnt--;
@@ -308,7 +309,7 @@ export class EMFRecords {
                     for (let i = 0; i < polyCnt; i++)
                         polygonsPtCnts.push(reader.readUint32());
 
-                    const polygons = [];
+                    const polygons: PointS[][] | PointL[][] = [];
                     for (let i = 0; i < polyCnt; i++) {
                         const ptCnt = polygonsPtCnts[i];
 
@@ -334,7 +335,7 @@ export class EMFRecords {
                     const isLineTo = (type == Helper.GDI.RecordType.EMR_POLYLINETO16);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
-                    const points = [];
+                    const points: PointS[] = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
@@ -349,7 +350,7 @@ export class EMFRecords {
                     const isPolyBezierTo = (type == Helper.GDI.RecordType.EMR_POLYBEZIERTO);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
-                    const points = [];
+                    const points: PointL[] = [];
                     while (cnt > 0) {
                         points.push(new PointL(reader));
                         cnt--;
@@ -376,7 +377,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_POLYBEZIERTO16: {
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
-                    const points = [];
+                    const points: PointS[] = [];
                     while (cnt > 0) {
                         points.push(new PointS(reader));
                         cnt--;
@@ -553,7 +554,8 @@ export class EMFRecords {
                 default: {
                     let recordName = "UNKNOWN";
                     for (let name in Helper.GDI.RecordType) {
-                        if (Helper.GDI.RecordType[name] == type) {
+                        let recordTypes: any = Helper.GDI.RecordType;
+                        if (recordTypes[name] == type) {
                             recordName = name;
                             break;
                         }
@@ -571,7 +573,7 @@ export class EMFRecords {
             throw new EMFJSError("Could not read all records");
     }
 
-    play(gdi) {
+    play(gdi: GDIContext) {
         const len = this._records.length;
         for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);

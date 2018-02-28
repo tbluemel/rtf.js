@@ -28,13 +28,14 @@ SOFTWARE.
 import { Obj, PointL } from './Primitives';
 import { Helper } from './Helper';
 import { DIBitmap } from './Bitmap';
+import { Blob } from './Blob';
 
 export  class ColorRef {
-    r;
-    g;
-    b;
+    r: number;
+    g: number;
+    b: number;
 
-    constructor(reader, r?, g?, b?) {
+    constructor(reader: Blob, r?: number, g?: number, b?: number) {
         if (reader != null) {
             this.r = reader.readUint8();
             this.g = reader.readUint8();
@@ -62,23 +63,23 @@ export  class ColorRef {
 };
 
 export class Font extends Obj{
-    height;
-    width;
-    escapement;
-    orientation;
-    weight;
-    italic;
-    underline;
-    strikeout;
-    charset;
-    outprecision;
-    clipprecision;
-    quality;
-    pitch;
-    family;
-    facename;
+    height: number;
+    width: number;
+    escapement: number;
+    orientation: number;
+    weight: number;
+    italic: number;
+    underline: number;
+    strikeout: number;
+    charset: number;
+    outprecision: number;
+    clipprecision: number;
+    quality: number;
+    pitch: number;
+    family: number;
+    facename: string;
 
-    constructor(reader, copy) {
+    constructor(reader: Blob, copy: Font | number) {
         super("font");
         if (reader != null) {
             this.height = reader.readInt32();
@@ -97,10 +98,11 @@ export class Font extends Obj{
             this.pitch = pitchAndFamily & 0xf; // TODO: double check
             this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
 
-            var dataLength = copy;
+            var dataLength = <number>copy;
             var start = reader.pos;
             this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
         } else if (copy != null) {
+            copy = <Font> copy;
             this.height = copy.height;
             this.width = copy.width;
             this.escapement = copy.escapement;
@@ -147,14 +149,13 @@ export class Font extends Obj{
 };
 
 export class Brush extends Obj{
-    style;
-    color;
-    pattern;
-    dibpatternpt;
-    hatchstyle;
-    colorusage;
+    style: number;
+    color: ColorRef;
+    pattern: DIBitmap;
+    dibpatternpt: DIBitmap;
+    hatchstyle: number;
 
-    constructor(reader, copy?, bitmapInfo?) {
+    constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap, dibpatternpt?: DIBitmap, hatchstyle?: number}) {
         super("brush");
         if (reader != null) {
             var start = reader.pos;
@@ -165,10 +166,10 @@ export class Brush extends Obj{
                     this.color = new ColorRef(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_PATTERN:
-                    this.pattern = new DIBitmap(reader, bitmapInfo);
+                    this.pattern = new DIBitmap(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    this.dibpatternpt = new DIBitmap(reader, bitmapInfo);
+                    this.dibpatternpt = new DIBitmap(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_HATCHED:
                     this.color = new ColorRef(reader);
@@ -184,10 +185,9 @@ export class Brush extends Obj{
                     this.color = copy.color.clone();
                     break;
                 case Helper.GDI.BrushStyle.BS_PATTERN:
-                    this.pattern = copy.pattern.clone();
+                    this.pattern = copy.pattern;
                     break;
                 case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    this.colorusage = copy.colorusage;
                     this.dibpatternpt = copy.dibpatternpt;
                     break;
                 case Helper.GDI.BrushStyle.BS_HATCHED:
@@ -208,9 +208,6 @@ export class Brush extends Obj{
             case Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
                 break;
-            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                ret += ", colorusage: " + this.colorusage;
-                break;
             case Helper.GDI.BrushStyle.BS_HATCHED:
                 ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
                 break;
@@ -220,12 +217,13 @@ export class Brush extends Obj{
 };
 
 export class Pen extends Obj{
-    style;
-    width;
-    brush;
-    color;
+    style: number | {header: {off: number, size: number}, data: {off: number, size: number}};
+    width: number;
+    brush: Brush;
+    color: ColorRef;
 
-    constructor(reader, style?, width?, color?, brush?) {
+    constructor(reader: Blob, style?: number | {header: {off: number, size: number}, data: {off: number, size: number}},
+                width?: number, color?: ColorRef, brush?: Brush) {
         super("pen");
         if (reader != null) {
             if (style != null) {

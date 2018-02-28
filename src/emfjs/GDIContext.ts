@@ -25,15 +25,24 @@ SOFTWARE.
 
 */
 
-import { Obj } from './Primitives';
+import { Obj, PointL, PointS, RectL } from './Primitives';
 import { Helper, EMFJSError } from './Helper';
 import { Brush, ColorRef, Font, Pen } from './Style';
-import { CreateSimpleRegion } from './Region';
+import { CreateSimpleRegion, Region } from './Region';
+
+interface SelectedStyle {
+    brush?: Brush;
+    pen?: Pen;
+    font?: Font;
+    region?: Region;
+    path?: Path;
+    [key: string]: Obj;
+}
 
 export class Path extends Obj{
-    svgPath;
+    svgPath: any;
 
-    constructor(svgPath, copy?) {
+    constructor(svgPath: any, copy?: Path) {
         super("path");
         if (svgPath != null) {
             this.svgPath = svgPath;
@@ -51,18 +60,18 @@ export class Path extends Obj{
     };
 }
 
-function createStockObjects() {
+function createStockObjects(): {[key: string]: Obj} {
     // Create global stock objects
-    var createSolidBrush = function(r, g, b) {
+    var createSolidBrush = function(r: number, g: number, b: number) {
         return new Brush(null, {
             style: Helper.GDI.BrushStyle.BS_SOLID,
             color: new ColorRef(null, r, g, b)
         });
     }
-    var createSolidPen = function(r, g, b) {
+    var createSolidPen = function(r: number, g: number, b: number) {
         return new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, r, g, b), null);
     }
-    var stockObjs = {
+    var stockObjs: {[key: string]: Obj} = {
         WHITE_BRUSH: createSolidBrush(255, 255, 255),
         LTGRAY_BRUSH: createSolidBrush(212, 208, 200),
         GRAY_BRUSH: createSolidBrush(128, 128, 128),
@@ -84,47 +93,48 @@ function createStockObjects() {
         DEFAULT_GUI_FONT: null, // TODO
     };
 
-    var objs = {};
+    var objs: {[key: string]: Obj} = {};
     for (var t in stockObjs) {
-        var idx = Helper.GDI.StockObject[t] - 0x80000000;
+        let stockObjects: {[key: string]: number} = <{[key: string]: number}>Helper.GDI.StockObject;
+        var idx = stockObjects[t] - 0x80000000;
         objs[idx.toString()] = stockObjs[t];
     }
     return objs;
 };
-export const _StockObjects = createStockObjects;
+
+export const _StockObjects = createStockObjects();
 
 export class GDIContextState {
-    _svggroup;
-    _svgclipChanged;
-    _svgtextbkfilter;
-    Id;
-    mapmode;
-    stretchmode;
-    textalign;
-    bkmode;
-    textcolor;
-    bkcolor;
-    polyfillmode;
-    miterlimit;
-    wx;
-    wy;
-    ww;
-    wh;
-    vx;
-    vy;
-    vw;
-    vh;
-    x;
-    y;
-    nextbrx;
-    nextbry;
-    brx;
-    bry;
-    clip;
-    ownclip;
-    selected;
+    _svggroup: any;
+    _svgclipChanged: boolean;
+    _svgtextbkfilter: any;
+    mapmode: number;
+    stretchmode: number;
+    textalign: number;
+    bkmode: number;
+    textcolor: ColorRef;
+    bkcolor: ColorRef;
+    polyfillmode: number;
+    miterlimit: number;
+    wx: number;
+    wy: number;
+    ww: number;
+    wh: number;
+    vx: number;
+    vy: number;
+    vw: number;
+    vh: number;
+    x: number;
+    y: number;
+    nextbrx: number;
+    nextbry: number;
+    brx: number;
+    bry: number;
+    clip: Region;
+    ownclip: boolean;
+    selected: SelectedStyle;
 
-    constructor(copy, defObjects?) {
+    constructor(copy: GDIContextState, defObjects?: SelectedStyle) {
         if (copy != null) {
             this._svggroup = copy._svggroup;
             this._svgclipChanged = copy._svgclipChanged;
@@ -162,7 +172,6 @@ export class GDIContextState {
             this._svggroup = null;
             this._svgclipChanged = false;
             this._svgtextbkfilter = null;
-            this.Id = null;
             this.mapmode = Helper.GDI.MapMode.MM_ANISOTROPIC;
             this.stretchmode = Helper.GDI.StretchMode.COLORONCOLOR;
             this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
@@ -199,17 +208,17 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    _svg;
-    _svgdefs;
-    _svgPatterns;
-    _svgClipPaths;
-    _svgPath;
-    defObjects;
-    state;
-    statestack;
-    objects;
+    _svg: any;
+    _svgdefs: any;
+    _svgPatterns: {[string: string]: Brush};
+    _svgClipPaths: {[string: string]: Region};
+    _svgPath: any;
+    defObjects: SelectedStyle;
+    state: GDIContextState;
+    statestack: GDIContextState[];
+    objects: {[string: string]: Obj};
 
-    constructor(svg) {
+    constructor(svg: any) {
         this._svg = svg;
         this._svgdefs = null;
         this._svgPatterns = {};
@@ -237,7 +246,7 @@ export class GDIContext {
             this.state._svgclipChanged = false;
             this.state._svgtextbkfilter = null;
 
-            var settings = {
+            var settings: any = {
                 viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
                 preserveAspectRatio: "none"
             };
@@ -252,7 +261,7 @@ export class GDIContext {
         }
     };
 
-    _getStockObject(idx) {
+    _getStockObject(idx: number) {
         if (idx >= 0x80000000 && idx <= 0x80000011)
             return _StockObjects[(idx - 0x80000000).toString()];
         else if (idx == Helper.GDI.StockObject.DC_BRUSH)
@@ -262,7 +271,7 @@ export class GDIContext {
         return null;
     }
 
-    _storeObject(obj, idx) {
+    _storeObject(obj: Obj, idx: number) {
         if(!idx) {
             idx = 0;
             while (this.objects[idx.toString()] != null && idx <= 65535)
@@ -277,7 +286,7 @@ export class GDIContext {
         return idx;
     };
 
-    _getObject(objIdx) {
+    _getObject(objIdx: number) {
         var obj = this.objects[objIdx.toString()];
         if (obj == null) {
             obj = this._getStockObject(objIdx);
@@ -294,7 +303,7 @@ export class GDIContext {
     };
 
 
-    _getSvgClipPathForRegion(region) {
+    _getSvgClipPathForRegion(region: Region) {
         for (var id in this._svgClipPaths) {
             var rgn = this._svgClipPaths[id];
             if (rgn == region)
@@ -325,7 +334,7 @@ export class GDIContext {
         return id;
     };
 
-    _getSvgPatternForBrush(brush) {
+    _getSvgPatternForBrush(brush: Brush) {
         for (var id in this._svgPatterns) {
             var pat = this._svgPatterns[id];
             if (pat == brush)
@@ -336,7 +345,7 @@ export class GDIContext {
         switch (brush.style) {
             case Helper.GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();
-                height = brush.pattern.getheight();
+                height = brush.pattern.getHeight();
                 break;
             case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                 width = brush.dibpatternpt.getWidth();
@@ -354,7 +363,7 @@ export class GDIContext {
         return id;
     };
 
-    _selectObject(obj) {
+    _selectObject(obj: Obj) {
         this.state.selected[obj.type] = obj;
         switch (obj.type) {
             case "region":
@@ -367,7 +376,7 @@ export class GDIContext {
         }
     };
 
-    _deleteObject(objIdx) {
+    _deleteObject(objIdx: number) {
         var obj = this.objects[objIdx.toString()];
         if (obj != null) {
             for (var i = 0; i < this.statestack.length; i++) {
@@ -397,89 +406,89 @@ export class GDIContext {
         return this.state.clip;
     };
 
-    _todevX(val) {
+    _todevX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
     };
 
-    _todevY(val) {
+    _todevY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
     };
 
-    _todevW(val) {
+    _todevW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
     };
 
-    _todevH(val) {
+    _todevH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
     };
 
-    _tologicalX(val) {
+    _tologicalX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
     };
 
-    _tologicalY(val) {
+    _tologicalY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
     };
 
-    _tologicalW(val) {
+    _tologicalW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
     };
 
-    _tologicalH(val) {
+    _tologicalH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
     };
 
-    setMapMode(mode) {
+    setMapMode(mode: number) {
         Helper.log("[gdi] setMapMode: mode=" + mode);
         this.state.mapmode = mode;
         this.state._svggroup = null;
     };
 
-    setWindowOrgEx(x, y) {
+    setWindowOrgEx(x: number, y: number) {
         Helper.log("[gdi] setWindowOrgEx: x=" + x + " y=" + y);
         this.state.wx = x;
         this.state.wy = y;
         this.state._svggroup = null;
     };
 
-    setWindowExtEx(x, y) {
+    setWindowExtEx(x: number, y: number) {
         Helper.log("[gdi] setWindowExtEx: x=" + x + " y=" + y);
         this.state.ww = x;
         this.state.wh = y;
         this.state._svggroup = null;
     };
 
-    setViewportOrgEx(x, y) {
+    setViewportOrgEx(x: number, y: number) {
         Helper.log("[gdi] setViewportOrgEx: x=" + x + " y=" + y);
         this.state.vx = x;
         this.state.vy = y;
         this.state._svggroup = null;
     };
 
-    setViewportExtEx(x, y) {
+    setViewportExtEx(x: number, y: number) {
         Helper.log("[gdi] setViewportExtEx: x=" + x + " y=" + y);
         this.state.vw = x;
         this.state.vh = y;
         this.state._svggroup = null;
     };
 
-    setBrushOrgEx(origin) {
+    setBrushOrgEx(origin: PointL) {
         Helper.log("[gdi] setBrushOrgEx: x=" + origin.x + " y=" + origin.y);
         this.state.nextbrx = origin.x;
         this.state.nextbry = origin.y;
@@ -493,7 +502,7 @@ export class GDIContext {
         this.state._svggroup = null;
     };
 
-    restoreDC(saved) {
+    restoreDC(saved: number) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
             if (saved == -1) {
@@ -510,11 +519,11 @@ export class GDIContext {
         this.state._svggroup = null;
     };
 
-    setStretchBltMode(stretchMode) {
+    setStretchBltMode(stretchMode: number) {
         Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
     };
 
-    _applyOpts(opts, usePen, useBrush, useFont) {
+    _applyOpts(opts: any, usePen: boolean, useBrush: boolean, useFont: boolean) {
         if (opts == null)
             opts = {};
         if (usePen) {
@@ -526,23 +535,10 @@ export class GDIContext {
                 opts["stroke-miterlimit"] = this.state.miterlimit;
 
                 var dotWidth;
-                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
-                    opts["stroke-linecap"] = "square";
-                    dotWidth = 1;
-                } else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
-                    opts["stroke-linecap"] = "butt";
-                    dotWidth = opts.strokeWidth;
-                } else {
-                    opts["stroke-linecap"] = "round";
-                    dotWidth = 1;
-                }
+                opts["stroke-linecap"] = "round";
+                dotWidth = 1;
 
-                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
-                    opts["stroke-linejoin"] = "bevel";
-                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0)
-                    opts["stroke-linejoin"] = "miter";
-                else
-                    opts["stroke-linejoin"] = "round";
+                opts["stroke-linejoin"] = "round";
 
                 var dashWidth = opts.strokeWidth * 4;
                 var dotSpacing = opts.strokeWidth * 2;
@@ -590,7 +586,7 @@ export class GDIContext {
         return opts;
     };
 
-    rectangle(rect, rw, rh) {
+    rectangle(rect: RectL, rw: number, rh: number) {
         Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
@@ -605,7 +601,7 @@ export class GDIContext {
         this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
     };
 
-    lineTo(x, y) {
+    lineTo(x: number, y: number) {
         Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
         var toX = this._todevX(x);
         var toY = this._todevY(y);
@@ -623,7 +619,7 @@ export class GDIContext {
         this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
     }
 
-    moveToEx(x, y) {
+    moveToEx(x: number, y: number) {
         Helper.log("[gdi] moveToEx: x=" + x + " y=" + y);
         this.state.x = x;
         this.state.y = y;
@@ -633,7 +629,7 @@ export class GDIContext {
         }
     }
 
-    polygon(points, bounds, first) {
+    polygon(points: PointS[] | PointL[], bounds: RectL, first: boolean) {
         Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
@@ -649,7 +645,7 @@ export class GDIContext {
         this._svg.polygon(this.state._svggroup, pts, opts);
     };
 
-    polyPolygon(polygons, bounds) {
+    polyPolygon(polygons: PointS[][] | PointL[][], bounds: RectL) {
         Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 
         var cnt = polygons.length;
@@ -657,7 +653,7 @@ export class GDIContext {
             this.polygon(polygons[i], bounds, i == 0);
     };
 
-    polyline(isLineTo, points, bounds) {
+    polyline(isLineTo: boolean, points: PointS[], bounds: RectL) {
         Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
@@ -693,7 +689,7 @@ export class GDIContext {
         }
     };
 
-    polybezier(isPolyBezierTo, points, bounds) {
+    polybezier(isPolyBezierTo: boolean, points: PointS[], bounds: RectL) {
         Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
@@ -731,11 +727,11 @@ export class GDIContext {
         }
     };
 
-    selectClipPath(rgnMode) {
+    selectClipPath(rgnMode: number) {
         Helper.log("[gdi] selectClipPath: rgnMode=0x" + rgnMode.toString(16));
     }
 
-    selectClipRgn(rgnMode, region) {
+    selectClipRgn(rgnMode: number, region: Region) {
         Helper.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
         if (rgnMode == Helper.GDI.RegionMode.RGN_COPY) {
             this.state.selected.region = region;
@@ -750,53 +746,53 @@ export class GDIContext {
         this.state._svgclipChanged = true;
     }
 
-    offsetClipRgn(offset) {
+    offsetClipRgn(offset: PointL) {
         Helper.log("[gdi] offsetClipRgn: offset=" + offset.toString());
         this._getClipRgn().offset(offset.x, offset.y);
     };
 
-    setTextAlign(textAlignmentMode) {
+    setTextAlign(textAlignmentMode: number) {
         Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
         this.state.textalign = textAlignmentMode;
     };
 
-    setMiterLimit(miterLimit) {
+    setMiterLimit(miterLimit: number) {
         Helper.log("[gdi] setMiterLimit: miterLimit=" + miterLimit);
         this.state.miterlimit = miterLimit;
     };
 
-    setBkMode(bkMode) {
+    setBkMode(bkMode: number) {
         Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
         this.state.bkmode = bkMode;
     };
 
-    setBkColor(bkColor) {
+    setBkColor(bkColor: ColorRef) {
         Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
         this.state.bkcolor = bkColor;
         this.state._svgtextbkfilter = null;
     };
 
-    setPolyFillMode(polyFillMode) {
+    setPolyFillMode(polyFillMode: number) {
         Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
         this.state.polyfillmode = polyFillMode;
     };
 
-    createBrush(index, brush) {
+    createBrush(index: number, brush: Brush) {
         var idx = this._storeObject(brush, index);
         Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
     };
 
-    createPen(index, pen) {
+    createPen(index: number, pen: Pen) {
         var idx = this._storeObject(pen, index);
         Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
     };
 
-    createPenEx(index, pen) {
+    createPenEx(index: number, pen: Pen) {
         var idx = this._storeObject(pen, index);
         Helper.log("[gdi] createPenEx: pen=" + pen.toString() + " width handle " + idx);
     };
 
-    selectObject(objIdx, checkType) {
+    selectObject(objIdx: number, checkType: string) {
         var obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type == checkType)) {
             this._selectObject(obj);
@@ -832,7 +828,7 @@ export class GDIContext {
         this._svgPath.close();
     };
 
-    fillPath(bounds) {
+    fillPath(bounds: RectL) {
         Helper.log("[gdi] fillPath");
         if (this.state.selected.path == null)
             throw new EMFJSError("No path selected");
@@ -845,7 +841,7 @@ export class GDIContext {
         this.state.selected.path = null;
     };
 
-    strokePath(bounds) {
+    strokePath(bounds: RectL) {
         Helper.log("[gdi] strokePath");
         if (this.state.selected.path == null)
             throw new EMFJSError("No path selected");
@@ -868,7 +864,7 @@ export class GDIContext {
         this._svgPath = null;
     };
 
-    deleteObject(objIdx) {
+    deleteObject(objIdx: number) {
         var ret = this._deleteObject(objIdx);
         Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
     };

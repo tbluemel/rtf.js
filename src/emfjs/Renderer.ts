@@ -30,15 +30,25 @@ import { Blob } from './Blob';
 import { GDIContext } from './GDIContext';
 import { EMFRecords } from './EMFRecords';
 
-export class Renderer {
-    _img;
+export class RendererSettings {
+    width: string;
+    height: string;
+    wExt: number;
+    hExt: number;
+    xExt: number;
+    yExt: number;
+    mapMode: number;
+}
 
-    constructor(blob) {
+export class Renderer {
+    _img: EMF;
+
+    constructor(blob: ArrayBuffer) {
         this.parse(blob);
         Helper.log("EMFJS.Renderer instantiated");
     }
 
-    parse(blob) {
+    parse(blob: ArrayBuffer) {
         this._img = null;
 
         var reader = new Blob(blob);
@@ -57,7 +67,7 @@ export class Renderer {
             throw new EMFJSError("Format not recognized");
     };
 
-    _render(svg, mapMode, w, h, xExt, yExt) {
+    _render(svg: any, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
         var gdi = new GDIContext(svg);
         gdi.setWindowExtEx(w, h);
         gdi.setViewportExtEx(xExt, yExt);
@@ -67,11 +77,11 @@ export class Renderer {
         Helper.log("[EMF] <--- DONE RENDERING");
     };
 
-    render(info) {
+    render(info: RendererSettings) {
         var inst = this;
         var img = (function(mapMode, w, h, xExt, yExt) {
             return (<any>$("<div>")).svg({
-                onLoad: function(svg) {
+                onLoad: function(svg: any) {
                     return inst._render.call(inst, svg, mapMode, w, h, xExt, yExt);
                 },
                 settings: {
@@ -86,19 +96,17 @@ export class Renderer {
 };
 
 export class EMF {
-    _reader;
-    _hdrsize;
-    _img;
-    _records;
+    _reader: Blob;
+    _hdrsize: number;
+    _records: EMFRecords;
 
-    constructor(reader, hdrsize) {
+    constructor(reader: Blob, hdrsize: number) {
         this._reader = reader;
         this._hdrsize = hdrsize;
-        this._img = null;
         this._records = new EMFRecords(reader, this._hdrsize);
     }
 
-    render(gdi) {
+    render(gdi: GDIContext) {
         this._records.play(gdi);
     };
 };

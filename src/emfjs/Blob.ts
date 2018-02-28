@@ -28,11 +28,11 @@ SOFTWARE.
 import { EMFJSError } from "./Helper";
 
 export class Blob {
-    blob;
-    data;
-    pos;
+    blob: Blob | ArrayBuffer;
+    data: Uint8Array;
+    pos: number;
 
-    constructor(blob, offset?) {
+    constructor(blob: Blob | ArrayBuffer, offset?: number) {
         if (blob instanceof Blob) {
             this.blob = blob.blob;
             this.data = blob.data;
@@ -48,20 +48,20 @@ export class Blob {
         return this.pos >= this.data.length;
     };
 
-    seek(newpos) {
+    seek(newpos: number) {
         if (newpos < 0 || newpos > this.data.length)
             throw new EMFJSError("Invalid seek position");
         this.pos = newpos;
     };
 
-    skip(cnt) {
+    skip(cnt: number) {
         var newPos = this.pos + cnt;
         if (newPos > this.data.length)
             throw new EMFJSError("Unexpected end of file");
         this.pos = newPos;
     };
 
-    readBinary(cnt) {
+    readBinary(cnt: number) {
         var end = this.pos + cnt;
         if (end > this.data.length)
             throw new EMFJSError("Unexpected end of file");
@@ -110,7 +110,7 @@ export class Blob {
         return val;
     };
 
-    readString(length) {
+    readString(length: number) {
         if (this.pos + length > this.data.length)
             throw new EMFJSError("Unexpected end of file");
         var ret = "";
@@ -119,7 +119,7 @@ export class Blob {
         return ret;
     };
 
-    readNullTermString(maxSize) {
+    readNullTermString(maxSize: number) {
         var ret = "";
         if (maxSize > 0) {
             maxSize--;
@@ -135,7 +135,7 @@ export class Blob {
         return ret;
     };
 
-    readFixedSizeUnicodeString(fixedSizeChars) {
+    readFixedSizeUnicodeString(fixedSizeChars: number) {
         var ret = "";
         for (var i = 0; i < fixedSizeChars; i++) {
             var charCode = this.readUint16();

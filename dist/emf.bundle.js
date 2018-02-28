@@ -582,7 +582,7 @@ var RectL = /** @class */ (function () {
 var SizeL = /** @class */ (function () {
     function SizeL(reader, cx, cy) {
         if (reader != null) {
-            this.cx = reader.readUin32();
+            this.cx = reader.readUint32();
             this.cy = reader.readUint32();
         }
         else {
@@ -610,38 +610,6 @@ var Obj = /** @class */ (function () {
     };
     return Obj;
 }());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var WMFJSError = function (message) {
-    this.name = 'WMFJSError';
-    this.message = message;
-    this.stack = (new Error()).stack;
-};
-WMFJSError.prototype = new Error;
 
 /*
 
@@ -683,10 +651,10 @@ var BitmapBase = /** @class */ (function () {
     function BitmapBase() {
     }
     BitmapBase.prototype.getWidth = function () {
-        throw new WMFJSError("getWidth not implemented");
+        throw new EMFJSError("getWidth not implemented");
     };
     BitmapBase.prototype.getHeight = function () {
-        throw new WMFJSError("getHeight not implemented");
+        throw new EMFJSError("getHeight not implemented");
     };
     return BitmapBase;
 }());
@@ -797,7 +765,7 @@ var DIBitmap = /** @class */ (function (_super) {
         var mime = "image/bmp";
         var header = this._info.header();
         var data;
-        if (header.compression != null) {
+        if (header instanceof BitmapInfoHeader && header.compression != null) {
             switch (header.compression) {
                 case Helper.GDI.BitmapCompression.BI_JPEG:
                     mime = "data:image/jpeg";
@@ -914,6 +882,7 @@ var Font = /** @class */ (function (_super) {
             _this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
         }
         else if (copy != null) {
+            copy = copy;
             _this.height = copy.height;
             _this.width = copy.width;
             _this.escapement = copy.escapement;
@@ -961,7 +930,7 @@ var Font = /** @class */ (function (_super) {
 }(Obj));
 var Brush = /** @class */ (function (_super) {
     __extends$1(Brush, _super);
-    function Brush(reader, copy, bitmapInfo) {
+    function Brush(reader, copy) {
         var _this = _super.call(this, "brush") || this;
         if (reader != null) {
             var start = reader.pos;
@@ -971,10 +940,10 @@ var Brush = /** @class */ (function (_super) {
                     _this.color = new ColorRef(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_PATTERN:
-                    _this.pattern = new DIBitmap(reader, bitmapInfo);
+                    _this.pattern = new DIBitmap(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    _this.dibpatternpt = new DIBitmap(reader, bitmapInfo);
+                    _this.dibpatternpt = new DIBitmap(reader);
                     break;
                 case Helper.GDI.BrushStyle.BS_HATCHED:
                     _this.color = new ColorRef(reader);
@@ -990,10 +959,9 @@ var Brush = /** @class */ (function (_super) {
                     _this.color = copy.color.clone();
                     break;
                 case Helper.GDI.BrushStyle.BS_PATTERN:
-                    _this.pattern = copy.pattern.clone();
+                    _this.pattern = copy.pattern;
                     break;
                 case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    _this.colorusage = copy.colorusage;
                     _this.dibpatternpt = copy.dibpatternpt;
                     break;
                 case Helper.GDI.BrushStyle.BS_HATCHED:
@@ -1012,9 +980,6 @@ var Brush = /** @class */ (function (_super) {
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
-                break;
-            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                ret += ", colorusage: " + this.colorusage;
                 break;
             case Helper.GDI.BrushStyle.BS_HATCHED:
                 ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
@@ -1188,7 +1153,8 @@ var Region = /** @class */ (function (_super) {
                     // We currently have a simple region and there is some kind of an overlap.
                     // We need to create scanlines now.  Simplest method is to fake one scan line
                     // that equals the simple region and re-use the same logic as for complex regions
-                    this.scans = new Scan(new RectL(null, this.bounds.left, this.bounds.top, this.bounds.right, this.bounds.bottom));
+                    this.scans = [];
+                    this.scans.push(new Scan(new RectL(null, this.bounds.left, this.bounds.top, this.bounds.right, this.bounds.bottom)));
                     this.complexity = 2;
                 }
                 // We (now) have a complex region.  First we skip any scans that are entirely above rect.top
@@ -1262,12 +1228,12 @@ var Region = /** @class */ (function (_super) {
                             top = scan.top;
                         if (i == len - 1)
                             bottom = scan.bottom;
-                        var slen = scan.scanline.length;
+                        var slen = scan.scanlines.length;
                         if (slen > 0) {
-                            var scanline = scan.scanline[0];
+                            var scanline = scan.scanlines[0];
                             if (left == null || scanline.left < left)
                                 left = scanline.left;
-                            scanline = scan.scanline[slen - 1];
+                            scanline = scan.scanlines[slen - 1];
                             if (right == null || scanline.right > right)
                                 right = scanline.right;
                         }
@@ -1560,12 +1526,13 @@ function createStockObjects() {
     };
     var objs = {};
     for (var t in stockObjs) {
-        var idx = Helper.GDI.StockObject[t] - 0x80000000;
+        var stockObjects = Helper.GDI.StockObject;
+        var idx = stockObjects[t] - 0x80000000;
         objs[idx.toString()] = stockObjs[t];
     }
     return objs;
 }
-var _StockObjects = createStockObjects;
+var _StockObjects = createStockObjects();
 var GDIContextState = /** @class */ (function () {
     function GDIContextState(copy, defObjects) {
         if (copy != null) {
@@ -1604,7 +1571,6 @@ var GDIContextState = /** @class */ (function () {
             this._svggroup = null;
             this._svgclipChanged = false;
             this._svgtextbkfilter = null;
-            this.Id = null;
             this.mapmode = Helper.GDI.MapMode.MM_ANISOTROPIC;
             this.stretchmode = Helper.GDI.StretchMode.COLORONCOLOR;
             this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
@@ -1747,7 +1713,7 @@ var GDIContext = /** @class */ (function () {
         switch (brush.style) {
             case Helper.GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();
-                height = brush.pattern.getheight();
+                height = brush.pattern.getHeight();
                 break;
             case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                 width = brush.dibpatternpt.getWidth();
@@ -1915,24 +1881,9 @@ var GDIContext = /** @class */ (function () {
                 opts.strokeWidth = pen.width;
                 opts["stroke-miterlimit"] = this.state.miterlimit;
                 var dotWidth;
-                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
-                    opts["stroke-linecap"] = "square";
-                    dotWidth = 1;
-                }
-                else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
-                    opts["stroke-linecap"] = "butt";
-                    dotWidth = opts.strokeWidth;
-                }
-                else {
-                    opts["stroke-linecap"] = "round";
-                    dotWidth = 1;
-                }
-                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
-                    opts["stroke-linejoin"] = "bevel";
-                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0)
-                    opts["stroke-linejoin"] = "miter";
-                else
-                    opts["stroke-linejoin"] = "round";
+                opts["stroke-linecap"] = "round";
+                dotWidth = 1;
+                opts["stroke-linejoin"] = "round";
                 var dashWidth = opts.strokeWidth * 4;
                 var dotSpacing = opts.strokeWidth * 2;
                 switch (pen.style) {
@@ -2394,8 +2345,7 @@ var EMFRecords = /** @class */ (function () {
                 }
                 case Helper.GDI.RecordType.EMR_CREATEBRUSHINDIRECT: {
                     var index_1 = reader.readUint32();
-                    var datalength = size - (reader.pos - curpos);
-                    var brush_1 = new Brush(reader, datalength);
+                    var brush_1 = new Brush(reader);
                     this_1._records.push(function (gdi) {
                         gdi.createBrush(index_1, brush_1);
                     });
@@ -2743,7 +2693,8 @@ var EMFRecords = /** @class */ (function () {
                 default: {
                     var recordName = "UNKNOWN";
                     for (var name_1 in Helper.GDI.RecordType) {
-                        if (Helper.GDI.RecordType[name_1] == type) {
+                        var recordTypes = Helper.GDI.RecordType;
+                        if (recordTypes[name_1] == type) {
                             recordName = name_1;
                             break;
                         }
@@ -2800,6 +2751,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+var RendererSettings = /** @class */ (function () {
+    function RendererSettings() {
+    }
+    return RendererSettings;
+}());
 var Renderer = /** @class */ (function () {
     function Renderer(blob) {
         this.parse(blob);
@@ -2850,7 +2806,6 @@ var EMF = /** @class */ (function () {
     function EMF(reader, hdrsize) {
         this._reader = reader;
         this._hdrsize = hdrsize;
-        this._img = null;
         this._records = new EMFRecords(reader, this._hdrsize);
     }
     EMF.prototype.render = function (gdi) {
@@ -2888,6 +2843,7 @@ SOFTWARE.
 
 exports.Error = EMFJSError;
 exports.loggingEnabled = loggingEnabled;
+exports.RendererSettings = RendererSettings;
 exports.Renderer = Renderer;
 exports.EMF = EMF;
 
