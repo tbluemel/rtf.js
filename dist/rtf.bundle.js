@@ -8021,7 +8021,7 @@ var rtfDestination = /** @class */ (function (_super) {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     rtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
@@ -8029,7 +8029,7 @@ var rtfDestination = /** @class */ (function (_super) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     rtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
@@ -8037,7 +8037,7 @@ var rtfDestination = /** @class */ (function (_super) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     rtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
@@ -8047,7 +8047,7 @@ var rtfDestination = /** @class */ (function (_super) {
             var props = this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     rtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
@@ -8056,7 +8056,7 @@ var rtfDestination = /** @class */ (function (_super) {
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     rtfDestination.prototype.handleKeyword = function (keyword, param) {

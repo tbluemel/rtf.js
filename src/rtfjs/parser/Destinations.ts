@@ -177,7 +177,7 @@ class rtfDestination extends DestinationBase {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
 
@@ -186,7 +186,7 @@ class rtfDestination extends DestinationBase {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     _genericFormatSetVal(ptype, prop, defaultval) {
@@ -194,7 +194,7 @@ class rtfDestination extends DestinationBase {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     _genericFormatSetValRequired(ptype, prop) {
@@ -204,7 +204,7 @@ class rtfDestination extends DestinationBase {
             var props = this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     _genericFormatSetMemberVal(ptype, prop, member, defaultval) {
@@ -213,7 +213,7 @@ class rtfDestination extends DestinationBase {
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            this._addFormatIns.call(this, ptype, props);
+            this._addFormatIns(ptype, props);
         };
     };
     _charFormatHandlers = {
