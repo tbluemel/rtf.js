@@ -7813,6 +7813,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var findParentDestination = function (parser, dest) {
     var state = parser.state;
     while (state != null) {
@@ -7824,78 +7834,173 @@ var findParentDestination = function (parser, dest) {
     }
     Helper.log("findParentDestination() did not find destination " + dest);
 };
-var DestinationBase = function (name) {
-    this._name = name;
-};
-var DestinationTextBase = function (name) {
-    this._name = name;
-    this.text = "";
-};
-DestinationTextBase.prototype.appendText = function (text) {
-    this.text += text;
-};
-var DestinationFormattedTextBase = function (parser, name) {
-    this.parser = parser;
-    this._name = name;
-    this._records = [];
-};
-DestinationFormattedTextBase.prototype.appendText = function (text) {
-    this._records.push(function (rtf) {
-        rtf.appendText(text);
-    });
-};
-DestinationFormattedTextBase.prototype.handleKeyword = function (keyword, param) {
-    this._records.push(function (rtf) {
-        return rtf.handleKeyword(keyword, param);
-    });
-};
-DestinationFormattedTextBase.prototype.apply = function () {
-    var rtf = findParentDestination(this.parser, "rtf");
-    if (rtf == null)
-        throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
-    var len = this._records.length;
-    var doRender = true;
-    if (this.renderBegin != null)
-        doRender = this.renderBegin(rtf, len);
-    if (doRender) {
-        for (var i = 0; i < len; i++) {
-            this._records[i](rtf);
-        }
-        if (this.renderEnd != null)
-            this.renderEnd(rtf, len);
+var DestinationBase = /** @class */ (function () {
+    function DestinationBase(name) {
+        this._name = name;
     }
-    delete this._records;
-};
-var rtfDestination = function () {
-    var cls = function (parser, inst, name, param) {
+    return DestinationBase;
+}());
+var DestinationTextBase = /** @class */ (function () {
+    function DestinationTextBase(name) {
+        this._name = name;
+        this.text = "";
+    }
+    DestinationTextBase.prototype.appendText = function (text) {
+        this.text += text;
+    };
+    return DestinationTextBase;
+}());
+var DestinationFormattedTextBase = /** @class */ (function () {
+    function DestinationFormattedTextBase(parser, name) {
+        this.parser = parser;
+        this._name = name;
+        this._records = [];
+    }
+    DestinationFormattedTextBase.prototype.appendText = function (text) {
+        this._records.push(function (rtf) {
+            rtf.appendText(text);
+        });
+    };
+    DestinationFormattedTextBase.prototype.handleKeyword = function (keyword, param) {
+        this._records.push(function (rtf) {
+            return rtf.handleKeyword(keyword, param);
+        });
+    };
+    DestinationFormattedTextBase.prototype.apply = function () {
+        var rtf = findParentDestination(this.parser, "rtf");
+        if (rtf == null)
+            throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+        var len = this._records.length;
+        var doRender = true;
+        if (this.renderBegin != null)
+            doRender = this.renderBegin(rtf, len);
+        if (doRender) {
+            for (var i = 0; i < len; i++) {
+                this._records[i](rtf);
+            }
+            if (this.renderEnd != null)
+                this.renderEnd(rtf, len);
+        }
+        delete this._records;
+    };
+    return DestinationFormattedTextBase;
+}());
+var rtfDestination = /** @class */ (function (_super) {
+    __extends(rtfDestination, _super);
+    function rtfDestination(parser, inst, name, param) {
+        var _this = _super.call(this, name) || this;
+        _this._charFormatHandlers = {
+            ansicpg: function (param) {
+                //if the value is 0, use the default charset as 0 is not valid
+                if (param > 0) {
+                    Helper.log("[rtf] using charset: " + param);
+                    this.parser.codepage = param;
+                }
+            },
+            sectd: function (param) {
+                Helper.log("[rtf] reset to section defaults");
+                this.parser.state.sep = new Sep(null);
+            },
+            plain: function (param) {
+                Helper.log("[rtf] reset to character defaults");
+                this.parser.state.chp = new Chp(null);
+            },
+            pard: function (param) {
+                Helper.log("[rtf] reset to paragraph defaults");
+                this.parser.state.pap = new Pap(null);
+            },
+            b: _this._genericFormatOnOff("chp", "bold"),
+            i: _this._genericFormatOnOff("chp", "italic"),
+            cf: _this._genericFormatSetValRequired("chp", "colorindex"),
+            fs: _this._genericFormatSetValRequired("chp", "fontsize"),
+            f: _this._genericFormatSetValRequired("chp", "fontfamily"),
+            loch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
+            hich: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
+            dbch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
+            strike: _this._genericFormatOnOff("chp", "strikethrough"),
+            striked: _this._genericFormatOnOff("chp", "dblstrikethrough"),
+            ul: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
+            uld: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
+            uldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
+            uldashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
+            uldashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
+            uldb: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
+            ulhwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
+            ulldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
+            ulnone: _this._genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
+            ulth: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
+            ulthd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
+            ulthdash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
+            ulthdashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
+            ulthdashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
+            ululdbwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
+            ulw: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
+            ulwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
+            li: _this._genericFormatSetMemberVal("pap", "indent", "left", 0),
+            ri: _this._genericFormatSetMemberVal("pap", "indent", "right", 0),
+            fi: _this._genericFormatSetMemberVal("pap", "indent", "firstline", 0),
+            sa: _this._genericFormatSetValRequired("pap", "spaceafter"),
+            sb: _this._genericFormatSetValRequired("pap", "spacebefore"),
+            cols: _this._genericFormatSetVal("sep", "columns", 0),
+            sbknone: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
+            sbkcol: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
+            sbkeven: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
+            sbkodd: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
+            sbkpage: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
+            pgnx: _this._genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
+            pgny: _this._genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
+            pgndec: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
+            pgnucrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
+            pgnlcrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
+            pgnucltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
+            pgnlcltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
+            qc: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
+            ql: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
+            qr: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
+            qj: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
+            paperw: _this._genericFormatSetVal("dop", "width", 12240),
+            paperh: _this._genericFormatSetVal("dop", "height", 15480),
+            margl: _this._genericFormatSetMemberVal("dop", "margin", "left", 1800),
+            margr: _this._genericFormatSetMemberVal("dop", "margin", "right", 1800),
+            margt: _this._genericFormatSetMemberVal("dop", "margin", "top", 1440),
+            margb: _this._genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
+            pgnstart: _this._genericFormatSetVal("dop", "pagenumberstart", 1),
+            facingp: _this._genericFormatSetNoParam("dop", "facingpages", true),
+            landscape: _this._genericFormatSetNoParam("dop", "landscape", true),
+            par: _this._addInsHandler(function () {
+                this.startPar();
+            }),
+            line: _this._addInsHandler(function () {
+                this.lineBreak();
+            }),
+        };
         if (parser.version != null)
             throw new RTFJSError("Unexpected rtf destination");
-        DestinationBase.call(this, name);
         // This parameter should be one, but older versions of the spec allow for omission of the version number
         if (param && param != 1)
             throw new RTFJSError("Unsupported rtf version");
         parser.version = 1;
-        this._metadata = {};
-        this.parser = parser;
-        this.inst = inst;
-    };
-    cls.prototype = Object.create(DestinationBase.prototype);
-    cls.prototype.addIns = function (func) {
+        _this._metadata = {};
+        _this.parser = parser;
+        _this.inst = inst;
+        return _this;
+    }
+    rtfDestination.prototype.addIns = function (func) {
         this.inst.addIns(func);
     };
-    cls.prototype.appendText = function (text) {
+    rtfDestination.prototype.appendText = function (text) {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     };
-    cls.prototype.sub = function () {
+    rtfDestination.prototype.sub = function () {
         Helper.log("[rtf].sub()");
     };
-    var _addInsHandler = function (func) {
+    rtfDestination.prototype._addInsHandler = function (func) {
         return function (param) {
             this.inst.addIns(func);
         };
     };
-    var _addFormatIns = function (ptype, props) {
+    rtfDestination.prototype._addFormatIns = function (ptype, props) {
         switch (ptype) {
             case "chp":
                 var rchp = new RenderChp(new Chp(props));
@@ -7911,136 +8016,51 @@ var rtfDestination = function () {
                 break;
         }
     };
-    var _genericFormatSetNoParam = function (ptype, prop, val) {
+    rtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatOnOff = function (ptype, prop, onval, offval) {
+    rtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetVal = function (ptype, prop, defaultval) {
+    rtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetValRequired = function (ptype, prop) {
+    rtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
         return function (param) {
             if (param == null)
                 throw new RTFJSError("Keyword without required param");
             var props = this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+    rtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _charFormatHandlers = {
-        ansicpg: function (param) {
-            //if the value is 0, use the default charset as 0 is not valid
-            if (param > 0) {
-                Helper.log("[rtf] using charset: " + param);
-                this.parser.codepage = param;
-            }
-        },
-        sectd: function (param) {
-            Helper.log("[rtf] reset to section defaults");
-            this.parser.state.sep = new Sep(null);
-        },
-        plain: function (param) {
-            Helper.log("[rtf] reset to character defaults");
-            this.parser.state.chp = new Chp(null);
-        },
-        pard: function (param) {
-            Helper.log("[rtf] reset to paragraph defaults");
-            this.parser.state.pap = new Pap(null);
-        },
-        b: _genericFormatOnOff("chp", "bold"),
-        i: _genericFormatOnOff("chp", "italic"),
-        cf: _genericFormatSetValRequired("chp", "colorindex"),
-        fs: _genericFormatSetValRequired("chp", "fontsize"),
-        f: _genericFormatSetValRequired("chp", "fontfamily"),
-        loch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
-        hich: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
-        dbch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
-        strike: _genericFormatOnOff("chp", "strikethrough"),
-        striked: _genericFormatOnOff("chp", "dblstrikethrough"),
-        ul: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
-        uld: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
-        uldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
-        uldashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
-        uldashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
-        uldb: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
-        ulhwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
-        ulldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
-        ulnone: _genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
-        ulth: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
-        ulthd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
-        ulthdash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
-        ulthdashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
-        ulthdashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
-        ululdbwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
-        ulw: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
-        ulwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
-        li: _genericFormatSetMemberVal("pap", "indent", "left", 0),
-        ri: _genericFormatSetMemberVal("pap", "indent", "right", 0),
-        fi: _genericFormatSetMemberVal("pap", "indent", "firstline", 0),
-        sa: _genericFormatSetValRequired("pap", "spaceafter"),
-        sb: _genericFormatSetValRequired("pap", "spacebefore"),
-        cols: _genericFormatSetVal("sep", "columns", 0),
-        sbknone: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
-        sbkcol: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
-        sbkeven: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
-        sbkodd: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
-        sbkpage: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
-        pgnx: _genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
-        pgny: _genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
-        pgndec: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
-        pgnucrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
-        pgnlcrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
-        pgnucltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
-        pgnlcltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
-        qc: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
-        ql: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
-        qr: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
-        qj: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
-        paperw: _genericFormatSetVal("dop", "width", 12240),
-        paperh: _genericFormatSetVal("dop", "height", 15480),
-        margl: _genericFormatSetMemberVal("dop", "margin", "left", 1800),
-        margr: _genericFormatSetMemberVal("dop", "margin", "right", 1800),
-        margt: _genericFormatSetMemberVal("dop", "margin", "top", 1440),
-        margb: _genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
-        pgnstart: _genericFormatSetVal("dop", "pagenumberstart", 1),
-        facingp: _genericFormatSetNoParam("dop", "facingpages", true),
-        landscape: _genericFormatSetNoParam("dop", "landscape", true),
-        par: _addInsHandler(function () {
-            this.startPar();
-        }),
-        line: _addInsHandler(function () {
-            this.lineBreak();
-        }),
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        var handler = _charFormatHandlers[keyword];
+    rtfDestination.prototype.handleKeyword = function (keyword, param) {
+        var handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
@@ -8048,123 +8068,137 @@ var rtfDestination = function () {
         //Helper.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
         return false;
     };
-    cls.prototype.apply = function () {
+    rtfDestination.prototype.apply = function () {
         Helper.log("[rtf] apply()");
         for (var prop in this._metadata)
             this.inst._meta[prop] = this._metadata[prop];
         delete this._metadata;
     };
-    cls.prototype.setMetadata = function (prop, val) {
+    rtfDestination.prototype.setMetadata = function (prop, val) {
         this._metadata[prop] = val;
     };
-    return cls;
+    return rtfDestination;
+}(DestinationBase));
+var genericPropertyDestinationFactory = function (parentdest, metaprop) {
+    return /** @class */ (function (_super) {
+        __extends(genericPropertyDestination, _super);
+        function genericPropertyDestination(parser, inst, name) {
+            var _this = _super.call(this, name) || this;
+            _this.parser = parser;
+            return _this;
+        }
+        genericPropertyDestination.prototype.apply = function () {
+            var dest = findParentDestination(this.parser, parentdest);
+            if (dest == null)
+                throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+            if (dest.setMetadata == null)
+                throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+            dest.setMetadata(metaprop, this.text);
+        };
+        return genericPropertyDestination;
+    }(DestinationTextBase));
 };
-var genericPropertyDestination = function (parentdest, metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var dest = findParentDestination(this.parser, parentdest);
-        if (dest == null)
-            throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
-        if (dest.setMetadata == null)
-            throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
-        dest.setMetadata(metaprop, this.text);
-    };
-    return cls;
-};
-var infoDestination = function () {
-    var cls = function (parser, inst, name) {
-        DestinationBase.call(this, name);
-        this._metadata = {};
-        this.inst = inst;
-    };
-    cls.prototype.apply = function () {
+var infoDestination = /** @class */ (function (_super) {
+    __extends(infoDestination, _super);
+    function infoDestination(parser, inst, name) {
+        var _this = _super.call(this, name) || this;
+        _this._metadata = {};
+        _this.inst = inst;
+        return _this;
+    }
+    infoDestination.prototype.apply = function () {
         for (var prop in this._metadata)
             this.inst._meta[prop] = this._metadata[prop];
         delete this._metadata;
     };
-    cls.prototype.setMetadata = function (prop, val) {
+    infoDestination.prototype.setMetadata = function (prop, val) {
         this._metadata[prop] = val;
     };
-    return cls;
-};
-var metaPropertyDestination = function (metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var info = findParentDestination(this.parser, "info");
-        if (info == null)
-            throw new RTFJSError("Destination " + this._name + " must be within info destination");
-        info.setMetadata(metaprop, this.text);
-    };
-    return cls;
-};
-var metaPropertyTimeDestination = function (metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationBase.call(this, name);
-        this._yr = null;
-        this._mo = null;
-        this._dy = null;
-        this._hr = null;
-        this._min = null;
-        this._sec = null;
-        this.parser = parser;
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        switch (keyword) {
-            case "yr":
-                this._yr = param;
-                break;
-            case "mo":
-                this._mo = param;
-                break;
-            case "dy":
-                this._dy = param;
-                break;
-            case "hr":
-                this._hr = param;
-                break;
-            case "min":
-                this._min = param;
-                break;
-            case "sec":
-                this._sec = param;
-                break;
-            default:
-                return false;
+    return infoDestination;
+}(DestinationBase));
+var metaPropertyDestinationFactory = function (metaprop) {
+    return /** @class */ (function (_super) {
+        __extends(metaPropertyDestination, _super);
+        function metaPropertyDestination(parser, inst, name) {
+            var _this = _super.call(this, name) || this;
+            _this.apply = function () {
+                var info = findParentDestination(this.parser, "info");
+                if (info == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                info.setMetadata(metaprop, this.text);
+            };
+            _this.parser = parser;
+            return _this;
         }
-        if (param == null)
-            throw new RTFJSError("No param found for keyword " + keyword);
-        return true;
-    };
-    cls.prototype.apply = function () {
-        var info = findParentDestination(this.parser, "info");
-        if (info == null)
-            throw new RTFJSError("Destination " + this._name + " must be within info destination");
-        var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
-        info.setMetadata(metaprop, date);
-    };
-    return cls;
+        return metaPropertyDestination;
+    }(DestinationTextBase));
 };
-var fonttblDestinationSub = function () {
-    var cls = function (fonttbl) {
-        DestinationBase.call(this, "fonttbl:sub");
-        this._fonttbl = fonttbl;
-        this.index = null;
-        this.fontname = null;
-        this.altfontname = null;
-        this.family = null;
-        this.pitch = Helper.FONTPITCH.DEFAULT;
-        this.bias = 0;
-        this.charset = null;
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
+var metaPropertyTimeDestinationFactory = function (metaprop) {
+    return /** @class */ (function (_super) {
+        __extends(metaPropertyTimeDestination, _super);
+        function metaPropertyTimeDestination(parser, inst, name) {
+            var _this = _super.call(this, name) || this;
+            _this._yr = null;
+            _this._mo = null;
+            _this._dy = null;
+            _this._hr = null;
+            _this._min = null;
+            _this._sec = null;
+            _this.parser = parser;
+            return _this;
+        }
+        metaPropertyTimeDestination.prototype.handleKeyword = function (keyword, param) {
+            switch (keyword) {
+                case "yr":
+                    this._yr = param;
+                    break;
+                case "mo":
+                    this._mo = param;
+                    break;
+                case "dy":
+                    this._dy = param;
+                    break;
+                case "hr":
+                    this._hr = param;
+                    break;
+                case "min":
+                    this._min = param;
+                    break;
+                case "sec":
+                    this._sec = param;
+                    break;
+                default:
+                    return false;
+            }
+            if (param == null)
+                throw new RTFJSError("No param found for keyword " + keyword);
+            return true;
+        };
+        metaPropertyTimeDestination.prototype.apply = function () {
+            var info = findParentDestination(this.parser, "info");
+            if (info == null)
+                throw new RTFJSError("Destination " + this._name + " must be within info destination");
+            var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
+            info.setMetadata(metaprop, date);
+        };
+        return metaPropertyTimeDestination;
+    }(DestinationBase));
+};
+var fonttblDestinationSub = /** @class */ (function (_super) {
+    __extends(fonttblDestinationSub, _super);
+    function fonttblDestinationSub(fonttbl) {
+        var _this = _super.call(this, "fonttbl:sub") || this;
+        _this._fonttbl = fonttbl;
+        _this.index = null;
+        _this.fontname = null;
+        _this.altfontname = null;
+        _this.family = null;
+        _this.pitch = Helper.FONTPITCH.DEFAULT;
+        _this.bias = 0;
+        _this.charset = null;
+        return _this;
+    }
+    fonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -8220,13 +8254,13 @@ var fonttblDestinationSub = function () {
         }
         return false;
     };
-    cls.prototype.appendText = function (text) {
+    fonttblDestinationSub.prototype.appendText = function (text) {
         if (this.fontname == null)
             this.fontname = text;
         else
             this.fontname += text;
     };
-    cls.prototype.apply = function () {
+    fonttblDestinationSub.prototype.apply = function () {
         if (this.index == null)
             throw new RTFJSError("No font index provided");
         if (this.fontname == null)
@@ -8234,23 +8268,24 @@ var fonttblDestinationSub = function () {
         this._fonttbl.addSub(this);
         delete this._fonttbl;
     };
-    cls.prototype.setAltFontName = function (name) {
+    fonttblDestinationSub.prototype.setAltFontName = function (name) {
         this.altfontname = name;
     };
-    return cls;
-};
-var fonttblDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "fonttbl");
-        this._fonts = [];
-        this._sub = null;
-        this.inst = inst;
-    };
-    cls.prototype.sub = function () {
-        var subCls = fonttblDestinationSub();
-        return new subCls(this);
-    };
-    cls.prototype.apply = function () {
+    return fonttblDestinationSub;
+}(DestinationBase));
+var fonttblDestination = /** @class */ (function (_super) {
+    __extends(fonttblDestination, _super);
+    function fonttblDestination(parser, inst) {
+        var _this = _super.call(this, "fonttbl") || this;
+        _this.sub = function () {
+            return new fonttblDestinationSub(this);
+        };
+        _this._fonts = [];
+        _this._sub = null;
+        _this.inst = inst;
+        return _this;
+    }
+    fonttblDestination.prototype.apply = function () {
         Helper.log("[fonttbl] apply()");
         for (var idx in this._fonts) {
             Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
@@ -8258,49 +8293,54 @@ var fonttblDestination = function () {
         this.inst._fonts = this._fonts;
         delete this._fonts;
     };
-    cls.prototype.appendText = function (text) {
+    fonttblDestination.prototype.appendText = function (text) {
         this._sub.appendText(text);
         this._sub.apply();
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
+    fonttblDestination.prototype.handleKeyword = function (keyword, param) {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     };
-    cls.prototype.addSub = function (sub) {
+    fonttblDestination.prototype.addSub = function (sub) {
         this._fonts[sub.index] = sub;
     };
-    return cls;
+    return fonttblDestination;
+}(DestinationBase));
+var genericSubTextPropertyDestinationFactory = function (name, parentDest, propOrFunc) {
+    return /** @class */ (function (_super) {
+        __extends(genericSubTextPropertyDestination, _super);
+        function genericSubTextPropertyDestination(parser) {
+            var _this = _super.call(this, name) || this;
+            _this.apply = function () {
+                var dest = findParentDestination(this.parser, parentDest);
+                if (dest == null)
+                    throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
+                if (dest[propOrFunc] == null)
+                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                if (dest[propOrFunc] instanceof Function)
+                    dest[propOrFunc](this.text);
+                else
+                    dest[propOrFunc] = this.text;
+            };
+            _this.parser = parser;
+            return _this;
+        }
+        return genericSubTextPropertyDestination;
+    }(DestinationTextBase));
 };
-var genericSubTextPropertyDestination = function (name, parentDest, propOrFunc) {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var dest = findParentDestination(this.parser, parentDest);
-        if (dest == null)
-            throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
-        if (dest[propOrFunc] == null)
-            throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
-        if (dest[propOrFunc] instanceof Function)
-            dest[propOrFunc](this.text);
-        else
-            dest[propOrFunc] = this.text;
-    };
-    return cls;
-};
-var colortblDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "colortbl");
-        this._colors = [];
-        this._current = null;
-        this._autoIndex = null;
-        this.inst = inst;
-    };
-    cls.prototype._startNewColor = function () {
+var colortblDestination = /** @class */ (function (_super) {
+    __extends(colortblDestination, _super);
+    function colortblDestination(parser, inst) {
+        var _this = _super.call(this, "colortbl") || this;
+        _this._colors = [];
+        _this._current = null;
+        _this._autoIndex = null;
+        _this.inst = inst;
+        return _this;
+    }
+    colortblDestination.prototype._startNewColor = function () {
         this._current = {
             r: 0,
             g: 0,
@@ -8311,7 +8351,7 @@ var colortblDestination = function () {
         };
         return this._current;
     };
-    cls.prototype.appendText = function (text) {
+    colortblDestination.prototype.appendText = function (text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
             if (text[i] != ";")
@@ -8330,31 +8370,31 @@ var colortblDestination = function () {
             this._current = null;
         }
     };
-    var _validateColorValueRange = function (keyword, param) {
+    colortblDestination.prototype._validateColorValueRange = function (keyword, param) {
         if (param == null)
             throw new RTFJSError(keyword + " has no param");
         if (param < 0 || param > 255)
             throw new RTFJSError(keyword + " has invalid param value");
         return param;
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
+    colortblDestination.prototype.handleKeyword = function (keyword, param) {
         if (this._current == null)
             this._startNewColor();
         switch (keyword) {
             case "red":
-                this._current.r = _validateColorValueRange(keyword, param);
+                this._current.r = this._validateColorValueRange(keyword, param);
                 return true;
             case "green":
-                this._current.g = _validateColorValueRange(keyword, param);
+                this._current.g = this._validateColorValueRange(keyword, param);
                 return true;
             case "blue":
-                this._current.b = _validateColorValueRange(keyword, param);
+                this._current.b = this._validateColorValueRange(keyword, param);
                 return true;
             case "ctint":
-                this._current.tint = _validateColorValueRange(keyword, param);
+                this._current.tint = this._validateColorValueRange(keyword, param);
                 return true;
             case "cshade":
-                this._current.shade = _validateColorValueRange(keyword, param);
+                this._current.shade = this._validateColorValueRange(keyword, param);
                 return true;
             default:
                 if (keyword[0] == "c") {
@@ -8366,7 +8406,7 @@ var colortblDestination = function () {
         Helper.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
         return false;
     };
-    cls.prototype.apply = function () {
+    colortblDestination.prototype.apply = function () {
         Helper.log("[colortbl] apply()");
         if (this._autoIndex == null)
             this._autoIndex = 0;
@@ -8378,100 +8418,105 @@ var colortblDestination = function () {
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
     };
-    return cls;
-};
-var stylesheetDestinationSub = function () {
-    var _handleKeywordCommon = function (member) {
-        return function (keyword, param) {
-            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
-            return false;
+    return colortblDestination;
+}(DestinationBase));
+var stylesheetDestinationSub = /** @class */ (function (_super) {
+    __extends(stylesheetDestinationSub, _super);
+    function stylesheetDestinationSub(stylesheet) {
+        var _this = _super.call(this, "stylesheet:sub") || this;
+        _this._handleKeywordCommon = function (member) {
+            return function (keyword, param) {
+                Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+                return false;
+            };
         };
-    };
-    var cls = function (stylesheet) {
-        DestinationBase.call(this, "stylesheet:sub");
-        this._stylesheet = stylesheet;
-        this.index = 0;
-        this.name = null;
-        this.handler = _handleKeywordCommon("paragraph");
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
+        _this._stylesheet = stylesheet;
+        _this.index = 0;
+        _this.name = null;
+        _this.handler = _this._handleKeywordCommon("paragraph");
+        return _this;
+    }
+    stylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "s":
                 this.index = param;
                 return true;
             case "cs":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("character");
+                this.handler = this._handleKeywordCommon("character");
                 this.index = param;
                 return true;
             case "ds":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("section");
+                this.handler = this._handleKeywordCommon("section");
                 this.index = param;
                 return true;
             case "ts":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("table");
+                this.handler = this._handleKeywordCommon("table");
                 this.index = param;
                 return true;
         }
         return this.handler(keyword, param);
     };
-    cls.prototype.appendText = function (text) {
+    stylesheetDestinationSub.prototype.appendText = function (text) {
         if (this.name == null)
             this.name = text;
         else
             this.name += text;
     };
-    cls.prototype.apply = function () {
+    stylesheetDestinationSub.prototype.apply = function () {
         this._stylesheet.addSub({
             index: this.index,
             name: this.name
         });
         delete this._stylesheet;
     };
-    return cls;
-};
-var stylesheetDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "stylesheet");
-        this._stylesheets = [];
-        this.inst = inst;
+    return stylesheetDestinationSub;
+}(DestinationBase));
+var stylesheetDestination = /** @class */ (function (_super) {
+    __extends(stylesheetDestination, _super);
+    function stylesheetDestination(parser, inst) {
+        var _this = _super.call(this, "stylesheet") || this;
+        _this._stylesheets = [];
+        _this.inst = inst;
+        return _this;
+    }
+    stylesheetDestination.prototype.sub = function () {
+        return new stylesheetDestinationSub(this);
     };
-    cls.prototype.sub = function () {
-        var subCls = stylesheetDestinationSub();
-        return new subCls(this);
-    };
-    cls.prototype.apply = function () {
+    stylesheetDestination.prototype.apply = function () {
         Helper.log("[stylesheet] apply()");
         for (var idx in this._stylesheets)
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
     };
-    cls.prototype.addSub = function (sub) {
+    stylesheetDestination.prototype.addSub = function (sub) {
         //Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
         this._stylesheets[sub.index] = sub;
     };
-    return cls;
-};
-var fieldDestination = function () {
-    var cls = function () {
-        DestinationBase.call(this, "field");
-        this._haveInst = false;
-        this._parsedInst = null; // FieldBase
-        this._result = null;
-    };
-    cls.prototype.apply = function () {
+    return stylesheetDestination;
+}(DestinationBase));
+var fieldDestination = /** @class */ (function (_super) {
+    __extends(fieldDestination, _super);
+    function fieldDestination() {
+        var _this = _super.call(this, "field") || this;
+        _this._haveInst = false;
+        _this._parsedInst = null; // FieldBase
+        _this._result = null;
+        return _this;
+    }
+    fieldDestination.prototype.apply = function () {
         if (!this._haveInst)
             throw new RTFJSError("Field has no fldinst destination");
         //A fldrslt destination should be included but is not required
         // if (this._result == null)
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
-    cls.prototype.setInst = function (inst) {
+    fieldDestination.prototype.setInst = function (inst) {
         var _this = this;
         this._haveInst = true;
         if (this._parsedInst != null)
@@ -8485,75 +8530,83 @@ var fieldDestination = function () {
             throw new RTFJSError(error.message);
         });
     };
-    cls.prototype.getInst = function () {
+    fieldDestination.prototype.getInst = function () {
         return this._parsedInst;
     };
-    cls.prototype.setResult = function (inst) {
+    fieldDestination.prototype.setResult = function (inst) {
         if (this._result != null)
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
         this._result = inst;
     };
-    return cls;
-};
-var FieldBase = function (fldinst) {
-    this._fldinst = fldinst;
-};
-FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
-    if (records > 0) {
-        rtf.addIns(function () {
-            this.popContainer();
-        });
+    return fieldDestination;
+}(DestinationBase));
+var FieldBase = /** @class */ (function () {
+    function FieldBase(fldinst) {
+        this._fldinst = fldinst;
     }
-};
-var FieldHyperlink = function (inst, fldinst, data) {
-    FieldBase.call(this, fldinst);
-    this._url = data;
-    this.inst = inst;
-};
-FieldHyperlink.prototype = Object.create(FieldBase.prototype);
-FieldHyperlink.prototype.url = function () {
-    return this._url;
-};
-FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
-    var self = this;
-    if (records > 0) {
-        rtf.addIns(function () {
-            var inst = this._doc;
-            var renderer = this;
-            var create = function () {
-                return renderer.buildHyperlinkElement(self._url);
-            };
-            var container;
-            if (inst._settings.onHyperlink != null) {
-                container = inst._settings.onHyperlink.call(this.inst, create, self);
-            }
-            else {
-                var elem = create();
-                container = {
-                    element: elem,
-                    content: elem
-                };
-            }
-            this.pushContainer(container);
-        });
-        return true;
-    }
-    return false;
-};
-var fldinstDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, "fldinst");
-        this.parser = parser;
-        this.inst = inst;
+    FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
+        if (records > 0) {
+            rtf.addIns(function () {
+                this.popContainer();
+            });
+        }
     };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
+    return FieldBase;
+}());
+var FieldHyperlink = /** @class */ (function (_super) {
+    __extends(FieldHyperlink, _super);
+    function FieldHyperlink(inst, fldinst, data) {
+        var _this = _super.call(this, fldinst) || this;
+        _this._url = data;
+        _this.inst = inst;
+        return _this;
+    }
+    FieldHyperlink.prototype.url = function () {
+        return this._url;
+    };
+    FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
+        var self = this;
+        if (records > 0) {
+            rtf.addIns(function () {
+                var inst = this._doc;
+                var renderer = this;
+                var create = function () {
+                    return renderer.buildHyperlinkElement(self._url);
+                };
+                var container;
+                if (inst._settings.onHyperlink != null) {
+                    container = inst._settings.onHyperlink.call(this.inst, create, self);
+                }
+                else {
+                    var elem = create();
+                    container = {
+                        element: elem,
+                        content: elem
+                    };
+                }
+                this.pushContainer(container);
+            });
+            return true;
+        }
+        return false;
+    };
+    return FieldHyperlink;
+}(FieldBase));
+var fldinstDestination = /** @class */ (function (_super) {
+    __extends(fldinstDestination, _super);
+    function fldinstDestination(parser, inst) {
+        var _this = _super.call(this, "fldinst") || this;
+        _this.parser = parser;
+        _this.inst = inst;
+        return _this;
+    }
+    fldinstDestination.prototype.apply = function () {
         var field = findParentDestination(this.parser, "field");
         if (field == null)
             throw new RTFJSError("fldinst destination must be child of field destination");
         field.setInst(this.parseType());
     };
-    cls.prototype.parseType = function () {
+    fldinstDestination.prototype.parseType = function () {
         var _this = this;
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
@@ -8594,8 +8647,7 @@ var fldinstDestination = function () {
                                             w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300)
                                         };
-                                        var cls_1 = pictDestination();
-                                        pict_1 = new cls_1(self_1.parser, self_1.inst);
+                                        pict_1 = new pictDestination(self_1.parser, self_1.inst);
                                         pict_1.handleBlob(blob);
                                         pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
                                         pict_1._displaysize.width = dims.w;
@@ -8634,23 +8686,21 @@ var fldinstDestination = function () {
             }
         }
     };
-    return cls;
-};
-var fldrsltDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationFormattedTextBase.call(this, "fldrslt");
-        this.parser = parser;
-    };
-    cls.prototype = Object.create(DestinationFormattedTextBase.prototype);
-    var baseApply = cls.prototype.apply;
-    cls.prototype.apply = function () {
+    return fldinstDestination;
+}(DestinationTextBase));
+var fldrsltDestination = /** @class */ (function (_super) {
+    __extends(fldrsltDestination, _super);
+    function fldrsltDestination(parser, inst) {
+        return _super.call(this, parser, "fldrslt") || this;
+    }
+    fldrsltDestination.prototype.apply = function () {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
-        baseApply.call(this);
+        _super.prototype.apply.call(this);
     };
-    cls.prototype.renderBegin = function (rtf, records) {
+    fldrsltDestination.prototype.renderBegin = function (rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -8659,7 +8709,7 @@ var fldrsltDestination = function () {
         }
         return false;
     };
-    cls.prototype.renderEnd = function (rtf, records) {
+    fldrsltDestination.prototype.renderEnd = function (rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -8667,37 +8717,121 @@ var fldrsltDestination = function () {
                 inst.renderFieldEnd(field, rtf, records);
         }
     };
-    return cls;
+    return fldrsltDestination;
+}(DestinationFormattedTextBase));
+var pictGroupDestinationFactory = function (legacy) {
+    return /** @class */ (function (_super) {
+        __extends(pictGroupDestinationFactory, _super);
+        function pictGroupDestinationFactory() {
+            var _this = _super.call(this, "pict-group") || this;
+            _this._legacy = legacy;
+            return _this;
+        }
+        pictGroupDestinationFactory.prototype.isLegacy = function () {
+            return this._legacy;
+        };
+        return pictGroupDestinationFactory;
+    }(DestinationTextBase));
 };
-var pictGroupDestination = function (legacy) {
-    var cls = function () {
-        DestinationTextBase.call(this, "pict-group");
-        this._legacy = legacy;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.isLegacy = function () {
-        return this._legacy;
-    };
-    return cls;
-};
-var pictDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, "pict");
-        this._type = null;
-        this._blob = null;
-        this._displaysize = {
+var pictDestination = /** @class */ (function (_super) {
+    __extends(pictDestination, _super);
+    function pictDestination(parser, inst) {
+        var _this = _super.call(this, "pict") || this;
+        _this._pictHandlers = {
+            picw: _this._setPropValueRequired("_size", "width"),
+            pich: _this._setPropValueRequired("_size", "height"),
+            picwgoal: _this._setPropValueRequired("_displaysize", "width"),
+            pichgoal: _this._setPropValueRequired("_displaysize", "height")
+        };
+        _this._pictTypeHandler = {
+            emfblip: (function () {
+                if (typeof EMFJS !== "undefined") {
+                    return function () {
+                        return {
+                            load: function () {
+                                try {
+                                    return new EMFJS.Renderer(this._blob);
+                                }
+                                catch (e) {
+                                    if (e instanceof EMFJS.Error)
+                                        return e.message;
+                                    else
+                                        throw e;
+                                }
+                            },
+                            render: function (img) {
+                                return img.render({
+                                    width: Helper._twipsToPt(this._displaysize.width) + "pt",
+                                    height: Helper._twipsToPt(this._displaysize.height) + "pt",
+                                    wExt: this._size.width,
+                                    hExt: this._size.width,
+                                    xExt: this._size.width,
+                                    yExt: this._size.height,
+                                    mapMode: 8
+                                });
+                            }
+                        };
+                    };
+                }
+                else {
+                    return "";
+                }
+            })(),
+            pngblip: "image/png",
+            jpegblip: "image/jpeg",
+            macpict: "",
+            pmmetafile: "",
+            wmetafile: (function () {
+                if (typeof WMFJS !== "undefined") {
+                    return function (param) {
+                        if (param == null || param < 0 || param > 8)
+                            throw new RTFJSError("Insufficient metafile information");
+                        return {
+                            load: function () {
+                                try {
+                                    return new WMFJS.Renderer(this._blob);
+                                }
+                                catch (e) {
+                                    if (e instanceof WMFJS.Error)
+                                        return e.message;
+                                    else
+                                        throw e;
+                                }
+                            },
+                            render: function (img) {
+                                return img.render({
+                                    width: Helper._twipsToPt(this._displaysize.width) + "pt",
+                                    height: Helper._twipsToPt(this._displaysize.height) + "pt",
+                                    xExt: this._size.width,
+                                    yExt: this._size.height,
+                                    mapMode: param
+                                });
+                            }
+                        };
+                    };
+                }
+                else {
+                    return "";
+                }
+            })(),
+            dibitmap: "",
+            wbitmap: "" // TODO
+        };
+        _this._type = null;
+        _this._blob = null;
+        _this._displaysize = {
             width: null,
             height: null
         };
-        this._size = {
+        _this._size = {
             width: null,
             height: null
         };
-        this.parser = parser;
-        this.inst = inst;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    var _setPropValueRequired = function (member, prop) {
+        _this.parser = parser;
+        _this.inst = inst;
+        return _this;
+    }
+    pictDestination.prototype._setPropValueRequired = function (member, prop) {
         return function (param) {
             if (param == null)
                 throw new RTFJSError("Picture property has no value");
@@ -8706,94 +8840,14 @@ var pictDestination = function () {
             obj[prop] = param;
         };
     };
-    var _pictHandlers = {
-        picw: _setPropValueRequired("_size", "width"),
-        pich: _setPropValueRequired("_size", "height"),
-        picwgoal: _setPropValueRequired("_displaysize", "width"),
-        pichgoal: _setPropValueRequired("_displaysize", "height")
-    };
-    var _pictTypeHandler = {
-        emfblip: (function () {
-            if (typeof EMFJS !== "undefined") {
-                return function () {
-                    return {
-                        load: function () {
-                            try {
-                                return new EMFJS.Renderer(this._blob);
-                            }
-                            catch (e) {
-                                if (e instanceof EMFJS.Error)
-                                    return e.message;
-                                else
-                                    throw e;
-                            }
-                        },
-                        render: function (img) {
-                            return img.render({
-                                width: Helper._twipsToPt(this._displaysize.width) + "pt",
-                                height: Helper._twipsToPt(this._displaysize.height) + "pt",
-                                wExt: this._size.width,
-                                hExt: this._size.width,
-                                xExt: this._size.width,
-                                yExt: this._size.height,
-                                mapMode: 8
-                            });
-                        }
-                    };
-                };
-            }
-            else {
-                return "";
-            }
-        })(),
-        pngblip: "image/png",
-        jpegblip: "image/jpeg",
-        macpict: "",
-        pmmetafile: "",
-        wmetafile: (function () {
-            if (typeof WMFJS !== "undefined") {
-                return function (param) {
-                    if (param == null || param < 0 || param > 8)
-                        throw new RTFJSError("Insufficient metafile information");
-                    return {
-                        load: function () {
-                            try {
-                                return new WMFJS.Renderer(this._blob);
-                            }
-                            catch (e) {
-                                if (e instanceof WMFJS.Error)
-                                    return e.message;
-                                else
-                                    throw e;
-                            }
-                        },
-                        render: function (img) {
-                            return img.render({
-                                width: Helper._twipsToPt(this._displaysize.width) + "pt",
-                                height: Helper._twipsToPt(this._displaysize.height) + "pt",
-                                xExt: this._size.width,
-                                yExt: this._size.height,
-                                mapMode: param
-                            });
-                        }
-                    };
-                };
-            }
-            else {
-                return "";
-            }
-        })(),
-        dibitmap: "",
-        wbitmap: "" // TODO
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        var handler = _pictHandlers[keyword];
+    pictDestination.prototype.handleKeyword = function (keyword, param) {
+        var handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
         }
         var inst = this;
-        var type = _pictTypeHandler[keyword];
+        var type = this._pictTypeHandler[keyword];
         if (type != null) {
             if (this._type == null) {
                 if (typeof type === "function") {
@@ -8824,10 +8878,10 @@ var pictDestination = function () {
         }
         return false;
     };
-    cls.prototype.handleBlob = function (blob) {
+    pictDestination.prototype.handleBlob = function (blob) {
         this._blob = blob;
     };
-    cls.prototype.apply = function (rendering) {
+    pictDestination.prototype.apply = function (rendering) {
         if (rendering === void 0) { rendering = false; }
         if (this._type == null)
             throw new RTFJSError("Picture type unknown or not specified");
@@ -8945,58 +8999,62 @@ var pictDestination = function () {
         }
         delete this.text;
     };
-    return cls;
-};
-var requiredDestination = function (name) {
-    return function () {
-        DestinationBase.call(this, name);
-    };
+    return pictDestination;
+}(DestinationTextBase));
+var requiredDestinationFactory = function (name) {
+    return /** @class */ (function (_super) {
+        __extends(requiredDestination, _super);
+        function requiredDestination() {
+            return _super.call(this, name) || this;
+        }
+        return requiredDestination;
+    }(DestinationBase));
 };
 var destinations = {
-    rtf: rtfDestination(),
-    info: infoDestination(),
-    title: metaPropertyDestination("title"),
-    subject: metaPropertyDestination("subject"),
-    author: metaPropertyDestination("author"),
-    manager: metaPropertyDestination("manager"),
-    company: metaPropertyDestination("company"),
-    operator: metaPropertyDestination("operator"),
-    category: metaPropertyDestination("category"),
-    keywords: metaPropertyDestination("keywords"),
-    doccomm: metaPropertyDestination("doccomm"),
-    hlinkbase: metaPropertyDestination("hlinkbase"),
-    generator: genericPropertyDestination("rtf", "generator"),
-    creatim: metaPropertyTimeDestination("creatim"),
-    revtim: metaPropertyTimeDestination("revtim"),
-    printim: metaPropertyTimeDestination("printim"),
-    buptim: metaPropertyTimeDestination("buptim"),
-    fonttbl: fonttblDestination(),
-    falt: genericSubTextPropertyDestination("falt", "fonttbl:sub", "setAltFontName"),
-    colortbl: colortblDestination(),
-    stylesheet: stylesheetDestination(),
-    footer: requiredDestination("footer"),
-    footerf: requiredDestination("footerf"),
-    footerl: requiredDestination("footerl"),
-    footerr: requiredDestination("footerr"),
-    footnote: requiredDestination("footnote"),
-    ftncn: requiredDestination("ftncn"),
-    ftnsep: requiredDestination("ftnsep"),
-    ftnsepc: requiredDestination("ftnsepc"),
-    header: requiredDestination("header"),
-    headerf: requiredDestination("headerf"),
-    headerl: requiredDestination("headerl"),
-    headerr: requiredDestination("headerr"),
-    pict: pictDestination(),
-    shppict: pictGroupDestination(false),
-    nonshppict: pictGroupDestination(true),
-    private1: requiredDestination("private1"),
-    rxe: requiredDestination("rxe"),
-    tc: requiredDestination("tc"),
-    txe: requiredDestination("txe"),
-    xe: requiredDestination("xe"),
-    field: fieldDestination(),
-    fldinst: fldinstDestination(),
-    fldrslt: fldrsltDestination(),
+    rtf: rtfDestination,
+    info: infoDestination,
+    title: metaPropertyDestinationFactory("title"),
+    subject: metaPropertyDestinationFactory("subject"),
+    author: metaPropertyDestinationFactory("author"),
+    manager: metaPropertyDestinationFactory("manager"),
+    company: metaPropertyDestinationFactory("company"),
+    operator: metaPropertyDestinationFactory("operator"),
+    category: metaPropertyDestinationFactory("category"),
+    keywords: metaPropertyDestinationFactory("keywords"),
+    doccomm: metaPropertyDestinationFactory("doccomm"),
+    hlinkbase: metaPropertyDestinationFactory("hlinkbase"),
+    generator: genericPropertyDestinationFactory("rtf", "generator"),
+    creatim: metaPropertyTimeDestinationFactory("creatim"),
+    revtim: metaPropertyTimeDestinationFactory("revtim"),
+    printim: metaPropertyTimeDestinationFactory("printim"),
+    buptim: metaPropertyTimeDestinationFactory("buptim"),
+    fonttbl: fonttblDestination,
+    falt: genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    colortbl: colortblDestination,
+    stylesheet: stylesheetDestination,
+    footer: requiredDestinationFactory("footer"),
+    footerf: requiredDestinationFactory("footerf"),
+    footerl: requiredDestinationFactory("footerl"),
+    footerr: requiredDestinationFactory("footerr"),
+    footnote: requiredDestinationFactory("footnote"),
+    ftncn: requiredDestinationFactory("ftncn"),
+    ftnsep: requiredDestinationFactory("ftnsep"),
+    ftnsepc: requiredDestinationFactory("ftnsepc"),
+    header: requiredDestinationFactory("header"),
+    headerf: requiredDestinationFactory("headerf"),
+    headerl: requiredDestinationFactory("headerl"),
+    headerr: requiredDestinationFactory("headerr"),
+    pict: pictDestination,
+    shppict: pictGroupDestinationFactory(false),
+    nonshppict: pictGroupDestinationFactory(true),
+    private1: requiredDestinationFactory("private1"),
+    rxe: requiredDestinationFactory("rxe"),
+    tc: requiredDestinationFactory("tc"),
+    txe: requiredDestinationFactory("txe"),
+    xe: requiredDestinationFactory("xe"),
+    field: fieldDestination,
+    fldinst: fldinstDestination,
+    fldrslt: fldrsltDestination,
 };
 
 /*

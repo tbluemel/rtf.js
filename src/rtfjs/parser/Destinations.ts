@@ -33,7 +33,7 @@ import { Document } from '../Document';
 declare const WMFJS: any;
 declare const EMFJS: any;
 
-var findParentDestination = function (parser, dest) {
+var findParentDestination = function (parser: GlobalState, dest) {
     var state = parser.state;
     while (state != null) {
         if (state.destination == null)
@@ -45,59 +45,86 @@ var findParentDestination = function (parser, dest) {
     Helper.log("findParentDestination() did not find destination " + dest);
 };
 
-var DestinationBase = function (name) {
-    this._name = name;
-};
+class DestinationBase {
+    _name: string;
 
-var DestinationTextBase = function (name) {
-    this._name = name;
-    this.text = "";
-};
-DestinationTextBase.prototype.appendText = function (text) {
-    this.text += text;
-};
-
-var DestinationFormattedTextBase = function (parser, name) {
-    this.parser = parser;
-    this._name = name;
-    this._records = [];
-};
-DestinationFormattedTextBase.prototype.appendText = function (text) {
-    this._records.push(function (rtf) {
-        rtf.appendText(text);
-    });
-};
-DestinationFormattedTextBase.prototype.handleKeyword = function (keyword, param) {
-    this._records.push(function (rtf) {
-        return rtf.handleKeyword(keyword, param);
-    });
-};
-DestinationFormattedTextBase.prototype.apply = function () {
-    var rtf = findParentDestination(this.parser, "rtf");
-    if (rtf == null)
-        throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
-
-    var len = this._records.length;
-    var doRender = true;
-    if (this.renderBegin != null)
-        doRender = this.renderBegin(rtf, len);
-
-    if (doRender) {
-        for (var i = 0; i < len; i++) {
-            this._records[i](rtf);
-        }
-        ;
-        if (this.renderEnd != null)
-            this.renderEnd(rtf, len);
+    constructor(name: string) {
+        this._name = name;
     }
-    delete this._records;
 };
 
-var rtfDestination = function () {
-    var cls = function (parser, inst, name, param) {
+class DestinationTextBase {
+    _name: string;
+    text: string;
+
+    constructor(name: string) {
+        this._name = name;
+        this.text = "";
+    }
+
+    appendText(text) {
+        this.text += text;
+    }
+};
+
+abstract class DestinationFormattedTextBase {
+    parser: GlobalState;
+    _name: string;
+    _records;
+
+    constructor(parser: GlobalState, name: string) {
+        this.parser = parser;
+        this._name = name;
+        this._records = [];
+    }
+
+    appendText(text) {
+        this._records.push(function (rtf) {
+            rtf.appendText(text);
+        });
+    };
+
+    handleKeyword(keyword, param) {
+        this._records.push(function (rtf) {
+            return rtf.handleKeyword(keyword, param);
+        });
+    };
+
+    apply() {
+        var rtf = findParentDestination(this.parser, "rtf");
+        if (rtf == null)
+            throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+
+        var len = this._records.length;
+        var doRender = true;
+        if (this.renderBegin != null)
+            doRender = this.renderBegin(rtf, len);
+
+        if (doRender) {
+            for (var i = 0; i < len; i++) {
+                this._records[i](rtf);
+            }
+            ;
+            if (this.renderEnd != null)
+                this.renderEnd(rtf, len);
+        }
+        delete this._records;
+    };
+
+    abstract renderBegin(rtf, records);
+
+    abstract renderEnd(rtf, records);
+};
+
+class rtfDestination extends DestinationBase {
+    _metadata;
+    parser;
+    inst;
+
+    constructor(parser: GlobalState, inst: Document, name: string, param: number){
+        super(name);
         if (parser.version != null)
             throw new RTFJSError("Unexpected rtf destination");
-        DestinationBase.call(this, name);
 
         // This parameter should be one, but older versions of the spec allow for omission of the version number
         if (param && param != 1)
@@ -107,25 +134,28 @@ var rtfDestination = function () {
         this._metadata = {};
         this.parser = parser;
         this.inst = inst;
-    };
-    cls.prototype = Object.create(DestinationBase.prototype);
-    cls.prototype.addIns = function (func) {
+    }
+
+    addIns(func) {
         this.inst.addIns(func);
     };
-    cls.prototype.appendText = function (text) {
+
+    appendText(text) {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     }
-    cls.prototype.sub = function () {
+
+    sub() {
         Helper.log("[rtf].sub()");
     }
 
-    var _addInsHandler = function (func) {
+    _addInsHandler(func) {
         return function (param) {
             this.inst.addIns(func);
         };
     };
-    var _addFormatIns = function (ptype, props) {
+
+    _addFormatIns(ptype, props) {
         switch (ptype) {
             case "chp":
                 var rchp = new RenderChp(new Chp(props));
@@ -141,50 +171,52 @@ var rtfDestination = function () {
                 break;
         }
     };
-    var _genericFormatSetNoParam = function (ptype, prop, val) {
+
+    _genericFormatSetNoParam(ptype, prop, val) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatOnOff = function (ptype, prop, onval?, offval?) {
+
+    _genericFormatOnOff(ptype, prop, onval?, offval?) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetVal = function (ptype, prop, defaultval) {
+    _genericFormatSetVal(ptype, prop, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetValRequired = function (ptype, prop) {
+    _genericFormatSetValRequired(ptype, prop) {
         return function (param) {
             if (param == null)
                 throw new RTFJSError("Keyword without required param");
             var props = this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+    _genericFormatSetMemberVal(ptype, prop, member, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            _addFormatIns.call(this, ptype, props);
+            this._addFormatIns.call(this, ptype, props);
         };
     };
-    var _charFormatHandlers = {
+    _charFormatHandlers = {
         ansicpg: function (param) {
             //if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
@@ -204,73 +236,74 @@ var rtfDestination = function () {
             Helper.log("[rtf] reset to paragraph defaults");
             this.parser.state.pap = new Pap(null);
         },
-        b: _genericFormatOnOff("chp", "bold"),
-        i: _genericFormatOnOff("chp", "italic"),
-        cf: _genericFormatSetValRequired("chp", "colorindex"),
-        fs: _genericFormatSetValRequired("chp", "fontsize"),
-        f: _genericFormatSetValRequired("chp", "fontfamily"),
-        loch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
-        hich: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
-        dbch: _genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
-        strike: _genericFormatOnOff("chp", "strikethrough"),
-        striked: _genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
-        ul: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
-        uld: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
-        uldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
-        uldashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
-        uldashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
-        uldb: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
-        ulhwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
-        ulldash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
-        ulnone: _genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
-        ulth: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
-        ulthd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
-        ulthdash: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
-        ulthdashd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
-        ulthdashdd: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
-        ululdbwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
-        ulw: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
-        ulwave: _genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
-        li: _genericFormatSetMemberVal("pap", "indent", "left", 0),
-        ri: _genericFormatSetMemberVal("pap", "indent", "right", 0),
-        fi: _genericFormatSetMemberVal("pap", "indent", "firstline", 0),
-        sa: _genericFormatSetValRequired("pap", "spaceafter"),
-        sb: _genericFormatSetValRequired("pap", "spacebefore"),
-        cols: _genericFormatSetVal("sep", "columns", 0),
-        sbknone: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
-        sbkcol: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
-        sbkeven: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
-        sbkodd: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
-        sbkpage: _genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
-        pgnx: _genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
-        pgny: _genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
-        pgndec: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
-        pgnucrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
-        pgnlcrm: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
-        pgnucltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
-        pgnlcltr: _genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
-        qc: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
-        ql: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
-        qr: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
-        qj: _genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
-        paperw: _genericFormatSetVal("dop", "width", 12240),
-        paperh: _genericFormatSetVal("dop", "height", 15480),
-        margl: _genericFormatSetMemberVal("dop", "margin", "left", 1800),
-        margr: _genericFormatSetMemberVal("dop", "margin", "right", 1800),
-        margt: _genericFormatSetMemberVal("dop", "margin", "top", 1440),
-        margb: _genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
-        pgnstart: _genericFormatSetVal("dop", "pagenumberstart", 1),
-        facingp: _genericFormatSetNoParam("dop", "facingpages", true),
-        landscape: _genericFormatSetNoParam("dop", "landscape", true),
-        par: _addInsHandler(function () {
+        b: this._genericFormatOnOff("chp", "bold"),
+        i: this._genericFormatOnOff("chp", "italic"),
+        cf: this._genericFormatSetValRequired("chp", "colorindex"),
+        fs: this._genericFormatSetValRequired("chp", "fontsize"),
+        f: this._genericFormatSetValRequired("chp", "fontfamily"),
+        loch: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
+        hich: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
+        dbch: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
+        strike: this._genericFormatOnOff("chp", "strikethrough"),
+        striked: this._genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
+        ul: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
+        uld: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
+        uldash: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
+        uldashd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
+        uldashdd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
+        uldb: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
+        ulhwave: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
+        ulldash: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
+        ulnone: this._genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
+        ulth: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
+        ulthd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
+        ulthdash: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
+        ulthdashd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
+        ulthdashdd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
+        ululdbwave: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
+        ulw: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
+        ulwave: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
+        li: this._genericFormatSetMemberVal("pap", "indent", "left", 0),
+        ri: this._genericFormatSetMemberVal("pap", "indent", "right", 0),
+        fi: this._genericFormatSetMemberVal("pap", "indent", "firstline", 0),
+        sa: this._genericFormatSetValRequired("pap", "spaceafter"),
+        sb: this._genericFormatSetValRequired("pap", "spacebefore"),
+        cols: this._genericFormatSetVal("sep", "columns", 0),
+        sbknone: this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
+        sbkcol: this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
+        sbkeven: this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
+        sbkodd: this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
+        sbkpage: this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
+        pgnx: this._genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
+        pgny: this._genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
+        pgndec: this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
+        pgnucrm: this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
+        pgnlcrm: this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
+        pgnucltr: this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
+        pgnlcltr: this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
+        qc: this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
+        ql: this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
+        qr: this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
+        qj: this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
+        paperw: this._genericFormatSetVal("dop", "width", 12240),
+        paperh: this._genericFormatSetVal("dop", "height", 15480),
+        margl: this._genericFormatSetMemberVal("dop", "margin", "left", 1800),
+        margr: this._genericFormatSetMemberVal("dop", "margin", "right", 1800),
+        margt: this._genericFormatSetMemberVal("dop", "margin", "top", 1440),
+        margb: this._genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
+        pgnstart: this._genericFormatSetVal("dop", "pagenumberstart", 1),
+        facingp: this._genericFormatSetNoParam("dop", "facingpages", true),
+        landscape: this._genericFormatSetNoParam("dop", "landscape", true),
+        par: this._addInsHandler(function () {
             this.startPar();
         }),
-        line: _addInsHandler(function () {
+        line: this._addInsHandler(function () {
             this.lineBreak();
         }),
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        var handler = _charFormatHandlers[keyword];
+
+    handleKeyword(keyword, param) {
+        var handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
@@ -278,126 +311,156 @@ var rtfDestination = function () {
         //Helper.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
         return false;
     }
-    cls.prototype.apply = function () {
+
+    apply() {
         Helper.log("[rtf] apply()");
         for (var prop in this._metadata)
             this.inst._meta[prop] = this._metadata[prop];
         delete this._metadata;
     }
-    cls.prototype.setMetadata = function (prop, val) {
+    setMetadata(prop, val) {
         this._metadata[prop] = val;
     }
-    return cls;
 };
 
-var genericPropertyDestination = function (parentdest, metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
+var genericPropertyDestinationFactory = function (parentdest, metaprop) {
+    return class genericPropertyDestination extends DestinationTextBase {
+        parser;
+
+        constructor(parser, inst, name) {
+            super(name);
+            this.parser = parser;
+        }
+
+        apply() {
+            var dest = findParentDestination(this.parser, parentdest);
+            if (dest == null)
+                throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+            if (dest.setMetadata == null)
+                throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+            dest.setMetadata(metaprop, this.text);
+        }
     };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var dest = findParentDestination(this.parser, parentdest);
-        if (dest == null)
-            throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
-        if (dest.setMetadata == null)
-            throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
-        dest.setMetadata(metaprop, this.text);
-    };
-    return cls;
 };
 
-var infoDestination = function () {
-    var cls = function (parser, inst, name) {
-        DestinationBase.call(this, name);
+class infoDestination extends DestinationBase {
+    _metadata;
+    inst;
+
+    constructor(parser, inst, name){
+        super(name);
         this._metadata = {};
         this.inst = inst;
-    };
-    cls.prototype.apply = function () {
+    }
+
+    apply() {
         for (var prop in this._metadata)
             this.inst._meta[prop] = this._metadata[prop];
         delete this._metadata;
     }
-    cls.prototype.setMetadata = function (prop, val) {
+
+    setMetadata(prop, val) {
         this._metadata[prop] = val;
     }
-    return cls;
 };
 
-var metaPropertyDestination = function (metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var info = findParentDestination(this.parser, "info");
-        if (info == null)
-            throw new RTFJSError("Destination " + this._name + " must be within info destination");
-        info.setMetadata(metaprop, this.text);
-    };
-    return cls;
-};
+var metaPropertyDestinationFactory = function (metaprop) {
+    return class metaPropertyDestination extends DestinationTextBase {
+        parser;
 
-var metaPropertyTimeDestination = function (metaprop) {
-    var cls = function (parser, inst, name) {
-        DestinationBase.call(this, name);
-        this._yr = null;
-        this._mo = null;
-        this._dy = null;
-        this._hr = null;
-        this._min = null;
-        this._sec = null;
-        this.parser = parser;
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        switch (keyword) {
-            case "yr":
-                this._yr = param;
-                break;
-            case "mo":
-                this._mo = param;
-                break;
-            case "dy":
-                this._dy = param;
-                break;
-            case "hr":
-                this._hr = param;
-                break;
-            case "min":
-                this._min = param;
-                break;
-            case "sec":
-                this._sec = param;
-                break;
-            default:
-                return false;
+        constructor(parser, inst, name) {
+            super(name);
+            this.parser = parser;
         }
 
-        if (param == null)
-            throw new RTFJSError("No param found for keyword " + keyword);
-        return true;
+        apply = function () {
+            var info = findParentDestination(this.parser, "info");
+            if (info == null)
+                throw new RTFJSError("Destination " + this._name + " must be within info destination");
+            info.setMetadata(metaprop, this.text);
+        };
     };
-    cls.prototype.apply = function () {
-        var info = findParentDestination(this.parser, "info");
-        if (info == null)
-            throw new RTFJSError("Destination " + this._name + " must be within info destination");
-        var date = new Date(Date.UTC(
-            this._yr != null ? this._yr : 1970,
-            this._mo != null ? this._mo : 1,
-            this._dy != null ? this._dy : 1,
-            this._hr != null ? this._hr : 0,
-            this._min != null ? this._min : 0,
-            this._sec != null ? this._sec : 0,
-            0));
-        info.setMetadata(metaprop, date);
-    };
-    return cls;
 };
 
-var fonttblDestinationSub = function () {
-    var cls = function (fonttbl) {
-        DestinationBase.call(this, "fonttbl:sub");
+var metaPropertyTimeDestinationFactory = function (metaprop) {
+    return class metaPropertyTimeDestination extends DestinationBase {
+        _yr;
+        _mo;
+        _dy;
+        _hr;
+        _min;
+        _sec;
+        parser;
+
+        constructor(parser, inst, name) {
+            super(name);
+            this._yr = null;
+            this._mo = null;
+            this._dy = null;
+            this._hr = null;
+            this._min = null;
+            this._sec = null;
+            this.parser = parser;
+        }
+
+        handleKeyword(keyword, param) {
+            switch (keyword) {
+                case "yr":
+                    this._yr = param;
+                    break;
+                case "mo":
+                    this._mo = param;
+                    break;
+                case "dy":
+                    this._dy = param;
+                    break;
+                case "hr":
+                    this._hr = param;
+                    break;
+                case "min":
+                    this._min = param;
+                    break;
+                case "sec":
+                    this._sec = param;
+                    break;
+                default:
+                    return false;
+            }
+
+            if (param == null)
+                throw new RTFJSError("No param found for keyword " + keyword);
+            return true;
+        };
+
+        apply() {
+            var info = findParentDestination(this.parser, "info");
+            if (info == null)
+                throw new RTFJSError("Destination " + this._name + " must be within info destination");
+            var date = new Date(Date.UTC(
+                this._yr != null ? this._yr : 1970,
+                this._mo != null ? this._mo : 1,
+                this._dy != null ? this._dy : 1,
+                this._hr != null ? this._hr : 0,
+                this._min != null ? this._min : 0,
+                this._sec != null ? this._sec : 0,
+                0));
+            info.setMetadata(metaprop, date);
+        }
+    };
+};
+
+class fonttblDestinationSub extends DestinationBase {
+    _fonttbl;
+    index;
+    fontname;
+    altfontname;
+    family;
+    pitch;
+    bias;
+    charset;
+
+    constructor(fonttbl){
+        super("fonttbl:sub");
         this._fonttbl = fonttbl;
         this.index = null;
         this.fontname = null;
@@ -407,7 +470,8 @@ var fonttblDestinationSub = function () {
         this.bias = 0;
         this.charset = null;
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
+
+    handleKeyword(keyword, param) {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -463,13 +527,15 @@ var fonttblDestinationSub = function () {
         }
         return false;
     };
-    cls.prototype.appendText = function (text) {
+
+    appendText(text) {
         if (this.fontname == null)
             this.fontname = text;
         else
             this.fontname += text;
     };
-    cls.prototype.apply = function () {
+
+    apply() {
         if (this.index == null)
             throw new RTFJSError("No font index provided");
         if (this.fontname == null)
@@ -477,24 +543,29 @@ var fonttblDestinationSub = function () {
         this._fonttbl.addSub(this);
         delete this._fonttbl;
     };
-    cls.prototype.setAltFontName = function (name) {
+
+    setAltFontName(name) {
         this.altfontname = name;
     };
-    return cls;
 };
 
-var fonttblDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "fonttbl");
+class fonttblDestination extends DestinationBase {
+    _fonts;
+    _sub;
+    inst;
+
+    constructor(parser, inst){
+        super("fonttbl");
         this._fonts = [];
         this._sub = null;
         this.inst = inst;
     };
-    cls.prototype.sub = function () {
-        var subCls = fonttblDestinationSub();
-        return new subCls(this);
+
+    sub = function () {
+        return new fonttblDestinationSub(this);
     };
-    cls.prototype.apply = function () {
+
+    apply() {
         Helper.log("[fonttbl] apply()");
         for (var idx in this._fonts) {
             Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
@@ -502,51 +573,62 @@ var fonttblDestination = function () {
         this.inst._fonts = this._fonts;
         delete this._fonts;
     }
-    cls.prototype.appendText = function (text) {
+
+    appendText(text) {
         this._sub.appendText(text);
         this._sub.apply();
     }
-    cls.prototype.handleKeyword = function (keyword, param) {
+
+    handleKeyword(keyword, param) {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     }
-    cls.prototype.addSub = function (sub) {
+
+    addSub(sub) {
         this._fonts[sub.index] = sub;
     };
-    return cls;
 };
 
-var genericSubTextPropertyDestination = function (name, parentDest, propOrFunc) {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, name);
-        this.parser = parser;
+var genericSubTextPropertyDestinationFactory = function (name, parentDest, propOrFunc) {
+    return class genericSubTextPropertyDestination extends DestinationTextBase {
+        parser;
+
+        constructor(parser) {
+            super(name);
+            this.parser = parser;
+        }
+
+        apply = function () {
+            var dest = findParentDestination(this.parser, parentDest);
+            if (dest == null)
+                throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
+            if (dest[propOrFunc] == null)
+                throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+            if (dest[propOrFunc] instanceof Function)
+                dest[propOrFunc](this.text);
+            else
+                dest[propOrFunc] = this.text;
+        }
     };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
-        var dest = findParentDestination(this.parser, parentDest);
-        if (dest == null)
-            throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
-        if (dest[propOrFunc] == null)
-            throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
-        if (dest[propOrFunc] instanceof Function)
-            dest[propOrFunc](this.text);
-        else
-            dest[propOrFunc] = this.text;
-    }
-    return cls;
 };
 
-var colortblDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "colortbl");
+class colortblDestination extends DestinationBase {
+    _colors;
+    _current;
+    _autoIndex;
+    inst;
+
+    constructor(parser, inst){
+        super("colortbl");
         this._colors = [];
         this._current = null;
         this._autoIndex = null;
         this.inst = inst;
     };
-    cls.prototype._startNewColor = function () {
+
+    _startNewColor() {
         this._current = {
             r: 0,
             g: 0,
@@ -557,7 +639,8 @@ var colortblDestination = function () {
         };
         return this._current;
     };
-    cls.prototype.appendText = function (text) {
+
+    appendText(text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
             if (text[i] != ";")
@@ -575,32 +658,34 @@ var colortblDestination = function () {
             this._current = null;
         }
     };
-    var _validateColorValueRange = function (keyword, param) {
+
+    _validateColorValueRange(keyword, param) {
         if (param == null)
             throw new RTFJSError(keyword + " has no param");
         if (param < 0 || param > 255)
             throw new RTFJSError(keyword + " has invalid param value");
         return param;
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
+
+    handleKeyword(keyword, param) {
         if (this._current == null)
             this._startNewColor();
 
         switch (keyword) {
             case "red":
-                this._current.r = _validateColorValueRange(keyword, param);
+                this._current.r = this._validateColorValueRange(keyword, param);
                 return true;
             case "green":
-                this._current.g = _validateColorValueRange(keyword, param);
+                this._current.g = this._validateColorValueRange(keyword, param);
                 return true;
             case "blue":
-                this._current.b = _validateColorValueRange(keyword, param);
+                this._current.b = this._validateColorValueRange(keyword, param);
                 return true;
             case "ctint":
-                this._current.tint = _validateColorValueRange(keyword, param);
+                this._current.tint = this._validateColorValueRange(keyword, param);
                 return true;
             case "cshade":
-                this._current.shade = _validateColorValueRange(keyword, param);
+                this._current.shade = this._validateColorValueRange(keyword, param);
                 return true;
             default:
                 if (keyword[0] == "c") {
@@ -613,7 +698,8 @@ var colortblDestination = function () {
         Helper.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
         return false;
     }
-    cls.prototype.apply = function () {
+
+    apply() {
         Helper.log("[colortbl] apply()");
         if (this._autoIndex == null)
             this._autoIndex = 0;
@@ -625,105 +711,122 @@ var colortblDestination = function () {
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
     }
-    return cls;
 };
 
-var stylesheetDestinationSub = function () {
-    var _handleKeywordCommon = function (member) {
+class stylesheetDestinationSub extends DestinationBase{
+    _stylesheet;
+    index;
+    name;
+    handler;
+    paragraph?;
+
+    constructor(stylesheet){
+        super("stylesheet:sub");
+        this._stylesheet = stylesheet;
+        this.index = 0;
+        this.name = null;
+        this.handler = this._handleKeywordCommon("paragraph");
+    };
+
+    _handleKeywordCommon = function (member) {
         return function (keyword, param) {
             Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
             return false;
         };
     };
 
-    var cls = function (stylesheet) {
-        DestinationBase.call(this, "stylesheet:sub");
-        this._stylesheet = stylesheet;
-        this.index = 0;
-        this.name = null;
-        this.handler = _handleKeywordCommon("paragraph");
-    };
-    cls.prototype.handleKeyword = function (keyword, param) {
+    handleKeyword(keyword, param) {
         switch (keyword) {
             case "s":
                 this.index = param;
                 return true;
             case "cs":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("character");
+                this.handler = this._handleKeywordCommon("character");
                 this.index = param;
                 return true;
             case "ds":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("section");
+                this.handler = this._handleKeywordCommon("section");
                 this.index = param;
                 return true;
             case "ts":
                 delete this.paragraph;
-                this.handler = _handleKeywordCommon("table");
+                this.handler = this._handleKeywordCommon("table");
                 this.index = param;
                 return true;
         }
 
         return this.handler(keyword, param);
     };
-    cls.prototype.appendText = function (text) {
+
+    appendText(text) {
         if (this.name == null)
             this.name = text;
         else
             this.name += text;
     };
-    cls.prototype.apply = function () {
+
+    apply() {
         this._stylesheet.addSub({
             index: this.index,
             name: this.name
         });
         delete this._stylesheet;
     };
-    return cls;
 };
 
-var stylesheetDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationBase.call(this, "stylesheet");
+class stylesheetDestination extends DestinationBase {
+    _stylesheets;
+    inst;
+
+    constructor(parser, inst){
+        super("stylesheet");
         this._stylesheets = [];
         this.inst = inst;
     };
-    cls.prototype.sub = function () {
-        var subCls = stylesheetDestinationSub();
-        return new subCls(this);
+
+    sub() {
+        return new stylesheetDestinationSub(this);
     };
-    cls.prototype.apply = function () {
+
+    apply() {
         Helper.log("[stylesheet] apply()");
         for (var idx in this._stylesheets)
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
     };
-    cls.prototype.addSub = function (sub) {
+
+    addSub(sub) {
         //Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
         this._stylesheets[sub.index] = sub;
     };
-    return cls;
 };
 
-var fieldDestination = function () {
-    var cls = function () {
-        DestinationBase.call(this, "field");
+class fieldDestination extends DestinationBase {
+    _haveInst;
+    _parsedInst;
+    _result;
+
+    constructor(){
+        super("field");
         this._haveInst = false;
         this._parsedInst = null; // FieldBase
         this._result = null;
     };
-    cls.prototype.apply = function () {
+
+    apply() {
         if (!this._haveInst)
             throw new RTFJSError("Field has no fldinst destination");
         //A fldrslt destination should be included but is not required
         // if (this._result == null)
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
-    cls.prototype.setInst = function (inst) {
+
+    setInst(inst) {
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
@@ -736,77 +839,93 @@ var fieldDestination = function () {
                 throw new RTFJSError(error.message);
             })
     };
-    cls.prototype.getInst = function () {
+
+    getInst() {
         return this._parsedInst;
     };
-    cls.prototype.setResult = function (inst) {
+
+    setResult(inst) {
         if (this._result != null)
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
         this._result = inst;
     };
-    return cls;
 };
 
-var FieldBase = function (fldinst) {
-    this._fldinst = fldinst;
-};
-FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
-    if (records > 0) {
-        rtf.addIns(function () {
-            this.popContainer();
-        });
+class FieldBase {
+    _fldinst;
+
+    constructor(fldinst) {
+        this._fldinst = fldinst;
     }
+
+    renderFieldEnd(field, rtf, records) {
+        if (records > 0) {
+            rtf.addIns(function () {
+                this.popContainer();
+            });
+        }
+    };
 };
 
-var FieldHyperlink = function (inst, fldinst, data) {
-    FieldBase.call(this, fldinst);
-    this._url = data;
-    this.inst = inst;
-};
-FieldHyperlink.prototype = Object.create(FieldBase.prototype);
-FieldHyperlink.prototype.url = function () {
-    return this._url;
-};
-FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
-    var self = this;
-    if (records > 0) {
-        rtf.addIns(function () {
-            var inst = this._doc;
-            var renderer = this;
-            var create = function () {
-                return renderer.buildHyperlinkElement(self._url);
-            };
-            var container;
-            if (inst._settings.onHyperlink != null) {
-                container = inst._settings.onHyperlink.call(this.inst, create, self);
-            } else {
-                var elem = create();
-                container = {
-                    element: elem,
-                    content: elem
+class FieldHyperlink extends FieldBase {
+    _url;
+    inst;
+
+    constructor(inst, fldinst, data) {
+        super(fldinst);
+        this._url = data;
+        this.inst = inst;
+    }
+
+    url() {
+        return this._url;
+    }
+
+    renderFieldBegin(field, rtf, records) {
+        var self = this;
+        if (records > 0) {
+            rtf.addIns(function () {
+                var inst = this._doc;
+                var renderer = this;
+                var create = function () {
+                    return renderer.buildHyperlinkElement(self._url);
                 };
-            }
-            this.pushContainer(container);
-        });
-        return true;
-    }
-    return false;
+                var container;
+                if (inst._settings.onHyperlink != null) {
+                    container = inst._settings.onHyperlink.call(this.inst, create, self);
+                } else {
+                    var elem = create();
+                    container = {
+                        element: elem,
+                        content: elem
+                    };
+                }
+                this.pushContainer(container);
+            });
+            return true;
+        }
+        return false;
+    };
 };
 
-var fldinstDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, "fldinst");
+class fldinstDestination extends DestinationTextBase {
+    parser;
+    inst;
+
+    constructor(parser, inst){
+        super("fldinst");
         this.parser = parser;
         this.inst = inst;
     };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    cls.prototype.apply = function () {
+
+    apply() {
         var field = findParentDestination(this.parser, "field");
         if (field == null)
             throw new RTFJSError("fldinst destination must be child of field destination");
         field.setInst(this.parseType());
     };
-    cls.prototype.parseType = function () {
+
+    parseType() {
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
             var data = this.text.substr(sep + 1);
@@ -851,8 +970,7 @@ var fldinstDestination = function () {
                                             w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300)
                                         }
-                                        const cls  = pictDestination();
-                                        pict = new cls(self.parser, self.inst);
+                                        pict = new pictDestination(self.parser, self.inst);
 
                                         pict.handleBlob(blob);
                                         pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
@@ -893,25 +1011,23 @@ var fldinstDestination = function () {
             }
         }
     };
-    return cls;
 };
 
-var fldrsltDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationFormattedTextBase.call(this, "fldrslt");
-        this.parser = parser;
+class fldrsltDestination extends DestinationFormattedTextBase {
+    constructor(parser, inst){
+        super(parser, "fldrslt");
     };
-    cls.prototype = Object.create(DestinationFormattedTextBase.prototype);
-    var baseApply = cls.prototype.apply;
-    cls.prototype.apply = function () {
+
+    apply() {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
 
-        baseApply.call(this);
+        super.apply();
     };
-    cls.prototype.renderBegin = function (rtf, records) {
+
+    renderBegin(rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -920,7 +1036,8 @@ var fldrsltDestination = function () {
         }
         return false;
     };
-    cls.prototype.renderEnd = function (rtf, records) {
+
+    renderEnd(rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -928,25 +1045,33 @@ var fldrsltDestination = function () {
                 inst.renderFieldEnd(field, rtf, records);
         }
     };
-    return cls;
 };
 
-var pictGroupDestination = function (legacy) {
-    var cls = function () {
-        DestinationTextBase.call(this, "pict-group");
-        this._legacy = legacy;
-    };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
+var pictGroupDestinationFactory = function (legacy) {
+    return class pictGroupDestinationFactory extends DestinationTextBase {
+        _legacy;
 
-    cls.prototype.isLegacy = function () {
-        return this._legacy;
+        constructor() {
+            super("pict-group");
+            this._legacy = legacy;
+        }
+
+        isLegacy() {
+            return this._legacy;
+        }
     };
-    return cls;
 };
 
-var pictDestination = function () {
-    var cls = function (parser, inst) {
-        DestinationTextBase.call(this, "pict");
+class pictDestination extends DestinationTextBase {
+    _type;
+    _blob;
+    _displaysize;
+    _size;
+    parser;
+    inst;
+
+    constructor(parser, inst){
+        super("pict");
         this._type = null;
         this._blob = null;
         this._displaysize = {
@@ -960,8 +1085,8 @@ var pictDestination = function () {
         this.parser = parser;
         this.inst = inst;
     };
-    cls.prototype = Object.create(DestinationTextBase.prototype);
-    var _setPropValueRequired = function (member, prop) {
+
+    _setPropValueRequired(member, prop) {
         return function (param) {
             if (param == null)
                 throw new RTFJSError("Picture property has no value");
@@ -970,13 +1095,15 @@ var pictDestination = function () {
             obj[prop] = param;
         };
     };
-    var _pictHandlers = {
-        picw: _setPropValueRequired("_size", "width"),
-        pich: _setPropValueRequired("_size", "height"),
-        picwgoal: _setPropValueRequired("_displaysize", "width"),
-        pichgoal: _setPropValueRequired("_displaysize", "height")
+
+    _pictHandlers = {
+        picw: this._setPropValueRequired("_size", "width"),
+        pich: this._setPropValueRequired("_size", "height"),
+        picwgoal: this._setPropValueRequired("_displaysize", "width"),
+        pichgoal: this._setPropValueRequired("_displaysize", "height")
     };
-    var _pictTypeHandler = {
+
+    _pictTypeHandler = {
         emfblip: (function () {
             if (typeof EMFJS !== "undefined") {
                 return function () {
@@ -1046,14 +1173,15 @@ var pictDestination = function () {
         dibitmap: "", // TODO
         wbitmap: "" // TODO
     };
-    cls.prototype.handleKeyword = function (keyword, param) {
-        var handler = _pictHandlers[keyword];
+
+    handleKeyword(keyword, param) {
+        var handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
         }
         var inst = this;
-        var type = _pictTypeHandler[keyword];
+        var type = this._pictTypeHandler[keyword];
         if (type != null) {
             if (this._type == null) {
                 if (typeof type === "function") {
@@ -1082,10 +1210,12 @@ var pictDestination = function () {
         }
         return false;
     };
-    cls.prototype.handleBlob = function (blob) {
+
+    handleBlob(blob) {
         this._blob = blob;
     };
-    cls.prototype.apply = function (rendering=false) {
+
+    apply(rendering=false) {
         if (this._type == null)
             throw new RTFJSError("Picture type unknown or not specified");
         //if (this._size.width == null || this._size.height == null)
@@ -1200,58 +1330,59 @@ var pictDestination = function () {
 
         delete this.text;
     }
-    return cls;
 };
 
-var requiredDestination = function (name) {
-    return function () {
-        DestinationBase.call(this, name);
+var requiredDestinationFactory = function (name) {
+    return class requiredDestination extends DestinationBase {
+        constructor(){
+            super(name);
+        }
     };
 };
 
-export const destinations: { [s: string]: (parser: GlobalState, inst: Document, name: string, param: number) => void } = {
-    rtf: rtfDestination(),
-    info: infoDestination(),
-    title: metaPropertyDestination("title"),
-    subject: metaPropertyDestination("subject"),
-    author: metaPropertyDestination("author"),
-    manager: metaPropertyDestination("manager"),
-    company: metaPropertyDestination("company"),
-    operator: metaPropertyDestination("operator"),
-    category: metaPropertyDestination("category"),
-    keywords: metaPropertyDestination("keywords"),
-    doccomm: metaPropertyDestination("doccomm"),
-    hlinkbase: metaPropertyDestination("hlinkbase"),
-    generator: genericPropertyDestination("rtf", "generator"),
-    creatim: metaPropertyTimeDestination("creatim"),
-    revtim: metaPropertyTimeDestination("revtim"),
-    printim: metaPropertyTimeDestination("printim"),
-    buptim: metaPropertyTimeDestination("buptim"),
-    fonttbl: fonttblDestination(),
-    falt: genericSubTextPropertyDestination("falt", "fonttbl:sub", "setAltFontName"),
-    colortbl: colortblDestination(),
-    stylesheet: stylesheetDestination(),
-    footer: requiredDestination("footer"),
-    footerf: requiredDestination("footerf"),
-    footerl: requiredDestination("footerl"),
-    footerr: requiredDestination("footerr"),
-    footnote: requiredDestination("footnote"),
-    ftncn: requiredDestination("ftncn"),
-    ftnsep: requiredDestination("ftnsep"),
-    ftnsepc: requiredDestination("ftnsepc"),
-    header: requiredDestination("header"),
-    headerf: requiredDestination("headerf"),
-    headerl: requiredDestination("headerl"),
-    headerr: requiredDestination("headerr"),
-    pict: pictDestination(),
-    shppict: pictGroupDestination(false),
-    nonshppict: pictGroupDestination(true),
-    private1: requiredDestination("private1"),
-    rxe: requiredDestination("rxe"),
-    tc: requiredDestination("tc"),
-    txe: requiredDestination("txe"),
-    xe: requiredDestination("xe"),
-    field: fieldDestination(),
-    fldinst: fldinstDestination(),
-    fldrslt: fldrsltDestination(),
+export const destinations = {
+    rtf: rtfDestination,
+    info: infoDestination,
+    title: metaPropertyDestinationFactory("title"),
+    subject: metaPropertyDestinationFactory("subject"),
+    author: metaPropertyDestinationFactory("author"),
+    manager: metaPropertyDestinationFactory("manager"),
+    company: metaPropertyDestinationFactory("company"),
+    operator: metaPropertyDestinationFactory("operator"),
+    category: metaPropertyDestinationFactory("category"),
+    keywords: metaPropertyDestinationFactory("keywords"),
+    doccomm: metaPropertyDestinationFactory("doccomm"),
+    hlinkbase: metaPropertyDestinationFactory("hlinkbase"),
+    generator: genericPropertyDestinationFactory("rtf", "generator"),
+    creatim: metaPropertyTimeDestinationFactory("creatim"),
+    revtim: metaPropertyTimeDestinationFactory("revtim"),
+    printim: metaPropertyTimeDestinationFactory("printim"),
+    buptim: metaPropertyTimeDestinationFactory("buptim"),
+    fonttbl: fonttblDestination,
+    falt: genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    colortbl: colortblDestination,
+    stylesheet: stylesheetDestination,
+    footer: requiredDestinationFactory("footer"),
+    footerf: requiredDestinationFactory("footerf"),
+    footerl: requiredDestinationFactory("footerl"),
+    footerr: requiredDestinationFactory("footerr"),
+    footnote: requiredDestinationFactory("footnote"),
+    ftncn: requiredDestinationFactory("ftncn"),
+    ftnsep: requiredDestinationFactory("ftnsep"),
+    ftnsepc: requiredDestinationFactory("ftnsepc"),
+    header: requiredDestinationFactory("header"),
+    headerf: requiredDestinationFactory("headerf"),
+    headerl: requiredDestinationFactory("headerl"),
+    headerr: requiredDestinationFactory("headerr"),
+    pict: pictDestination,
+    shppict: pictGroupDestinationFactory(false),
+    nonshppict: pictGroupDestinationFactory(true),
+    private1: requiredDestinationFactory("private1"),
+    rxe: requiredDestinationFactory("rxe"),
+    tc: requiredDestinationFactory("tc"),
+    txe: requiredDestinationFactory("txe"),
+    xe: requiredDestinationFactory("xe"),
+    field: fieldDestination,
+    fldinst: fldinstDestination,
+    fldrslt: fldrsltDestination,
 };
