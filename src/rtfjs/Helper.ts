@@ -43,7 +43,7 @@ export function loggingEnabled(enabled: boolean){
 }
 
 export const Helper = {
-    log: function(message){
+    log: function(message: string){
         if(isLoggingEnabled) {
             console.log(message);
         }
@@ -108,7 +108,7 @@ export const Helper = {
         DOUBLE: "dbch"
     },
 
-    _isalpha: function(str) {
+    _isalpha: function(str: string): boolean {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -119,7 +119,7 @@ export const Helper = {
         }
         return len > 0;
     },
-    _isdigit: function(str) {
+    _isdigit: function(str: string): boolean {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -128,7 +128,7 @@ export const Helper = {
         }
         return len > 0;
     },
-    _parseHex: function(str) {
+    _parseHex: function(str: string): number {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -142,7 +142,7 @@ export const Helper = {
             return parseInt(str, 16);
         return NaN;
     },
-    _blobToBinary: function(blob) {
+    _blobToBinary: function(blob: Uint8Array): string {
         var view = new Uint8Array(blob);
         var ret = "";
         var len = view.length;
@@ -150,7 +150,7 @@ export const Helper = {
             ret += String.fromCharCode(view[i]);
         return ret;
     },
-    _hexToBlob: function(str) {
+    _hexToBlob: function(str: string): ArrayBuffer {
         var len = str.length;
         var buf = new ArrayBuffer(Math.floor(len-- / 2));
         var view = new Uint8Array(buf);
@@ -163,7 +163,7 @@ export const Helper = {
         }
         return buf;
     },
-    _hexToBinary: function(str) {
+    _hexToBinary: function(str: string): string {
         var bin = ""
         var len = str.length - 1;
         for (var i = 0; i < len; i += 2) {
@@ -206,7 +206,7 @@ export const Helper = {
         "254": 437,  // PC 437
         "255": 850,  // OEM
     },
-    _mapCharset: function(idx) {
+    _mapCharset: function(idx: string) {
         return this._charsetMap[idx.toString()];
     },
 
@@ -229,19 +229,19 @@ export const Helper = {
         backgroundtwo: null,
         texttwo: null,
     },
-    _mapColorTheme: function(name) {
+    _mapColorTheme: function(name: string) {
         return this._colorThemeMap[name];
     },
     _colorToStr: function(color) {
         return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
     },
-    _twipsToPt: function(twips) {
+    _twipsToPt: function(twips: number) {
         return Math.floor(twips / 20);
     },
-    _twipsToPx: function(twips) {
+    _twipsToPx: function(twips: number) {
         return Math.floor(twips / 20 * 96 / 72);
     },
-    _pxToTwips: function(px) {
+    _pxToTwips: function(px: number) {
         return Math.floor(px * 20 * 72 / 96);
     }
 };

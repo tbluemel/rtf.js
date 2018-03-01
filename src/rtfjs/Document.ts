@@ -33,7 +33,7 @@ export class Document {
     _colors;
     _autoColor;
     _stylesheets;
-    _ins;
+    _ins: (string | (() => void))[];
 
     constructor(settings) {
         this._settings = settings || {};
@@ -45,7 +45,7 @@ export class Document {
         this._ins = [];
     }
 
-    _lookupColor (idx) {
+    _lookupColor (idx: number) {
         if (idx == 0) {
             if (this._autoColor == null)
                 return null;
@@ -56,7 +56,7 @@ export class Document {
         return this._colors[idx];
     };
 
-    addIns(ins) {
+    addIns(ins: string | (() => void)) {
         this._ins.push(ins);
     };
 

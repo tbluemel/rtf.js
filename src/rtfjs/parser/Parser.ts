@@ -65,7 +65,7 @@ export class Parser {
         }
     }
 
-    private readBlob(cnt) {
+    private readBlob(cnt: number) {
         if (this.parser.pos + cnt > this.parser.data.length)
             throw new RTFJSError("Cannot read binary data: too long");
         var buf = new ArrayBuffer(cnt);
@@ -75,7 +75,7 @@ export class Parser {
         return buf;
     }
 
-    private applyDestination(always) {
+    private applyDestination(always: boolean) {
         var dest = this.parser.state.destination;
         if (dest != null) {
             if (always || this.parser.state.parent == null || this.parser.state.parent.destination != this.parser.state.destination) {
@@ -97,7 +97,7 @@ export class Parser {
         }
     }
 
-    private pushState(forceSkip) {
+    private pushState(forceSkip: boolean) {
         this.parser.state = new State(this.parser.state);
         if (forceSkip)
             this.parser.state.skipdestination = true;
@@ -141,7 +141,7 @@ export class Parser {
         return this.parser.state;
     };
 
-    private changeDestination(name: string, param) {
+    private changeDestination(name: string, param: number) {
         this.applyText();
         var handler = destinations[name];
         if (handler != null) {
@@ -152,7 +152,7 @@ export class Parser {
         return false;
     };
 
-    private processKeyword(keyword, param) {
+    private processKeyword(keyword: string, param: number) {
         var first = this.parser.state.first;
         if (first) {
             if (keyword == "*") {
@@ -251,7 +251,7 @@ export class Parser {
         this.parser.state.skipdestination = false;
     };
 
-    private appendText(text) {
+    private appendText(text: string) {
         // Handle characters not found in codepage
         text = text ? text : "";
 
@@ -271,7 +271,7 @@ export class Parser {
         }
     };
 
-    private applyBlob(blob) {
+    private applyBlob(blob: ArrayBuffer) {
         this.parser.state.first = false;
         this.applyText();
         if (this.parser.state.skipchars > 0) {
@@ -290,7 +290,7 @@ export class Parser {
         if (this.parser.state == null)
             throw new RTFJSError("No state");
 
-        var param;
+        var param: number;
         var ch = this.readChar();
         if (!Helper._isalpha(ch)) {
             if (ch == "\'") {
@@ -361,7 +361,7 @@ export class Parser {
         }
     };
 
-    private parseLoop(skip, process: boolean) {
+    private parseLoop(skip: boolean, process: boolean) {
         try {
             var initialState = this.parser.state;
             main_loop: while (!this.eof()) {

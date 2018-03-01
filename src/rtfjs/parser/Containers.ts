@@ -28,14 +28,14 @@ import { Helper } from '../Helper';
 import { Renderer } from '../Renderer';
 
 export class Chp {
-    bold;
-    underline;
-    italic;
-    strikethrough;
-    dblstrikethrough;
-    colorindex;
-    fontsize;
-    fontfamily;
+    bold: boolean;
+    underline: string;
+    italic: boolean;
+    strikethrough: boolean;
+    dblstrikethrough: boolean;
+    colorindex: number;
+    fontsize: number;
+    fontfamily: string;
 
     constructor(parent: Chp) {
         if (parent != null) {
@@ -60,10 +60,10 @@ export class Chp {
 };
 
 export class Pap {
-    indent;
-    justification;
-    spacebefore;
-    spaceafter;
+    indent: {left: number, right: number, firstline: number};
+    justification: string;
+    spacebefore: number;
+    spaceafter: number;
     charactertype;
 
     constructor(parent: Pap) {
@@ -91,10 +91,10 @@ export class Pap {
 };
 
 export class Sep {
-    columns;
-    breaktype;
-    pagenumber;
-    pagenumberformat;
+    columns: number;
+    breaktype: string;
+    pagenumber: {x: number, y: number};
+    pagenumberformat: string;
 
     constructor(parent: Sep) {
         if (parent != null) {
@@ -118,12 +118,12 @@ export class Sep {
 };
 
 export class Dop {
-    width;
-    height;
-    margin;
-    pagenumberstart;
-    facingpages;
-    landscape;
+    width: number;
+    height: number;
+    margin: {left: number, top: number, right: number, bottom: number};
+    pagenumberstart: number;
+    facingpages: boolean;
+    landscape: boolean;
 
     constructor(parent: Dop) {
         if (parent != null) {
@@ -156,17 +156,17 @@ export class Dop {
 
 export class State {
     parent: State;
-    first;
-    skipchars;
-    bindata;
-    chp;
-    pap;
-    sep;
-    dop;
+    first: boolean;
+    skipchars: number;
+    bindata: number;
+    chp: Chp;
+    pap: Pap;
+    sep: Sep;
+    dop: Dop;
     destination;
-    skipunknowndestination;
-    skipdestination;
-    ucn;
+    skipunknowndestination: boolean;
+    skipdestination: boolean;
+    ucn: number;
 
     constructor(parent: State) {
         this.parent = parent;

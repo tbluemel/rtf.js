@@ -1209,7 +1209,7 @@ var requiredDestination = function (name) {
     };
 };
 
-export const destinations: { [s: string]: (parser: GlobalState, inst: Document, name: string, param: any) => void } = {
+export const destinations: { [s: string]: (parser: GlobalState, inst: Document, name: string, param: number) => void } = {
     rtf: rtfDestination(),
     info: infoDestination(),
     title: metaPropertyDestination("title"),

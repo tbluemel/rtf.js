@@ -22,7 +22,7 @@
 
 // Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
 
-export const SymbolTable = {
+export const SymbolTable: {[key: string]: string} = {
     "20": "\u0020",
     "21": "\u0021",
     "22": "\u2200",
