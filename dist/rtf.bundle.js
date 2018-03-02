@@ -7897,15 +7897,15 @@ var rtfDestination = /** @class */ (function (_super) {
                     this.parser.codepage = param;
                 }
             },
-            sectd: function (param) {
+            sectd: function () {
                 Helper.log("[rtf] reset to section defaults");
                 this.parser.state.sep = new Sep(null);
             },
-            plain: function (param) {
+            plain: function () {
                 Helper.log("[rtf] reset to character defaults");
                 this.parser.state.chp = new Chp(null);
             },
-            pard: function (param) {
+            pard: function () {
                 Helper.log("[rtf] reset to paragraph defaults");
                 this.parser.state.pap = new Pap(null);
             },
@@ -8277,14 +8277,14 @@ var fonttblDestination = /** @class */ (function (_super) {
     __extends(fonttblDestination, _super);
     function fonttblDestination(parser, inst) {
         var _this = _super.call(this, "fonttbl") || this;
-        _this.sub = function () {
-            return new fonttblDestinationSub(this);
-        };
         _this._fonts = [];
         _this._sub = null;
         _this.inst = inst;
         return _this;
     }
+    fonttblDestination.prototype.sub = function () {
+        return new fonttblDestinationSub(this);
+    };
     fonttblDestination.prototype.apply = function () {
         Helper.log("[fonttbl] apply()");
         for (var idx in this._fonts) {

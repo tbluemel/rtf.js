@@ -33,7 +33,7 @@ import { Document } from '../Document';
 declare const WMFJS: any;
 declare const EMFJS: any;
 
-var findParentDestination = function (parser: GlobalState, dest) {
+var findParentDestination = function (parser: GlobalState, dest: string) {
     var state = parser.state;
     while (state != null) {
         if (state.destination == null)
@@ -62,7 +62,7 @@ class DestinationTextBase {
         this.text = "";
     }
 
-    appendText(text) {
+    appendText(text: string) {
         this.text += text;
     }
 };
@@ -70,7 +70,7 @@ class DestinationTextBase {
 abstract class DestinationFormattedTextBase {
     parser: GlobalState;
     _name: string;
-    _records;
+    _records: ((rtf: rtfDestination) => void)[];
 
     constructor(parser: GlobalState, name: string) {
         this.parser = parser;
@@ -78,14 +78,14 @@ abstract class DestinationFormattedTextBase {
         this._records = [];
     }
 
-    appendText(text) {
-        this._records.push(function (rtf) {
+    appendText(text: string) {
+        this._records.push(function (rtf: rtfDestination) {
             rtf.appendText(text);
         });
     };
 
-    handleKeyword(keyword, param) {
-        this._records.push(function (rtf) {
+    handleKeyword(keyword: string, param: number) {
+        this._records.push(function (rtf: rtfDestination) {
             return rtf.handleKeyword(keyword, param);
         });
     };
@@ -104,22 +104,21 @@ abstract class DestinationFormattedTextBase {
             for (var i = 0; i < len; i++) {
                 this._records[i](rtf);
             }
-            ;
             if (this.renderEnd != null)
                 this.renderEnd(rtf, len);
         }
         delete this._records;
     };
 
-    abstract renderBegin(rtf, records);
+    abstract renderBegin(rtf: rtfDestination, records: number);
 
-    abstract renderEnd(rtf, records);
+    abstract renderEnd(rtf: rtfDestination, records: number);
 };
 
 class rtfDestination extends DestinationBase {
     _metadata;
-    parser;
-    inst;
+    parser: GlobalState;
+    inst: Document;
 
     constructor(parser: GlobalState, inst: Document, name: string, param: number){
         super(name);
@@ -140,7 +139,7 @@ class rtfDestination extends DestinationBase {
         this.inst.addIns(func);
     };
 
-    appendText(text) {
+    appendText(text: string) {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     }
@@ -155,16 +154,16 @@ class rtfDestination extends DestinationBase {
         };
     };
 
-    _addFormatIns(ptype, props) {
+    _addFormatIns(ptype: string, props: Chp | Pap) {
         switch (ptype) {
             case "chp":
-                var rchp = new RenderChp(new Chp(props));
+                var rchp = new RenderChp(new Chp(<Chp>props));
                 this.inst.addIns(function () {
                     this.setChp(rchp);
                 });
                 break;
             case "pap":
-                var rpap = new RenderPap(new Pap(props));
+                var rpap = new RenderPap(new Pap(<Pap>props));
                 this.inst.addIns(function () {
                     this.setPap(rpap);
                 });
@@ -172,7 +171,7 @@ class rtfDestination extends DestinationBase {
         }
     };
 
-    _genericFormatSetNoParam(ptype, prop, val) {
+    _genericFormatSetNoParam(ptype: string, prop, val) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = val;
@@ -181,7 +180,7 @@ class rtfDestination extends DestinationBase {
         };
     };
 
-    _genericFormatOnOff(ptype, prop, onval?, offval?) {
+    _genericFormatOnOff(ptype: string, prop, onval?, offval?) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
@@ -189,7 +188,7 @@ class rtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetVal(ptype, prop, defaultval) {
+    _genericFormatSetVal(ptype: string, prop, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
@@ -197,7 +196,7 @@ class rtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetValRequired(ptype, prop) {
+    _genericFormatSetValRequired(ptype: string, prop) {
         return function (param) {
             if (param == null)
                 throw new RTFJSError("Keyword without required param");
@@ -207,7 +206,7 @@ class rtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetMemberVal(ptype, prop, member, defaultval) {
+    _genericFormatSetMemberVal(ptype: string, prop, member, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             var members = props[prop];
@@ -217,22 +216,22 @@ class rtfDestination extends DestinationBase {
         };
     };
     _charFormatHandlers = {
-        ansicpg: function (param) {
+        ansicpg: function (param: number) {
             //if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
                 Helper.log("[rtf] using charset: " + param);
                 this.parser.codepage = param;
             }
         },
-        sectd: function (param) {
+        sectd: function () {
             Helper.log("[rtf] reset to section defaults");
             this.parser.state.sep = new Sep(null);
         },
-        plain: function (param) {
+        plain: function () {
             Helper.log("[rtf] reset to character defaults");
             this.parser.state.chp = new Chp(null);
         },
-        pard: function (param) {
+        pard: function () {
             Helper.log("[rtf] reset to paragraph defaults");
             this.parser.state.pap = new Pap(null);
         },
@@ -302,7 +301,7 @@ class rtfDestination extends DestinationBase {
         }),
     };
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         var handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
@@ -325,9 +324,9 @@ class rtfDestination extends DestinationBase {
 
 var genericPropertyDestinationFactory = function (parentdest, metaprop) {
     return class genericPropertyDestination extends DestinationTextBase {
-        parser;
+        parser: GlobalState;
 
-        constructor(parser, inst, name) {
+        constructor(parser: GlobalState, inst: Document, name: string) {
             super(name);
             this.parser = parser;
         }
@@ -345,9 +344,9 @@ var genericPropertyDestinationFactory = function (parentdest, metaprop) {
 
 class infoDestination extends DestinationBase {
     _metadata;
-    inst;
+    inst: Document;
 
-    constructor(parser, inst, name){
+    constructor(parser: GlobalState, inst: Document, name: string){
         super(name);
         this._metadata = {};
         this.inst = inst;
@@ -366,9 +365,9 @@ class infoDestination extends DestinationBase {
 
 var metaPropertyDestinationFactory = function (metaprop) {
     return class metaPropertyDestination extends DestinationTextBase {
-        parser;
+        parser: GlobalState;
 
-        constructor(parser, inst, name) {
+        constructor(parser: GlobalState, inst: Document, name: string) {
             super(name);
             this.parser = parser;
         }
@@ -384,15 +383,15 @@ var metaPropertyDestinationFactory = function (metaprop) {
 
 var metaPropertyTimeDestinationFactory = function (metaprop) {
     return class metaPropertyTimeDestination extends DestinationBase {
-        _yr;
-        _mo;
-        _dy;
-        _hr;
-        _min;
-        _sec;
-        parser;
+        _yr: number;
+        _mo: number;
+        _dy: number;
+        _hr: number;
+        _min: number;
+        _sec: number;
+        parser: GlobalState;
 
-        constructor(parser, inst, name) {
+        constructor(parser: GlobalState, inst: Document, name: string) {
             super(name);
             this._yr = null;
             this._mo = null;
@@ -403,7 +402,7 @@ var metaPropertyTimeDestinationFactory = function (metaprop) {
             this.parser = parser;
         }
 
-        handleKeyword(keyword, param) {
+        handleKeyword(keyword: string, param: number) {
             switch (keyword) {
                 case "yr":
                     this._yr = param;
@@ -450,16 +449,16 @@ var metaPropertyTimeDestinationFactory = function (metaprop) {
 };
 
 class fonttblDestinationSub extends DestinationBase {
-    _fonttbl;
-    index;
-    fontname;
-    altfontname;
-    family;
-    pitch;
-    bias;
-    charset;
+    _fonttbl: fonttblDestination;
+    index: number;
+    fontname: string;
+    altfontname: string;
+    family: string;
+    pitch: number;
+    bias: number;
+    charset: number;
 
-    constructor(fonttbl){
+    constructor(fonttbl: fonttblDestination){
         super("fonttbl:sub");
         this._fonttbl = fonttbl;
         this.index = null;
@@ -471,7 +470,7 @@ class fonttblDestinationSub extends DestinationBase {
         this.charset = null;
     };
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -528,7 +527,7 @@ class fonttblDestinationSub extends DestinationBase {
         return false;
     };
 
-    appendText(text) {
+    appendText(text: string) {
         if (this.fontname == null)
             this.fontname = text;
         else
@@ -544,24 +543,24 @@ class fonttblDestinationSub extends DestinationBase {
         delete this._fonttbl;
     };
 
-    setAltFontName(name) {
+    setAltFontName(name: string) {
         this.altfontname = name;
     };
 };
 
 class fonttblDestination extends DestinationBase {
-    _fonts;
-    _sub;
-    inst;
+    _fonts: fonttblDestinationSub[];
+    _sub: fonttblDestinationSub;
+    inst: Document;
 
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super("fonttbl");
         this._fonts = [];
         this._sub = null;
         this.inst = inst;
     };
 
-    sub = function () {
+    sub() {
         return new fonttblDestinationSub(this);
     };
 
@@ -574,28 +573,28 @@ class fonttblDestination extends DestinationBase {
         delete this._fonts;
     }
 
-    appendText(text) {
+    appendText(text: string) {
         this._sub.appendText(text);
         this._sub.apply();
     }
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     }
 
-    addSub(sub) {
+    addSub(sub: fonttblDestinationSub) {
         this._fonts[sub.index] = sub;
     };
 };
 
-var genericSubTextPropertyDestinationFactory = function (name, parentDest, propOrFunc) {
+var genericSubTextPropertyDestinationFactory = function (name: string, parentDest, propOrFunc) {
     return class genericSubTextPropertyDestination extends DestinationTextBase {
-        parser;
+        parser: GlobalState;
 
-        constructor(parser) {
+        constructor(parser: GlobalState) {
             super(name);
             this.parser = parser;
         }
@@ -617,10 +616,10 @@ var genericSubTextPropertyDestinationFactory = function (name, parentDest, propO
 class colortblDestination extends DestinationBase {
     _colors;
     _current;
-    _autoIndex;
-    inst;
+    _autoIndex: number;
+    inst: Document;
 
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super("colortbl");
         this._colors = [];
         this._current = null;
@@ -640,7 +639,7 @@ class colortblDestination extends DestinationBase {
         return this._current;
     };
 
-    appendText(text) {
+    appendText(text: string) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
             if (text[i] != ";")
@@ -659,7 +658,7 @@ class colortblDestination extends DestinationBase {
         }
     };
 
-    _validateColorValueRange(keyword, param) {
+    _validateColorValueRange(keyword: string, param: number) {
         if (param == null)
             throw new RTFJSError(keyword + " has no param");
         if (param < 0 || param > 255)
@@ -667,7 +666,7 @@ class colortblDestination extends DestinationBase {
         return param;
     };
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         if (this._current == null)
             this._startNewColor();
 
@@ -714,13 +713,13 @@ class colortblDestination extends DestinationBase {
 };
 
 class stylesheetDestinationSub extends DestinationBase{
-    _stylesheet;
-    index;
-    name;
+    _stylesheet: stylesheetDestination;
+    index: number;
+    name: string;
     handler;
     paragraph?;
 
-    constructor(stylesheet){
+    constructor(stylesheet: stylesheetDestination){
         super("stylesheet:sub");
         this._stylesheet = stylesheet;
         this.index = 0;
@@ -729,13 +728,13 @@ class stylesheetDestinationSub extends DestinationBase{
     };
 
     _handleKeywordCommon = function (member) {
-        return function (keyword, param) {
+        return function (keyword: string, param: number) {
             Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
             return false;
         };
     };
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         switch (keyword) {
             case "s":
                 this.index = param;
@@ -760,7 +759,7 @@ class stylesheetDestinationSub extends DestinationBase{
         return this.handler(keyword, param);
     };
 
-    appendText(text) {
+    appendText(text: string) {
         if (this.name == null)
             this.name = text;
         else
@@ -777,10 +776,10 @@ class stylesheetDestinationSub extends DestinationBase{
 };
 
 class stylesheetDestination extends DestinationBase {
-    _stylesheets;
-    inst;
+    _stylesheets: {index: number, name: string}[];
+    inst: Document;
 
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super("stylesheet");
         this._stylesheets = [];
         this.inst = inst;
@@ -798,7 +797,7 @@ class stylesheetDestination extends DestinationBase {
         delete this._stylesheets;
     };
 
-    addSub(sub) {
+    addSub(sub: {index: number, name: string}) {
         //Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
@@ -807,7 +806,7 @@ class stylesheetDestination extends DestinationBase {
 };
 
 class fieldDestination extends DestinationBase {
-    _haveInst;
+    _haveInst: boolean;
     _parsedInst;
     _result;
 
@@ -826,7 +825,7 @@ class fieldDestination extends DestinationBase {
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
 
-    setInst(inst) {
+    setInst(inst: Document) {
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
@@ -844,7 +843,7 @@ class fieldDestination extends DestinationBase {
         return this._parsedInst;
     };
 
-    setResult(inst) {
+    setResult(inst: Document) {
         if (this._result != null)
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
         this._result = inst;
@@ -852,13 +851,13 @@ class fieldDestination extends DestinationBase {
 };
 
 class FieldBase {
-    _fldinst;
+    _fldinst: fldinstDestination;
 
-    constructor(fldinst) {
+    constructor(fldinst: fldinstDestination) {
         this._fldinst = fldinst;
     }
 
-    renderFieldEnd(field, rtf, records) {
+    renderFieldEnd(field: fieldDestination, rtf: rtfDestination, records: number) {
         if (records > 0) {
             rtf.addIns(function () {
                 this.popContainer();
@@ -869,9 +868,9 @@ class FieldBase {
 
 class FieldHyperlink extends FieldBase {
     _url;
-    inst;
+    inst: Document;
 
-    constructor(inst, fldinst, data) {
+    constructor(inst: Document, fldinst: fldinstDestination, data) {
         super(fldinst);
         this._url = data;
         this.inst = inst;
@@ -881,7 +880,7 @@ class FieldHyperlink extends FieldBase {
         return this._url;
     }
 
-    renderFieldBegin(field, rtf, records) {
+    renderFieldBegin(field: fieldDestination, rtf: rtfDestination, records: number) {
         var self = this;
         if (records > 0) {
             rtf.addIns(function () {
@@ -909,10 +908,10 @@ class FieldHyperlink extends FieldBase {
 };
 
 class fldinstDestination extends DestinationTextBase {
-    parser;
-    inst;
+    parser: GlobalState;
+    inst: Document;
 
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super("fldinst");
         this.parser = parser;
         this.inst = inst;
@@ -940,7 +939,7 @@ class fldinstDestination extends DestinationTextBase {
                     return new FieldHyperlink(this.inst, this, data);
                 case "IMPORT":
                     if (typeof this.inst._settings.onImport === 'function') {
-                        let pict
+                        let pict: pictDestination;
 
                         this.inst.addIns(function() {
                             let inst = this._doc;
@@ -1014,7 +1013,7 @@ class fldinstDestination extends DestinationTextBase {
 };
 
 class fldrsltDestination extends DestinationFormattedTextBase {
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super(parser, "fldrslt");
     };
 
@@ -1027,7 +1026,7 @@ class fldrsltDestination extends DestinationFormattedTextBase {
         super.apply();
     };
 
-    renderBegin(rtf, records) {
+    renderBegin(rtf: rtfDestination, records: number) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -1037,7 +1036,7 @@ class fldrsltDestination extends DestinationFormattedTextBase {
         return false;
     };
 
-    renderEnd(rtf, records) {
+    renderEnd(rtf: rtfDestination, records: number) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -1047,9 +1046,9 @@ class fldrsltDestination extends DestinationFormattedTextBase {
     };
 };
 
-var pictGroupDestinationFactory = function (legacy) {
+var pictGroupDestinationFactory = function (legacy: boolean) {
     return class pictGroupDestinationFactory extends DestinationTextBase {
-        _legacy;
+        _legacy: boolean;
 
         constructor() {
             super("pict-group");
@@ -1065,12 +1064,12 @@ var pictGroupDestinationFactory = function (legacy) {
 class pictDestination extends DestinationTextBase {
     _type;
     _blob;
-    _displaysize;
-    _size;
-    parser;
-    inst;
+    _displaysize: {width: number, height: number};
+    _size: {width: number, height: number};
+    parser: GlobalState;
+    inst: Document;
 
-    constructor(parser, inst){
+    constructor(parser: GlobalState, inst: Document){
         super("pict");
         this._type = null;
         this._blob = null;
@@ -1086,8 +1085,8 @@ class pictDestination extends DestinationTextBase {
         this.inst = inst;
     };
 
-    _setPropValueRequired(member, prop) {
-        return function (param) {
+    _setPropValueRequired(member: string, prop) {
+        return function (param: number) {
             if (param == null)
                 throw new RTFJSError("Picture property has no value");
             Helper.log("[pict] set " + member + "." + prop + " = " + param);
@@ -1174,7 +1173,7 @@ class pictDestination extends DestinationTextBase {
         wbitmap: "" // TODO
     };
 
-    handleKeyword(keyword, param) {
+    handleKeyword(keyword: string, param: number) {
         var handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
@@ -1211,7 +1210,7 @@ class pictDestination extends DestinationTextBase {
         return false;
     };
 
-    handleBlob(blob) {
+    handleBlob(blob: ArrayBuffer) {
         this._blob = blob;
     };
 

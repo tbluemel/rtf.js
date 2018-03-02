@@ -206,7 +206,7 @@ export const Helper = {
         "254": 437,  // PC 437
         "255": 850,  // OEM
     },
-    _mapCharset: function(idx: string) {
+    _mapCharset: function(idx: number): number {
         return this._charsetMap[idx.toString()];
     },
 

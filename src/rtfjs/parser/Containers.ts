@@ -64,7 +64,7 @@ export class Pap {
     justification: string;
     spacebefore: number;
     spaceafter: number;
-    charactertype;
+    charactertype: string;
 
     constructor(parent: Pap) {
         if (parent != null) {
