@@ -229,7 +229,7 @@ export class Parser {
                             var dest = this.parser.state.destination;
                             if (dest != null) {
                                 if (dest.handleKeyword != null)
-                                    handled = dest.handleKeyword(keyword, param);
+                                    handled = dest.handleKeyword(keyword, param) || false;
                             }
                             if (!handled && this.parser.state.skipunknowndestination)
                                 this.parser.state.skipdestination = true;

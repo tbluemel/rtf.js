@@ -26,8 +26,13 @@ SOFTWARE.
 
 import { RTFJSError } from './Helper';
 
+export interface Settings {
+    onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
+    onPicture?(isLegacy: boolean, create: () => void): void;
+    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) => void): void;
+}
 export class Document {
-    _settings;
+    _settings: Settings;
     _meta;
     _fonts;
     _colors;
@@ -35,7 +40,7 @@ export class Document {
     _stylesheets;
     _ins: (string | (() => void))[];
 
-    constructor(settings) {
+    constructor(settings: Settings) {
         this._settings = settings || {};
         this._meta = {};
         this._fonts = [];

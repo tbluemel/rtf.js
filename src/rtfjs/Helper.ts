@@ -24,6 +24,8 @@ SOFTWARE.
 
 */
 
+import { Color } from './parser/Destinations';
+
 interface RTFJSError {
     name: string;
     message: string;
@@ -228,11 +230,12 @@ export const Helper = {
         textone: null,
         backgroundtwo: null,
         texttwo: null,
+
     },
     _mapColorTheme: function(name: string) {
         return this._colorThemeMap[name];
     },
-    _colorToStr: function(color) {
+    _colorToStr: function(color: Color) {
         return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
     },
     _twipsToPt: function(twips: number) {

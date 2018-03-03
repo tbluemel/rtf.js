@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Renderer } from './Renderer';
 import { Parser } from './parser/Parser';
-import { Document } from './Document';
+import { Document, Settings } from './Document';
 import { RTFJSError } from './Helper';
 
 export class DocumentFacade {
@@ -34,7 +34,7 @@ export class DocumentFacade {
     _renderer: Renderer;
     _parsed: Promise<void>;
 
-    constructor(blob: ArrayBuffer, settings) {
+    constructor(blob: ArrayBuffer, settings: Settings) {
         this._document = new Document(settings);
         this._renderer = new Renderer(this._document);
         const parser = new Parser(this._document, blob, this._renderer);

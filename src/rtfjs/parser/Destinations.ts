@@ -27,11 +27,21 @@ SOFTWARE.
 import { Helper, RTFJSError } from '../Helper';
 import { RenderChp } from './RenderChp';
 import { RenderPap } from './RenderPap';
-import { Pap, Chp, Sep, GlobalState } from './Containers';
+import { Chp, GlobalState, Pap, Sep } from './Containers';
 import { Document } from '../Document';
 
 declare const WMFJS: any;
 declare const EMFJS: any;
+
+export interface Destination {
+    _name: string;
+    setMetadata?(metaprop: string, metavalue: any): void;
+    apply?(): void;
+    appendText?(text: string): void;
+    sub?(): Destination;
+    handleKeyword?(keyword: string, param: number): void | boolean;
+    handleBlob?(blob: ArrayBuffer): void;
+}
 
 var findParentDestination = function (parser: GlobalState, dest: string) {
     var state = parser.state;
@@ -45,7 +55,7 @@ var findParentDestination = function (parser: GlobalState, dest: string) {
     Helper.log("findParentDestination() did not find destination " + dest);
 };
 
-class DestinationBase {
+class DestinationBase implements Destination {
     _name: string;
 
     constructor(name: string) {
@@ -53,7 +63,7 @@ class DestinationBase {
     }
 };
 
-class DestinationTextBase {
+class DestinationTextBase implements Destination {
     _name: string;
     text: string;
 
@@ -67,7 +77,7 @@ class DestinationTextBase {
     }
 };
 
-abstract class DestinationFormattedTextBase {
+abstract class DestinationFormattedTextBase implements Destination {
     parser: GlobalState;
     _name: string;
     _records: ((rtf: rtfDestination) => void)[];
@@ -91,7 +101,7 @@ abstract class DestinationFormattedTextBase {
     };
 
     apply() {
-        var rtf = findParentDestination(this.parser, "rtf");
+        var rtf = <rtfDestination><any>findParentDestination(this.parser, "rtf");
         if (rtf == null)
             throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
 
@@ -322,8 +332,11 @@ class rtfDestination extends DestinationBase {
     }
 };
 
-var genericPropertyDestinationFactory = function (parentdest, metaprop) {
-    return class genericPropertyDestination extends DestinationTextBase {
+interface genericPropertyDestination {
+    apply(): void;
+}
+var genericPropertyDestinationFactory = function (parentdest: string, metaprop) {
+    return class extends DestinationTextBase implements genericPropertyDestination {
         parser: GlobalState;
 
         constructor(parser: GlobalState, inst: Document, name: string) {
@@ -363,8 +376,11 @@ class infoDestination extends DestinationBase {
     }
 };
 
+interface metaPropertyDestination {
+    apply(): void;
+}
 var metaPropertyDestinationFactory = function (metaprop) {
-    return class metaPropertyDestination extends DestinationTextBase {
+    return class extends DestinationTextBase implements metaPropertyDestination {
         parser: GlobalState;
 
         constructor(parser: GlobalState, inst: Document, name: string) {
@@ -381,8 +397,12 @@ var metaPropertyDestinationFactory = function (metaprop) {
     };
 };
 
+interface metaPropertyTimeDestination {
+    handleKeyword(keyword: string, param: number): boolean;
+    apply(): void;
+}
 var metaPropertyTimeDestinationFactory = function (metaprop) {
-    return class metaPropertyTimeDestination extends DestinationBase {
+    return class extends DestinationBase implements metaPropertyTimeDestination {
         _yr: number;
         _mo: number;
         _dy: number;
@@ -590,8 +610,11 @@ class fonttblDestination extends DestinationBase {
     };
 };
 
-var genericSubTextPropertyDestinationFactory = function (name: string, parentDest, propOrFunc) {
-    return class genericSubTextPropertyDestination extends DestinationTextBase {
+interface genericSubTextPropertyDestination {
+    apply(): void;
+}
+var genericSubTextPropertyDestinationFactory = function (name: string, parentDest: string, propOrFunc) {
+    return class extends DestinationTextBase implements genericSubTextPropertyDestination {
         parser: GlobalState;
 
         constructor(parser: GlobalState) {
@@ -613,9 +636,17 @@ var genericSubTextPropertyDestinationFactory = function (name: string, parentDes
     };
 };
 
+export interface Color {
+    r: number;
+    g: number;
+    b: number;
+    tint: number;
+    shade: number;
+    theme: null;
+}
 class colortblDestination extends DestinationBase {
-    _colors;
-    _current;
+    _colors: Color[];
+    _current: Color;
     _autoIndex: number;
     inst: Document;
 
@@ -825,7 +856,7 @@ class fieldDestination extends DestinationBase {
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
 
-    setInst(inst: Document) {
+    setInst(inst) {
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
@@ -843,7 +874,7 @@ class fieldDestination extends DestinationBase {
         return this._parsedInst;
     };
 
-    setResult(inst: Document) {
+    setResult(inst) {
         if (this._result != null)
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
         this._result = inst;
@@ -867,10 +898,10 @@ class FieldBase {
 };
 
 class FieldHyperlink extends FieldBase {
-    _url;
+    _url: string;
     inst: Document;
 
-    constructor(inst: Document, fldinst: fldinstDestination, data) {
+    constructor(inst: Document, fldinst: fldinstDestination, data: string) {
         super(fldinst);
         this._url = data;
         this.inst = inst;
@@ -891,7 +922,8 @@ class FieldHyperlink extends FieldBase {
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(this.inst, create, self);
+                    container = inst._settings.onHyperlink.call(this.inst, create,
+                        {url: function () {return self.url()}});
                 } else {
                     var elem = create();
                     container = {
@@ -918,7 +950,7 @@ class fldinstDestination extends DestinationTextBase {
     };
 
     apply() {
-        var field = findParentDestination(this.parser, "field");
+        var field = <fieldDestination>findParentDestination(this.parser, "field");
         if (field == null)
             throw new RTFJSError("fldinst destination must be child of field destination");
         field.setInst(this.parseType());
@@ -1018,7 +1050,7 @@ class fldrsltDestination extends DestinationFormattedTextBase {
     };
 
     apply() {
-        var field = findParentDestination(this.parser, "field");
+        var field = <fieldDestination>findParentDestination(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
@@ -1027,7 +1059,7 @@ class fldrsltDestination extends DestinationFormattedTextBase {
     };
 
     renderBegin(rtf: rtfDestination, records: number) {
-        var field = findParentDestination(this.parser, "field");
+        var field = <fieldDestination>findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null)
@@ -1037,7 +1069,7 @@ class fldrsltDestination extends DestinationFormattedTextBase {
     };
 
     renderEnd(rtf: rtfDestination, records: number) {
-        var field = findParentDestination(this.parser, "field");
+        var field = <fieldDestination>findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null)
@@ -1046,8 +1078,11 @@ class fldrsltDestination extends DestinationFormattedTextBase {
     };
 };
 
+interface pictGroupDestination {
+    isLegacy(): boolean;
+}
 var pictGroupDestinationFactory = function (legacy: boolean) {
-    return class pictGroupDestinationFactory extends DestinationTextBase {
+    return class extends DestinationTextBase implements pictGroupDestination {
         _legacy: boolean;
 
         constructor() {
@@ -1222,7 +1257,7 @@ class pictDestination extends DestinationTextBase {
         //if (this._displaysize.width == null || this._displaysize.height == null)
         //    throw new RTFJSError("Picture display dimensions not specified");
 
-        var pictGroup = findParentDestination(this.parser, "pict-group");
+        var pictGroup = <pictGroupDestination><any>findParentDestination(this.parser, "pict-group");
         var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
 
         var type = this._type;
@@ -1331,8 +1366,10 @@ class pictDestination extends DestinationTextBase {
     }
 };
 
+interface requiredDestination {
+}
 var requiredDestinationFactory = function (name) {
-    return class requiredDestination extends DestinationBase {
+    return class extends DestinationBase implements requiredDestination {
         constructor(){
             super(name);
         }
