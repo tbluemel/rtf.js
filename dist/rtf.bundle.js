@@ -8517,18 +8517,10 @@ var fieldDestination = /** @class */ (function (_super) {
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
     fieldDestination.prototype.setInst = function (inst) {
-        var _this = this;
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
-        Promise.resolve(inst)
-            .then(function (_parsedInst) {
-            _this._parsedInst = _parsedInst;
-        })
-            .catch(function (error) {
-            _this._parsedInst = null;
-            throw new RTFJSError(error.message);
-        });
+        this._parsedInst = inst;
     };
     fieldDestination.prototype.getInst = function () {
         return this._parsedInst;

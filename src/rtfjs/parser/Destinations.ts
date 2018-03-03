@@ -860,14 +860,7 @@ class fieldDestination extends DestinationBase {
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
-        Promise.resolve(inst)
-            .then(_parsedInst => {
-                this._parsedInst = _parsedInst;
-            })
-            .catch(error => {
-                this._parsedInst = null;
-                throw new RTFJSError(error.message);
-            })
+            this._parsedInst = inst;
     };
 
     getInst() {
