@@ -8,7 +8,11 @@ export default {
         file: 'dist/rtf.bundle.js',
         format: 'umd',
         name: 'RTFJS',
-        sourcemap: true
+        sourcemap: true,
+        globals: {
+            WMFJS: 'WMFJS',
+            EMFJS: 'EMFJS'
+        }
     },
     onwarn: function (warning) {
         if (warning.code === 'THIS_IS_UNDEFINED') {

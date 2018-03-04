@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.RTFJS = {})));
-}(this, (function (exports) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('WMFJS'), require('EMFJS')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'WMFJS', 'EMFJS'], factory) :
+	(factory((global.RTFJS = {}),global.WMFJS,global.EMFJS));
+}(this, (function (exports,WMFJS,EMFJS) { 'use strict';
 
 /*
 

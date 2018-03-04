@@ -29,9 +29,8 @@ import { RenderChp } from './RenderChp';
 import { RenderPap } from './RenderPap';
 import { Chp, GlobalState, Pap, Sep } from './Containers';
 import { Document } from '../Document';
-
-declare const WMFJS: any;
-declare const EMFJS: any;
+import * as WMFJS from 'WMFJS';
+import * as EMFJS from 'EMFJS';
 
 export abstract class DestinationFactory<T extends Destination> {
     class;

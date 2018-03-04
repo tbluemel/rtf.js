@@ -1,7 +1,12 @@
 {
     "compilerOptions": {
         "outDir": "./build",
-        "allowJs": true,
+        "baseUrl": ".",
+        "paths": {
+            "WMFJS": ["src/wmfjs"],
+            "EMFJS": ["src/emfjs"]
+        },
+        "allowJs": false,
         "target": "es5",
         "lib": ["dom", "es5", "scripthost", "es2015.promise"],
         "moduleResolution": "node",
