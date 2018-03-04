@@ -7972,7 +7972,7 @@ var rtfDestination = /** @class */ (function (_super) {
             }),
             line: _this._addInsHandler(function () {
                 this.lineBreak();
-            }),
+            })
         };
         if (parser.version != null)
             throw new RTFJSError("Unexpected rtf destination");
@@ -8517,10 +8517,21 @@ var fieldDestination = /** @class */ (function (_super) {
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
     fieldDestination.prototype.setInst = function (inst) {
+        var _this = this;
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
-        this._parsedInst = inst;
+        if (inst instanceof Promise) {
+            inst.then(function (parsedInst) {
+                _this._parsedInst = parsedInst;
+            }).catch(function (error) {
+                _this._parsedInst = null;
+                throw new RTFJSError(error.message);
+            });
+        }
+        else {
+            this._parsedInst = inst;
+        }
     };
     fieldDestination.prototype.getInst = function () {
         return this._parsedInst;
@@ -8648,7 +8659,7 @@ var fldinstDestination = /** @class */ (function (_super) {
                                         pict_1._size.height = dims.h;
                                         var _parsedInst = {
                                             renderFieldBegin: function () { return true; },
-                                            renderFieldEnd: function () { return true; }
+                                            renderFieldEnd: function () { return null; }
                                         };
                                         resolve(_parsedInst);
                                     }
@@ -8659,7 +8670,7 @@ var fldinstDestination = /** @class */ (function (_super) {
                                             reject(error);
                                         }
                                         else {
-                                            resolve(undefined);
+                                            resolve(null);
                                         }
                                     }
                                 };

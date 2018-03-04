@@ -41,6 +41,7 @@ export interface Destination {
     sub?(): Destination;
     handleKeyword?(keyword: string, param: number): void | boolean;
     handleBlob?(blob: ArrayBuffer): void;
+    [key: string]: any;
 }
 
 var findParentDestination = function (parser: GlobalState, dest: string) {
@@ -120,13 +121,13 @@ abstract class DestinationFormattedTextBase implements Destination {
         delete this._records;
     };
 
-    abstract renderBegin(rtf: rtfDestination, records: number);
+    abstract renderBegin(rtf: rtfDestination, records: number): boolean;
 
-    abstract renderEnd(rtf: rtfDestination, records: number);
+    abstract renderEnd(rtf: rtfDestination, records: number): void;
 };
 
 class rtfDestination extends DestinationBase {
-    _metadata;
+    _metadata: {[key: string]: any};
     parser: GlobalState;
     inst: Document;
 
@@ -145,7 +146,7 @@ class rtfDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    addIns(func) {
+    addIns(func: () => void) {
         this.inst.addIns(func);
     };
 
@@ -158,8 +159,8 @@ class rtfDestination extends DestinationBase {
         Helper.log("[rtf].sub()");
     }
 
-    _addInsHandler(func) {
-        return function (param) {
+    _addInsHandler(func: () => void) {
+        return function (param: number) {
             this.inst.addIns(func);
         };
     };
@@ -181,8 +182,8 @@ class rtfDestination extends DestinationBase {
         }
     };
 
-    _genericFormatSetNoParam(ptype: string, prop, val) {
-        return function (param) {
+    _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
+        return function (param: number) {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
@@ -190,24 +191,24 @@ class rtfDestination extends DestinationBase {
         };
     };
 
-    _genericFormatOnOff(ptype: string, prop, onval?, offval?) {
-        return function (param) {
+    _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
+        return function (param: number) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetVal(ptype: string, prop, defaultval) {
-        return function (param) {
+    _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
+        return function (param: number) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetValRequired(ptype: string, prop) {
-        return function (param) {
+    _genericFormatSetValRequired(ptype: string, prop: string) {
+        return function (param: number) {
             if (param == null)
                 throw new RTFJSError("Keyword without required param");
             var props = this.parser.state[ptype];
@@ -216,8 +217,8 @@ class rtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     };
-    _genericFormatSetMemberVal(ptype: string, prop, member, defaultval) {
-        return function (param) {
+    _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
+        return function (param: number) {
             var props = this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
@@ -225,7 +226,7 @@ class rtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     };
-    _charFormatHandlers = {
+    _charFormatHandlers: {[key: string]: (param: number) => void} = {
         ansicpg: function (param: number) {
             //if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
@@ -308,7 +309,7 @@ class rtfDestination extends DestinationBase {
         }),
         line: this._addInsHandler(function () {
             this.lineBreak();
-        }),
+        })
     };
 
     handleKeyword(keyword: string, param: number) {
@@ -327,7 +328,7 @@ class rtfDestination extends DestinationBase {
             this.inst._meta[prop] = this._metadata[prop];
         delete this._metadata;
     }
-    setMetadata(prop, val) {
+    setMetadata(prop: string, val: any) {
         this._metadata[prop] = val;
     }
 };
@@ -335,7 +336,7 @@ class rtfDestination extends DestinationBase {
 interface genericPropertyDestination {
     apply(): void;
 }
-var genericPropertyDestinationFactory = function (parentdest: string, metaprop) {
+var genericPropertyDestinationFactory = function (parentdest: string, metaprop: string) {
     return class extends DestinationTextBase implements genericPropertyDestination {
         parser: GlobalState;
 
@@ -356,7 +357,7 @@ var genericPropertyDestinationFactory = function (parentdest: string, metaprop) 
 };
 
 class infoDestination extends DestinationBase {
-    _metadata;
+    _metadata: {[key: string]: any};
     inst: Document;
 
     constructor(parser: GlobalState, inst: Document, name: string){
@@ -371,7 +372,7 @@ class infoDestination extends DestinationBase {
         delete this._metadata;
     }
 
-    setMetadata(prop, val) {
+    setMetadata(prop: string, val: any) {
         this._metadata[prop] = val;
     }
 };
@@ -379,7 +380,7 @@ class infoDestination extends DestinationBase {
 interface metaPropertyDestination {
     apply(): void;
 }
-var metaPropertyDestinationFactory = function (metaprop) {
+var metaPropertyDestinationFactory = function (metaprop: string) {
     return class extends DestinationTextBase implements metaPropertyDestination {
         parser: GlobalState;
 
@@ -401,7 +402,7 @@ interface metaPropertyTimeDestination {
     handleKeyword(keyword: string, param: number): boolean;
     apply(): void;
 }
-var metaPropertyTimeDestinationFactory = function (metaprop) {
+var metaPropertyTimeDestinationFactory = function (metaprop: string) {
     return class extends DestinationBase implements metaPropertyTimeDestination {
         _yr: number;
         _mo: number;
@@ -613,7 +614,7 @@ class fonttblDestination extends DestinationBase {
 interface genericSubTextPropertyDestination {
     apply(): void;
 }
-var genericSubTextPropertyDestinationFactory = function (name: string, parentDest: string, propOrFunc) {
+var genericSubTextPropertyDestinationFactory = function (name: string, parentDest: string, propOrFunc: string) {
     return class extends DestinationTextBase implements genericSubTextPropertyDestination {
         parser: GlobalState;
 
@@ -747,8 +748,8 @@ class stylesheetDestinationSub extends DestinationBase{
     _stylesheet: stylesheetDestination;
     index: number;
     name: string;
-    handler;
-    paragraph?;
+    handler: (keyword: string, param: number) => boolean;
+    paragraph?: null;
 
     constructor(stylesheet: stylesheetDestination){
         super("stylesheet:sub");
@@ -758,7 +759,7 @@ class stylesheetDestinationSub extends DestinationBase{
         this.handler = this._handleKeywordCommon("paragraph");
     };
 
-    _handleKeywordCommon = function (member) {
+    _handleKeywordCommon = function (member: string) {
         return function (keyword: string, param: number) {
             Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
             return false;
@@ -836,10 +837,15 @@ class stylesheetDestination extends DestinationBase {
     };
 };
 
+interface Field {
+    renderFieldBegin(field: fieldDestination, rtf: rtfDestination, records: number): boolean;
+    renderFieldEnd(field: fieldDestination, rtf: rtfDestination, records: number): void;
+}
+
 class fieldDestination extends DestinationBase {
     _haveInst: boolean;
-    _parsedInst;
-    _result;
+    _parsedInst: Field;
+    _result: fldrsltDestination;
 
     constructor(){
         super("field");
@@ -856,18 +862,27 @@ class fieldDestination extends DestinationBase {
         //     throw new RTFJSError("Field has no fldrslt destination");
     };
 
-    setInst(inst) {
+    setInst(inst: Field | Promise<Field | null>) {
         this._haveInst = true;
         if (this._parsedInst != null)
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
+        if(inst instanceof Promise){
+            inst.then(parsedInst => {
+                this._parsedInst = parsedInst;
+            }).catch(error => {
+                this._parsedInst = null;
+                throw new RTFJSError(error.message);
+            })
+        } else {
             this._parsedInst = inst;
+        }
     };
 
     getInst() {
         return this._parsedInst;
     };
 
-    setResult(inst) {
+    setResult(inst: fldrsltDestination) {
         if (this._result != null)
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
         this._result = inst;
@@ -985,10 +1000,11 @@ class fldinstDestination extends DestinationTextBase {
                                 this.appendElement(element)
                         })
 
-                        const promise = new Promise((resolve, reject) => {
+                        const promise: Promise<Field | null> = new Promise((resolve, reject) => {
                             try {
                                 let self = this;
-                                let cb = function({error, keyword, blob, width, height}) {
+                                let cb = function({error, keyword, blob, width, height}
+                                        : {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) {
                                     if (!error && typeof keyword === 'string' && keyword && blob) {
                                         const dims = {
                                             w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
@@ -1003,9 +1019,9 @@ class fldinstDestination extends DestinationTextBase {
                                         pict._size.width  = dims.w
                                         pict._size.height = dims.h
 
-                                        const _parsedInst = {
+                                        const _parsedInst: Field = {
                                             renderFieldBegin: () => true,
-                                            renderFieldEnd: () => true
+                                            renderFieldEnd: () => null
                                         }
                                         resolve(_parsedInst);
                                     }
@@ -1016,7 +1032,7 @@ class fldinstDestination extends DestinationTextBase {
                                             reject(error);
                                         }
                                         else {
-                                            resolve(undefined);
+                                            resolve(null);
                                         }
                                     }
                                 }
@@ -1091,7 +1107,7 @@ var pictGroupDestinationFactory = function (legacy: boolean) {
 
 class pictDestination extends DestinationTextBase {
     _type;
-    _blob;
+    _blob: ArrayBuffer;
     _displaysize: {width: number, height: number};
     _size: {width: number, height: number};
     parser: GlobalState;
@@ -1123,7 +1139,7 @@ class pictDestination extends DestinationTextBase {
         };
     };
 
-    _pictHandlers = {
+    _pictHandlers: {[key: string]: (param: number) => void} = {
         picw: this._setPropValueRequired("_size", "width"),
         pich: this._setPropValueRequired("_size", "height"),
         picwgoal: this._setPropValueRequired("_displaysize", "width"),

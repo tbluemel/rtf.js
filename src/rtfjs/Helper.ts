@@ -144,7 +144,7 @@ export const Helper = {
             return parseInt(str, 16);
         return NaN;
     },
-    _blobToBinary: function(blob: Uint8Array): string {
+    _blobToBinary: function(blob: ArrayBuffer): string {
         var view = new Uint8Array(blob);
         var ret = "";
         var len = view.length;

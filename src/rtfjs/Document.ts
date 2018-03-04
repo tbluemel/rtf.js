@@ -33,7 +33,7 @@ export interface Settings {
 }
 export class Document {
     _settings: Settings;
-    _meta;
+    _meta: {[key: string]: any};
     _fonts;
     _colors;
     _autoColor;
