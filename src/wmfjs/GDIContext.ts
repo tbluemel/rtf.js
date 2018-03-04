@@ -31,7 +31,7 @@ import { Obj, PointS, Rect } from './Primitives';
 import { DIBitmap } from './Bitmap';
 import { Blob } from './Blob';
 
-interface SelectedStyle {
+export interface SelectedStyle {
     brush?: Brush;
     pen?: Pen;
     font?: Font;

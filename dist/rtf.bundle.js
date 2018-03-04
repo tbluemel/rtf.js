@@ -7823,6 +7823,14 @@ var __extends = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var DestinationFactory = /** @class */ (function () {
+    function DestinationFactory() {
+    }
+    DestinationFactory.prototype.newDestination = function (parser, inst, name, param) {
+        return new this.class(parser, inst, name, param);
+    };
+    return DestinationFactory;
+}());
 var findParentDestination = function (parser, dest) {
     var state = parser.state;
     while (state != null) {
@@ -8079,25 +8087,33 @@ var rtfDestination = /** @class */ (function (_super) {
     };
     return rtfDestination;
 }(DestinationBase));
-var genericPropertyDestinationFactory = function (parentdest, metaprop) {
-    return /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        function class_1(parser, inst, name) {
-            var _this = _super.call(this, name) || this;
-            _this.parser = parser;
-            return _this;
-        }
-        class_1.prototype.apply = function () {
-            var dest = findParentDestination(this.parser, parentdest);
-            if (dest == null)
-                throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
-            if (dest.setMetadata == null)
-                throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
-            dest.setMetadata(metaprop, this.text);
-        };
-        return class_1;
-    }(DestinationTextBase));
-};
+var genericPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(genericPropertyDestinationFactory, _super);
+    function genericPropertyDestinationFactory(parentdest, metaprop) {
+        var _this = _super.call(this) || this;
+        _this.parentdest = parentdest;
+        _this.metaprop = metaprop;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_1, _super);
+            function class_1(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this.parser = parser;
+                return _this;
+            }
+            class_1.prototype.apply = function () {
+                var dest = findParentDestination(this.parser, parentdest);
+                if (dest == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+                if (dest.setMetadata == null)
+                    throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+                dest.setMetadata(metaprop, this.text);
+            };
+            return class_1;
+        }(DestinationTextBase));
+        return _this;
+    }
+    return genericPropertyDestinationFactory;
+}(DestinationFactory));
 var infoDestination = /** @class */ (function (_super) {
     __extends(infoDestination, _super);
     function infoDestination(parser, inst, name) {
@@ -8116,74 +8132,88 @@ var infoDestination = /** @class */ (function (_super) {
     };
     return infoDestination;
 }(DestinationBase));
-var metaPropertyDestinationFactory = function (metaprop) {
-    return /** @class */ (function (_super) {
-        __extends(class_2, _super);
-        function class_2(parser, inst, name) {
-            var _this = _super.call(this, name) || this;
-            _this.apply = function () {
+var metaPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(metaPropertyDestinationFactory, _super);
+    function metaPropertyDestinationFactory(metaprop) {
+        var _this = _super.call(this) || this;
+        _this.metaprop = metaprop;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_2, _super);
+            function class_2(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this.apply = function () {
+                    var info = findParentDestination(this.parser, "info");
+                    if (info == null)
+                        throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                    info.setMetadata(metaprop, this.text);
+                };
+                _this.parser = parser;
+                return _this;
+            }
+            return class_2;
+        }(DestinationTextBase));
+        return _this;
+    }
+    return metaPropertyDestinationFactory;
+}(DestinationFactory));
+var metaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
+    __extends(metaPropertyTimeDestinationFactory, _super);
+    function metaPropertyTimeDestinationFactory(metaprop) {
+        var _this = _super.call(this) || this;
+        _this.metaprop = metaprop;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_3, _super);
+            function class_3(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this._yr = null;
+                _this._mo = null;
+                _this._dy = null;
+                _this._hr = null;
+                _this._min = null;
+                _this._sec = null;
+                _this.parser = parser;
+                return _this;
+            }
+            class_3.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "yr":
+                        this._yr = param;
+                        break;
+                    case "mo":
+                        this._mo = param;
+                        break;
+                    case "dy":
+                        this._dy = param;
+                        break;
+                    case "hr":
+                        this._hr = param;
+                        break;
+                    case "min":
+                        this._min = param;
+                        break;
+                    case "sec":
+                        this._sec = param;
+                        break;
+                    default:
+                        return false;
+                }
+                if (param == null)
+                    throw new RTFJSError("No param found for keyword " + keyword);
+                return true;
+            };
+            class_3.prototype.apply = function () {
                 var info = findParentDestination(this.parser, "info");
                 if (info == null)
                     throw new RTFJSError("Destination " + this._name + " must be within info destination");
-                info.setMetadata(metaprop, this.text);
+                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
+                info.setMetadata(metaprop, date);
             };
-            _this.parser = parser;
-            return _this;
-        }
-        return class_2;
-    }(DestinationTextBase));
-};
-var metaPropertyTimeDestinationFactory = function (metaprop) {
-    return /** @class */ (function (_super) {
-        __extends(class_3, _super);
-        function class_3(parser, inst, name) {
-            var _this = _super.call(this, name) || this;
-            _this._yr = null;
-            _this._mo = null;
-            _this._dy = null;
-            _this._hr = null;
-            _this._min = null;
-            _this._sec = null;
-            _this.parser = parser;
-            return _this;
-        }
-        class_3.prototype.handleKeyword = function (keyword, param) {
-            switch (keyword) {
-                case "yr":
-                    this._yr = param;
-                    break;
-                case "mo":
-                    this._mo = param;
-                    break;
-                case "dy":
-                    this._dy = param;
-                    break;
-                case "hr":
-                    this._hr = param;
-                    break;
-                case "min":
-                    this._min = param;
-                    break;
-                case "sec":
-                    this._sec = param;
-                    break;
-                default:
-                    return false;
-            }
-            if (param == null)
-                throw new RTFJSError("No param found for keyword " + keyword);
-            return true;
-        };
-        class_3.prototype.apply = function () {
-            var info = findParentDestination(this.parser, "info");
-            if (info == null)
-                throw new RTFJSError("Destination " + this._name + " must be within info destination");
-            var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
-            info.setMetadata(metaprop, date);
-        };
-        return class_3;
-    }(DestinationBase));
-};
+            return class_3;
+        }(DestinationBase));
+        return _this;
+    }
+    return metaPropertyTimeDestinationFactory;
+}(DestinationFactory));
 var fonttblDestinationSub = /** @class */ (function (_super) {
     __extends(fonttblDestinationSub, _super);
     function fonttblDestinationSub(fonttbl) {
@@ -8308,28 +8338,37 @@ var fonttblDestination = /** @class */ (function (_super) {
     };
     return fonttblDestination;
 }(DestinationBase));
-var genericSubTextPropertyDestinationFactory = function (name, parentDest, propOrFunc) {
-    return /** @class */ (function (_super) {
-        __extends(class_4, _super);
-        function class_4(parser) {
-            var _this = _super.call(this, name) || this;
-            _this.apply = function () {
-                var dest = findParentDestination(this.parser, parentDest);
-                if (dest == null)
-                    throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
-                if (dest[propOrFunc] == null)
-                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
-                if (dest[propOrFunc] instanceof Function)
-                    dest[propOrFunc](this.text);
-                else
-                    dest[propOrFunc] = this.text;
-            };
-            _this.parser = parser;
-            return _this;
-        }
-        return class_4;
-    }(DestinationTextBase));
-};
+var genericSubTextPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(genericSubTextPropertyDestinationFactory, _super);
+    function genericSubTextPropertyDestinationFactory(name, parentDest, propOrFunc) {
+        var _this = _super.call(this) || this;
+        _this.name = name;
+        _this.parentDest = parentDest;
+        _this.propOrFunc = propOrFunc;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_4, _super);
+            function class_4(parser) {
+                var _this = _super.call(this, name) || this;
+                _this.apply = function () {
+                    var dest = findParentDestination(this.parser, parentDest);
+                    if (dest == null)
+                        throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
+                    if (dest[propOrFunc] == null)
+                        throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                    if (dest[propOrFunc] instanceof Function)
+                        dest[propOrFunc](this.text);
+                    else
+                        dest[propOrFunc] = this.text;
+                };
+                _this.parser = parser;
+                return _this;
+            }
+            return class_4;
+        }(DestinationTextBase));
+        return _this;
+    }
+    return genericSubTextPropertyDestinationFactory;
+}(DestinationFactory));
 var colortblDestination = /** @class */ (function (_super) {
     __extends(colortblDestination, _super);
     function colortblDestination(parser, inst) {
@@ -8722,20 +8761,27 @@ var fldrsltDestination = /** @class */ (function (_super) {
     };
     return fldrsltDestination;
 }(DestinationFormattedTextBase));
-var pictGroupDestinationFactory = function (legacy) {
-    return /** @class */ (function (_super) {
-        __extends(class_5, _super);
-        function class_5() {
-            var _this = _super.call(this, "pict-group") || this;
-            _this._legacy = legacy;
-            return _this;
-        }
-        class_5.prototype.isLegacy = function () {
-            return this._legacy;
-        };
-        return class_5;
-    }(DestinationTextBase));
-};
+var pictGroupDestinationFactory = /** @class */ (function (_super) {
+    __extends(pictGroupDestinationFactory, _super);
+    function pictGroupDestinationFactory(legacy) {
+        var _this = _super.call(this) || this;
+        _this.legacy = legacy;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_5, _super);
+            function class_5() {
+                var _this = _super.call(this, "pict-group") || this;
+                _this._legacy = legacy;
+                return _this;
+            }
+            class_5.prototype.isLegacy = function () {
+                return this._legacy;
+            };
+            return class_5;
+        }(DestinationTextBase));
+        return _this;
+    }
+    return pictGroupDestinationFactory;
+}(DestinationFactory));
 var pictDestination = /** @class */ (function (_super) {
     __extends(pictDestination, _super);
     function pictDestination(parser, inst) {
@@ -9004,57 +9050,64 @@ var pictDestination = /** @class */ (function (_super) {
     };
     return pictDestination;
 }(DestinationTextBase));
-var requiredDestinationFactory = function (name) {
-    return /** @class */ (function (_super) {
-        __extends(class_6, _super);
-        function class_6() {
-            return _super.call(this, name) || this;
-        }
-        return class_6;
-    }(DestinationBase));
-};
+var requiredDestinationFactory = /** @class */ (function (_super) {
+    __extends(requiredDestinationFactory, _super);
+    function requiredDestinationFactory(name) {
+        var _this = _super.call(this) || this;
+        _this.name = name;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_6, _super);
+            function class_6() {
+                return _super.call(this, name) || this;
+            }
+            return class_6;
+        }(DestinationBase));
+        return _this;
+    }
+    return requiredDestinationFactory;
+}(DestinationFactory));
 var destinations = {
     rtf: rtfDestination,
     info: infoDestination,
-    title: metaPropertyDestinationFactory("title"),
-    subject: metaPropertyDestinationFactory("subject"),
-    author: metaPropertyDestinationFactory("author"),
-    manager: metaPropertyDestinationFactory("manager"),
-    company: metaPropertyDestinationFactory("company"),
-    operator: metaPropertyDestinationFactory("operator"),
-    category: metaPropertyDestinationFactory("category"),
-    keywords: metaPropertyDestinationFactory("keywords"),
-    doccomm: metaPropertyDestinationFactory("doccomm"),
-    hlinkbase: metaPropertyDestinationFactory("hlinkbase"),
-    generator: genericPropertyDestinationFactory("rtf", "generator"),
-    creatim: metaPropertyTimeDestinationFactory("creatim"),
-    revtim: metaPropertyTimeDestinationFactory("revtim"),
-    printim: metaPropertyTimeDestinationFactory("printim"),
-    buptim: metaPropertyTimeDestinationFactory("buptim"),
+    title: new metaPropertyDestinationFactory("title"),
+    subject: new metaPropertyDestinationFactory("subject"),
+    author: new metaPropertyDestinationFactory("author"),
+    manager: new metaPropertyDestinationFactory("manager"),
+    company: new metaPropertyDestinationFactory("company"),
+    operator: new metaPropertyDestinationFactory("operator"),
+    category: new metaPropertyDestinationFactory("category"),
+    keywords: new metaPropertyDestinationFactory("keywords"),
+    doccomm: new metaPropertyDestinationFactory("doccomm"),
+    hlinkbase: new metaPropertyDestinationFactory("hlinkbase"),
+    generator: new genericPropertyDestinationFactory("rtf", "generator"),
+    creatim: new metaPropertyTimeDestinationFactory("creatim"),
+    revtim: new metaPropertyTimeDestinationFactory("revtim"),
+    printim: new metaPropertyTimeDestinationFactory("printim"),
+    buptim: new metaPropertyTimeDestinationFactory("buptim"),
     fonttbl: fonttblDestination,
-    falt: genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    falt: new genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
     colortbl: colortblDestination,
     stylesheet: stylesheetDestination,
-    footer: requiredDestinationFactory("footer"),
-    footerf: requiredDestinationFactory("footerf"),
-    footerl: requiredDestinationFactory("footerl"),
-    footerr: requiredDestinationFactory("footerr"),
-    footnote: requiredDestinationFactory("footnote"),
-    ftncn: requiredDestinationFactory("ftncn"),
-    ftnsep: requiredDestinationFactory("ftnsep"),
-    ftnsepc: requiredDestinationFactory("ftnsepc"),
-    header: requiredDestinationFactory("header"),
-    headerf: requiredDestinationFactory("headerf"),
-    headerl: requiredDestinationFactory("headerl"),
-    headerr: requiredDestinationFactory("headerr"),
+    footer: new requiredDestinationFactory("footer"),
+    footerf: new requiredDestinationFactory("footerf"),
+    footerl: new requiredDestinationFactory("footerl"),
+    footerr: new requiredDestinationFactory("footerr"),
+    footnote: new requiredDestinationFactory("footnote"),
+    ftncn: new requiredDestinationFactory("ftncn"),
+    ftnsep: new requiredDestinationFactory("ftnsep"),
+    ftnsepc: new requiredDestinationFactory("ftnsepc"),
+    header: new requiredDestinationFactory("header"),
+    headerf: new requiredDestinationFactory("headerf"),
+    headerl: new requiredDestinationFactory("headerl"),
+    headerr: new requiredDestinationFactory("headerr"),
     pict: pictDestination,
-    shppict: pictGroupDestinationFactory(false),
-    nonshppict: pictGroupDestinationFactory(true),
-    private1: requiredDestinationFactory("private1"),
-    rxe: requiredDestinationFactory("rxe"),
-    tc: requiredDestinationFactory("tc"),
-    txe: requiredDestinationFactory("txe"),
-    xe: requiredDestinationFactory("xe"),
+    shppict: new pictGroupDestinationFactory(false),
+    nonshppict: new pictGroupDestinationFactory(true),
+    private1: new requiredDestinationFactory("private1"),
+    rxe: new requiredDestinationFactory("rxe"),
+    tc: new requiredDestinationFactory("tc"),
+    txe: new requiredDestinationFactory("txe"),
+    xe: new requiredDestinationFactory("xe"),
     field: fieldDestination,
     fldinst: fldinstDestination,
     fldrslt: fldrsltDestination,
@@ -9178,7 +9231,12 @@ var Parser = /** @class */ (function () {
         var handler = destinations[name];
         if (handler != null) {
             this.applyDestination(false);
-            this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            if (handler instanceof DestinationFactory) {
+                this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
+            }
+            else {
+                this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            }
             return true;
         }
         return false;

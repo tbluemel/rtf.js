@@ -31,7 +31,7 @@ import { Helper, RTFJSError } from '../Helper';
 import { RenderChp } from './RenderChp';
 import { Document } from '../Document';
 import { GlobalState, State } from './Containers';
-import { destinations } from './Destinations';
+import { DestinationFactory, destinations } from './Destinations';
 import { Renderer } from '../Renderer';
 
 export class Parser {
@@ -146,7 +146,11 @@ export class Parser {
         var handler = destinations[name];
         if (handler != null) {
             this.applyDestination(false);
-            this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            if(handler instanceof DestinationFactory){
+                this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
+            } else {
+                this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            }
             return true;
         }
         return false;

@@ -30,7 +30,7 @@ import { Helper, EMFJSError } from './Helper';
 import { Brush, ColorRef, Font, Pen } from './Style';
 import { CreateSimpleRegion, Region } from './Region';
 
-interface SelectedStyle {
+export interface SelectedStyle {
     brush?: Brush;
     pen?: Pen;
     font?: Font;

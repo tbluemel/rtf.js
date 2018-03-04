@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-interface WMFJSError {
+export interface WMFJSError {
     name: string;
     message: string;
     stack: string;

@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Color } from './parser/Destinations';
 
-interface RTFJSError {
+export interface RTFJSError {
     name: string;
     message: string;
     stack: string;

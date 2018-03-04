@@ -25,7 +25,7 @@ SOFTWARE.
 
 */
 
-interface EMFJSError {
+export interface EMFJSError {
     name: string;
     message: string;
     stack: string;
