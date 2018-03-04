@@ -30,7 +30,7 @@ export interface WMFJSError {
     stack: string;
 }
 
-export const WMFJSError = function(message: string) {
+export const WMFJSError = function(this: WMFJSError, message: string) {
     this.name = 'WMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;

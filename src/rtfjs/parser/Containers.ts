@@ -168,6 +168,7 @@ export class State {
     skipunknowndestination: boolean;
     skipdestination: boolean;
     ucn: number;
+    [key: string]: any;
 
     constructor(parent: State) {
         this.parent = parent;

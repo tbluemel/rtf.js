@@ -32,7 +32,7 @@ export interface RTFJSError {
     stack: string;
 }
 
-export const RTFJSError = function(message: string) {
+export const RTFJSError = function(this: RTFJSError, message: string) {
     this.name = 'RTFJSError';
     this.message = message;
     this.stack = (new Error()).stack;

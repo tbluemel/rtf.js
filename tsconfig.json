@@ -15,7 +15,8 @@
         "alwaysStrict": true,
         "strictFunctionTypes": true,
         "strictPropertyInitialization": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "noImplicitThis": true
     },
     "include": [
         "./src/**/*"

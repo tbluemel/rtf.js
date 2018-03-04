@@ -125,14 +125,14 @@ export class Parser {
         if (this.parser.state !== null) {
             this.inst._ins.push(
                 (function (state) {
-                    return function () {
+                    return function (this: Renderer) {
                         this.setChp(new RenderChp(state.chp));
                     }
                 })(this.parser.state)
             );
             this.inst._ins.push(
                 (function (state) {
-                    return function () {
+                    return function (this: Renderer) {
                         this.setPap(new RenderPap(state.pap));
                     }
                 })(this.parser.state)

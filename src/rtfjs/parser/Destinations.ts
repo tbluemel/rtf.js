@@ -31,6 +31,7 @@ import { Chp, GlobalState, Pap, Sep } from './Containers';
 import { Document } from '../Document';
 import * as WMFJS from 'WMFJS';
 import * as EMFJS from 'EMFJS';
+import { Renderer } from '../Renderer';
 
 export abstract class DestinationFactory<T extends Destination> {
     class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
@@ -153,7 +154,7 @@ export class rtfDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    addIns(func: () => void) {
+    addIns(func: (this: Renderer) => void) {
         this.inst.addIns(func);
     };
 
@@ -166,8 +167,8 @@ export class rtfDestination extends DestinationBase {
         Helper.log("[rtf].sub()");
     }
 
-    _addInsHandler(func: () => void) {
-        return function (param: number) {
+    _addInsHandler(func: (this: Renderer) => void) {
+        return function (this: rtfDestination, param: number) {
             this.inst.addIns(func);
         };
     };
@@ -190,7 +191,7 @@ export class rtfDestination extends DestinationBase {
     };
 
     _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
-        return function (param: number) {
+        return function (this: rtfDestination, param: number) {
             var props = this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
@@ -199,7 +200,7 @@ export class rtfDestination extends DestinationBase {
     };
 
     _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
-        return function (param: number) {
+        return function (this: rtfDestination, param: number) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
@@ -207,7 +208,7 @@ export class rtfDestination extends DestinationBase {
         };
     };
     _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
-        return function (param: number) {
+        return function (this: rtfDestination, param: number) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
@@ -215,7 +216,7 @@ export class rtfDestination extends DestinationBase {
         };
     };
     _genericFormatSetValRequired(ptype: string, prop: string) {
-        return function (param: number) {
+        return function (this: rtfDestination, param: number) {
             if (param == null)
                 throw new RTFJSError("Keyword without required param");
             var props = this.parser.state[ptype];
@@ -225,7 +226,7 @@ export class rtfDestination extends DestinationBase {
         };
     };
     _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
-        return function (param: number) {
+        return function (this: rtfDestination, param: number) {
             var props = this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
@@ -234,22 +235,22 @@ export class rtfDestination extends DestinationBase {
         };
     };
     _charFormatHandlers: {[key: string]: (param: number) => void} = {
-        ansicpg: function (param: number) {
+        ansicpg: function (this: rtfDestination, param: number) {
             //if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
                 Helper.log("[rtf] using charset: " + param);
                 this.parser.codepage = param;
             }
         },
-        sectd: function () {
+        sectd: function (this: rtfDestination) {
             Helper.log("[rtf] reset to section defaults");
             this.parser.state.sep = new Sep(null);
         },
-        plain: function () {
+        plain: function (this: rtfDestination) {
             Helper.log("[rtf] reset to character defaults");
             this.parser.state.chp = new Chp(null);
         },
-        pard: function () {
+        pard: function (this: rtfDestination) {
             Helper.log("[rtf] reset to paragraph defaults");
             this.parser.state.pap = new Pap(null);
         },
@@ -409,7 +410,7 @@ export class metaPropertyDestinationFactory extends DestinationFactory<metaPrope
                 this.parser = parser;
             }
 
-            apply = function () {
+            apply() {
                 var info = findParentDestination(this.parser, "info");
                 if (info == null)
                     throw new RTFJSError("Destination " + this._name + " must be within info destination");
@@ -659,7 +660,7 @@ export class genericSubTextPropertyDestinationFactory extends DestinationFactory
                 this.parser = parser;
             }
 
-            apply = function () {
+            apply() {
                 var dest = findParentDestination(this.parser, parentDest);
                 if (dest == null)
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
@@ -968,7 +969,7 @@ export class FieldHyperlink extends FieldBase {
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(this.inst, create,
+                    container = inst._settings.onHyperlink.call(inst, create,
                         {url: function () {return self.url()}});
                 } else {
                     var elem = create();
@@ -1156,6 +1157,7 @@ export class pictDestination extends DestinationTextBase {
     _size: {width: number, height: number};
     parser: GlobalState;
     inst: Document;
+    [key: string]: any;
 
     constructor(parser: GlobalState, inst: Document){
         super("pict");
@@ -1174,7 +1176,7 @@ export class pictDestination extends DestinationTextBase {
     };
 
     _setPropValueRequired(member: string, prop: string) {
-        return function (param: number) {
+        return function (this: pictDestination, param: number) {
             if (param == null)
                 throw new RTFJSError("Picture property has no value");
             Helper.log("[pict] set " + member + "." + prop + " = " + param);
@@ -1190,12 +1192,12 @@ export class pictDestination extends DestinationTextBase {
         pichgoal: this._setPropValueRequired("_displaysize", "height")
     };
 
-    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: () => any, render: (img: any) => JQuery})} = {
+    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: (this: pictDestination) => any, render: (this: pictDestination, img: any) => JQuery})} = {
         emfblip: (function () {
             if (typeof EMFJS !== "undefined") {
                 return function () {
                     return {
-                        load: function () {
+                        load: function (this: pictDestination) {
                             try {
                                 return new EMFJS.Renderer(this._blob);
                             } catch (e) {
@@ -1205,7 +1207,7 @@ export class pictDestination extends DestinationTextBase {
                                     throw e;
                             }
                         },
-                        render: function (img: EMFJS.Renderer) {
+                        render: function (this: pictDestination, img: EMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1232,7 +1234,7 @@ export class pictDestination extends DestinationTextBase {
                     if (param == null || param < 0 || param > 8)
                         throw new RTFJSError("Insufficient metafile information");
                     return {
-                        load: function () {
+                        load: function (this: pictDestination) {
                             try {
                                 return new WMFJS.Renderer(this._blob);
                             } catch (e) {
@@ -1242,7 +1244,7 @@ export class pictDestination extends DestinationTextBase {
                                     throw e;
                             }
                         },
-                        render: function (img: WMFJS.Renderer) {
+                        render: function (this: pictDestination, img: WMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1321,7 +1323,7 @@ export class pictDestination extends DestinationTextBase {
             }
 
             var info = this;
-            var doRender = function (rendering: boolean) {
+            let doRender = function (this: Renderer, rendering: boolean) {
                 let inst = this._doc;
                 var pictrender = (<(() => any)>type).call(info);
                 if (pictrender != null) {
@@ -1350,7 +1352,7 @@ export class pictDestination extends DestinationTextBase {
 
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((function (isLegacy) {
-                    return function () {
+                    return function (this: Renderer) {
                         var inst = this._doc;
                         var renderer = this;
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
@@ -1370,14 +1372,14 @@ export class pictDestination extends DestinationTextBase {
             var text = this.text;
             var blob = this._blob;
 
-            var doRender = function (rendering: boolean) {
+            let doRender = function (this: Renderer, rendering: boolean) {
                 var bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
                     if (rendering) {
-                        return this.buildPicture(type, bin);
+                        return this.buildPicture(<string>type, bin);
                     } else {
                         this._doc.addIns(function () {
-                            this.picture(type, bin);
+                            this.picture(<string>type, bin);
                         });
                     }
                 } else {
@@ -1393,7 +1395,7 @@ export class pictDestination extends DestinationTextBase {
 
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((function (isLegacy) {
-                    return function () {
+                    return function (this: Renderer) {
                         var inst = this._doc;
                         var renderer = this;
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {

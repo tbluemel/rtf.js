@@ -31,7 +31,7 @@ export interface EMFJSError {
     stack: string;
 }
 
-export const EMFJSError = function(message: string) {
+export const EMFJSError = function(this: EMFJSError, message: string) {
     this.name = 'EMFJSError';
     this.message = message;
     this.stack = (new Error()).stack;

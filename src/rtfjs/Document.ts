@@ -26,6 +26,7 @@ SOFTWARE.
 
 import { RTFJSError } from './Helper';
 import { Color, fonttblDestinationSub } from './parser/Destinations';
+import { Renderer } from './Renderer';
 
 export interface Settings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
@@ -39,7 +40,7 @@ export class Document {
     _colors: Color[];
     _autoColor: number;
     _stylesheets: {index: number, name: string}[];
-    _ins: (string | (() => void))[];
+    _ins: (string | ((this: Renderer) => void))[];
 
     constructor(settings: Settings) {
         this._settings = settings || {};
@@ -62,7 +63,7 @@ export class Document {
         return this._colors[idx];
     };
 
-    addIns(ins: string | (() => void)) {
+    addIns(ins: string | ((this: Renderer) => void)) {
         this._ins.push(ins);
     };
 

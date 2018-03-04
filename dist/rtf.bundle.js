@@ -8144,15 +8144,15 @@ var metaPropertyDestinationFactory = /** @class */ (function (_super) {
             __extends(class_2, _super);
             function class_2(parser, inst, name) {
                 var _this = _super.call(this, name) || this;
-                _this.apply = function () {
-                    var info = findParentDestination(this.parser, "info");
-                    if (info == null)
-                        throw new RTFJSError("Destination " + this._name + " must be within info destination");
-                    info.setMetadata(metaprop, this.text);
-                };
                 _this.parser = parser;
                 return _this;
             }
+            class_2.prototype.apply = function () {
+                var info = findParentDestination(this.parser, "info");
+                if (info == null)
+                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                info.setMetadata(metaprop, this.text);
+            };
             return class_2;
         }(DestinationTextBase));
         return _this;
@@ -8352,20 +8352,20 @@ var genericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
             __extends(class_4, _super);
             function class_4(parser) {
                 var _this = _super.call(this, name) || this;
-                _this.apply = function () {
-                    var dest = findParentDestination(this.parser, parentDest);
-                    if (dest == null)
-                        throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
-                    if (dest[propOrFunc] == null)
-                        throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
-                    if (dest[propOrFunc] instanceof Function)
-                        dest[propOrFunc](this.text);
-                    else
-                        dest[propOrFunc] = this.text;
-                };
                 _this.parser = parser;
                 return _this;
             }
+            class_4.prototype.apply = function () {
+                var dest = findParentDestination(this.parser, parentDest);
+                if (dest == null)
+                    throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
+                if (dest[propOrFunc] == null)
+                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                if (dest[propOrFunc] instanceof Function)
+                    dest[propOrFunc](this.text);
+                else
+                    dest[propOrFunc] = this.text;
+            };
             return class_4;
         }(DestinationTextBase));
         return _this;
@@ -8620,7 +8620,7 @@ var FieldHyperlink = /** @class */ (function (_super) {
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(this.inst, create, { url: function () { return self.url(); } });
+                    container = inst._settings.onHyperlink.call(inst, create, { url: function () { return self.url(); } });
                 }
                 else {
                     var elem = create();
@@ -8949,7 +8949,7 @@ var pictDestination = /** @class */ (function (_super) {
                 delete this.text;
             }
             var info = this;
-            var doRender = function (rendering) {
+            var doRender_1 = function (rendering) {
                 var inst = this._doc;
                 var pictrender = type.call(info);
                 if (pictrender != null) {
@@ -8984,7 +8984,7 @@ var pictDestination = /** @class */ (function (_super) {
                         var inst = this._doc;
                         var renderer = this;
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
-                            return doRender.call(renderer, true);
+                            return doRender_1.call(renderer, true);
                         });
                         if (elem != null)
                             this.appendElement(elem);
@@ -8994,14 +8994,14 @@ var pictDestination = /** @class */ (function (_super) {
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender.call(this.parser.renderer, rendering)
+                    element: doRender_1.call(this.parser.renderer, rendering)
                 };
             }
         }
         else if (typeof type === "string") {
             var text = this.text;
             var blob = this._blob;
-            var doRender = function (rendering) {
+            var doRender_2 = function (rendering) {
                 var bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
                     if (rendering) {
@@ -9030,7 +9030,7 @@ var pictDestination = /** @class */ (function (_super) {
                         var inst = this._doc;
                         var renderer = this;
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
-                            return doRender.call(renderer, true);
+                            return doRender_2.call(renderer, true);
                         });
                         if (elem != null)
                             this.appendElement(elem);
@@ -9040,7 +9040,7 @@ var pictDestination = /** @class */ (function (_super) {
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender.call(this.parser.renderer, rendering)
+                    element: doRender_2.call(this.parser.renderer, rendering)
                 };
             }
         }
