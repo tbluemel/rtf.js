@@ -33,7 +33,7 @@ import * as WMFJS from 'WMFJS';
 import * as EMFJS from 'EMFJS';
 
 export abstract class DestinationFactory<T extends Destination> {
-    class;
+    class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
 
     newDestination(parser: GlobalState, inst: Document, name: string, param: number): T {
         return new this.class(parser, inst, name, param);
@@ -398,7 +398,7 @@ export interface metaPropertyDestination extends Destination {
 export class metaPropertyDestinationFactory extends DestinationFactory<metaPropertyDestination> {
     metaprop: string;
 
-    constructor(metaprop){
+    constructor(metaprop: string){
         super();
         this.metaprop = metaprop;
         this.class = class extends DestinationTextBase implements metaPropertyDestination {
@@ -426,7 +426,7 @@ export interface metaPropertyTimeDestination extends Destination {
 export class metaPropertyTimeDestinationFactory extends DestinationFactory<metaPropertyTimeDestination> {
     metaprop: string;
 
-    constructor(metaprop){
+    constructor(metaprop: string){
         super();
         this.metaprop = metaprop;
         this.class = class extends DestinationBase implements metaPropertyTimeDestination {
@@ -1131,7 +1131,7 @@ export interface pictGroupDestination extends Destination{
 export class pictGroupDestinationFactory extends DestinationFactory<pictGroupDestination> {
     legacy: boolean;
 
-    constructor(legacy){
+    constructor(legacy: boolean){
         super();
         this.legacy= legacy;
         this.class = class extends DestinationTextBase implements pictGroupDestination {
@@ -1150,7 +1150,7 @@ export class pictGroupDestinationFactory extends DestinationFactory<pictGroupDes
 }
 
 export class pictDestination extends DestinationTextBase {
-    _type;
+    _type: string | (() => any);
     _blob: ArrayBuffer;
     _displaysize: {width: number, height: number};
     _size: {width: number, height: number};
@@ -1173,7 +1173,7 @@ export class pictDestination extends DestinationTextBase {
         this.inst = inst;
     };
 
-    _setPropValueRequired(member: string, prop) {
+    _setPropValueRequired(member: string, prop: string) {
         return function (param: number) {
             if (param == null)
                 throw new RTFJSError("Picture property has no value");
@@ -1190,7 +1190,7 @@ export class pictDestination extends DestinationTextBase {
         pichgoal: this._setPropValueRequired("_displaysize", "height")
     };
 
-    _pictTypeHandler = {
+    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: () => any, render: (img: any) => JQuery})} = {
         emfblip: (function () {
             if (typeof EMFJS !== "undefined") {
                 return function () {
@@ -1205,7 +1205,7 @@ export class pictDestination extends DestinationTextBase {
                                     throw e;
                             }
                         },
-                        render: function (img) {
+                        render: function (img: EMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1228,7 +1228,7 @@ export class pictDestination extends DestinationTextBase {
         pmmetafile: "", // TODO
         wmetafile: (function () {
             if (typeof WMFJS !== "undefined") {
-                return function (param) {
+                return function (param: number) {
                     if (param == null || param < 0 || param > 8)
                         throw new RTFJSError("Insufficient metafile information");
                     return {
@@ -1242,7 +1242,7 @@ export class pictDestination extends DestinationTextBase {
                                     throw e;
                             }
                         },
-                        render: function (img) {
+                        render: function (img: WMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1274,20 +1274,16 @@ export class pictDestination extends DestinationTextBase {
                 if (typeof type === "function") {
                     var info = type.call(this, param);
                     if (info != null) {
-                        if (typeof info === "string") {
-                            this._type = info;
-                        } else {
-                            this._type = function () {
-                                var renderer = info.load.call(inst);
-                                if (renderer != null) {
-                                    if (typeof renderer === "string")
-                                        return renderer;
-                                    return function () {
-                                        return info.render.call(inst, renderer);
-                                    };
-                                }
-                            };
-                        }
+                        this._type = function () {
+                            var renderer = info.load.call(inst);
+                            if (renderer != null) {
+                                if (typeof renderer === "string")
+                                    return renderer;
+                                return function () {
+                                    return info.render.call(inst, renderer);
+                                };
+                            }
+                        };
                     }
                 } else {
                     this._type = type;
@@ -1325,9 +1321,9 @@ export class pictDestination extends DestinationTextBase {
             }
 
             var info = this;
-            var doRender = function (rendering) {
+            var doRender = function (rendering: boolean) {
                 let inst = this._doc;
-                var pictrender = type.call(info);
+                var pictrender = (<(() => any)>type).call(info);
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
@@ -1374,7 +1370,7 @@ export class pictDestination extends DestinationTextBase {
             var text = this.text;
             var blob = this._blob;
 
-            var doRender = function (rendering) {
+            var doRender = function (rendering: boolean) {
                 var bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
                     if (rendering) {
@@ -1424,7 +1420,7 @@ export interface requiredDestination extends Destination {
 export class requiredDestinationFactory extends DestinationFactory<requiredDestination> {
     name: string;
 
-    constructor(name){
+    constructor(name: string){
         super();
         this.name = name;
         this.class = class extends DestinationBase implements requiredDestination {
@@ -1435,7 +1431,7 @@ export class requiredDestinationFactory extends DestinationFactory<requiredDesti
     }
 }
 
-export const destinations = {
+export const destinations: {[key: string]: ({ new (parser: GlobalState, inst: Document, name: string, param: number): any } | DestinationFactory<any>)} = {
     rtf: rtfDestination,
     info: infoDestination,
     title: new metaPropertyDestinationFactory("title"),

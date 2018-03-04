@@ -36,7 +36,7 @@ export class Chp {
     dblstrikethrough: boolean;
     colorindex: number;
     fontsize: number;
-    fontfamily: string;
+    fontfamily: number;
 
     constructor(parent: Chp) {
         if (parent != null) {

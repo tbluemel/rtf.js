@@ -11,7 +11,11 @@
         "lib": ["dom", "es5", "scripthost", "es2015.promise"],
         "moduleResolution": "node",
         "module": "es2015",
-        "sourceMap": true
+        "sourceMap": true,
+        "alwaysStrict": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
+        "noImplicitAny": true
     },
     "include": [
         "./src/**/*"

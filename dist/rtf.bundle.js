@@ -39,41 +39,127 @@ var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
     isLoggingEnabled = enabled;
 }
-var Helper = {
-    log: function (message) {
+var Helper = /** @class */ (function () {
+    function Helper() {
+    }
+    Helper.log = function (message) {
         if (isLoggingEnabled) {
             console.log(message);
         }
-    },
-    _A: "A".charCodeAt(0),
-    _a: "a".charCodeAt(0),
-    _F: "F".charCodeAt(0),
-    _f: "f".charCodeAt(0),
-    _Z: "Z".charCodeAt(0),
-    _z: "z".charCodeAt(0),
-    _0: "0".charCodeAt(0),
-    _9: "9".charCodeAt(0),
-    JUSTIFICATION: {
+    };
+    Helper._isalpha = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._A && ch <= this._Z) ||
+                (ch >= this._a && ch <= this._z))) {
+                return false;
+            }
+        }
+        return len > 0;
+    };
+    Helper._isdigit = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (ch < this._0 || ch > this._9)
+                return false;
+        }
+        return len > 0;
+    };
+    Helper._parseHex = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._0 && ch <= this._9) ||
+                (ch >= this._a && ch <= this._f) ||
+                (ch >= this._A && ch <= this._F))) {
+                return NaN;
+            }
+        }
+        if (len > 0)
+            return parseInt(str, 16);
+        return NaN;
+    };
+    Helper._blobToBinary = function (blob) {
+        var view = new Uint8Array(blob);
+        var ret = "";
+        var len = view.length;
+        for (var i = 0; i < len; i++)
+            ret += String.fromCharCode(view[i]);
+        return ret;
+    };
+    Helper._hexToBlob = function (str) {
+        var len = str.length;
+        var buf = new ArrayBuffer(Math.floor(len-- / 2));
+        var view = new Uint8Array(buf);
+        var d = 0;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val))
+                return null;
+            view[d++] = val;
+        }
+        return buf;
+    };
+    Helper._hexToBinary = function (str) {
+        var bin = "";
+        var len = str.length - 1;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val))
+                return null;
+            bin += String.fromCharCode(val);
+        }
+        return bin;
+    };
+    Helper._mapCharset = function (idx) {
+        return this._charsetMap[idx.toString()];
+    };
+    Helper._mapColorTheme = function (name) {
+        return this._colorThemeMap[name];
+    };
+    Helper._colorToStr = function (color) {
+        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+    };
+    Helper._twipsToPt = function (twips) {
+        return Math.floor(twips / 20);
+    };
+    Helper._twipsToPx = function (twips) {
+        return Math.floor(twips / 20 * 96 / 72);
+    };
+    Helper._pxToTwips = function (px) {
+        return Math.floor(px * 20 * 72 / 96);
+    };
+    Helper._A = "A".charCodeAt(0);
+    Helper._a = "a".charCodeAt(0);
+    Helper._F = "F".charCodeAt(0);
+    Helper._f = "f".charCodeAt(0);
+    Helper._Z = "Z".charCodeAt(0);
+    Helper._z = "z".charCodeAt(0);
+    Helper._0 = "0".charCodeAt(0);
+    Helper._9 = "9".charCodeAt(0);
+    Helper.JUSTIFICATION = {
         LEFT: "left",
         CENTER: "center",
         RIGHT: "right",
         JUSTIFY: "justify"
-    },
-    BREAKTYPE: {
+    };
+    Helper.BREAKTYPE = {
         NONE: "none",
         COL: "col",
         EVEN: "even",
         ODD: "odd",
         PAGE: "page"
-    },
-    PAGENUMBER: {
+    };
+    Helper.PAGENUMBER = {
         DECIMAL: "decimal",
         UROM: "urom",
         LROM: "lrom",
         ULTR: "ultr",
         LLTR: "lltr" // TODO: ???
-    },
-    UNDERLINE: {
+    };
+    Helper.UNDERLINE = {
         NONE: "none",
         CONTINUOUS: "continuous",
         DOTTED: "dotted",
@@ -92,84 +178,18 @@ var Helper = {
         DOUBLEWAVE: "doublewave",
         WORD: "word",
         WAVE: "wave"
-    },
-    FONTPITCH: {
+    };
+    Helper.FONTPITCH = {
         DEFAULT: 0,
         FIXED: 1,
         VARIABLE: 2
-    },
-    CHARACTER_TYPE: {
+    };
+    Helper.CHARACTER_TYPE = {
         LOWANSI: "loch",
         HIGHANSI: "hich",
         DOUBLE: "dbch"
-    },
-    _isalpha: function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (!((ch >= this._A && ch <= this._Z) ||
-                (ch >= this._a && ch <= this._z))) {
-                return false;
-            }
-        }
-        return len > 0;
-    },
-    _isdigit: function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (ch < this._0 || ch > this._9)
-                return false;
-        }
-        return len > 0;
-    },
-    _parseHex: function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (!((ch >= this._0 && ch <= this._9) ||
-                (ch >= this._a && ch <= this._f) ||
-                (ch >= this._A && ch <= this._F))) {
-                return NaN;
-            }
-        }
-        if (len > 0)
-            return parseInt(str, 16);
-        return NaN;
-    },
-    _blobToBinary: function (blob) {
-        var view = new Uint8Array(blob);
-        var ret = "";
-        var len = view.length;
-        for (var i = 0; i < len; i++)
-            ret += String.fromCharCode(view[i]);
-        return ret;
-    },
-    _hexToBlob: function (str) {
-        var len = str.length;
-        var buf = new ArrayBuffer(Math.floor(len-- / 2));
-        var view = new Uint8Array(buf);
-        var d = 0;
-        for (var i = 0; i < len; i += 2) {
-            var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val))
-                return null;
-            view[d++] = val;
-        }
-        return buf;
-    },
-    _hexToBinary: function (str) {
-        var bin = "";
-        var len = str.length - 1;
-        for (var i = 0; i < len; i += 2) {
-            var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val))
-                return null;
-            bin += String.fromCharCode(val);
-        }
-        return bin;
-    },
-    _charsetMap: {
+    };
+    Helper._charsetMap = {
         "0": 1252,
         "77": 10000,
         "78": 10001,
@@ -199,11 +219,8 @@ var Helper = {
         "238": 1250,
         "254": 437,
         "255": 850,
-    },
-    _mapCharset: function (idx) {
-        return this._charsetMap[idx.toString()];
-    },
-    _colorThemeMap: {
+    };
+    Helper._colorThemeMap = {
         // TODO
         maindarkone: null,
         mainlightone: null,
@@ -221,23 +238,9 @@ var Helper = {
         textone: null,
         backgroundtwo: null,
         texttwo: null,
-    },
-    _mapColorTheme: function (name) {
-        return this._colorThemeMap[name];
-    },
-    _colorToStr: function (color) {
-        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-    },
-    _twipsToPt: function (twips) {
-        return Math.floor(twips / 20);
-    },
-    _twipsToPx: function (twips) {
-        return Math.floor(twips / 20 * 96 / 72);
-    },
-    _pxToTwips: function (px) {
-        return Math.floor(px * 20 * 72 / 96);
-    }
-};
+    };
+    return Helper;
+}());
 
 /*
 
@@ -8902,21 +8905,16 @@ var pictDestination = /** @class */ (function (_super) {
                 if (typeof type === "function") {
                     var info = type.call(this, param);
                     if (info != null) {
-                        if (typeof info === "string") {
-                            this._type = info;
-                        }
-                        else {
-                            this._type = function () {
-                                var renderer = info.load.call(inst);
-                                if (renderer != null) {
-                                    if (typeof renderer === "string")
-                                        return renderer;
-                                    return function () {
-                                        return info.render.call(inst, renderer);
-                                    };
-                                }
-                            };
-                        }
+                        this._type = function () {
+                            var renderer = info.load.call(inst);
+                            if (renderer != null) {
+                                if (typeof renderer === "string")
+                                    return renderer;
+                                return function () {
+                                    return info.render.call(inst, renderer);
+                                };
+                            }
+                        };
                     }
                 }
                 else {

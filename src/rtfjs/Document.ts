@@ -25,6 +25,7 @@ SOFTWARE.
 */
 
 import { RTFJSError } from './Helper';
+import { Color, fonttblDestinationSub } from './parser/Destinations';
 
 export interface Settings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
@@ -34,10 +35,10 @@ export interface Settings {
 export class Document {
     _settings: Settings;
     _meta: {[key: string]: any};
-    _fonts;
-    _colors;
-    _autoColor;
-    _stylesheets;
+    _fonts: fonttblDestinationSub[];
+    _colors: Color[];
+    _autoColor: number;
+    _stylesheets: {index: number, name: string}[];
     _ins: (string | (() => void))[];
 
     constructor(settings: Settings) {

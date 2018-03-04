@@ -44,42 +44,42 @@ export function loggingEnabled(enabled: boolean){
     isLoggingEnabled = enabled;
 }
 
-export const Helper = {
-    log: function(message: string){
+export class Helper {
+    static log(message: string){
         if(isLoggingEnabled) {
             console.log(message);
         }
-    },
-    _A: "A".charCodeAt(0),
-    _a: "a".charCodeAt(0),
-    _F: "F".charCodeAt(0),
-    _f: "f".charCodeAt(0),
-    _Z: "Z".charCodeAt(0),
-    _z: "z".charCodeAt(0),
-    _0: "0".charCodeAt(0),
-    _9: "9".charCodeAt(0),
+    };
+    static _A = "A".charCodeAt(0);
+    static _a = "a".charCodeAt(0);
+    static _F = "F".charCodeAt(0);
+    static _f = "f".charCodeAt(0);
+    static _Z = "Z".charCodeAt(0);
+    static _z = "z".charCodeAt(0);
+    static _0 = "0".charCodeAt(0);
+    static _9 = "9".charCodeAt(0);
 
-    JUSTIFICATION: {
+    static JUSTIFICATION = {
         LEFT: "left",
         CENTER: "center",
         RIGHT: "right",
         JUSTIFY: "justify"
-    },
-    BREAKTYPE: {
+    };
+    static BREAKTYPE = {
         NONE: "none",
         COL: "col", // TODO: ???
         EVEN: "even",
         ODD: "odd",
         PAGE: "page"
-    },
-    PAGENUMBER: {
+    };
+    static PAGENUMBER = {
         DECIMAL: "decimal",
         UROM: "urom", // TODO: ???
         LROM: "lrom", // TODO: ???
         ULTR: "ultr", // TODO: ???
         LLTR: "lltr" // TODO: ???
-    },
-    UNDERLINE: {
+    };
+    static UNDERLINE = {
         NONE: "none",
         CONTINUOUS: "continuous",
         DOTTED: "dotted",
@@ -98,19 +98,19 @@ export const Helper = {
         DOUBLEWAVE: "doublewave",
         WORD: "word",
         WAVE: "wave"
-    },
-    FONTPITCH: {
+    };
+    static FONTPITCH = {
         DEFAULT: 0,
         FIXED: 1,
         VARIABLE: 2
-    },
-    CHARACTER_TYPE: {
+    };
+    static CHARACTER_TYPE = {
         LOWANSI: "loch",
         HIGHANSI: "hich",
         DOUBLE: "dbch"
-    },
+    };
 
-    _isalpha: function(str: string): boolean {
+    static _isalpha(str: string): boolean {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -120,8 +120,9 @@ export const Helper = {
             }
         }
         return len > 0;
-    },
-    _isdigit: function(str: string): boolean {
+    }
+
+    static _isdigit(str: string): boolean {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -129,8 +130,9 @@ export const Helper = {
                 return false;
         }
         return len > 0;
-    },
-    _parseHex: function(str: string): number {
+    }
+
+    static _parseHex(str: string): number {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
@@ -143,16 +145,18 @@ export const Helper = {
         if (len > 0)
             return parseInt(str, 16);
         return NaN;
-    },
-    _blobToBinary: function(blob: ArrayBuffer): string {
+    }
+
+    static _blobToBinary(blob: ArrayBuffer): string {
         var view = new Uint8Array(blob);
         var ret = "";
         var len = view.length;
         for (var i = 0; i < len; i++)
             ret += String.fromCharCode(view[i]);
         return ret;
-    },
-    _hexToBlob: function(str: string): ArrayBuffer {
+    }
+
+    static _hexToBlob(str: string): ArrayBuffer {
         var len = str.length;
         var buf = new ArrayBuffer(Math.floor(len-- / 2));
         var view = new Uint8Array(buf);
@@ -164,8 +168,9 @@ export const Helper = {
             view[d++] = val;
         }
         return buf;
-    },
-    _hexToBinary: function(str: string): string {
+    }
+
+    static _hexToBinary(str: string): string {
         var bin = ""
         var len = str.length - 1;
         for (var i = 0; i < len; i += 2) {
@@ -175,9 +180,9 @@ export const Helper = {
             bin += String.fromCharCode(val);
         }
         return bin;
-    },
+    }
 
-    _charsetMap: {
+    static _charsetMap: {[key: string]: number} = {
         "0":   1252, // ANSI_CHARSET
         "77":  10000, // Mac Roman
         "78":  10001, // Mac Shift Jis
@@ -207,12 +212,13 @@ export const Helper = {
         "238": 1250, // EE_CHARSET (Eastern European)
         "254": 437,  // PC 437
         "255": 850,  // OEM
-    },
-    _mapCharset: function(idx: number): number {
-        return this._charsetMap[idx.toString()];
-    },
+    }
 
-    _colorThemeMap: {
+    static _mapCharset(idx: number): number {
+        return this._charsetMap[idx.toString()];
+    }
+
+    static _colorThemeMap: {[key: string]: null} = {
         // TODO
         maindarkone: null,
         mainlightone: null,
@@ -231,20 +237,25 @@ export const Helper = {
         backgroundtwo: null,
         texttwo: null,
 
-    },
-    _mapColorTheme: function(name: string) {
+    }
+
+    static _mapColorTheme(name: string) {
         return this._colorThemeMap[name];
-    },
-    _colorToStr: function(color: Color) {
+    }
+
+    static _colorToStr(color: Color) {
         return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-    },
-    _twipsToPt: function(twips: number) {
+    }
+
+    static _twipsToPt(twips: number) {
         return Math.floor(twips / 20);
-    },
-    _twipsToPx: function(twips: number) {
+    }
+
+    static _twipsToPx(twips: number) {
         return Math.floor(twips / 20 * 96 / 72);
-    },
-    _pxToTwips: function(px: number) {
+    }
+
+    static _pxToTwips(px: number) {
         return Math.floor(px * 20 * 72 / 96);
     }
 };
