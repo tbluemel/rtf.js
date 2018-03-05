@@ -32,27 +32,27 @@ export interface EMFJSError {
 }
 
 export const EMFJSError = function(this: EMFJSError, message: string) {
-    this.name = 'EMFJSError';
+    this.name = "EMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
-} as any as { new (message: string): EMFJSError; }
+} as any as { new (message: string): EMFJSError; };
 EMFJSError.prototype = new Error;
 
 let isLoggingEnabled = true;
-export function loggingEnabled(enabled: boolean){
+export function loggingEnabled(enabled: boolean) {
     isLoggingEnabled = enabled;
 }
 
 export const Helper = {
-    log: function(message: string){
-        if(isLoggingEnabled) {
+    log(message: string) {
+        if (isLoggingEnabled) {
             console.log(message);
         }
     },
     GDI: {
         FormatSignature: {
             ENHMETA_SIGNATURE: 0x464D4520,
-            EPS_SIGNATURE: 0x46535045
+            EPS_SIGNATURE: 0x46535045,
         },
         BITMAPINFOHEADER_SIZE: 40,
         BITMAPCOREHEADER_SIZE: 12,
@@ -174,7 +174,7 @@ export const Helper = {
             EMR_SETLINKEDUFIS: 0x00000077,
             EMR_SETTEXTJUSTIFICATION: 0x00000078,
             EMR_COLORMATCHTOTARGETW: 0x00000079,
-            EMR_CREATECOLORSPACEW: 0x0000007A
+            EMR_CREATECOLORSPACEW: 0x0000007A,
         },
         MetafileEscapes: {
             NEWFRAME: 0x0001,
@@ -236,7 +236,7 @@ export const Helper = {
             CHECKPNGFORMAT: 0x1018,
             GET_PS_FEATURESETTING: 0x1019,
             MXDC_ESCAPE: 0x101a,
-            SPCLPASSTHROUGH2: 0x11d8
+            SPCLPASSTHROUGH2: 0x11d8,
         },
         MapMode: {
             MM_TEXT: 1,
@@ -246,17 +246,17 @@ export const Helper = {
             MM_HIENGLISH: 5,
             MM_TWIPS: 6,
             MM_ISOTROPIC: 7,
-            MM_ANISOTROPIC: 8
+            MM_ANISOTROPIC: 8,
         },
         StretchMode: {
             BLACKONWHITE: 1,
             WHITEONBLACK: 2,
             COLORONCOLOR: 3,
-            HALFTONE: 4
+            HALFTONE: 4,
         },
         MixMode: {
             TRANSPARENT: 1,
-            OPAQUE: 2
+            OPAQUE: 2,
         },
         BrushStyle: {
             BS_SOLID: 0,
@@ -268,7 +268,7 @@ export const Helper = {
             BS_DIBPATTERNPT: 6,
             BS_PATTERN8X8: 7,
             BS_DIBPATTERN8X8: 8,
-            BS_MONOPATTERN: 9
+            BS_MONOPATTERN: 9,
         },
         PenStyle: {
             PS_COSMETIC: 0x00000000,
@@ -287,11 +287,11 @@ export const Helper = {
             PS_ENDCAP_FLAT: 0x00000200,
             PS_JOIN_BEVEL: 0x00001000,
             PS_JOIN_MITER: 0x00002000,
-            PS_GEOMETRIC: 0x00010000
+            PS_GEOMETRIC: 0x00010000,
         },
         PolygonFillMode: {
             ALTERNATE: 1,
-            WINDING: 2
+            WINDING: 2,
         },
         BitmapCompression: {
             BI_RGB: 0,
@@ -299,14 +299,14 @@ export const Helper = {
             BI_RLE4: 2,
             BI_BITFIELDS: 3,
             BI_JPEG: 4,
-            BI_PNG: 5
+            BI_PNG: 5,
         },
         RegionMode: {
             RGN_AND: 1,
             RGN_OR: 2,
             RGN_XOR: 3,
             RGN_DIFF: 4,
-            RGN_COPY: 5
+            RGN_COPY: 5,
         },
         StockObject: {
             WHITE_BRUSH: 0x80000000,
@@ -327,24 +327,25 @@ export const Helper = {
             SYSTEM_FIXED_FONT: 0x80000010,
             DEFAULT_GUI_FONT: 0x80000011,
             DC_BRUSH: 0x80000012,
-            DC_PEN: 0x80000013
-        }
+            DC_PEN: 0x80000013,
+        },
     },
     _uniqueId: 0,
-    _makeUniqueId: function(prefix: string) {
+    _makeUniqueId(prefix: string) {
         return "EMFJS_" + prefix + (this._uniqueId++);
     },
-    _writeUint32Val: function(uint8arr: Uint8Array, pos: number, val: number) {
+    _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
         uint8arr[pos++] = val & 0xff;
         uint8arr[pos++] = (val >>> 8) & 0xff;
         uint8arr[pos++] = (val >>> 16) & 0xff;
         uint8arr[pos++] = (val >>> 24) & 0xff;
     },
-    _blobToBinary: function(blob: Uint8Array) {
-        var ret = "";
-        var len = blob.length;
-        for (var i = 0; i < len; i++)
+    _blobToBinary(blob: Uint8Array) {
+        let ret = "";
+        const len = blob.length;
+        for (let i = 0; i < len; i++) {
             ret += String.fromCharCode(blob[i]);
+        }
         return ret;
-    }
+    },
 };

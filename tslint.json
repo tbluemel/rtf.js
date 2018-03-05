@@ -1,0 +1,19 @@
+{
+    "extends": "tslint:recommended",
+    "rules": {
+        "indent": [true, "spaces", 4],
+        "max-classes-per-file": false,
+        "no-bitwise": false,
+        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+        "object-literal-sort-keys": false,
+        "prefer-for-of": false,
+
+        // to be enabled eventually
+        "max-line-length": false,
+        "triple-equals": false,
+        "only-arrow-functions": false,
+        "member-access": false,
+        "forin": false
+    },
+    "defaultSeverity": "error"
+}

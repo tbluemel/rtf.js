@@ -24,5 +24,5 @@ SOFTWARE.
 
 */
 
-export { DocumentFacade as Document } from './DocumentFacade';
-export { RTFJSError as Error, loggingEnabled } from './Helper';
+export { DocumentFacade as Document } from "./DocumentFacade";
+export { RTFJSError as Error, loggingEnabled } from "./Helper";

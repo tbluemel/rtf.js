@@ -25,8 +25,8 @@ SOFTWARE.
 
 */
 
-import { EMFJSError } from './Helper';
-import { Blob } from './Blob';
+import { Blob } from "./Blob";
+import { EMFJSError } from "./Helper";
 
 export class PointS {
     x: number;
@@ -44,12 +44,12 @@ export class PointS {
 
     clone() {
         return new PointS(null, this.x, this.y);
-    };
+    }
 
     toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
-    };
-};
+    }
+}
 
 export class PointL {
     x: number;
@@ -67,12 +67,12 @@ export class PointL {
 
     clone() {
         return new PointL(null, this.x, this.y);
-    };
+    }
 
     toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
-    };
-};
+    }
+}
 
 export class RectL {
     left: number;
@@ -96,26 +96,27 @@ export class RectL {
 
     clone() {
         return new RectL(null, this.left, this.top, this.right, this.bottom);
-    };
+    }
 
     toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
-    };
+    }
 
     empty() {
         return this.left >= this.right || this.top >= this.bottom;
-    };
+    }
 
     intersect(rectL: RectL) {
-        if (this.empty() || rectL.empty())
+        if (this.empty() || rectL.empty()) {
             return null;
+        }
         if (this.left >= rectL.right || this.top >= rectL.bottom ||
             this.right <= rectL.left || this.bottom <= rectL.top) {
             return null;
         }
         return new RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top), Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
-    };
-};
+    }
+}
 
 export class SizeL {
     cx: number;
@@ -133,11 +134,11 @@ export class SizeL {
 
     clone() {
         return new SizeL(null, this.cx, this.cy);
-    };
+    }
 
     toString() {
         return "{cx: " + this.cx + ", cy: " + this.cy + "}";
-    };
+    }
 }
 
 export class Obj {

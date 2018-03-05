@@ -1,8 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('WMFJS'), require('EMFJS')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'WMFJS', 'EMFJS'], factory) :
-	(factory((global.RTFJS = {}),global.WMFJS,global.EMFJS));
-}(this, (function (exports,WMFJS,EMFJS) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('EMFJS'), require('WMFJS')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'EMFJS', 'WMFJS'], factory) :
+	(factory((global.RTFJS = {}),global.EMFJS,global.WMFJS));
+}(this, (function (exports,EMFJS,WMFJS) { 'use strict';
 
 /*
 
@@ -30,7 +30,7 @@ SOFTWARE.
 
 */
 var RTFJSError = function (message) {
-    this.name = 'RTFJSError';
+    this.name = "RTFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
@@ -62,8 +62,9 @@ var Helper = /** @class */ (function () {
         var len = str.length;
         for (var i = 0; i < len; i++) {
             var ch = str.charCodeAt(i);
-            if (ch < this._0 || ch > this._9)
+            if (ch < this._0 || ch > this._9) {
                 return false;
+            }
         }
         return len > 0;
     };
@@ -77,16 +78,18 @@ var Helper = /** @class */ (function () {
                 return NaN;
             }
         }
-        if (len > 0)
+        if (len > 0) {
             return parseInt(str, 16);
+        }
         return NaN;
     };
     Helper._blobToBinary = function (blob) {
         var view = new Uint8Array(blob);
         var ret = "";
         var len = view.length;
-        for (var i = 0; i < len; i++)
+        for (var i = 0; i < len; i++) {
             ret += String.fromCharCode(view[i]);
+        }
         return ret;
     };
     Helper._hexToBlob = function (str) {
@@ -96,8 +99,9 @@ var Helper = /** @class */ (function () {
         var d = 0;
         for (var i = 0; i < len; i += 2) {
             var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val))
+            if (isNaN(val)) {
                 return null;
+            }
             view[d++] = val;
         }
         return buf;
@@ -107,8 +111,9 @@ var Helper = /** @class */ (function () {
         var len = str.length - 1;
         for (var i = 0; i < len; i += 2) {
             var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val))
+            if (isNaN(val)) {
                 return null;
+            }
             bin += String.fromCharCode(val);
         }
         return bin;
@@ -143,21 +148,21 @@ var Helper = /** @class */ (function () {
         LEFT: "left",
         CENTER: "center",
         RIGHT: "right",
-        JUSTIFY: "justify"
+        JUSTIFY: "justify",
     };
     Helper.BREAKTYPE = {
         NONE: "none",
         COL: "col",
         EVEN: "even",
         ODD: "odd",
-        PAGE: "page"
+        PAGE: "page",
     };
     Helper.PAGENUMBER = {
         DECIMAL: "decimal",
         UROM: "urom",
         LROM: "lrom",
         ULTR: "ultr",
-        LLTR: "lltr" // TODO: ???
+        LLTR: "lltr",
     };
     Helper.UNDERLINE = {
         NONE: "none",
@@ -177,48 +182,48 @@ var Helper = /** @class */ (function () {
         THICKLONGDASH: "thicklongdash",
         DOUBLEWAVE: "doublewave",
         WORD: "word",
-        WAVE: "wave"
+        WAVE: "wave",
     };
     Helper.FONTPITCH = {
         DEFAULT: 0,
         FIXED: 1,
-        VARIABLE: 2
+        VARIABLE: 2,
     };
     Helper.CHARACTER_TYPE = {
         LOWANSI: "loch",
         HIGHANSI: "hich",
-        DOUBLE: "dbch"
+        DOUBLE: "dbch",
     };
     Helper._charsetMap = {
-        "0": 1252,
-        "77": 10000,
-        "78": 10001,
-        "79": 10003,
-        "80": 10008,
-        "81": 10002,
-        "83": 10005,
-        "84": 10004,
-        "85": 10006,
-        "86": 10081,
-        "87": 10021,
-        "88": 10029,
-        "89": 10007,
-        "128": 932,
-        "129": 949,
-        "130": 1361,
-        "134": 936,
-        "136": 950,
-        "161": 1253,
-        "162": 1254,
-        "163": 1258,
-        "177": 1255,
-        "178": 1256,
-        "186": 1257,
-        "204": 1251,
-        "222": 874,
-        "238": 1250,
-        "254": 437,
-        "255": 850,
+        0: 1252,
+        77: 10000,
+        78: 10001,
+        79: 10003,
+        80: 10008,
+        81: 10002,
+        83: 10005,
+        84: 10004,
+        85: 10006,
+        86: 10081,
+        87: 10021,
+        88: 10029,
+        89: 10007,
+        128: 932,
+        129: 949,
+        130: 1361,
+        134: 936,
+        136: 950,
+        161: 1253,
+        162: 1254,
+        163: 1258,
+        177: 1255,
+        178: 1256,
+        186: 1257,
+        204: 1251,
+        222: 874,
+        238: 1250,
+        254: 437,
+        255: 850,
     };
     Helper._colorThemeMap = {
         // TODO
@@ -267,418 +272,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var Renderer = /** @class */ (function () {
-    function Renderer(doc) {
-        this._doc = doc;
-        this._dom = null;
-        this._curRChp = null;
-        this._curRPap = null;
-        this._curpar = null;
-        this._cursubpar = null;
-        this._curcont = [];
+var Document = /** @class */ (function () {
+    function Document(settings) {
+        this._settings = settings || {};
+        this._meta = {};
+        this._fonts = [];
+        this._colors = [];
+        this._autoColor = null;
+        this._stylesheets = [];
+        this._ins = [];
     }
-    Renderer.prototype.pushContainer = function (contel) {
-        if (this._curpar == null)
-            this.startPar();
-        var len = this._curcont.push(contel);
-        if (len > 1) {
-            var prevcontel = this._curcont[len - 1];
-            prevcontel.content.append(contel.element);
-        }
-        else {
-            if (this._cursubpar != null)
-                this._cursubpar.append(contel.element);
-            else
-                this._curpar.append(contel.element);
-        }
-    };
-    Renderer.prototype.popContainer = function () {
-        var contel = this._curcont.pop();
-        if (contel == null)
-            throw new RTFJSError("No container on rendering stack");
-    };
-    Renderer.prototype.buildHyperlinkElement = function (url) {
-        return $("<a>").attr("href", url);
-    };
-    Renderer.prototype._appendToPar = function (el, newsubpar) {
-        if (this._curpar == null)
-            this.startPar();
-        if (newsubpar == true) {
-            var subpar = $("<div>");
-            if (this._cursubpar == null) {
-                this._curpar.children().appendTo(subpar);
-                this._curpar.append(subpar);
-                subpar = $("<div>");
+    Document.prototype._lookupColor = function (idx) {
+        if (idx == 0) {
+            if (this._autoColor == null) {
+                return null;
             }
-            if (el)
-                subpar.append(el);
-            if (this._curRPap != null)
-                this._curRPap.apply(this._doc, subpar, this._curRChp, false);
-            this._cursubpar = subpar;
-            this._curpar.append(subpar);
+            return this._colors[this._autoColor];
         }
-        else if (el) {
-            var contelCnt = this._curcont.length;
-            if (contelCnt > 0) {
-                this._curcont[contelCnt - 1].content.append(el);
-            }
-            else if (this._cursubpar != null) {
-                this._cursubpar.append(el);
-            }
-            else {
-                this._curpar.append(el);
-            }
+        if (idx < 0 || idx >= this._colors.length) {
+            throw new RTFJSError("Invalid color index");
         }
+        return this._colors[idx];
     };
-    Renderer.prototype.startPar = function () {
-        this._curpar = $("<div>");
-        if (this._curRPap != null) {
-            this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
-            this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
-        }
-        this._cursubpar = null;
-        this._curcont = [];
-        this._dom.push(this._curpar);
+    Document.prototype.addIns = function (ins) {
+        this._ins.push(ins);
     };
-    Renderer.prototype.lineBreak = function () {
-        this._appendToPar(null, true);
-    };
-    Renderer.prototype.setChp = function (rchp) {
-        this._curRChp = rchp;
-    };
-    Renderer.prototype.setPap = function (rpap) {
-        this._curRPap = rpap;
-        if (this._cursubpar != null)
-            this._curRPap.apply(this._doc, this._cursubpar, null, false);
-        else if (this._curpar != null) {
-            // Don't have a sub-paragraph at all, apply everything
-            this._curRPap.apply(this._doc, this._curpar, null, true);
-            this._curRPap.apply(this._doc, this._curpar, null, false);
-        }
-    };
-    Renderer.prototype.appendElement = function (element) {
-        this._appendToPar(element);
-    };
-    Renderer.prototype.buildRenderedPicture = function (element) {
-        if (element == null)
-            element = $("<span>").text("[failed to render image]");
-        return element;
-    };
-    Renderer.prototype.renderedPicture = function (element) {
-        this._appendToPar(this.buildRenderedPicture(element));
-    };
-    Renderer.prototype.buildPicture = function (mime, data) {
-        if (data != null) {
-            return $("<img>", {
-                src: "data:" + mime + ";base64," + btoa(data)
-            });
-        }
-        else {
-            return $("<span>").text("[" + mime + "]");
-        }
-    };
-    Renderer.prototype.picture = function (mime, data) {
-        this._appendToPar(this.buildPicture(mime, data));
-    };
-    Renderer.prototype.buildDom = function () {
-        if (this._dom != null)
-            return this._dom;
-        this._dom = [];
-        this._curRChp = null;
-        this._curRPap = null;
-        this._curpar = null;
-        var len = this._doc._ins.length;
-        for (var i = 0; i < len; i++) {
-            var ins = this._doc._ins[i];
-            if (typeof ins === "string") {
-                var span = $("<span>");
-                if (this._curRChp != null)
-                    this._curRChp.apply(this._doc, span);
-                this._appendToPar(span.text(ins));
-            }
-            else {
-                ins.call(this);
-            }
-        }
-        return this._dom;
-    };
-    return Renderer;
-}());
-
-// The MIT License (MIT)
-//
-// Copyright (c) 2016 Tom Zöhner
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-// Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
-var SymbolTable = {
-    "20": "\u0020",
-    "21": "\u0021",
-    "22": "\u2200",
-    "23": "\u0023",
-    "24": "\u2203",
-    "25": "\u0025",
-    "26": "\u0026",
-    "27": "\u220b",
-    "28": "\u0028",
-    "29": "\u0029",
-    "2a": "\u2217",
-    "2b": "\u002b",
-    "2c": "\u002c",
-    "2d": "\u2212",
-    "2e": "\u002e",
-    "2f": "\u002f",
-    "30": "\u0030",
-    "31": "\u0031",
-    "32": "\u0032",
-    "33": "\u0033",
-    "34": "\u0034",
-    "35": "\u0035",
-    "36": "\u0036",
-    "37": "\u0037",
-    "38": "\u0038",
-    "39": "\u0039",
-    "3a": "\u003a",
-    "3b": "\u003b",
-    "3c": "\u003c",
-    "3d": "\u003d",
-    "3e": "\u003e",
-    "3f": "\u003f",
-    "40": "\u2245",
-    "41": "\u0391",
-    "42": "\u0392",
-    "43": "\u03a7",
-    "44": "\u0394",
-    "45": "\u0395",
-    "46": "\u03a6",
-    "47": "\u0393",
-    "48": "\u0397",
-    "49": "\u0399",
-    "4a": "\u03d1",
-    "4b": "\u039a",
-    "4c": "\u039b",
-    "4d": "\u039c",
-    "4e": "\u039d",
-    "4f": "\u039f",
-    "50": "\u03a0",
-    "51": "\u0398",
-    "52": "\u03a1",
-    "53": "\u03a3",
-    "54": "\u03a4",
-    "55": "\u03a5",
-    "56": "\u03c2",
-    "57": "\u03a9",
-    "58": "\u039e",
-    "59": "\u03a8",
-    "5a": "\u0396",
-    "5b": "\u005b",
-    "5c": "\u2234",
-    "5d": "\u005d",
-    "5e": "\u22a5",
-    "5f": "\u005f",
-    "60": "\uf8e5",
-    "61": "\u03b1",
-    "62": "\u03b2",
-    "63": "\u03c7",
-    "64": "\u03b4",
-    "65": "\u03b5",
-    "66": "\u03c6",
-    "67": "\u03b3",
-    "68": "\u03b7",
-    "69": "\u03b9",
-    "6a": "\u03d5",
-    "6b": "\u03ba",
-    "6c": "\u03bb",
-    "6d": "\u00b5",
-    "6e": "\u03bd",
-    "6f": "\u03bf",
-    "70": "\u03c0",
-    "71": "\u03b8",
-    "72": "\u03c1",
-    "73": "\u03c3",
-    "74": "\u03c4",
-    "75": "\u03c5",
-    "76": "\u03d6",
-    "77": "\u03c9",
-    "78": "\u03be",
-    "79": "\u03c8",
-    "7a": "\u03b6",
-    "7b": "\u007b",
-    "7c": "\u007c",
-    "7d": "\u007d",
-    "7e": "\u223c",
-    "a0": "\u20ac",
-    "a1": "\u03d2",
-    "a2": "\u2032",
-    "a3": "\u2264",
-    "a4": "\u2044",
-    "a5": "\u221e",
-    "a6": "\u0192",
-    "a7": "\u2663",
-    "a8": "\u2666",
-    "a9": "\u2665",
-    "aa": "\u2660",
-    "ab": "\u2194",
-    "ac": "\u2190",
-    "ad": "\u2191",
-    "ae": "\u2192",
-    "af": "\u2193",
-    "b0": "\u00b0",
-    "b1": "\u00b1",
-    "b2": "\u2033",
-    "b3": "\u2265",
-    "b4": "\u00d7",
-    "b5": "\u221d",
-    "b6": "\u2202",
-    "b7": "\u2022",
-    "b8": "\u00f7",
-    "b9": "\u2260",
-    "ba": "\u2261",
-    "bb": "\u2248",
-    "bc": "\u2026",
-    "bd": "\uf8e6",
-    "be": "\uf8e7",
-    "bf": "\u21b5",
-    "c0": "\u2135",
-    "c1": "\u2111",
-    "c2": "\u211c",
-    "c3": "\u2118",
-    "c4": "\u2297",
-    "c5": "\u2295",
-    "c6": "\u2205",
-    "c7": "\u2229",
-    "c8": "\u222a",
-    "c9": "\u2283",
-    "ca": "\u2287",
-    "cb": "\u2284",
-    "cc": "\u2282",
-    "cd": "\u2286",
-    "ce": "\u2208",
-    "cf": "\u2209",
-    "d0": "\u2220",
-    "d1": "\u2207",
-    "d2": "\uf6da",
-    "d3": "\uf6d9",
-    "d4": "\uf6db",
-    "d5": "\u220f",
-    "d6": "\u221a",
-    "d7": "\u22c5",
-    "d8": "\u00ac",
-    "d9": "\u2227",
-    "da": "\u2228",
-    "db": "\u21d4",
-    "dc": "\u21d0",
-    "dd": "\u21d1",
-    "de": "\u21d2",
-    "df": "\u21d3",
-    "e0": "\u25ca",
-    "e1": "\u2329",
-    "e2": "\uf8e8",
-    "e3": "\uf8e9",
-    "e4": "\uf8ea",
-    "e5": "\u2211",
-    "e6": "\uf8eb",
-    "e7": "\uf8ec",
-    "e8": "\uf8ed",
-    "e9": "\uf8ee",
-    "ea": "\uf8ef",
-    "eb": "\uf8f0",
-    "ec": "\uf8f1",
-    "ed": "\uf8f2",
-    "ee": "\uf8f3",
-    "ef": "\uf8f4",
-    "f1": "\u232a",
-    "f2": "\u222b",
-    "f3": "\u2320",
-    "f4": "\uf8f5",
-    "f5": "\u2321",
-    "f6": "\uf8f6",
-    "f7": "\uf8f7",
-    "f8": "\uf8f8",
-    "f9": "\uf8f9",
-    "fa": "\uf8fa",
-    "fb": "\uf8fb",
-    "fc": "\uf8fc",
-    "fd": "\uf8fd",
-    "fe": "\uf8fe"
-};
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var RenderPap = /** @class */ (function () {
-    function RenderPap(pap) {
-        this._pap = pap;
-    }
-    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        if (ismaindiv) {
-            if (this._pap.spacebefore != 0)
-                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
-            else
-                el.css("margin-top", "");
-            if (this._pap.spaceafter != 0)
-                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
-            else
-                el.css("margin-bottom", "");
-            if (rchp != null)
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
-        }
-        else {
-            switch (this._pap.justification) {
-                case Helper.JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
-                    break;
-                case Helper.JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
-                    break;
-                case Helper.JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
-                    break;
-                case Helper.JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
-                    break;
-            }
-        }
-    };
-    return RenderPap;
+    return Document;
 }());
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -7561,61 +7180,219 @@ var cputils = createCommonjsModule(function (module) {
 }));
 });
 
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var RenderChp = /** @class */ (function () {
-    function RenderChp(chp) {
-        this._chp = chp;
-    }
-    RenderChp.prototype.apply = function (doc, el) {
-        if (this._chp.bold)
-            el.css("font-weight", "bold");
-        if (this._chp.italic)
-            el.css("font-style", "italic");
-        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
-            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol")
-                el.css("font-family", fontFamily);
-        }
-        var deco = [];
-        if (this._chp.underline != Helper.UNDERLINE.NONE)
-            deco.push("underline");
-        if (this._chp.strikethrough || this._chp.dblstrikethrough)
-            deco.push("line-through");
-        if (deco.length > 0)
-            el.css("text-decoration", deco.join(" "));
-        if (this._chp.colorindex != 0) {
-            var color = doc._lookupColor(this._chp.colorindex);
-            if (color != null)
-                el.css("color", Helper._colorToStr(color));
-        }
-        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
-    };
-    return RenderChp;
-}());
+// The MIT License (MIT)
+//
+// Copyright (c) 2016 Tom Zöhner
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+// Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
+var SymbolTable = {
+    "20": "\u0020",
+    "21": "\u0021",
+    "22": "\u2200",
+    "23": "\u0023",
+    "24": "\u2203",
+    "25": "\u0025",
+    "26": "\u0026",
+    "27": "\u220b",
+    "28": "\u0028",
+    "29": "\u0029",
+    "2a": "\u2217",
+    "2b": "\u002b",
+    "2c": "\u002c",
+    "2d": "\u2212",
+    "2e": "\u002e",
+    "2f": "\u002f",
+    "30": "\u0030",
+    "31": "\u0031",
+    "32": "\u0032",
+    "33": "\u0033",
+    "34": "\u0034",
+    "35": "\u0035",
+    "36": "\u0036",
+    "37": "\u0037",
+    "38": "\u0038",
+    "39": "\u0039",
+    "3a": "\u003a",
+    "3b": "\u003b",
+    "3c": "\u003c",
+    "3d": "\u003d",
+    "3e": "\u003e",
+    "3f": "\u003f",
+    "40": "\u2245",
+    "41": "\u0391",
+    "42": "\u0392",
+    "43": "\u03a7",
+    "44": "\u0394",
+    "45": "\u0395",
+    "46": "\u03a6",
+    "47": "\u0393",
+    "48": "\u0397",
+    "49": "\u0399",
+    "4a": "\u03d1",
+    "4b": "\u039a",
+    "4c": "\u039b",
+    "4d": "\u039c",
+    "4e": "\u039d",
+    "4f": "\u039f",
+    "50": "\u03a0",
+    "51": "\u0398",
+    "52": "\u03a1",
+    "53": "\u03a3",
+    "54": "\u03a4",
+    "55": "\u03a5",
+    "56": "\u03c2",
+    "57": "\u03a9",
+    "58": "\u039e",
+    "59": "\u03a8",
+    "5a": "\u0396",
+    "5b": "\u005b",
+    "5c": "\u2234",
+    "5d": "\u005d",
+    "5e": "\u22a5",
+    "5f": "\u005f",
+    "60": "\uf8e5",
+    "61": "\u03b1",
+    "62": "\u03b2",
+    "63": "\u03c7",
+    "64": "\u03b4",
+    "65": "\u03b5",
+    "66": "\u03c6",
+    "67": "\u03b3",
+    "68": "\u03b7",
+    "69": "\u03b9",
+    "6a": "\u03d5",
+    "6b": "\u03ba",
+    "6c": "\u03bb",
+    "6d": "\u00b5",
+    "6e": "\u03bd",
+    "6f": "\u03bf",
+    "70": "\u03c0",
+    "71": "\u03b8",
+    "72": "\u03c1",
+    "73": "\u03c3",
+    "74": "\u03c4",
+    "75": "\u03c5",
+    "76": "\u03d6",
+    "77": "\u03c9",
+    "78": "\u03be",
+    "79": "\u03c8",
+    "7a": "\u03b6",
+    "7b": "\u007b",
+    "7c": "\u007c",
+    "7d": "\u007d",
+    "7e": "\u223c",
+    "a0": "\u20ac",
+    "a1": "\u03d2",
+    "a2": "\u2032",
+    "a3": "\u2264",
+    "a4": "\u2044",
+    "a5": "\u221e",
+    "a6": "\u0192",
+    "a7": "\u2663",
+    "a8": "\u2666",
+    "a9": "\u2665",
+    "aa": "\u2660",
+    "ab": "\u2194",
+    "ac": "\u2190",
+    "ad": "\u2191",
+    "ae": "\u2192",
+    "af": "\u2193",
+    "b0": "\u00b0",
+    "b1": "\u00b1",
+    "b2": "\u2033",
+    "b3": "\u2265",
+    "b4": "\u00d7",
+    "b5": "\u221d",
+    "b6": "\u2202",
+    "b7": "\u2022",
+    "b8": "\u00f7",
+    "b9": "\u2260",
+    "ba": "\u2261",
+    "bb": "\u2248",
+    "bc": "\u2026",
+    "bd": "\uf8e6",
+    "be": "\uf8e7",
+    "bf": "\u21b5",
+    "c0": "\u2135",
+    "c1": "\u2111",
+    "c2": "\u211c",
+    "c3": "\u2118",
+    "c4": "\u2297",
+    "c5": "\u2295",
+    "c6": "\u2205",
+    "c7": "\u2229",
+    "c8": "\u222a",
+    "c9": "\u2283",
+    "ca": "\u2287",
+    "cb": "\u2284",
+    "cc": "\u2282",
+    "cd": "\u2286",
+    "ce": "\u2208",
+    "cf": "\u2209",
+    "d0": "\u2220",
+    "d1": "\u2207",
+    "d2": "\uf6da",
+    "d3": "\uf6d9",
+    "d4": "\uf6db",
+    "d5": "\u220f",
+    "d6": "\u221a",
+    "d7": "\u22c5",
+    "d8": "\u00ac",
+    "d9": "\u2227",
+    "da": "\u2228",
+    "db": "\u21d4",
+    "dc": "\u21d0",
+    "dd": "\u21d1",
+    "de": "\u21d2",
+    "df": "\u21d3",
+    "e0": "\u25ca",
+    "e1": "\u2329",
+    "e2": "\uf8e8",
+    "e3": "\uf8e9",
+    "e4": "\uf8ea",
+    "e5": "\u2211",
+    "e6": "\uf8eb",
+    "e7": "\uf8ec",
+    "e8": "\uf8ed",
+    "e9": "\uf8ee",
+    "ea": "\uf8ef",
+    "eb": "\uf8f0",
+    "ec": "\uf8f1",
+    "ed": "\uf8f2",
+    "ee": "\uf8f3",
+    "ef": "\uf8f4",
+    "f1": "\u232a",
+    "f2": "\u222b",
+    "f3": "\u2320",
+    "f4": "\uf8f5",
+    "f5": "\u2321",
+    "f6": "\uf8f6",
+    "f7": "\uf8f7",
+    "f8": "\uf8f8",
+    "f9": "\uf8f9",
+    "fa": "\uf8fa",
+    "fb": "\uf8fb",
+    "fc": "\uf8fc",
+    "fd": "\uf8fd",
+    "fe": "\uf8fe",
+};
 
 /*
 
@@ -7672,7 +7449,7 @@ var Pap = /** @class */ (function () {
             this.indent = {
                 left: parent.indent.left,
                 right: parent.indent.right,
-                firstline: parent.indent.firstline
+                firstline: parent.indent.firstline,
             };
             this.justification = parent.justification;
             this.spacebefore = parent.spacebefore;
@@ -7683,7 +7460,7 @@ var Pap = /** @class */ (function () {
             this.indent = {
                 left: 0,
                 right: 0,
-                firstline: 0
+                firstline: 0,
             };
             this.justification = Helper.JUSTIFICATION.LEFT;
             this.spacebefore = 0;
@@ -7699,7 +7476,7 @@ var Sep = /** @class */ (function () {
             this.breaktype = parent.breaktype;
             this.pagenumber = {
                 x: parent.pagenumber.x,
-                y: parent.pagenumber.y
+                y: parent.pagenumber.y,
             };
             this.pagenumberformat = parent.pagenumberformat;
         }
@@ -7724,7 +7501,7 @@ var Dop = /** @class */ (function () {
                 left: parent.margin.left,
                 top: parent.margin.top,
                 right: parent.margin.right,
-                bottom: parent.margin.bottom
+                bottom: parent.margin.bottom,
             };
             this.pagenumberstart = parent.pagenumberstart;
             this.facingpages = parent.facingpages;
@@ -7737,7 +7514,7 @@ var Dop = /** @class */ (function () {
                 left: 0,
                 top: 0,
                 right: 0,
-                bottom: 0
+                bottom: 0,
             };
             this.pagenumberstart = 0;
             this.facingpages = false;
@@ -7816,6 +7593,136 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+var RenderChp = /** @class */ (function () {
+    function RenderChp(chp) {
+        this._chp = chp;
+    }
+    RenderChp.prototype.apply = function (doc, el) {
+        if (this._chp.bold) {
+            el.css("font-weight", "bold");
+        }
+        if (this._chp.italic) {
+            el.css("font-style", "italic");
+        }
+        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
+            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol") {
+                el.css("font-family", fontFamily);
+            }
+        }
+        var deco = [];
+        if (this._chp.underline != Helper.UNDERLINE.NONE) {
+            deco.push("underline");
+        }
+        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
+            deco.push("line-through");
+        }
+        if (deco.length > 0) {
+            el.css("text-decoration", deco.join(" "));
+        }
+        if (this._chp.colorindex != 0) {
+            var color = doc._lookupColor(this._chp.colorindex);
+            if (color != null) {
+                el.css("color", Helper._colorToStr(color));
+            }
+        }
+        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
+    };
+    return RenderChp;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderPap = /** @class */ (function () {
+    function RenderPap(pap) {
+        this._pap = pap;
+    }
+    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        if (ismaindiv) {
+            if (this._pap.spacebefore != 0) {
+                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
+            }
+            else {
+                el.css("margin-top", "");
+            }
+            if (this._pap.spaceafter != 0) {
+                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
+            }
+            else {
+                el.css("margin-bottom", "");
+            }
+            if (rchp != null) {
+                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+            }
+        }
+        else {
+            switch (this._pap.justification) {
+                case Helper.JUSTIFICATION.LEFT:
+                    el.css("text-align", "left");
+                    break;
+                case Helper.JUSTIFICATION.RIGHT:
+                    el.css("text-align", "right");
+                    break;
+                case Helper.JUSTIFICATION.CENTER:
+                    el.css("text-align", "center");
+                    break;
+                case Helper.JUSTIFICATION.JUSTIFY:
+                    el.css("text-align", "justify");
+                    break;
+            }
+        }
+    };
+    return RenderPap;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -7837,10 +7744,12 @@ var DestinationFactory = /** @class */ (function () {
 var findParentDestination = function (parser, dest) {
     var state = parser.state;
     while (state != null) {
-        if (state.destination == null)
+        if (state.destination == null) {
             break;
-        if (state.destination._name == dest)
+        }
+        if (state.destination._name == dest) {
             return state.destination;
+        }
         state = state.parent;
     }
     Helper.log("findParentDestination() did not find destination " + dest);
@@ -7879,18 +7788,21 @@ var DestinationFormattedTextBase = /** @class */ (function () {
     };
     DestinationFormattedTextBase.prototype.apply = function () {
         var rtf = findParentDestination(this.parser, "rtf");
-        if (rtf == null)
+        if (rtf == null) {
             throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+        }
         var len = this._records.length;
         var doRender = true;
-        if (this.renderBegin != null)
+        if (this.renderBegin != null) {
             doRender = this.renderBegin(rtf, len);
+        }
         if (doRender) {
             for (var i = 0; i < len; i++) {
                 this._records[i](rtf);
             }
-            if (this.renderEnd != null)
+            if (this.renderEnd != null) {
                 this.renderEnd(rtf, len);
+            }
         }
         delete this._records;
     };
@@ -7983,13 +7895,15 @@ var rtfDestination = /** @class */ (function (_super) {
             }),
             line: _this._addInsHandler(function () {
                 this.lineBreak();
-            })
+            }),
         };
-        if (parser.version != null)
+        if (parser.version != null) {
             throw new RTFJSError("Unexpected rtf destination");
+        }
         // This parameter should be one, but older versions of the spec allow for omission of the version number
-        if (param && param != 1)
+        if (param && param != 1) {
             throw new RTFJSError("Unsupported rtf version");
+        }
         parser.version = 1;
         _this._metadata = {};
         _this.parser = parser;
@@ -8014,15 +7928,15 @@ var rtfDestination = /** @class */ (function (_super) {
     rtfDestination.prototype._addFormatIns = function (ptype, props) {
         switch (ptype) {
             case "chp":
-                var rchp = new RenderChp(new Chp(props));
+                var rchp_1 = new RenderChp(new Chp(props));
                 this.inst.addIns(function () {
-                    this.setChp(rchp);
+                    this.setChp(rchp_1);
                 });
                 break;
             case "pap":
-                var rpap = new RenderPap(new Pap(props));
+                var rpap_1 = new RenderPap(new Pap(props));
                 this.inst.addIns(function () {
-                    this.setPap(rpap);
+                    this.setPap(rpap_1);
                 });
                 break;
         }
@@ -8053,8 +7967,9 @@ var rtfDestination = /** @class */ (function (_super) {
     };
     rtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
         return function (param) {
-            if (param == null)
+            if (param == null) {
                 throw new RTFJSError("Keyword without required param");
+            }
             var props = this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
@@ -8081,8 +7996,9 @@ var rtfDestination = /** @class */ (function (_super) {
     };
     rtfDestination.prototype.apply = function () {
         Helper.log("[rtf] apply()");
-        for (var prop in this._metadata)
+        for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
+        }
         delete this._metadata;
     };
     rtfDestination.prototype.setMetadata = function (prop, val) {
@@ -8105,10 +8021,12 @@ var genericPropertyDestinationFactory = /** @class */ (function (_super) {
             }
             class_1.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentdest);
-                if (dest == null)
+                if (dest == null) {
                     throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
-                if (dest.setMetadata == null)
+                }
+                if (dest.setMetadata == null) {
                     throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+                }
                 dest.setMetadata(metaprop, this.text);
             };
             return class_1;
@@ -8126,8 +8044,9 @@ var infoDestination = /** @class */ (function (_super) {
         return _this;
     }
     infoDestination.prototype.apply = function () {
-        for (var prop in this._metadata)
+        for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
+        }
         delete this._metadata;
     };
     infoDestination.prototype.setMetadata = function (prop, val) {
@@ -8149,8 +8068,9 @@ var metaPropertyDestinationFactory = /** @class */ (function (_super) {
             }
             class_2.prototype.apply = function () {
                 var info = findParentDestination(this.parser, "info");
-                if (info == null)
+                if (info == null) {
                     throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                }
                 info.setMetadata(metaprop, this.text);
             };
             return class_2;
@@ -8200,14 +8120,16 @@ var metaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
                     default:
                         return false;
                 }
-                if (param == null)
+                if (param == null) {
                     throw new RTFJSError("No param found for keyword " + keyword);
+                }
                 return true;
             };
             class_3.prototype.apply = function () {
                 var info = findParentDestination(this.parser, "info");
-                if (info == null)
+                if (info == null) {
                     throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                }
                 var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
                 info.setMetadata(metaprop, date);
             };
@@ -8269,14 +8191,16 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
                 }
                 return true;
             case "fbias":
-                if (param != null)
+                if (param != null) {
                     this.bias = param;
+                }
                 return true;
             case "fcharset":
                 if (param != null) {
                     this.charset = Helper._mapCharset(param);
-                    if (this.charset == null)
+                    if (this.charset == null) {
                         Helper.log("Unknown font charset: " + param);
+                    }
                 }
                 return true;
             case "cpg":
@@ -8288,16 +8212,20 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
         return false;
     };
     fonttblDestinationSub.prototype.appendText = function (text) {
-        if (this.fontname == null)
+        if (this.fontname == null) {
             this.fontname = text;
-        else
+        }
+        else {
             this.fontname += text;
+        }
     };
     fonttblDestinationSub.prototype.apply = function () {
-        if (this.index == null)
+        if (this.index == null) {
             throw new RTFJSError("No font index provided");
-        if (this.fontname == null)
+        }
+        if (this.fontname == null) {
             throw new RTFJSError("No font name provided");
+        }
         this._fonttbl.addSub(this);
         delete this._fonttbl;
     };
@@ -8357,14 +8285,18 @@ var genericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
             }
             class_4.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentDest);
-                if (dest == null)
+                if (dest == null) {
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
-                if (dest[propOrFunc] == null)
+                }
+                if (dest[propOrFunc] == null) {
                     throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
-                if (dest[propOrFunc] instanceof Function)
+                }
+                if (dest[propOrFunc] instanceof Function) {
                     dest[propOrFunc](this.text);
-                else
+                }
+                else {
                     dest[propOrFunc] = this.text;
+                }
             };
             return class_4;
         }(DestinationTextBase));
@@ -8389,39 +8321,45 @@ var colortblDestination = /** @class */ (function (_super) {
             b: 0,
             tint: 255,
             shade: 255,
-            theme: null
+            theme: null,
         };
         return this._current;
     };
     colortblDestination.prototype.appendText = function (text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
-            if (text[i] != ";")
+            if (text[i] != ";") {
                 throw new RTFJSError("Error parsing colortbl destination");
+            }
             if (this._current == null) {
-                if (this._autoIndex != null)
+                if (this._autoIndex != null) {
                     throw new RTFJSError("colortbl cannot define more than one auto color");
+                }
                 this._autoIndex = this._colors.length;
                 this._startNewColor();
             }
             else {
-                if (this._current.tint < 255 && this._current.shade < 255)
+                if (this._current.tint < 255 && this._current.shade < 255) {
                     throw new RTFJSError("colortbl cannot define shade and tint at the same time");
+                }
             }
             this._colors.push(this._current);
             this._current = null;
         }
     };
     colortblDestination.prototype._validateColorValueRange = function (keyword, param) {
-        if (param == null)
+        if (param == null) {
             throw new RTFJSError(keyword + " has no param");
-        if (param < 0 || param > 255)
+        }
+        if (param < 0 || param > 255) {
             throw new RTFJSError(keyword + " has invalid param value");
+        }
         return param;
     };
     colortblDestination.prototype.handleKeyword = function (keyword, param) {
-        if (this._current == null)
+        if (this._current == null) {
             this._startNewColor();
+        }
         switch (keyword) {
             case "red":
                 this._current.r = this._validateColorValueRange(keyword, param);
@@ -8450,12 +8388,15 @@ var colortblDestination = /** @class */ (function (_super) {
     };
     colortblDestination.prototype.apply = function () {
         Helper.log("[colortbl] apply()");
-        if (this._autoIndex == null)
+        if (this._autoIndex == null) {
             this._autoIndex = 0;
-        if (this._autoIndex >= this._colors.length)
+        }
+        if (this._autoIndex >= this._colors.length) {
             throw new RTFJSError("colortbl doesn't define auto color");
-        for (var idx in this._colors)
+        }
+        for (var idx in this._colors) {
             Helper.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
+        }
         this.inst._colors = this._colors;
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
@@ -8502,15 +8443,17 @@ var stylesheetDestinationSub = /** @class */ (function (_super) {
         return this.handler(keyword, param);
     };
     stylesheetDestinationSub.prototype.appendText = function (text) {
-        if (this.name == null)
+        if (this.name == null) {
             this.name = text;
-        else
+        }
+        else {
             this.name += text;
+        }
     };
     stylesheetDestinationSub.prototype.apply = function () {
         this._stylesheet.addSub({
             index: this.index,
-            name: this.name
+            name: this.name,
         });
         delete this._stylesheet;
     };
@@ -8529,8 +8472,9 @@ var stylesheetDestination = /** @class */ (function (_super) {
     };
     stylesheetDestination.prototype.apply = function () {
         Helper.log("[stylesheet] apply()");
-        for (var idx in this._stylesheets)
+        for (var idx in this._stylesheets) {
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
+        }
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
     };
@@ -8552,8 +8496,9 @@ var fieldDestination = /** @class */ (function (_super) {
         return _this;
     }
     fieldDestination.prototype.apply = function () {
-        if (!this._haveInst)
+        if (!this._haveInst) {
             throw new RTFJSError("Field has no fldinst destination");
+        }
         //A fldrslt destination should be included but is not required
         // if (this._result == null)
         //     throw new RTFJSError("Field has no fldrslt destination");
@@ -8561,8 +8506,9 @@ var fieldDestination = /** @class */ (function (_super) {
     fieldDestination.prototype.setInst = function (inst) {
         var _this = this;
         this._haveInst = true;
-        if (this._parsedInst != null)
+        if (this._parsedInst != null) {
             throw new RTFJSError("Field cannot have multiple fldinst destinations");
+        }
         if (inst instanceof Promise) {
             inst.then(function (parsedInst) {
                 _this._parsedInst = parsedInst;
@@ -8579,8 +8525,9 @@ var fieldDestination = /** @class */ (function (_super) {
         return this._parsedInst;
     };
     fieldDestination.prototype.setResult = function (inst) {
-        if (this._result != null)
+        if (this._result != null) {
             throw new RTFJSError("Field cannot have multiple fldrslt destinations");
+        }
         this._result = inst;
     };
     return fieldDestination;
@@ -8626,7 +8573,7 @@ var FieldHyperlink = /** @class */ (function (_super) {
                     var elem = create();
                     container = {
                         element: elem,
-                        content: elem
+                        content: elem,
                     };
                 }
                 this.pushContainer(container);
@@ -8647,26 +8594,28 @@ var fldinstDestination = /** @class */ (function (_super) {
     }
     fldinstDestination.prototype.apply = function () {
         var field = findParentDestination(this.parser, "field");
-        if (field == null)
+        if (field == null) {
             throw new RTFJSError("fldinst destination must be child of field destination");
+        }
         field.setInst(this.parseType());
     };
     fldinstDestination.prototype.parseType = function () {
         var _this = this;
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
-            var data = this.text.substr(sep + 1);
-            if (data.length >= 2 && data[0] == "\"") {
-                var end = data.indexOf("\"", 1);
-                if (end >= 1)
-                    data = data.substring(1, end);
+            var data_1 = this.text.substr(sep + 1);
+            if (data_1.length >= 2 && data_1[0] == "\"") {
+                var end = data_1.indexOf("\"", 1);
+                if (end >= 1) {
+                    data_1 = data_1.substring(1, end);
+                }
             }
             var fieldType = this.text.substr(0, sep).toUpperCase();
             switch (fieldType) {
                 case "HYPERLINK":
-                    return new FieldHyperlink(this.inst, this, data);
+                    return new FieldHyperlink(this.inst, this, data_1);
                 case "IMPORT":
-                    if (typeof this.inst._settings.onImport === 'function') {
+                    if (typeof this.inst._settings.onImport === "function") {
                         var pict_1;
                         this.inst.addIns(function () {
                             var inst = this._doc;
@@ -8676,21 +8625,22 @@ var fldinstDestination = /** @class */ (function (_super) {
                             var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
                             // restore
                             inst._settings.onPicture = hook;
-                            if (typeof hook === 'function') {
+                            if (typeof hook === "function") {
                                 element = hook(isLegacy, function () { return element; });
                             }
-                            if (element != null)
+                            if (element != null) {
                                 this.appendElement(element);
+                            }
                         });
                         var promise = new Promise(function (resolve, reject) {
                             try {
                                 var self_1 = _this;
                                 var cb = function (_a) {
                                     var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
-                                    if (!error && typeof keyword === 'string' && keyword && blob) {
+                                    if (!error && typeof keyword === "string" && keyword && blob) {
                                         var dims = {
                                             w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
-                                            h: Helper._pxToTwips(height || 300)
+                                            h: Helper._pxToTwips(height || 300),
                                         };
                                         pict_1 = new pictDestination(self_1.parser, self_1.inst);
                                         pict_1.handleBlob(blob);
@@ -8701,12 +8651,12 @@ var fldinstDestination = /** @class */ (function (_super) {
                                         pict_1._size.height = dims.h;
                                         var _parsedInst = {
                                             renderFieldBegin: function () { return true; },
-                                            renderFieldEnd: function () { return null; }
+                                            renderFieldEnd: function () { return null; },
                                         };
                                         resolve(_parsedInst);
                                     }
                                     else {
-                                        Helper.log("[fldinst]: failed to IMPORT image file: " + data);
+                                        Helper.log("[fldinst]: failed to IMPORT image file: " + data_1);
                                         if (error) {
                                             error = (error instanceof Error) ? error : new Error(error);
                                             reject(error);
@@ -8716,7 +8666,7 @@ var fldinstDestination = /** @class */ (function (_super) {
                                         }
                                     }
                                 };
-                                _this.inst._settings.onImport.call(_this.inst, data, cb);
+                                _this.inst._settings.onImport.call(_this.inst, data_1, cb);
                             }
                             catch (error) {
                                 reject(error);
@@ -8749,8 +8699,9 @@ var fldrsltDestination = /** @class */ (function (_super) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
-            if (inst != null)
+            if (inst != null) {
                 return inst.renderFieldBegin(field, rtf, records);
+            }
         }
         return false;
     };
@@ -8758,8 +8709,9 @@ var fldrsltDestination = /** @class */ (function (_super) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
-            if (inst != null)
+            if (inst != null) {
                 inst.renderFieldEnd(field, rtf, records);
+            }
         }
     };
     return fldrsltDestination;
@@ -8793,7 +8745,7 @@ var pictDestination = /** @class */ (function (_super) {
             picw: _this._setPropValueRequired("_size", "width"),
             pich: _this._setPropValueRequired("_size", "height"),
             picwgoal: _this._setPropValueRequired("_displaysize", "width"),
-            pichgoal: _this._setPropValueRequired("_displaysize", "height")
+            pichgoal: _this._setPropValueRequired("_displaysize", "height"),
         };
         _this._pictTypeHandler = {
             emfblip: (function () {
@@ -8805,10 +8757,12 @@ var pictDestination = /** @class */ (function (_super) {
                                     return new EMFJS.Renderer(this._blob);
                                 }
                                 catch (e) {
-                                    if (e instanceof EMFJS.Error)
+                                    if (e instanceof EMFJS.Error) {
                                         return e.message;
-                                    else
+                                    }
+                                    else {
                                         throw e;
+                                    }
                                 }
                             },
                             render: function (img) {
@@ -8819,9 +8773,9 @@ var pictDestination = /** @class */ (function (_super) {
                                     hExt: this._size.width,
                                     xExt: this._size.width,
                                     yExt: this._size.height,
-                                    mapMode: 8
+                                    mapMode: 8,
                                 });
-                            }
+                            },
                         };
                     };
                 }
@@ -8836,18 +8790,21 @@ var pictDestination = /** @class */ (function (_super) {
             wmetafile: (function () {
                 if (typeof WMFJS !== "undefined") {
                     return function (param) {
-                        if (param == null || param < 0 || param > 8)
+                        if (param == null || param < 0 || param > 8) {
                             throw new RTFJSError("Insufficient metafile information");
+                        }
                         return {
                             load: function () {
                                 try {
                                     return new WMFJS.Renderer(this._blob);
                                 }
                                 catch (e) {
-                                    if (e instanceof WMFJS.Error)
+                                    if (e instanceof WMFJS.Error) {
                                         return e.message;
-                                    else
+                                    }
+                                    else {
                                         throw e;
+                                    }
                                 }
                             },
                             render: function (img) {
@@ -8856,9 +8813,9 @@ var pictDestination = /** @class */ (function (_super) {
                                     height: Helper._twipsToPt(this._displaysize.height) + "pt",
                                     xExt: this._size.width,
                                     yExt: this._size.height,
-                                    mapMode: param
+                                    mapMode: param,
                                 });
-                            }
+                            },
                         };
                     };
                 }
@@ -8867,17 +8824,17 @@ var pictDestination = /** @class */ (function (_super) {
                 }
             })(),
             dibitmap: "",
-            wbitmap: "" // TODO
+            wbitmap: "",
         };
         _this._type = null;
         _this._blob = null;
         _this._displaysize = {
             width: null,
-            height: null
+            height: null,
         };
         _this._size = {
             width: null,
-            height: null
+            height: null,
         };
         _this.parser = parser;
         _this.inst = inst;
@@ -8885,8 +8842,9 @@ var pictDestination = /** @class */ (function (_super) {
     }
     pictDestination.prototype._setPropValueRequired = function (member, prop) {
         return function (param) {
-            if (param == null)
+            if (param == null) {
                 throw new RTFJSError("Picture property has no value");
+            }
             Helper.log("[pict] set " + member + "." + prop + " = " + param);
             var obj = (member != null ? this[member] : this);
             obj[prop] = param;
@@ -8903,15 +8861,16 @@ var pictDestination = /** @class */ (function (_super) {
         if (type != null) {
             if (this._type == null) {
                 if (typeof type === "function") {
-                    var info = type.call(this, param);
-                    if (info != null) {
+                    var info_1 = type.call(this, param);
+                    if (info_1 != null) {
                         this._type = function () {
-                            var renderer = info.load.call(inst);
+                            var renderer = info_1.load.call(inst);
                             if (renderer != null) {
-                                if (typeof renderer === "string")
+                                if (typeof renderer === "string") {
                                     return renderer;
+                                }
                                 return function () {
-                                    return info.render.call(inst, renderer);
+                                    return info_1.render.call(inst, renderer);
                                 };
                             }
                         };
@@ -8930,8 +8889,9 @@ var pictDestination = /** @class */ (function (_super) {
     };
     pictDestination.prototype.apply = function (rendering) {
         if (rendering === void 0) { rendering = false; }
-        if (this._type == null)
+        if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
+        }
         //if (this._size.width == null || this._size.height == null)
         //    throw new RTFJSError("Picture dimensions not specified");
         //if (this._displaysize.width == null || this._displaysize.height == null)
@@ -8944,14 +8904,15 @@ var pictDestination = /** @class */ (function (_super) {
             // and returns a renderer trampoline that ends up calling the .render function
             if (this._blob == null) {
                 this._blob = Helper._hexToBlob(this.text);
-                if (this._blob == null)
+                if (this._blob == null) {
                     throw new RTFJSError("Could not parse picture data");
+                }
                 delete this.text;
             }
-            var info = this;
+            var info_2 = this;
             var doRender_1 = function (rendering) {
                 var inst = this._doc;
-                var pictrender = type.call(info);
+                var pictrender = type.call(info_2);
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
@@ -8965,8 +8926,9 @@ var pictDestination = /** @class */ (function (_super) {
                         }
                     }
                     else {
-                        if (typeof pictrender !== "function")
+                        if (typeof pictrender !== "function") {
                             throw new RTFJSError("Expected a picture render function");
+                        }
                         if (rendering) {
                             return this.buildRenderedPicture(pictrender());
                         }
@@ -8986,23 +8948,24 @@ var pictDestination = /** @class */ (function (_super) {
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
                             return doRender_1.call(renderer, true);
                         });
-                        if (elem != null)
+                        if (elem != null) {
                             this.appendElement(elem);
+                        }
                     };
                 })(isLegacy));
             }
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender_1.call(this.parser.renderer, rendering)
+                    element: doRender_1.call(this.parser.renderer, rendering),
                 };
             }
         }
         else if (typeof type === "string") {
-            var text = this.text;
-            var blob = this._blob;
+            var text_1 = this.text;
+            var blob_1 = this._blob;
             var doRender_2 = function (rendering) {
-                var bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
+                var bin = blob_1 != null ? Helper._blobToBinary(blob_1) : Helper._hexToBinary(text_1);
                 if (type !== "") {
                     if (rendering) {
                         return this.buildPicture(type, bin);
@@ -9032,15 +8995,16 @@ var pictDestination = /** @class */ (function (_super) {
                         var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
                             return doRender_2.call(renderer, true);
                         });
-                        if (elem != null)
+                        if (elem != null) {
                             this.appendElement(elem);
+                        }
                     };
                 })(isLegacy));
             }
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender_2.call(this.parser.renderer, rendering)
+                    element: doRender_2.call(this.parser.renderer, rendering),
                 };
             }
         }
@@ -9161,20 +9125,23 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.readBlob = function (cnt) {
-        if (this.parser.pos + cnt > this.parser.data.length)
+        if (this.parser.pos + cnt > this.parser.data.length) {
             throw new RTFJSError("Cannot read binary data: too long");
+        }
         var buf = new ArrayBuffer(cnt);
         var view = new Uint8Array(buf);
-        for (var i = 0; i < cnt; i++)
+        for (var i = 0; i < cnt; i++) {
             view[i] = this.parser.data[this.parser.pos + i];
+        }
         return buf;
     };
     Parser.prototype.applyDestination = function (always) {
         var dest = this.parser.state.destination;
         if (dest != null) {
             if (always || this.parser.state.parent == null || this.parser.state.parent.destination != this.parser.state.destination) {
-                if (dest.apply != null)
+                if (dest.apply != null) {
                     dest.apply();
+                }
                 this.parser.state.destination = null;
             }
         }
@@ -9182,33 +9149,39 @@ var Parser = /** @class */ (function () {
     Parser.prototype.applyText = function () {
         if (this.parser.text.length > 0) {
             var dest = this.parser.state.destination;
-            if (dest == null)
+            if (dest == null) {
                 throw new RTFJSError("Cannot route text to destination");
-            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination)
+            }
+            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination) {
                 dest.appendText(this.parser.text);
+            }
             this.parser.text = "";
         }
     };
     Parser.prototype.pushState = function (forceSkip) {
         this.parser.state = new State(this.parser.state);
-        if (forceSkip)
+        if (forceSkip) {
             this.parser.state.skipdestination = true;
+        }
         var dest = this.parser.state.destination;
         if (dest != null && !this.parser.state.skipdestination) {
             if (dest.sub != null) {
                 var sub = dest.sub();
-                if (sub != null)
+                if (sub != null) {
                     this.parser.state.destination = sub;
+                }
             }
         }
     };
     Parser.prototype.popState = function () {
         var state = this.parser.state;
-        if (state == null)
+        if (state == null) {
             throw new RTFJSError("Unexpected end of state");
+        }
         this.applyText();
-        if (state.parent == null || state.destination != state.parent.destination)
+        if (state.parent == null || state.destination != state.parent.destination) {
             this.applyDestination(true);
+        }
         this.parser.state = state.parent;
         if (this.parser.state !== null) {
             this.inst._ins.push((function (state) {
@@ -9252,8 +9225,9 @@ var Parser = /** @class */ (function () {
         //    Helper.log("keyword " + keyword + " with param " + param);
         //else
         //    Helper.log("keyword " + keyword);
-        if (this.parser.state.bindata > 0)
+        if (this.parser.state.bindata > 0) {
             throw new RTFJSError("Keyword encountered within binary data");
+        }
         // Reset if we unexpectedly encounter a keyword
         this.parser.state.skipchars = 0;
         switch (keyword) {
@@ -9272,25 +9246,30 @@ var Parser = /** @class */ (function () {
             case "\\":
                 return keyword;
             case "uc":
-                if (param != null && param >= 0)
+                if (param != null && param >= 0) {
                     this.parser.state.ucn = param;
+                }
                 break;
             case "u":
                 if (param != null) {
-                    if (param < 0)
+                    if (param < 0) {
                         param += 65536;
-                    if (param < 0 || param > 65535)
+                    }
+                    if (param < 0 || param > 65535) {
                         throw new RTFJSError("Invalid unicode character encountered");
+                    }
                     var symbol = SymbolTable[param.toString(16).substring(2)];
                     this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
                 return;
             case "bin":
-                if (param == null)
+                if (param == null) {
                     throw new RTFJSError("Binary data is missing length");
-                if (param < 0)
+                }
+                if (param < 0) {
                     throw new RTFJSError("Binary data with invalid length");
+                }
                 this.parser.state.bindata = param;
                 return;
             case "upr":
@@ -9306,19 +9285,22 @@ var Parser = /** @class */ (function () {
                             var handled = false;
                             var dest = this.parser.state.destination;
                             if (dest != null) {
-                                if (dest.handleKeyword != null)
+                                if (dest.handleKeyword != null) {
                                     handled = dest.handleKeyword(keyword, param) || false;
+                                }
                             }
-                            if (!handled && this.parser.state.skipunknowndestination)
+                            if (!handled && this.parser.state.skipunknowndestination) {
                                 this.parser.state.skipdestination = true;
+                            }
                         }
                     }
                     else {
                         this.applyText();
                         var dest = this.parser.state.destination;
                         if (dest != null) {
-                            if (dest.handleKeyword != null)
+                            if (dest.handleKeyword != null) {
                                 dest.handleKeyword(keyword, param);
+                            }
                         }
                         else {
                             Helper.log("Unhandled keyword: " + keyword + " param: " + param);
@@ -9339,8 +9321,9 @@ var Parser = /** @class */ (function () {
                 this.parser.state.skipchars -= len;
                 return;
             }
-            if (this.parser.state.destination == null || !this.parser.state.skipdestination)
+            if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
                 this.parser.text += text.slice(this.parser.state.skipchars);
+            }
             this.parser.state.skipchars = 0;
         }
         else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
@@ -9356,15 +9339,18 @@ var Parser = /** @class */ (function () {
         }
         else {
             var dest = this.parser.state.destination;
-            if (dest == null)
+            if (dest == null) {
                 throw new RTFJSError("Cannot route binary to destination");
-            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination)
+            }
+            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination) {
                 dest.handleBlob(blob);
+            }
         }
     };
     Parser.prototype.parseKeyword = function (process) {
-        if (this.parser.state == null)
+        if (this.parser.state == null) {
             throw new RTFJSError("No state");
+        }
         var param;
         var ch = this.readChar();
         if (!Helper._isalpha(ch)) {
@@ -9376,23 +9362,26 @@ var Parser = /** @class */ (function () {
                     hex += this.readChar() + this.readChar();
                 }
                 param = Helper._parseHex(hex);
-                if (isNaN(param))
+                if (isNaN(param)) {
                     throw new RTFJSError("Could not parse hexadecimal number");
+                }
                 if (process) {
                     // Looking for current fonttbl charset
                     var codepage = this.parser.codepage;
                     if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
                         var idx = this.parser.state.chp.fontfamily;
-                        if (this.inst._fonts != undefined && this.inst._fonts[idx] != null && this.inst._fonts[idx].charset != undefined)
+                        if (this.inst._fonts != undefined && this.inst._fonts[idx] != null && this.inst._fonts[idx].charset != undefined) {
                             codepage = this.inst._fonts[idx].charset;
+                        }
                     }
                     this.appendText(cputils[codepage].dec[param]);
                 }
             }
             else if (process) {
                 var text = this.processKeyword(ch, param);
-                if (text != null)
+                if (text != null) {
                     this.appendText(text);
+                }
             }
         }
         else {
@@ -9402,7 +9391,7 @@ var Parser = /** @class */ (function () {
                 keyword += ch;
                 ch = this.readChar();
             }
-            var num;
+            var num = void 0;
             if (ch == "-") {
                 num = "-";
                 ch = this.readChar();
@@ -9415,18 +9404,22 @@ var Parser = /** @class */ (function () {
                     num += ch;
                     ch = this.readChar();
                 } while (num.length < 20 && Helper._isdigit(ch));
-                if (num.length >= 20)
+                if (num.length >= 20) {
                     throw new RTFJSError("Param for keyword " + keyword + " too long");
+                }
                 param = parseInt(num, 10);
-                if (isNaN(param))
+                if (isNaN(param)) {
                     throw new RTFJSError("Invalid keyword " + keyword + " param");
+                }
             }
-            if (ch != " ")
+            if (ch != " ") {
                 this.unreadChar();
+            }
             if (process) {
                 var text = this.processKeyword(keyword, param);
-                if (text != null)
+                if (text != null) {
                     this.appendText(text);
+                }
             }
         }
     };
@@ -9456,15 +9449,17 @@ var Parser = /** @class */ (function () {
                                 this.unreadChar();
                                 break main_loop;
                             }
-                            else if (this.popState() == initialState)
+                            else if (this.popState() == initialState) {
                                 break main_loop;
+                            }
                             break;
                         case "\\":
                             this.parseKeyword(!skip ? process : null);
                             break;
                         default:
-                            if (!skip)
+                            if (!skip) {
                                 this.appendText(ch);
+                            }
                             break;
                     }
                 }
@@ -9482,10 +9477,12 @@ var Parser = /** @class */ (function () {
             this.parseLoop(false, true);
             return Promise.all(this.parser._asyncTasks).then(function () { });
         }
-        if (this.parser.version == null)
+        if (this.parser.version == null) {
             throw new RTFJSError("Not a valid rtf document");
-        if (this.parser.state != null)
+        }
+        if (this.parser.state != null) {
             throw new RTFJSError("File truncated");
+        }
     };
     return Parser;
 }());
@@ -9515,30 +9512,153 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var Document = /** @class */ (function () {
-    function Document(settings) {
-        this._settings = settings || {};
-        this._meta = {};
-        this._fonts = [];
-        this._colors = [];
-        this._autoColor = null;
-        this._stylesheets = [];
-        this._ins = [];
+var Renderer = /** @class */ (function () {
+    function Renderer(doc) {
+        this._doc = doc;
+        this._dom = null;
+        this._curRChp = null;
+        this._curRPap = null;
+        this._curpar = null;
+        this._cursubpar = null;
+        this._curcont = [];
     }
-    Document.prototype._lookupColor = function (idx) {
-        if (idx == 0) {
-            if (this._autoColor == null)
-                return null;
-            return this._colors[this._autoColor];
+    Renderer.prototype.pushContainer = function (contel) {
+        if (this._curpar == null) {
+            this.startPar();
         }
-        if (idx < 0 || idx >= this._colors.length)
-            throw new RTFJSError("Invalid color index");
-        return this._colors[idx];
+        var len = this._curcont.push(contel);
+        if (len > 1) {
+            var prevcontel = this._curcont[len - 1];
+            prevcontel.content.append(contel.element);
+        }
+        else {
+            if (this._cursubpar != null) {
+                this._cursubpar.append(contel.element);
+            }
+            else {
+                this._curpar.append(contel.element);
+            }
+        }
     };
-    Document.prototype.addIns = function (ins) {
-        this._ins.push(ins);
+    Renderer.prototype.popContainer = function () {
+        var contel = this._curcont.pop();
+        if (contel == null) {
+            throw new RTFJSError("No container on rendering stack");
+        }
     };
-    return Document;
+    Renderer.prototype.buildHyperlinkElement = function (url) {
+        return $("<a>").attr("href", url);
+    };
+    Renderer.prototype._appendToPar = function (el, newsubpar) {
+        if (this._curpar == null) {
+            this.startPar();
+        }
+        if (newsubpar == true) {
+            var subpar = $("<div>");
+            if (this._cursubpar == null) {
+                this._curpar.children().appendTo(subpar);
+                this._curpar.append(subpar);
+                subpar = $("<div>");
+            }
+            if (el) {
+                subpar.append(el);
+            }
+            if (this._curRPap != null) {
+                this._curRPap.apply(this._doc, subpar, this._curRChp, false);
+            }
+            this._cursubpar = subpar;
+            this._curpar.append(subpar);
+        }
+        else if (el) {
+            var contelCnt = this._curcont.length;
+            if (contelCnt > 0) {
+                this._curcont[contelCnt - 1].content.append(el);
+            }
+            else if (this._cursubpar != null) {
+                this._cursubpar.append(el);
+            }
+            else {
+                this._curpar.append(el);
+            }
+        }
+    };
+    Renderer.prototype.startPar = function () {
+        this._curpar = $("<div>");
+        if (this._curRPap != null) {
+            this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
+            this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
+        }
+        this._cursubpar = null;
+        this._curcont = [];
+        this._dom.push(this._curpar);
+    };
+    Renderer.prototype.lineBreak = function () {
+        this._appendToPar(null, true);
+    };
+    Renderer.prototype.setChp = function (rchp) {
+        this._curRChp = rchp;
+    };
+    Renderer.prototype.setPap = function (rpap) {
+        this._curRPap = rpap;
+        if (this._cursubpar != null) {
+            this._curRPap.apply(this._doc, this._cursubpar, null, false);
+        }
+        else if (this._curpar != null) {
+            // Don't have a sub-paragraph at all, apply everything
+            this._curRPap.apply(this._doc, this._curpar, null, true);
+            this._curRPap.apply(this._doc, this._curpar, null, false);
+        }
+    };
+    Renderer.prototype.appendElement = function (element) {
+        this._appendToPar(element);
+    };
+    Renderer.prototype.buildRenderedPicture = function (element) {
+        if (element == null) {
+            element = $("<span>").text("[failed to render image]");
+        }
+        return element;
+    };
+    Renderer.prototype.renderedPicture = function (element) {
+        this._appendToPar(this.buildRenderedPicture(element));
+    };
+    Renderer.prototype.buildPicture = function (mime, data) {
+        if (data != null) {
+            return $("<img>", {
+                src: "data:" + mime + ";base64," + btoa(data),
+            });
+        }
+        else {
+            return $("<span>").text("[" + mime + "]");
+        }
+    };
+    Renderer.prototype.picture = function (mime, data) {
+        this._appendToPar(this.buildPicture(mime, data));
+    };
+    Renderer.prototype.buildDom = function () {
+        if (this._dom != null) {
+            return this._dom;
+        }
+        this._dom = [];
+        this._curRChp = null;
+        this._curRPap = null;
+        this._curpar = null;
+        var len = this._doc._ins.length;
+        for (var i = 0; i < len; i++) {
+            var ins = this._doc._ins[i];
+            if (typeof ins === "string") {
+                var span = $("<span>");
+                if (this._curRChp != null) {
+                    this._curRChp.apply(this._doc, span);
+                }
+                this._appendToPar(span.text(ins));
+            }
+            else {
+                ins.call(this);
+            }
+        }
+        return this._dom;
+    };
+    return Renderer;
 }());
 
 /*

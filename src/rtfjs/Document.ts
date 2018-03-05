@@ -24,9 +24,9 @@ SOFTWARE.
 
 */
 
-import { RTFJSError } from './Helper';
-import { Color, fonttblDestinationSub } from './parser/Destinations';
-import { Renderer } from './Renderer';
+import { RTFJSError } from "./Helper";
+import { Color, fonttblDestinationSub } from "./parser/Destinations";
+import { Renderer } from "./Renderer";
 
 export interface Settings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
@@ -39,8 +39,8 @@ export class Document {
     _fonts: fonttblDestinationSub[];
     _colors: Color[];
     _autoColor: number;
-    _stylesheets: {index: number, name: string}[];
-    _ins: (string | ((this: Renderer) => void))[];
+    _stylesheets: Array<{index: number, name: string}>;
+    _ins: Array<string | ((this: Renderer) => void)>;
 
     constructor(settings: Settings) {
         this._settings = settings || {};
@@ -52,19 +52,21 @@ export class Document {
         this._ins = [];
     }
 
-    _lookupColor (idx: number) {
+    _lookupColor(idx: number) {
         if (idx == 0) {
-            if (this._autoColor == null)
+            if (this._autoColor == null) {
                 return null;
+            }
             return this._colors[this._autoColor];
         }
-        if (idx < 0 || idx >= this._colors.length)
+        if (idx < 0 || idx >= this._colors.length) {
             throw new RTFJSError("Invalid color index");
+        }
         return this._colors[idx];
-    };
+    }
 
     addIns(ins: string | ((this: Renderer) => void)) {
         this._ins.push(ins);
-    };
+    }
 
-};
+}

@@ -24,9 +24,9 @@ SOFTWARE.
 
 */
 
-import { Helper } from '../Helper';
-import { Document } from '../Document';
-import { Chp } from './Containers';
+import { Document } from "../Document";
+import { Helper } from "../Helper";
+import { Chp } from "./Containers";
 
 export class RenderChp {
     _chp: Chp;
@@ -36,29 +36,36 @@ export class RenderChp {
     }
 
     apply(doc: Document, el: JQuery) {
-        if (this._chp.bold)
+        if (this._chp.bold) {
             el.css("font-weight", "bold");
-        if (this._chp.italic)
+        }
+        if (this._chp.italic) {
             el.css("font-style", "italic");
+        }
         if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
-            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol")
+            const fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol") {
                 el.css("font-family", fontFamily);
+            }
         }
 
-        var deco = [];
-        if (this._chp.underline != Helper.UNDERLINE.NONE)
+        const deco = [];
+        if (this._chp.underline != Helper.UNDERLINE.NONE) {
             deco.push("underline");
-        if (this._chp.strikethrough || this._chp.dblstrikethrough)
+        }
+        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
             deco.push("line-through");
+        }
 
-        if (deco.length > 0)
+        if (deco.length > 0) {
             el.css("text-decoration", deco.join(" "));
+        }
         if (this._chp.colorindex != 0) {
-            var color = doc._lookupColor(this._chp.colorindex);
-            if (color != null)
+            const color = doc._lookupColor(this._chp.colorindex);
+            if (color != null) {
                 el.css("color", Helper._colorToStr(color));
+            }
         }
         el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
-    };
-};
+    }
+}

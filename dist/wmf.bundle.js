@@ -30,7 +30,7 @@ SOFTWARE.
 
 */
 var WMFJSError = function (message) {
-    this.name = 'WMFJSError';
+    this.name = "WMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
@@ -51,11 +51,11 @@ var Helper = {
         BITMAPCOREHEADER_SIZE: 12,
         MetafileType: {
             MEMORYMETAFILE: 1,
-            DISKMETAFILE: 2
+            DISKMETAFILE: 2,
         },
         MetafileVersion: {
             METAVERSION100: 0x100,
-            METAVERSION300: 0x300
+            METAVERSION300: 0x300,
         },
         RecordType: {
             META_EOF: 0x0000,
@@ -127,7 +127,7 @@ var Helper = {
             META_CREATEPENINDIRECT: 0x02fa,
             META_CREATEFONTINDIRECT: 0x02fb,
             META_CREATEBRUSHINDIRECT: 0x02fc,
-            META_CREATEREGION: 0x06ff
+            META_CREATEREGION: 0x06ff,
         },
         MetafileEscapes: {
             NEWFRAME: 0x0001,
@@ -189,7 +189,7 @@ var Helper = {
             CHECKPNGFORMAT: 0x1018,
             GET_PS_FEATURESETTING: 0x1019,
             MXDC_ESCAPE: 0x101a,
-            SPCLPASSTHROUGH2: 0x11d8
+            SPCLPASSTHROUGH2: 0x11d8,
         },
         MapMode: {
             MM_TEXT: 1,
@@ -199,13 +199,13 @@ var Helper = {
             MM_HIENGLISH: 5,
             MM_TWIPS: 6,
             MM_ISOTROPIC: 7,
-            MM_ANISOTROPIC: 8
+            MM_ANISOTROPIC: 8,
         },
         StretchMode: {
             BLACKONWHITE: 1,
             WHITEONBLACK: 2,
             COLORONCOLOR: 3,
-            HALFTONE: 4
+            HALFTONE: 4,
         },
         TextAlignmentMode: {
             TA_UPDATECP: 1,
@@ -213,17 +213,17 @@ var Helper = {
             TA_CENTER: 6,
             TA_BOTTOM: 8,
             TA_BASELINE: 24,
-            TA_RTLREADING: 256
+            TA_RTLREADING: 256,
         },
         MixMode: {
             TRANSPARENT: 1,
-            OPAQUE: 2
+            OPAQUE: 2,
         },
         VerticalTextAlignmentMode: {
             VTA_BOTTOM: 2,
             VTA_CENTER: 6,
             VTA_LEFT: 8,
-            VTA_BASELINE: 24
+            VTA_BASELINE: 24,
         },
         BrushStyle: {
             BS_SOLID: 0,
@@ -235,7 +235,7 @@ var Helper = {
             BS_DIBPATTERNPT: 6,
             BS_PATTERN8X8: 7,
             BS_DIBPATTERN8X8: 8,
-            BS_MONOPATTERN: 9
+            BS_MONOPATTERN: 9,
         },
         PenStyle: {
             PS_SOLID: 0,
@@ -250,21 +250,21 @@ var Helper = {
             PS_ENDCAP_SQUARE: 256,
             PS_ENDCAP_FLAT: 512,
             PS_JOIN_BEVEL: 4096,
-            PS_JOIN_MITER: 8192
+            PS_JOIN_MITER: 8192,
         },
         PolyFillMode: {
             ALTERNATE: 1,
-            WINDING: 2
+            WINDING: 2,
         },
         ColorUsage: {
             DIB_RGB_COLORS: 0,
             DIB_PAL_COLORS: 1,
-            DIB_PAL_INDICES: 2
+            DIB_PAL_INDICES: 2,
         },
         PaletteEntryFlag: {
             PC_RESERVED: 1,
             PC_EXPLICIT: 2,
-            PC_NOCOLLAPSE: 4
+            PC_NOCOLLAPSE: 4,
         },
         BitmapCompression: {
             BI_RGB: 0,
@@ -272,7 +272,7 @@ var Helper = {
             BI_RLE4: 2,
             BI_BITFIELDS: 3,
             BI_JPEG: 4,
-            BI_PNG: 5
+            BI_PNG: 5,
         },
     },
     _uniqueId: 0,
@@ -288,11 +288,144 @@ var Helper = {
     _blobToBinary: function (blob) {
         var ret = "";
         var len = blob.length;
-        for (var i = 0; i < len; i++)
+        for (var i = 0; i < len; i++) {
             ret += String.fromCharCode(blob[i]);
+        }
         return ret;
-    }
+    },
 };
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var Blob = /** @class */ (function () {
+    function Blob(blob, offset) {
+        if (blob instanceof Blob) {
+            this.blob = blob.blob;
+            this.data = blob.data;
+            this.pos = offset || blob.pos;
+        }
+        else {
+            this.blob = blob;
+            this.data = new Uint8Array(blob);
+            this.pos = offset || 0;
+        }
+    }
+    Blob.prototype.eof = function () {
+        return this.pos >= this.data.length;
+    };
+    Blob.prototype.seek = function (newpos) {
+        if (newpos < 0 || newpos > this.data.length) {
+            throw new WMFJSError("Invalid seek position");
+        }
+        this.pos = newpos;
+    };
+    Blob.prototype.skip = function (cnt) {
+        var newPos = this.pos + cnt;
+        if (newPos > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        this.pos = newPos;
+    };
+    Blob.prototype.readBinary = function (cnt) {
+        var end = this.pos + cnt;
+        if (end > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        var ret = "";
+        while (cnt-- > 0) {
+            ret += String.fromCharCode(this.data[this.pos++]);
+        }
+        return ret;
+    };
+    Blob.prototype.readInt8 = function () {
+        if (this.pos + 1 > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        return this.data[this.pos++];
+    };
+    Blob.prototype.readUint8 = function () {
+        return this.readInt8() >>> 0;
+    };
+    Blob.prototype.readInt32 = function () {
+        if (this.pos + 4 > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        var val = this.data[this.pos++];
+        val |= this.data[this.pos++] << 8;
+        val |= this.data[this.pos++] << 16;
+        val |= this.data[this.pos++] << 24;
+        return val;
+    };
+    Blob.prototype.readUint32 = function () {
+        return this.readInt32() >>> 0;
+    };
+    Blob.prototype.readUint16 = function () {
+        if (this.pos + 2 > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        var val = this.data[this.pos++];
+        val |= this.data[this.pos++] << 8;
+        return val;
+    };
+    Blob.prototype.readInt16 = function () {
+        var val = this.readUint16();
+        if (val > 32767) {
+            val -= 65536;
+        }
+        return val;
+    };
+    Blob.prototype.readString = function (length) {
+        if (this.pos + length > this.data.length) {
+            throw new WMFJSError("Unexpected end of file");
+        }
+        var ret = "";
+        for (var i = 0; i < length; i++) {
+            ret += String.fromCharCode(this.data[this.pos++] >>> 0);
+        }
+        return ret;
+    };
+    Blob.prototype.readNullTermString = function (maxSize) {
+        var ret = "";
+        if (maxSize > 0) {
+            maxSize--;
+            for (var i = 0; i < maxSize; i++) {
+                if (this.pos + i + 1 > this.data.length) {
+                    throw new WMFJSError("Unexpected end of file");
+                }
+                var byte = this.data[this.pos + i] >>> 0;
+                if (byte == 0) {
+                    break;
+                }
+                ret += String.fromCharCode(byte);
+            }
+        }
+        return ret;
+    };
+    return Blob;
+}());
 
 /*
 
@@ -363,8 +496,9 @@ var Rect = /** @class */ (function () {
         return this.left >= this.right || this.top >= this.bottom;
     };
     Rect.prototype.intersect = function (rect) {
-        if (this.empty() || rect.empty())
+        if (this.empty() || rect.empty()) {
             return null;
+        }
         if (this.left >= rect.right || this.top >= rect.bottom ||
             this.right <= rect.left || this.bottom <= rect.top) {
             return null;
@@ -427,29 +561,32 @@ var Region = /** @class */ (function (_super) {
         var _this = _super.call(this, "region") || this;
         if (reader != null) {
             reader.skip(2);
-            if (reader.readInt16() != 6)
+            if (reader.readInt16() != 6) {
                 throw new WMFJSError("Invalid region identifier");
+            }
             reader.skip(2);
             var rgnSize = reader.readInt16();
             var scanCnt = reader.readInt16();
             reader.skip(2);
             // note, Rect in reverse, can't use Rect(reader) directly
             var left = reader.readInt16();
-            var top = reader.readInt16();
+            var top_1 = reader.readInt16();
             var right = reader.readInt16();
             var bottom = reader.readInt16();
-            _this.bounds = new Rect(null, left, top, right, bottom);
+            _this.bounds = new Rect(null, left, top_1, right, bottom);
             _this.scans = [];
-            for (var i = 0; i < scanCnt; i++)
+            for (var i = 0; i < scanCnt; i++) {
                 _this.scans.push(new Scan(reader));
+            }
             _this._updateComplexity();
         }
         else if (copy != null) {
             _this.bounds = copy.bounds != null ? copy.bounds.clone() : null;
             if (copy.scans != null) {
                 _this.scans = [];
-                for (var i = 0; i < copy.scans.length; i++)
+                for (var i = 0; i < copy.scans.length; i++) {
                     _this.scans.push(copy.scans[i].clone());
+                }
             }
             else {
                 _this.scans = null;
@@ -536,8 +673,9 @@ var Region = /** @class */ (function (_super) {
                 var first = si;
                 while (si < this.scans.length) {
                     var scan = this.scans[si];
-                    if (scan.top > rect.bottom)
+                    if (scan.top > rect.bottom) {
                         break;
+                    }
                     if (scan.bottom > rect.bottom) {
                         // We need to clone this scan into two so that we can subtract from the first one
                         var cloned = scan.clone();
@@ -573,26 +711,30 @@ var Region = /** @class */ (function (_super) {
                 }
                 // Update bounds
                 if (this.scans != null) {
-                    var left, top, right, bottom;
+                    var left = void 0, top_2, right = void 0, bottom = void 0;
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
-                        if (i == 0)
-                            top = scan.top;
-                        if (i == len - 1)
+                        if (i == 0) {
+                            top_2 = scan.top;
+                        }
+                        if (i == len - 1) {
                             bottom = scan.bottom;
+                        }
                         var slen = scan.scanlines.length;
                         if (slen > 0) {
                             var scanline = scan.scanlines[0];
-                            if (left == null || scanline.left < left)
+                            if (left == null || scanline.left < left) {
                                 left = scanline.left;
+                            }
                             scanline = scan.scanlines[slen - 1];
-                            if (right == null || scanline.right > right)
+                            if (right == null || scanline.right > right) {
                                 right = scanline.right;
+                            }
                         }
                     }
-                    if (left != null && top != null && right != null && bottom != null) {
-                        this.bounds = new Rect(null, left, top, right, bottom);
+                    if (left != null && top_2 != null && right != null && bottom != null) {
+                        this.bounds = new Rect(null, left, top_2, right, bottom);
                         this._updateComplexity();
                     }
                     else {
@@ -619,17 +761,20 @@ var Region = /** @class */ (function (_super) {
                     // Remove any scans that are entirely above the new bounds.top
                     while (si < this.scans.length) {
                         var scan = this.scans[si];
-                        if (scan.bottom < this.bounds.top)
+                        if (scan.bottom < this.bounds.top) {
                             si++;
-                        else
+                        }
+                        else {
                             break;
+                        }
                     }
                     if (si > 0) {
                         Helper.log("[wmf] Region remove " + si + " scans from top");
                         this.scans.splice(0, si);
                         // Adjust the first scan's top to match the new bounds.top
-                        if (this.scans.length > 0)
+                        if (this.scans.length > 0) {
                             this.scans[0].top = this.bounds.top;
+                        }
                     }
                     // Get rid of anything that falls outside the new bounds.left/bounds.right
                     si = 0;
@@ -650,8 +795,9 @@ var Region = /** @class */ (function (_super) {
                         si++;
                     }
                     // If there are any scans left, adjust the last one's bottom to the new bounds.bottom
-                    if (this.scans.length > 0)
+                    if (this.scans.length > 0) {
                         this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
+                    }
                     this._updateComplexity();
                 }
             }
@@ -752,15 +898,17 @@ var Scan = /** @class */ (function () {
             if (scanline.right > right) {
                 scanline.left = right;
                 cnt = i - first;
-                if (scanline.left >= scanline.right)
+                if (scanline.left >= scanline.right) {
                     cnt++;
+                }
                 break;
             }
             i++;
         }
         // Delete everything we're subtracting
-        if (cnt > 0 && first < this.scanlines.length)
+        if (cnt > 0 && first < this.scanlines.length) {
             this.scanlines.splice(first, cnt);
+        }
         return this.scanlines.length > 0;
     };
     Scan.prototype.intersect = function (left, right) {
@@ -768,16 +916,18 @@ var Scan = /** @class */ (function () {
         for (var i = 0; i < this.scanlines.length; i++) {
             var scanline = this.scanlines[i];
             if (scanline.left >= left || scanline.right >= left) {
-                if (i > 0)
+                if (i > 0) {
                     this.scanlines.splice(0, i);
+                }
                 break;
             }
         }
         if (this.scanlines.length > 0) {
             // Adjust the first to match the left, if needed
             var scanline = this.scanlines[0];
-            if (scanline.left < left)
+            if (scanline.left < left) {
                 scanline.left = left;
+            }
             // Get rid of anything that falls entirely outside to the right
             for (var i = 0; i < this.scanlines.length; i++) {
                 scanline = this.scanlines[i];
@@ -789,8 +939,9 @@ var Scan = /** @class */ (function () {
             if (this.scanlines.length > 0) {
                 // Adjust the last to match the right, if needed
                 scanline = this.scanlines[this.scanlines.length - 1];
-                if (scanline.right > right)
+                if (scanline.right > right) {
                     scanline.right = right;
+                }
             }
         }
         return this.scanlines.length > 0;
@@ -849,8 +1000,9 @@ var BitmapBase = /** @class */ (function () {
 }());
 var BitmapCoreHeader = /** @class */ (function () {
     function BitmapCoreHeader(reader, skipsize) {
-        if (skipsize)
+        if (skipsize) {
             reader.skip(4);
+        }
         this.width = reader.readUint16();
         this.height = reader.readUint16();
         this.planes = reader.readUint16();
@@ -863,8 +1015,9 @@ var BitmapCoreHeader = /** @class */ (function () {
 }());
 var BitmapInfoHeader = /** @class */ (function () {
     function BitmapInfoHeader(reader, skipsize) {
-        if (skipsize)
+        if (skipsize) {
             reader.skip(4);
+        }
         this.width = reader.readInt32();
         this.height = reader.readInt32();
         this.planes = reader.readUint16();
@@ -877,10 +1030,12 @@ var BitmapInfoHeader = /** @class */ (function () {
         this.clrimportant = reader.readUint32();
     }
     BitmapInfoHeader.prototype.colors = function () {
-        if (this.clrused != 0)
+        if (this.clrused != 0) {
             return this.clrused < 256 ? this.clrused : 256;
-        else
+        }
+        else {
             return this.bitcount > 8 ? 0 : 1 << this.bitcount;
+        }
     };
     return BitmapInfoHeader;
 }());
@@ -900,8 +1055,9 @@ var BitmapInfo = /** @class */ (function (_super) {
         else {
             _this._header = new BitmapInfoHeader(reader, false);
             var masks = _this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
-            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
+            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+            }
             _this._infosize += _this._header.colors() * (usergb ? 4 : 2);
         }
         return _this;
@@ -967,10 +1123,12 @@ var DIBitmap = /** @class */ (function (_super) {
         else {
             data = this.makeBitmapFileHeader();
         }
-        if (data != null)
+        if (data != null) {
             data += this._reader.readBinary(this._size);
-        else
+        }
+        else {
             data = this._reader.readBinary(this._size);
+        }
         var ref = "data:" + mime + ";base64," + btoa(data);
         this._reader.seek(prevpos);
         return ref;
@@ -994,8 +1152,9 @@ var Bitmap16 = /** @class */ (function (_super) {
             _this.bitsPixel = reader.readUint8();
             _this.bitsOffset = reader.pos;
             _this.bitsSize = (((_this.width * _this.bitsPixel + 15) >> 4) << 1) * _this.height;
-            if (_this.bitsSize > size - 10)
+            if (_this.bitsSize > size - 10) {
                 throw new WMFJSError("Bitmap should have " + _this.bitsSize + " bytes, but has " + (size - 10));
+            }
         }
         else {
             var copy = size;
@@ -1180,8 +1339,9 @@ var Brush = /** @class */ (function (_super) {
             var start = reader.pos;
             if (forceDibPattern === true || forceDibPattern === false) {
                 _this.style = reader.readUint16();
-                if (forceDibPattern && _this.style != Helper.GDI.BrushStyle.BS_PATTERN)
+                if (forceDibPattern && _this.style != Helper.GDI.BrushStyle.BS_PATTERN) {
                     _this.style = Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
+                }
                 switch (_this.style) {
                     case Helper.GDI.BrushStyle.BS_SOLID:
                         _this.color = new ColorRef(reader);
@@ -1192,8 +1352,9 @@ var Brush = /** @class */ (function (_super) {
                         break;
                     case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                         _this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
-                        if (!forceDibPattern)
+                        if (!forceDibPattern) {
                             reader.skip(2);
+                        }
                         _this.dibpatternpt = new DIBitmap(reader, dataLength - (reader.pos - start));
                         break;
                     case Helper.GDI.BrushStyle.BS_HATCHED:
@@ -1254,12 +1415,12 @@ var Pen = /** @class */ (function (_super) {
     function Pen(reader, style, width, color, linecap, join) {
         var _this = _super.call(this, "pen") || this;
         if (reader != null) {
-            var style = reader.readUint16();
-            _this.style = style & 0xFF;
+            var style_1 = reader.readUint16();
+            _this.style = style_1 & 0xFF;
             _this.width = new PointS(reader);
             _this.color = new ColorRef(reader);
-            _this.linecap = (style & (Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
-            _this.join = (style & (Helper.GDI.PenStyle.PS_JOIN_BEVEL | Helper.GDI.PenStyle.PS_JOIN_MITER));
+            _this.linecap = (style_1 & (Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
+            _this.join = (style_1 & (Helper.GDI.PenStyle.PS_JOIN_BEVEL | Helper.GDI.PenStyle.PS_JOIN_MITER));
         }
         else {
             _this.style = style;
@@ -1306,15 +1467,17 @@ var Palette = /** @class */ (function (_super) {
             _this.start = reader.readUint16();
             var cnt = reader.readUint16();
             _this.entries = [];
-            while (cnt > 0)
+            while (cnt > 0) {
                 _this.entries.push(new PaletteEntry(reader));
+            }
         }
         else {
             _this.start = copy.start;
             _this.entries = [];
             var len = copy.entries.length;
-            for (var i = 0; i < len; i++)
+            for (var i = 0; i < len; i++) {
                 _this.entries.push(copy.entries[i]);
+            }
         }
         return _this;
     }
@@ -1378,8 +1541,9 @@ var GDIContextState = /** @class */ (function () {
             this.clip = copy.clip;
             this.ownclip = false;
             this.selected = {};
-            for (var type in copy.selected)
+            for (var type in copy.selected) {
                 this.selected[type] = copy.selected[type];
+            }
         }
         else {
             this._svggroup = null;
@@ -1424,7 +1588,7 @@ var GDIContext = /** @class */ (function () {
             pen: new Pen(null, Helper.GDI.PenStyle.PS_SOLID, new PointS(null, 1, 1), new ColorRef(null, 0, 0, 0), 0, 0),
             font: new Font(null, null),
             palette: null,
-            region: null
+            region: null,
         };
         this.state = new GDIContextState(null, this.defObjects);
         this.statestack = [this.state];
@@ -1436,21 +1600,23 @@ var GDIContext = /** @class */ (function () {
             this.state._svgtextbkfilter = null;
             var settings = {
                 viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
-                preserveAspectRatio: "none"
+                preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
                 Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             }
-            else
+            else {
                 Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+            }
             this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
         }
     };
     GDIContext.prototype._storeObject = function (obj) {
         var i = 0;
-        while (this.objects[i.toString()] != null && i <= 65535)
+        while (this.objects[i.toString()] != null && i <= 65535) {
             i++;
+        }
         if (i > 65535) {
             Helper.log("[gdi] Too many objects!");
             return -1;
@@ -1460,33 +1626,36 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype._getObject = function (objIdx) {
         var obj = this.objects[objIdx.toString()];
-        if (obj == null)
+        if (obj == null) {
             Helper.log("[gdi] No object with handle " + objIdx);
+        }
         return obj;
     };
     GDIContext.prototype._getSvgDef = function () {
-        if (this._svgdefs == null)
+        if (this._svgdefs == null) {
             this._svgdefs = this._svg.defs();
+        }
         return this._svgdefs;
     };
     GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var id in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[id];
-            if (rgn == region)
-                return id;
+        for (var id_1 in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[id_1];
+            if (rgn == region) {
+                return id_1;
+            }
         }
         var id = Helper._makeUniqueId("c");
         var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
         switch (region.complexity) {
             case 1:
-                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: 'black', strokeWidth: 0 });
+                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: "black", strokeWidth: 0 });
                 break;
             case 2:
                 for (var i = 0; i < region.scans.length; i++) {
                     var scan = region.scans[i];
                     for (var j = 0; j < scan.scanlines.length; j++) {
                         var scanline = scan.scanlines[j];
-                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: 'black', strokeWidth: 0 });
+                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: "black", strokeWidth: 0 });
                     }
                 }
                 break;
@@ -1495,10 +1664,11 @@ var GDIContext = /** @class */ (function () {
         return id;
     };
     GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var id in this._svgPatterns) {
-            var pat = this._svgPatterns[id];
-            if (pat == brush)
-                return id;
+        for (var id_2 in this._svgPatterns) {
+            var pat = this._svgPatterns[id_2];
+            if (pat == brush) {
+                return id_2;
+            }
         }
         var width, height, img;
         switch (brush.style) {
@@ -1515,23 +1685,25 @@ var GDIContext = /** @class */ (function () {
                 throw new WMFJSError("Invalid brush style");
         }
         var id = Helper._makeUniqueId("p");
-        var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, { patternUnits: 'userSpaceOnUse' });
+        var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, { patternUnits: "userSpaceOnUse" });
         this._svg.image(spat, 0, 0, width, height, img);
         this._svgPatterns[id] = brush;
         return id;
     };
     GDIContext.prototype._selectObject = function (obj) {
         this.state.selected[obj.type] = obj;
-        if (obj.type == "region")
+        if (obj.type == "region") {
             this.state._svgclipChanged = true;
+        }
     };
     GDIContext.prototype._deleteObject = function (objIdx) {
         var obj = this.objects[objIdx.toString()];
         if (obj != null) {
             for (var i = 0; i < this.statestack.length; i++) {
                 var state = this.statestack[i];
-                if (state.selected[obj.type] == obj)
+                if (state.selected[obj.type] == obj) {
                     state.selected[obj.type] = this.defObjects[obj.type].clone();
+                }
             }
             delete this.objects[objIdx.toString()];
             return true;
@@ -1541,14 +1713,17 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype._getClipRgn = function () {
         if (this.state.clip != null) {
-            if (!this.state.ownclip)
+            if (!this.state.ownclip) {
                 this.state.clip = this.state.clip.clone();
+            }
         }
         else {
-            if (this.state.selected.region != null)
+            if (this.state.selected.region != null) {
                 this.state.clip = this.state.selected.region.clone();
-            else
+            }
+            else {
                 this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+            }
         }
         this.state.ownclip = true;
         return this.state.clip;
@@ -1694,13 +1869,14 @@ var GDIContext = /** @class */ (function () {
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
     GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
-        if (opts == null)
+        if (opts == null) {
             opts = {};
+        }
         if (usePen) {
             var pen = this.state.selected.pen;
             if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke = "#" + pen.color.toHex(), opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
-                var dotWidth;
+                var dotWidth = void 0;
                 if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
                     opts["stroke-linecap"] = "square";
                     dotWidth = 1;
@@ -1713,12 +1889,15 @@ var GDIContext = /** @class */ (function () {
                     opts["stroke-linecap"] = "round";
                     dotWidth = 1;
                 }
-                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0)
+                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0) {
                     opts["stroke-linejoin"] = "bevel";
-                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0)
+                }
+                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0) {
                     opts["stroke-linejoin"] = "miter";
-                else
+                }
+                else {
                     opts["stroke-linejoin"] = "round";
+                }
                 var dashWidth = opts.strokeWidth * 4;
                 var dotSpacing = opts.strokeWidth * 2;
                 switch (pen.style) {
@@ -1760,7 +1939,7 @@ var GDIContext = /** @class */ (function () {
             var font = this.state.selected.font;
             opts["font-family"] = font.facename;
             opts["font-size"] = this._todevH(Math.abs(font.height));
-            opts["fill"] = "#" + this.state.textcolor.toHex();
+            opts.fill = "#" + this.state.textcolor.toHex();
         }
         return opts;
     };
@@ -1850,8 +2029,9 @@ var GDIContext = /** @class */ (function () {
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
         }
         Helper.log("[gdi] polygon: TRANSLATED: pts=" + pts);
-        if (first)
+        if (first) {
             this._pushGroup();
+        }
         var opts = {
             "fill-rule": this.state.polyfillmode == Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
@@ -1861,8 +2041,9 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype.polyPolygon = function (polygons) {
         Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
-        for (var i = 0; i < cnt; i++)
+        for (var i = 0; i < cnt; i++) {
             this.polygon(polygons[i], i == 0);
+        }
     };
     GDIContext.prototype.polyline = function (points) {
         Helper.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
@@ -1988,126 +2169,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var Blob = /** @class */ (function () {
-    function Blob(blob, offset) {
-        if (blob instanceof Blob) {
-            this.blob = blob.blob;
-            this.data = blob.data;
-            this.pos = offset || blob.pos;
-        }
-        else {
-            this.blob = blob;
-            this.data = new Uint8Array(blob);
-            this.pos = offset || 0;
-        }
-    }
-    Blob.prototype.eof = function () {
-        return this.pos >= this.data.length;
-    };
-    Blob.prototype.seek = function (newpos) {
-        if (newpos < 0 || newpos > this.data.length)
-            throw new WMFJSError("Invalid seek position");
-        this.pos = newpos;
-    };
-    Blob.prototype.skip = function (cnt) {
-        var newPos = this.pos + cnt;
-        if (newPos > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        this.pos = newPos;
-    };
-    Blob.prototype.readBinary = function (cnt) {
-        var end = this.pos + cnt;
-        if (end > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        var ret = "";
-        while (cnt-- > 0)
-            ret += String.fromCharCode(this.data[this.pos++]);
-        return ret;
-    };
-    Blob.prototype.readInt8 = function () {
-        if (this.pos + 1 > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        return this.data[this.pos++];
-    };
-    Blob.prototype.readUint8 = function () {
-        return this.readInt8() >>> 0;
-    };
-    Blob.prototype.readInt32 = function () {
-        if (this.pos + 4 > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        var val = this.data[this.pos++];
-        val |= this.data[this.pos++] << 8;
-        val |= this.data[this.pos++] << 16;
-        val |= this.data[this.pos++] << 24;
-        return val;
-    };
-    Blob.prototype.readUint32 = function () {
-        return this.readInt32() >>> 0;
-    };
-    Blob.prototype.readUint16 = function () {
-        if (this.pos + 2 > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        var val = this.data[this.pos++];
-        val |= this.data[this.pos++] << 8;
-        return val;
-    };
-    Blob.prototype.readInt16 = function () {
-        var val = this.readUint16();
-        if (val > 32767)
-            val -= 65536;
-        return val;
-    };
-    Blob.prototype.readString = function (length) {
-        if (this.pos + length > this.data.length)
-            throw new WMFJSError("Unexpected end of file");
-        var ret = "";
-        for (var i = 0; i < length; i++)
-            ret += String.fromCharCode(this.data[this.pos++] >>> 0);
-        return ret;
-    };
-    Blob.prototype.readNullTermString = function (maxSize) {
-        var ret = "";
-        if (maxSize > 0) {
-            maxSize--;
-            for (var i = 0; i < maxSize; i++) {
-                if (this.pos + i + 1 > this.data.length)
-                    throw new WMFJSError("Unexpected end of file");
-                var byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0)
-                    break;
-                ret += String.fromCharCode(byte);
-            }
-        }
-        return ret;
-    };
-    return Blob;
-}());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
 var WMFRecords = /** @class */ (function () {
     function WMFRecords(reader, first) {
         this._records = [];
@@ -2116,8 +2177,9 @@ var WMFRecords = /** @class */ (function () {
         var _loop_1 = function () {
             reader.seek(curpos);
             var size = reader.readUint32();
-            if (size < 3)
+            if (size < 3) {
                 throw new WMFJSError("Invalid record size");
+            }
             var type = reader.readUint16();
             switch (type) {
                 case Helper.GDI.RecordType.META_EOF:
@@ -2450,14 +2512,16 @@ var WMFRecords = /** @class */ (function () {
                 case Helper.GDI.RecordType.META_POLYPOLYGON: {
                     var cnt = reader.readUint16();
                     var polygonsPtCnts = [];
-                    for (var i = 0; i < cnt; i++)
+                    for (var i = 0; i < cnt; i++) {
                         polygonsPtCnts.push(reader.readUint16());
+                    }
                     var polygons_1 = [];
                     for (var i = 0; i < cnt; i++) {
                         var ptCnt = polygonsPtCnts[i];
                         var p = [];
-                        for (var ip = 0; ip < ptCnt; ip++)
+                        for (var ip = 0; ip < ptCnt; ip++) {
                             p.push(new PointS(reader));
+                        }
                         polygons_1.push(p);
                     }
                     this_1._records.push(function (gdi) {
@@ -2565,8 +2629,9 @@ var WMFRecords = /** @class */ (function () {
                 case "break-main_loop": break main_loop;
             }
         }
-        if (!all)
+        if (!all) {
             throw new WMFJSError("Could not read all records");
+        }
     }
     WMFRecords.prototype.play = function (gdi) {
         var len = this._records.length;
@@ -2642,8 +2707,9 @@ var Renderer = /** @class */ (function () {
                 }
                 break;
         }
-        if (this._img == null)
+        if (this._img == null) {
             throw new WMFJSError("Format not recognized");
+        }
     };
     Renderer.prototype._render = function (svg, mapMode, xExt, yExt) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
@@ -2663,8 +2729,8 @@ var Renderer = /** @class */ (function () {
                 },
                 settings: {
                     viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-                }
+                    preserveAspectRatio: "none",
+                },
             });
         })(info.mapMode, info.xExt, info.yExt);
         var svg = $(img[0]).svg("get");

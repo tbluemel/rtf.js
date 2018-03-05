@@ -211,5 +211,5 @@ export const SymbolTable: {[key: string]: string} = {
     "fb": "\uf8fb",
     "fc": "\uf8fc",
     "fd": "\uf8fd",
-    "fe": "\uf8fe"
-}
+    "fe": "\uf8fe",
+};

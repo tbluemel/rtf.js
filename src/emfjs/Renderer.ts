@@ -25,10 +25,10 @@ SOFTWARE.
 
 */
 
-import { Helper, EMFJSError } from './Helper';
-import { Blob } from './Blob';
-import { GDIContext } from './GDIContext';
-import { EMFRecords } from './EMFRecords';
+import { Blob } from "./Blob";
+import { EMFRecords } from "./EMFRecords";
+import { GDIContext } from "./GDIContext";
+import { EMFJSError, Helper } from "./Helper";
 
 export class RendererSettings {
     width: string;
@@ -51,49 +51,51 @@ export class Renderer {
     parse(blob: ArrayBuffer) {
         this._img = null;
 
-        var reader = new Blob(blob);
+        const reader = new Blob(blob);
 
-        var type = reader.readUint32();
-        if(type !== 0x00000001){
+        const type = reader.readUint32();
+        if (type !== 0x00000001) {
             throw new EMFJSError("Not an EMF file");
         }
-        var size = reader.readUint32();
-        if (size % 4 != 0)
+        const size = reader.readUint32();
+        if (size % 4 != 0) {
             throw new EMFJSError("Not an EMF file");
+        }
 
         this._img = new EMF(reader, size);
 
-        if (this._img == null)
+        if (this._img == null) {
             throw new EMFJSError("Format not recognized");
-    };
+        }
+    }
 
     _render(svg: any, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
-        var gdi = new GDIContext(svg);
+        const gdi = new GDIContext(svg);
         gdi.setWindowExtEx(w, h);
         gdi.setViewportExtEx(xExt, yExt);
         gdi.setMapMode(mapMode);
         Helper.log("[EMF] BEGIN RENDERING --->");
         this._img.render(gdi);
         Helper.log("[EMF] <--- DONE RENDERING");
-    };
+    }
 
     render(info: RendererSettings) {
-        var inst = this;
-        var img = (function(mapMode, w, h, xExt, yExt) {
-            return (<any>$("<div>")).svg({
-                onLoad: function(svg: any) {
+        const inst = this;
+        const img = (function(mapMode, w, h, xExt, yExt) {
+            return ($("<div>") as any).svg({
+                onLoad(svg: any) {
                     return inst._render.call(inst, svg, mapMode, w, h, xExt, yExt);
                 },
                 settings: {
                     viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-                }
+                    preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+                },
             });
         })(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-        var svg = (<any>$(img[0])).svg("get");
+        const svg = ($(img[0]) as any).svg("get");
         return $(svg.root()).attr("width", info.width).attr("height", info.height);
-    };
-};
+    }
+}
 
 export class EMF {
     _reader: Blob;
@@ -108,5 +110,5 @@ export class EMF {
 
     render(gdi: GDIContext) {
         this._records.play(gdi);
-    };
-};
+    }
+}

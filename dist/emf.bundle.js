@@ -31,7 +31,7 @@ SOFTWARE.
 
 */
 var EMFJSError = function (message) {
-    this.name = 'EMFJSError';
+    this.name = "EMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
@@ -49,7 +49,7 @@ var Helper = {
     GDI: {
         FormatSignature: {
             ENHMETA_SIGNATURE: 0x464D4520,
-            EPS_SIGNATURE: 0x46535045
+            EPS_SIGNATURE: 0x46535045,
         },
         BITMAPINFOHEADER_SIZE: 40,
         BITMAPCOREHEADER_SIZE: 12,
@@ -171,7 +171,7 @@ var Helper = {
             EMR_SETLINKEDUFIS: 0x00000077,
             EMR_SETTEXTJUSTIFICATION: 0x00000078,
             EMR_COLORMATCHTOTARGETW: 0x00000079,
-            EMR_CREATECOLORSPACEW: 0x0000007A
+            EMR_CREATECOLORSPACEW: 0x0000007A,
         },
         MetafileEscapes: {
             NEWFRAME: 0x0001,
@@ -233,7 +233,7 @@ var Helper = {
             CHECKPNGFORMAT: 0x1018,
             GET_PS_FEATURESETTING: 0x1019,
             MXDC_ESCAPE: 0x101a,
-            SPCLPASSTHROUGH2: 0x11d8
+            SPCLPASSTHROUGH2: 0x11d8,
         },
         MapMode: {
             MM_TEXT: 1,
@@ -243,17 +243,17 @@ var Helper = {
             MM_HIENGLISH: 5,
             MM_TWIPS: 6,
             MM_ISOTROPIC: 7,
-            MM_ANISOTROPIC: 8
+            MM_ANISOTROPIC: 8,
         },
         StretchMode: {
             BLACKONWHITE: 1,
             WHITEONBLACK: 2,
             COLORONCOLOR: 3,
-            HALFTONE: 4
+            HALFTONE: 4,
         },
         MixMode: {
             TRANSPARENT: 1,
-            OPAQUE: 2
+            OPAQUE: 2,
         },
         BrushStyle: {
             BS_SOLID: 0,
@@ -265,7 +265,7 @@ var Helper = {
             BS_DIBPATTERNPT: 6,
             BS_PATTERN8X8: 7,
             BS_DIBPATTERN8X8: 8,
-            BS_MONOPATTERN: 9
+            BS_MONOPATTERN: 9,
         },
         PenStyle: {
             PS_COSMETIC: 0x00000000,
@@ -284,11 +284,11 @@ var Helper = {
             PS_ENDCAP_FLAT: 0x00000200,
             PS_JOIN_BEVEL: 0x00001000,
             PS_JOIN_MITER: 0x00002000,
-            PS_GEOMETRIC: 0x00010000
+            PS_GEOMETRIC: 0x00010000,
         },
         PolygonFillMode: {
             ALTERNATE: 1,
-            WINDING: 2
+            WINDING: 2,
         },
         BitmapCompression: {
             BI_RGB: 0,
@@ -296,14 +296,14 @@ var Helper = {
             BI_RLE4: 2,
             BI_BITFIELDS: 3,
             BI_JPEG: 4,
-            BI_PNG: 5
+            BI_PNG: 5,
         },
         RegionMode: {
             RGN_AND: 1,
             RGN_OR: 2,
             RGN_XOR: 3,
             RGN_DIFF: 4,
-            RGN_COPY: 5
+            RGN_COPY: 5,
         },
         StockObject: {
             WHITE_BRUSH: 0x80000000,
@@ -324,8 +324,8 @@ var Helper = {
             SYSTEM_FIXED_FONT: 0x80000010,
             DEFAULT_GUI_FONT: 0x80000011,
             DC_BRUSH: 0x80000012,
-            DC_PEN: 0x80000013
-        }
+            DC_PEN: 0x80000013,
+        },
     },
     _uniqueId: 0,
     _makeUniqueId: function (prefix) {
@@ -340,10 +340,11 @@ var Helper = {
     _blobToBinary: function (blob) {
         var ret = "";
         var len = blob.length;
-        for (var i = 0; i < len; i++)
+        for (var i = 0; i < len; i++) {
             ret += String.fromCharCode(blob[i]);
+        }
         return ret;
-    }
+    },
 };
 
 /*
@@ -389,36 +390,42 @@ var Blob = /** @class */ (function () {
         return this.pos >= this.data.length;
     };
     Blob.prototype.seek = function (newpos) {
-        if (newpos < 0 || newpos > this.data.length)
+        if (newpos < 0 || newpos > this.data.length) {
             throw new EMFJSError("Invalid seek position");
+        }
         this.pos = newpos;
     };
     Blob.prototype.skip = function (cnt) {
         var newPos = this.pos + cnt;
-        if (newPos > this.data.length)
+        if (newPos > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         this.pos = newPos;
     };
     Blob.prototype.readBinary = function (cnt) {
         var end = this.pos + cnt;
-        if (end > this.data.length)
+        if (end > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         var ret = "";
-        while (cnt-- > 0)
+        while (cnt-- > 0) {
             ret += String.fromCharCode(this.data[this.pos++]);
+        }
         return ret;
     };
     Blob.prototype.readInt8 = function () {
-        if (this.pos + 1 > this.data.length)
+        if (this.pos + 1 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         return this.data[this.pos++];
     };
     Blob.prototype.readUint8 = function () {
         return this.readInt8() >>> 0;
     };
     Blob.prototype.readInt32 = function () {
-        if (this.pos + 4 > this.data.length)
+        if (this.pos + 4 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         var val = this.data[this.pos++];
         val |= this.data[this.pos++] << 8;
         val |= this.data[this.pos++] << 16;
@@ -429,24 +436,28 @@ var Blob = /** @class */ (function () {
         return this.readInt32() >>> 0;
     };
     Blob.prototype.readUint16 = function () {
-        if (this.pos + 2 > this.data.length)
+        if (this.pos + 2 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         var val = this.data[this.pos++];
         val |= this.data[this.pos++] << 8;
         return val;
     };
     Blob.prototype.readInt16 = function () {
         var val = this.readUint16();
-        if (val > 32767)
+        if (val > 32767) {
             val -= 65536;
+        }
         return val;
     };
     Blob.prototype.readString = function (length) {
-        if (this.pos + length > this.data.length)
+        if (this.pos + length > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
+        }
         var ret = "";
-        for (var i = 0; i < length; i++)
+        for (var i = 0; i < length; i++) {
             ret += String.fromCharCode(this.data[this.pos++] >>> 0);
+        }
         return ret;
     };
     Blob.prototype.readNullTermString = function (maxSize) {
@@ -454,11 +465,13 @@ var Blob = /** @class */ (function () {
         if (maxSize > 0) {
             maxSize--;
             for (var i = 0; i < maxSize; i++) {
-                if (this.pos + i + 1 > this.data.length)
+                if (this.pos + i + 1 > this.data.length) {
                     throw new EMFJSError("Unexpected end of file");
+                }
                 var byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0)
+                if (byte == 0) {
                     break;
+                }
                 ret += String.fromCharCode(byte);
             }
         }
@@ -469,8 +482,9 @@ var Blob = /** @class */ (function () {
         for (var i = 0; i < fixedSizeChars; i++) {
             var charCode = this.readUint16();
             if (charCode == 0) {
-                if (++i < fixedSizeChars)
+                if (++i < fixedSizeChars) {
                     this.skip((fixedSizeChars - i) * 2);
+                }
                 break;
             }
             ret += String.fromCharCode(charCode);
@@ -569,8 +583,9 @@ var RectL = /** @class */ (function () {
         return this.left >= this.right || this.top >= this.bottom;
     };
     RectL.prototype.intersect = function (rectL) {
-        if (this.empty() || rectL.empty())
+        if (this.empty() || rectL.empty()) {
             return null;
+        }
         if (this.left >= rectL.right || this.top >= rectL.bottom ||
             this.right <= rectL.left || this.bottom <= rectL.top) {
             return null;
@@ -647,438 +662,24 @@ var __extends = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var BitmapBase = /** @class */ (function () {
-    function BitmapBase() {
-    }
-    BitmapBase.prototype.getWidth = function () {
-        throw new EMFJSError("getWidth not implemented");
-    };
-    BitmapBase.prototype.getHeight = function () {
-        throw new EMFJSError("getHeight not implemented");
-    };
-    return BitmapBase;
-}());
-var BitmapCoreHeader = /** @class */ (function () {
-    function BitmapCoreHeader(reader, skipsize) {
-        if (skipsize)
-            reader.skip(4);
-        this.width = reader.readUint16();
-        this.height = reader.readUint16();
-        this.planes = reader.readUint16();
-        this.bitcount = reader.readUint16();
-    }
-    BitmapCoreHeader.prototype.colors = function () {
-        return this.bitcount <= 8 ? 1 << this.bitcount : 0;
-    };
-    return BitmapCoreHeader;
-}());
-var BitmapInfoHeader = /** @class */ (function () {
-    function BitmapInfoHeader(reader, skipsize) {
-        if (skipsize)
-            reader.skip(4);
-        this.width = reader.readInt32();
-        this.height = reader.readInt32();
-        this.planes = reader.readUint16();
-        this.bitcount = reader.readUint16();
-        this.compression = reader.readUint32();
-        this.sizeimage = reader.readUint32();
-        this.xpelspermeter = reader.readInt32();
-        this.ypelspermeter = reader.readInt32();
-        this.clrused = reader.readUint32();
-        this.clrimportant = reader.readUint32();
-    }
-    BitmapInfoHeader.prototype.colors = function () {
-        if (this.clrused != 0)
-            return this.clrused < 256 ? this.clrused : 256;
-        else
-            return this.bitcount > 8 ? 0 : 1 << this.bitcount;
-    };
-    return BitmapInfoHeader;
-}());
-var BitmapInfo = /** @class */ (function (_super) {
-    __extends(BitmapInfo, _super);
-    function BitmapInfo(reader, usergb) {
-        var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
-        _this._usergb = usergb;
-        var hdrsize = reader.readUint32();
-        _this._infosize = hdrsize;
-        if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
-            _this._header = new BitmapCoreHeader(reader, false);
-            _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
-        }
-        else {
-            _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
-            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
-                _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
-            _this._infosize += _this._header.colors() * (usergb ? 4 : 2);
-        }
-        return _this;
-    }
-    BitmapInfo.prototype.getWidth = function () {
-        return this._header.width;
-    };
-    BitmapInfo.prototype.getHeight = function () {
-        return Math.abs(this._header.height);
-    };
-    BitmapInfo.prototype.infosize = function () {
-        return this._infosize;
-    };
-    BitmapInfo.prototype.header = function () {
-        return this._header;
-    };
-    return BitmapInfo;
-}(BitmapBase));
-var DIBitmap = /** @class */ (function (_super) {
-    __extends(DIBitmap, _super);
-    function DIBitmap(reader, bitmapInfo) {
-        var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
-        _this._location = bitmapInfo;
-        _this._info = new BitmapInfo(reader, true);
-        return _this;
-    }
-    DIBitmap.prototype.getWidth = function () {
-        return this._info.getWidth();
-    };
-    DIBitmap.prototype.getHeight = function () {
-        return this._info.getHeight();
-    };
-    DIBitmap.prototype.totalSize = function () {
-        return this._location.header.size + this._location.data.size;
-    };
-    DIBitmap.prototype.makeBitmapFileHeader = function () {
-        var buf = new ArrayBuffer(14);
-        var view = new Uint8Array(buf);
-        view[0] = 0x42;
-        view[1] = 0x4d;
-        Helper._writeUint32Val(view, 2, this.totalSize() + 14);
-        Helper._writeUint32Val(view, 10, this._info.infosize() + 14);
-        return Helper._blobToBinary(view);
-    };
-    DIBitmap.prototype.base64ref = function () {
-        var prevpos = this._reader.pos;
-        this._reader.seek(this._offset);
-        var mime = "image/bmp";
-        var header = this._info.header();
-        var data;
-        if (header instanceof BitmapInfoHeader && header.compression != null) {
-            switch (header.compression) {
-                case Helper.GDI.BitmapCompression.BI_JPEG:
-                    mime = "data:image/jpeg";
-                    break;
-                case Helper.GDI.BitmapCompression.BI_PNG:
-                    mime = "data:image/png";
-                    break;
-                default:
-                    data = this.makeBitmapFileHeader();
-                    break;
-            }
-        }
-        else {
-            data = this.makeBitmapFileHeader();
-        }
-        this._reader.seek(this._location.header.offset);
-        if (data != null)
-            data += this._reader.readBinary(this._location.header.size);
-        else
-            data = this._reader.readBinary(this._location.header.size);
-        this._reader.seek(this._location.data.offset);
-        data += this._reader.readBinary(this._location.data.size);
-        var ref = "data:" + mime + ";base64," + btoa(data);
-        this._reader.seek(prevpos);
-        return ref;
-    };
-    return DIBitmap;
-}(BitmapBase));
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Tom Zoehner
-Copyright (c) 2018 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends$1 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ColorRef = /** @class */ (function () {
-    function ColorRef(reader, r, g, b) {
-        if (reader != null) {
-            this.r = reader.readUint8();
-            this.g = reader.readUint8();
-            this.b = reader.readUint8();
-            reader.skip(1);
-        }
-        else {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-        }
-    }
-    ColorRef.prototype.clone = function () {
-        return new ColorRef(null, this.r, this.g, this.b);
-    };
-    ColorRef.prototype.toHex = function () {
-        var rgb = (this.r << 16) | (this.g << 8) | this.b;
-        return (0x1000000 + rgb).toString(16).slice(1);
-    };
-    ColorRef.prototype.toString = function () {
-        return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
-    };
-    return ColorRef;
-}());
-var Font = /** @class */ (function (_super) {
-    __extends$1(Font, _super);
-    function Font(reader, copy) {
-        var _this = _super.call(this, "font") || this;
-        if (reader != null) {
-            _this.height = reader.readInt32();
-            _this.width = reader.readInt32();
-            _this.escapement = reader.readInt32();
-            _this.orientation = reader.readInt32();
-            _this.weight = reader.readInt32();
-            _this.italic = reader.readUint8();
-            _this.underline = reader.readUint8();
-            _this.strikeout = reader.readUint8();
-            _this.charset = reader.readUint8();
-            _this.outprecision = reader.readUint8();
-            _this.clipprecision = reader.readUint8();
-            _this.quality = reader.readUint8();
-            var pitchAndFamily = reader.readUint8();
-            _this.pitch = pitchAndFamily & 0xf; // TODO: double check
-            _this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
-            var dataLength = copy;
-            var start = reader.pos;
-            _this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
-        }
-        else if (copy != null) {
-            copy = copy;
-            _this.height = copy.height;
-            _this.width = copy.width;
-            _this.escapement = copy.escapement;
-            _this.orientation = copy.orientation;
-            _this.weight = copy.weight;
-            _this.italic = copy.italic;
-            _this.underline = copy.underline;
-            _this.strikeout = copy.strikeout;
-            _this.charset = copy.charset;
-            _this.outprecision = copy.outprecision;
-            _this.clipprecision = copy.clipprecision;
-            _this.quality = copy.quality;
-            _this.pitch = copy.pitch;
-            _this.family = copy.family;
-            _this.facename = copy.facename;
-        }
-        else {
-            // TODO: Values for a default font?
-            _this.height = -80;
-            _this.width = 0;
-            _this.escapement = 0;
-            _this.orientation = 0;
-            _this.weight = 400;
-            _this.italic = 0;
-            _this.underline = 0;
-            _this.strikeout = 0;
-            _this.charset = 0;
-            _this.outprecision = 0;
-            _this.clipprecision = 0;
-            _this.quality = 0;
-            _this.pitch = 0;
-            _this.family = 0;
-            _this.facename = "Helvetica";
-        }
-        return _this;
-    }
-    Font.prototype.clone = function () {
-        return new Font(null, this);
-    };
-    Font.prototype.toString = function () {
-        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
-        return JSON.stringify(this);
-    };
-    return Font;
-}(Obj));
-var Brush = /** @class */ (function (_super) {
-    __extends$1(Brush, _super);
-    function Brush(reader, copy) {
-        var _this = _super.call(this, "brush") || this;
-        if (reader != null) {
-            var start = reader.pos;
-            _this.style = reader.readUint32();
-            switch (_this.style) {
-                case Helper.GDI.BrushStyle.BS_SOLID:
-                    _this.color = new ColorRef(reader);
-                    break;
-                case Helper.GDI.BrushStyle.BS_PATTERN:
-                    _this.pattern = new DIBitmap(reader);
-                    break;
-                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    _this.dibpatternpt = new DIBitmap(reader);
-                    break;
-                case Helper.GDI.BrushStyle.BS_HATCHED:
-                    _this.color = new ColorRef(reader);
-                    _this.hatchstyle = reader.readUint32();
-                    break;
-            }
-            reader.seek(start + 12);
-        }
-        else {
-            _this.style = copy.style;
-            switch (_this.style) {
-                case Helper.GDI.BrushStyle.BS_SOLID:
-                    _this.color = copy.color.clone();
-                    break;
-                case Helper.GDI.BrushStyle.BS_PATTERN:
-                    _this.pattern = copy.pattern;
-                    break;
-                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    _this.dibpatternpt = copy.dibpatternpt;
-                    break;
-                case Helper.GDI.BrushStyle.BS_HATCHED:
-                    _this.color = copy.color.clone();
-                    _this.hatchstyle = copy.hatchstyle;
-                    break;
-            }
-        }
-        return _this;
-    }
-    Brush.prototype.clone = function () {
-        return new Brush(null, this);
-    };
-    Brush.prototype.toString = function () {
-        var ret = "{style: " + this.style;
-        switch (this.style) {
-            case Helper.GDI.BrushStyle.BS_SOLID:
-                ret += ", color: " + this.color.toString();
-                break;
-            case Helper.GDI.BrushStyle.BS_HATCHED:
-                ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
-                break;
-        }
-        return ret + "}";
-    };
-    return Brush;
-}(Obj));
-var Pen = /** @class */ (function (_super) {
-    __extends$1(Pen, _super);
-    function Pen(reader, style, width, color, brush) {
-        var _this = _super.call(this, "pen") || this;
-        if (reader != null) {
-            if (style != null) {
-                _this.style = reader.readUint32() & 0xFF;
-                _this.width = reader.readUint32();
-                _this.brush = new Brush(reader);
-                _this.color = _this.brush.color != null ? _this.brush.color.clone() : new ColorRef(null, 0, 0, 0);
-                // TODO: NumStyleEntries, StyleEntry
-            }
-            else {
-                // LogPen
-                _this.style = reader.readUint32() & 0xFF;
-                _this.width = (new PointL(reader)).x;
-                _this.color = new ColorRef(reader);
-            }
-        }
-        else {
-            _this.style = style;
-            _this.width = width;
-            if (color != null)
-                _this.color = color;
-            if (brush != null)
-                _this.brush = brush;
-        }
-        return _this;
-    }
-    Pen.prototype.clone = function () {
-        return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
-    };
-    Pen.prototype.toString = function () {
-        return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
-    };
-    return Pen;
-}(Obj));
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Tom Zoehner
-Copyright (c) 2018 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends$2 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var Region = /** @class */ (function (_super) {
-    __extends$2(Region, _super);
+    __extends(Region, _super);
     function Region(reader, copy) {
         var _this = _super.call(this, "region") || this;
         if (reader != null) {
             var hdrSize = reader.readUint32();
-            if (hdrSize != 32)
+            if (hdrSize != 32) {
                 throw new EMFJSError("Invalid region header");
+            }
             reader.skip(4);
             var rectCnt = reader.readUint32();
             var rgnSize = reader.readUint32();
-            if (rectCnt * 16 != rgnSize)
+            if (rectCnt * 16 != rgnSize) {
                 throw new EMFJSError("Invalid region data");
+            }
             _this.bounds = new RectL(reader);
             _this.scans = [];
-            var scanLine;
+            var scanLine = void 0;
             for (var i = 0; i < rectCnt; i++) {
                 var r = new RectL(reader);
                 if (scanLine == null || scanLine.top != r.top || scanLine.bottom != r.bottom) {
@@ -1095,8 +696,9 @@ var Region = /** @class */ (function (_super) {
             _this.bounds = copy.bounds != null ? copy.bounds.clone() : null;
             if (copy.scans != null) {
                 _this.scans = [];
-                for (var i = 0; i < copy.scans.length; i++)
+                for (var i = 0; i < copy.scans.length; i++) {
                     _this.scans.push(copy.scans[i].clone());
+                }
             }
             else {
                 _this.scans = null;
@@ -1183,8 +785,9 @@ var Region = /** @class */ (function (_super) {
                 var first = si;
                 while (si < this.scans.length) {
                     var scan = this.scans[si];
-                    if (scan.top > rect.bottom)
+                    if (scan.top > rect.bottom) {
                         break;
+                    }
                     if (scan.bottom > rect.bottom) {
                         // We need to clone this scan into two so that we can subtract from the first one
                         var cloned = scan.clone();
@@ -1220,26 +823,30 @@ var Region = /** @class */ (function (_super) {
                 }
                 // Update bounds
                 if (this.scans != null) {
-                    var left, top, right, bottom;
+                    var left = void 0, top_1, right = void 0, bottom = void 0;
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
-                        if (i == 0)
-                            top = scan.top;
-                        if (i == len - 1)
+                        if (i == 0) {
+                            top_1 = scan.top;
+                        }
+                        if (i == len - 1) {
                             bottom = scan.bottom;
+                        }
                         var slen = scan.scanlines.length;
                         if (slen > 0) {
                             var scanline = scan.scanlines[0];
-                            if (left == null || scanline.left < left)
+                            if (left == null || scanline.left < left) {
                                 left = scanline.left;
+                            }
                             scanline = scan.scanlines[slen - 1];
-                            if (right == null || scanline.right > right)
+                            if (right == null || scanline.right > right) {
                                 right = scanline.right;
+                            }
                         }
                     }
-                    if (left != null && top != null && right != null && bottom != null) {
-                        this.bounds = new RectL(null, left, top, right, bottom);
+                    if (left != null && top_1 != null && right != null && bottom != null) {
+                        this.bounds = new RectL(null, left, top_1, right, bottom);
                         this._updateComplexity();
                     }
                     else {
@@ -1266,17 +873,20 @@ var Region = /** @class */ (function (_super) {
                     // Remove any scans that are entirely above the new bounds.top
                     while (si < this.scans.length) {
                         var scan = this.scans[si];
-                        if (scan.bottom < this.bounds.top)
+                        if (scan.bottom < this.bounds.top) {
                             si++;
-                        else
+                        }
+                        else {
                             break;
+                        }
                     }
                     if (si > 0) {
                         Helper.log("[emf] Region remove " + si + " scans from top");
                         this.scans.splice(0, si);
                         // Adjust the first scan's top to match the new bounds.top
-                        if (this.scans.length > 0)
+                        if (this.scans.length > 0) {
                             this.scans[0].top = this.bounds.top;
+                        }
                     }
                     // Get rid of anything that falls outside the new bounds.left/bounds.right
                     si = 0;
@@ -1297,8 +907,9 @@ var Region = /** @class */ (function (_super) {
                         si++;
                     }
                     // If there are any scans left, adjust the last one's bottom to the new bounds.bottom
-                    if (this.scans.length > 0)
+                    if (this.scans.length > 0) {
                         this.scans[this.scans.length - 1].bottom = this.bounds.bottom;
+                    }
                     this._updateComplexity();
                 }
             }
@@ -1390,15 +1001,17 @@ var Scan = /** @class */ (function () {
             if (scanline.right > right) {
                 scanline.left = right;
                 cnt = i - first;
-                if (scanline.left >= scanline.right)
+                if (scanline.left >= scanline.right) {
                     cnt++;
+                }
                 break;
             }
             i++;
         }
         // Delete everything we're subtracting
-        if (cnt > 0 && first < this.scanlines.length)
+        if (cnt > 0 && first < this.scanlines.length) {
             this.scanlines.splice(first, cnt);
+        }
         return this.scanlines.length > 0;
     };
     Scan.prototype.intersect = function (left, right) {
@@ -1406,16 +1019,18 @@ var Scan = /** @class */ (function () {
         for (var i = 0; i < this.scanlines.length; i++) {
             var scanline = this.scanlines[i];
             if (scanline.left >= left || scanline.right >= left) {
-                if (i > 0)
+                if (i > 0) {
                     this.scanlines.splice(0, i);
+                }
                 break;
             }
         }
         if (this.scanlines.length > 0) {
             // Adjust the first to match the left, if needed
             var scanline = this.scanlines[0];
-            if (scanline.left < left)
+            if (scanline.left < left) {
                 scanline.left = left;
+            }
             // Get rid of anything that falls entirely outside to the right
             for (var i = 0; i < this.scanlines.length; i++) {
                 scanline = this.scanlines[i];
@@ -1427,8 +1042,9 @@ var Scan = /** @class */ (function () {
             if (this.scanlines.length > 0) {
                 // Adjust the last to match the right, if needed
                 scanline = this.scanlines[this.scanlines.length - 1];
-                if (scanline.right > right)
+                if (scanline.right > right) {
                     scanline.right = right;
+                }
             }
         }
         return this.scanlines.length > 0;
@@ -1462,7 +1078,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var __extends$3 = (undefined && undefined.__extends) || (function () {
+var __extends$1 = (undefined && undefined.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
         function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
@@ -1472,706 +1088,394 @@ var __extends$3 = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Path = /** @class */ (function (_super) {
-    __extends$3(Path, _super);
-    function Path(svgPath, copy) {
-        var _this = _super.call(this, "path") || this;
-        if (svgPath != null) {
-            _this.svgPath = svgPath;
+var BitmapBase = /** @class */ (function () {
+    function BitmapBase() {
+    }
+    BitmapBase.prototype.getWidth = function () {
+        throw new EMFJSError("getWidth not implemented");
+    };
+    BitmapBase.prototype.getHeight = function () {
+        throw new EMFJSError("getHeight not implemented");
+    };
+    return BitmapBase;
+}());
+var BitmapCoreHeader = /** @class */ (function () {
+    function BitmapCoreHeader(reader, skipsize) {
+        if (skipsize) {
+            reader.skip(4);
+        }
+        this.width = reader.readUint16();
+        this.height = reader.readUint16();
+        this.planes = reader.readUint16();
+        this.bitcount = reader.readUint16();
+    }
+    BitmapCoreHeader.prototype.colors = function () {
+        return this.bitcount <= 8 ? 1 << this.bitcount : 0;
+    };
+    return BitmapCoreHeader;
+}());
+var BitmapInfoHeader = /** @class */ (function () {
+    function BitmapInfoHeader(reader, skipsize) {
+        if (skipsize) {
+            reader.skip(4);
+        }
+        this.width = reader.readInt32();
+        this.height = reader.readInt32();
+        this.planes = reader.readUint16();
+        this.bitcount = reader.readUint16();
+        this.compression = reader.readUint32();
+        this.sizeimage = reader.readUint32();
+        this.xpelspermeter = reader.readInt32();
+        this.ypelspermeter = reader.readInt32();
+        this.clrused = reader.readUint32();
+        this.clrimportant = reader.readUint32();
+    }
+    BitmapInfoHeader.prototype.colors = function () {
+        if (this.clrused != 0) {
+            return this.clrused < 256 ? this.clrused : 256;
         }
         else {
-            _this.svgPath = copy.svgPath;
+            return this.bitcount > 8 ? 0 : 1 << this.bitcount;
+        }
+    };
+    return BitmapInfoHeader;
+}());
+var BitmapInfo = /** @class */ (function (_super) {
+    __extends$1(BitmapInfo, _super);
+    function BitmapInfo(reader, usergb) {
+        var _this = _super.call(this) || this;
+        _this._reader = reader;
+        _this._offset = reader.pos;
+        _this._usergb = usergb;
+        var hdrsize = reader.readUint32();
+        _this._infosize = hdrsize;
+        if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
+            _this._header = new BitmapCoreHeader(reader, false);
+            _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
+        }
+        else {
+            _this._header = new BitmapInfoHeader(reader, false);
+            var masks = _this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
+                _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+            }
+            _this._infosize += _this._header.colors() * (usergb ? 4 : 2);
         }
         return _this;
     }
-    Path.prototype.clone = function () {
-        return new Path(null, this.svgPath);
+    BitmapInfo.prototype.getWidth = function () {
+        return this._header.width;
     };
-    Path.prototype.toString = function () {
-        return "{[path]}";
+    BitmapInfo.prototype.getHeight = function () {
+        return Math.abs(this._header.height);
     };
-    return Path;
-}(Obj));
-function createStockObjects() {
-    // Create global stock objects
-    var createSolidBrush = function (r, g, b) {
-        return new Brush(null, {
-            style: Helper.GDI.BrushStyle.BS_SOLID,
-            color: new ColorRef(null, r, g, b)
-        });
+    BitmapInfo.prototype.infosize = function () {
+        return this._infosize;
     };
-    var createSolidPen = function (r, g, b) {
-        return new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, r, g, b), null);
+    BitmapInfo.prototype.header = function () {
+        return this._header;
     };
-    var stockObjs = {
-        WHITE_BRUSH: createSolidBrush(255, 255, 255),
-        LTGRAY_BRUSH: createSolidBrush(212, 208, 200),
-        GRAY_BRUSH: createSolidBrush(128, 128, 128),
-        DKGRAY_BRUSH: createSolidBrush(64, 64, 64),
-        BLACK_BRUSH: createSolidBrush(0, 0, 0),
-        NULL_BRUSH: new Brush(null, {
-            style: Helper.GDI.BrushStyle.BS_NULL
-        }),
-        WHITE_PEN: createSolidPen(255, 255, 255),
-        BLACK_PEN: createSolidPen(0, 0, 0),
-        NULL_PEN: new Pen(null, Helper.GDI.PenStyle.PS_NULL, 0, null, null),
-        OEM_FIXED_FONT: null,
-        ANSI_FIXED_FONT: null,
-        ANSI_VAR_FONT: null,
-        SYSTEM_FONT: null,
-        DEVICE_DEFAULT_FONT: null,
-        DEFAULT_PALETTE: null,
-        SYSTEM_FIXED_FONT: null,
-        DEFAULT_GUI_FONT: null,
-    };
-    var objs = {};
-    for (var t in stockObjs) {
-        var stockObjects = Helper.GDI.StockObject;
-        var idx = stockObjects[t] - 0x80000000;
-        objs[idx.toString()] = stockObjs[t];
+    return BitmapInfo;
+}(BitmapBase));
+var DIBitmap = /** @class */ (function (_super) {
+    __extends$1(DIBitmap, _super);
+    function DIBitmap(reader, bitmapInfo) {
+        var _this = _super.call(this) || this;
+        _this._reader = reader;
+        _this._offset = reader.pos;
+        _this._location = bitmapInfo;
+        _this._info = new BitmapInfo(reader, true);
+        return _this;
     }
-    return objs;
-}
-var _StockObjects = createStockObjects();
-var GDIContextState = /** @class */ (function () {
-    function GDIContextState(copy, defObjects) {
-        if (copy != null) {
-            this._svggroup = copy._svggroup;
-            this._svgclipChanged = copy._svgclipChanged;
-            this._svgtextbkfilter = copy._svgtextbkfilter;
-            this.mapmode = copy.mapmode;
-            this.stretchmode = copy.stretchmode;
-            this.textalign = copy.textalign;
-            this.bkmode = copy.bkmode;
-            this.textcolor = copy.textcolor.clone();
-            this.bkcolor = copy.bkcolor.clone();
-            this.polyfillmode = copy.polyfillmode;
-            this.miterlimit = copy.miterlimit;
-            this.wx = copy.wx;
-            this.wy = copy.wy;
-            this.ww = copy.ww;
-            this.wh = copy.wh;
-            this.vx = copy.vx;
-            this.vy = copy.vy;
-            this.vw = copy.vw;
-            this.vh = copy.vh;
-            this.x = copy.x;
-            this.y = copy.y;
-            this.nextbrx = copy.nextbrx;
-            this.nextbry = copy.nextbry;
-            this.brx = copy.brx;
-            this.bry = copy.bry;
-            this.clip = copy.clip;
-            this.ownclip = false;
-            this.selected = {};
-            for (var type in copy.selected)
-                this.selected[type] = copy.selected[type];
-        }
-        else {
-            this._svggroup = null;
-            this._svgclipChanged = false;
-            this._svgtextbkfilter = null;
-            this.mapmode = Helper.GDI.MapMode.MM_ANISOTROPIC;
-            this.stretchmode = Helper.GDI.StretchMode.COLORONCOLOR;
-            this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
-            this.bkmode = Helper.GDI.MixMode.OPAQUE;
-            this.textcolor = new ColorRef(null, 0, 0, 0);
-            this.bkcolor = new ColorRef(null, 255, 255, 255);
-            this.polyfillmode = Helper.GDI.PolygonFillMode.ALTERNATE;
-            this.miterlimit = 10;
-            this.wx = 0;
-            this.wy = 0;
-            this.ww = 0;
-            this.wh = 0;
-            this.vx = 0;
-            this.vy = 0;
-            this.vw = 0;
-            this.vh = 0;
-            this.x = 0;
-            this.y = 0;
-            this.nextbrx = 0;
-            this.nextbry = 0;
-            this.brx = 0;
-            this.bry = 0;
-            this.clip = null;
-            this.ownclip = false;
-            this.selected = {};
-            for (var type in defObjects) {
-                var defObj = defObjects[type];
-                this.selected[type] = defObj != null ? defObj.clone() : null;
-            }
-        }
-    }
-    return GDIContextState;
-}());
-var GDIContext = /** @class */ (function () {
-    function GDIContext(svg) {
-        this._svg = svg;
-        this._svgdefs = null;
-        this._svgPatterns = {};
-        this._svgClipPaths = {};
-        this._svgPath = null;
-        this.defObjects = {
-            brush: new Brush(null, {
-                style: Helper.GDI.BrushStyle.BS_SOLID,
-                color: new ColorRef(null, 0, 0, 0)
-            }),
-            pen: new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, 0, 0, 0), null),
-            font: new Font(null, null),
-            palette: null,
-            region: null
-        };
-        this.state = new GDIContextState(null, this.defObjects);
-        this.statestack = [this.state];
-        this.objects = {};
-    }
-    GDIContext.prototype._pushGroup = function () {
-        if (this.state._svggroup == null || this.state._svgclipChanged) {
-            this.state._svgclipChanged = false;
-            this.state._svgtextbkfilter = null;
-            var settings = {
-                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
-                preserveAspectRatio: "none"
-            };
-            if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
-                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
-            }
-            else
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
-            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
-        }
+    DIBitmap.prototype.getWidth = function () {
+        return this._info.getWidth();
     };
-    GDIContext.prototype._getStockObject = function (idx) {
-        if (idx >= 0x80000000 && idx <= 0x80000011)
-            return _StockObjects[(idx - 0x80000000).toString()];
-        else if (idx == Helper.GDI.StockObject.DC_BRUSH)
-            return this.state.selected.brush;
-        else if (idx == Helper.GDI.StockObject.DC_PEN)
-            return this.state.selected.pen;
-        return null;
+    DIBitmap.prototype.getHeight = function () {
+        return this._info.getHeight();
     };
-    GDIContext.prototype._storeObject = function (obj, idx) {
-        if (!idx) {
-            idx = 0;
-            while (this.objects[idx.toString()] != null && idx <= 65535)
-                idx++;
-            if (idx > 65535) {
-                Helper.log("[gdi] Too many objects!");
-                return -1;
-            }
-        }
-        this.objects[idx.toString()] = obj;
-        return idx;
+    DIBitmap.prototype.totalSize = function () {
+        return this._location.header.size + this._location.data.size;
     };
-    GDIContext.prototype._getObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj == null) {
-            obj = this._getStockObject(objIdx);
-            if (obj == null)
-                Helper.log("[gdi] No object with handle " + objIdx);
-        }
-        return obj;
+    DIBitmap.prototype.makeBitmapFileHeader = function () {
+        var buf = new ArrayBuffer(14);
+        var view = new Uint8Array(buf);
+        view[0] = 0x42;
+        view[1] = 0x4d;
+        Helper._writeUint32Val(view, 2, this.totalSize() + 14);
+        Helper._writeUint32Val(view, 10, this._info.infosize() + 14);
+        return Helper._blobToBinary(view);
     };
-    GDIContext.prototype._getSvgDef = function () {
-        if (this._svgdefs == null)
-            this._svgdefs = this._svg.defs();
-        return this._svgdefs;
-    };
-    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var id in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[id];
-            if (rgn == region)
-                return id;
-        }
-        var id = Helper._makeUniqueId("c");
-        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
-        switch (region.complexity) {
-            case 1:
-                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: 'black', strokeWidth: 0 });
-                break;
-            case 2:
-                for (var i = 0; i < region.scans.length; i++) {
-                    var scan = region.scans[i];
-                    for (var j = 0; j < scan.scanlines.length; j++) {
-                        var scanline = scan.scanlines[j];
-                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: 'black', strokeWidth: 0 });
-                    }
-                }
-                break;
-        }
-        this._svgClipPaths[id] = region;
-        return id;
-    };
-    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var id in this._svgPatterns) {
-            var pat = this._svgPatterns[id];
-            if (pat == brush)
-                return id;
-        }
-        var width, height, img;
-        switch (brush.style) {
-            case Helper.GDI.BrushStyle.BS_PATTERN:
-                width = brush.pattern.getWidth();
-                height = brush.pattern.getHeight();
-                break;
-            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                width = brush.dibpatternpt.getWidth();
-                height = brush.dibpatternpt.getHeight();
-                img = brush.dibpatternpt.base64ref();
-                break;
-            default:
-                throw new EMFJSError("Invalid brush style");
-        }
-        var id = Helper._makeUniqueId("p");
-        var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, { patternUnits: 'userSpaceOnUse' });
-        this._svg.image(spat, 0, 0, width, height, img);
-        this._svgPatterns[id] = brush;
-        return id;
-    };
-    GDIContext.prototype._selectObject = function (obj) {
-        this.state.selected[obj.type] = obj;
-        switch (obj.type) {
-            case "region":
-                this.state._svgclipChanged = true;
-                break;
-            case "brush":
-                this.state.brx = this.state.nextbrx;
-                this.state.bry = this.state.nextbry;
-                break;
-        }
-    };
-    GDIContext.prototype._deleteObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj != null) {
-            for (var i = 0; i < this.statestack.length; i++) {
-                var state = this.statestack[i];
-                if (state.selected[obj.type] == obj)
-                    state.selected[obj.type] = this.defObjects[obj.type].clone();
-            }
-            delete this.objects[objIdx.toString()];
-            return true;
-        }
-        Helper.log("[gdi] Cannot delete object with invalid handle " + objIdx);
-        return false;
-    };
-    GDIContext.prototype._getClipRgn = function () {
-        if (this.state.clip != null) {
-            if (!this.state.ownclip)
-                this.state.clip = this.state.clip.clone();
-        }
-        else {
-            if (this.state.selected.region != null)
-                this.state.clip = this.state.selected.region.clone();
-            else
-                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
-        }
-        this.state.ownclip = true;
-        return this.state.clip;
-    };
-    GDIContext.prototype._todevX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._todevW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._tologicalX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
-    GDIContext.prototype._tologicalW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
-    GDIContext.prototype.setMapMode = function (mode) {
-        Helper.log("[gdi] setMapMode: mode=" + mode);
-        this.state.mapmode = mode;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setWindowOrgEx = function (x, y) {
-        Helper.log("[gdi] setWindowOrgEx: x=" + x + " y=" + y);
-        this.state.wx = x;
-        this.state.wy = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setWindowExtEx = function (x, y) {
-        Helper.log("[gdi] setWindowExtEx: x=" + x + " y=" + y);
-        this.state.ww = x;
-        this.state.wh = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setViewportOrgEx = function (x, y) {
-        Helper.log("[gdi] setViewportOrgEx: x=" + x + " y=" + y);
-        this.state.vx = x;
-        this.state.vy = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setViewportExtEx = function (x, y) {
-        Helper.log("[gdi] setViewportExtEx: x=" + x + " y=" + y);
-        this.state.vw = x;
-        this.state.vh = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setBrushOrgEx = function (origin) {
-        Helper.log("[gdi] setBrushOrgEx: x=" + origin.x + " y=" + origin.y);
-        this.state.nextbrx = origin.x;
-        this.state.nextbry = origin.y;
-    };
-    GDIContext.prototype.saveDC = function () {
-        Helper.log("[gdi] saveDC");
-        var prevstate = this.state;
-        this.state = new GDIContextState(this.state);
-        this.statestack.push(prevstate);
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.restoreDC = function (saved) {
-        Helper.log("[gdi] restoreDC: saved=" + saved);
-        if (this.statestack.length > 1) {
-            if (saved == -1) {
-                this.state = this.statestack.pop();
-            }
-            else if (saved < -1) {
-                throw new EMFJSError("restoreDC: relative restore not implemented");
-            }
-            else if (saved > 1) {
-                throw new EMFJSError("restoreDC: absolute restore not implemented");
-            }
-        }
-        else {
-            throw new EMFJSError("No saved contexts");
-        }
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setStretchBltMode = function (stretchMode) {
-        Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
-    };
-    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
-        if (opts == null)
-            opts = {};
-        if (usePen) {
-            var pen = this.state.selected.pen;
-            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
-                opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
-                opts.strokeWidth = pen.width;
-                opts["stroke-miterlimit"] = this.state.miterlimit;
-                var dotWidth;
-                opts["stroke-linecap"] = "round";
-                dotWidth = 1;
-                opts["stroke-linejoin"] = "round";
-                var dashWidth = opts.strokeWidth * 4;
-                var dotSpacing = opts.strokeWidth * 2;
-                switch (pen.style) {
-                    case Helper.GDI.PenStyle.PS_DASH:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DOT:
-                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DASHDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                }
-            }
-        }
-        if (useBrush) {
-            var brush = this.state.selected.brush;
-            switch (brush.style) {
-                case Helper.GDI.BrushStyle.BS_SOLID:
-                    opts.fill = "#" + brush.color.toHex();
+    DIBitmap.prototype.base64ref = function () {
+        var prevpos = this._reader.pos;
+        this._reader.seek(this._offset);
+        var mime = "image/bmp";
+        var header = this._info.header();
+        var data;
+        if (header instanceof BitmapInfoHeader && header.compression != null) {
+            switch (header.compression) {
+                case Helper.GDI.BitmapCompression.BI_JPEG:
+                    mime = "data:image/jpeg";
                     break;
-                case Helper.GDI.BrushStyle.BS_PATTERN:
-                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
-                    break;
-                case Helper.GDI.BrushStyle.BS_NULL:
-                    opts.fill = "none";
+                case Helper.GDI.BitmapCompression.BI_PNG:
+                    mime = "data:image/png";
                     break;
                 default:
-                    Helper.log("[gdi] unsupported brush style: " + brush.style);
-                    opts.fill = "none";
+                    data = this.makeBitmapFileHeader();
                     break;
             }
         }
-        if (useFont) {
-            var font = this.state.selected.font;
-            opts["font-family"] = font.facename;
-            opts["font-size"] = Math.abs(font.height);
-            opts["fill"] = "#" + this.state.textcolor.toHex();
+        else {
+            data = this.makeBitmapFileHeader();
         }
-        return opts;
-    };
-    GDIContext.prototype.rectangle = function (rect, rw, rh) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-        var bottom = this._todevY(rect.bottom);
-        var right = this._todevX(rect.right);
-        var top = this._todevY(rect.top);
-        var left = this._todevX(rect.left);
-        rw = this._todevH(rw);
-        rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
-        this._pushGroup();
-        var opts = this._applyOpts(null, true, true, false);
-        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
-    };
-    GDIContext.prototype.lineTo = function (x, y) {
-        Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-        var toX = this._todevX(x);
-        var toY = this._todevY(y);
-        var fromX = this._todevX(this.state.x);
-        var fromY = this._todevY(this.state.y);
-        // Update position
-        this.state.x = x;
-        this.state.y = y;
-        Helper.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
-        this._pushGroup();
-        var opts = this._applyOpts(null, true, false, false);
-        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
-    };
-    GDIContext.prototype.moveToEx = function (x, y) {
-        Helper.log("[gdi] moveToEx: x=" + x + " y=" + y);
-        this.state.x = x;
-        this.state.y = y;
-        if (this._svgPath != null) {
-            this._svgPath.move(this.state.x, this.state.y);
-            Helper.log("[gdi] new path: " + this._svgPath.path());
-        }
-    };
-    GDIContext.prototype.polygon = function (points, bounds, first) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-        var pts = [];
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        if (first)
-            this._pushGroup();
-        var opts = {
-            "fill-rule": this.state.polyfillmode == Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
-        };
-        this._applyOpts(opts, true, true, false);
-        this._svg.polygon(this.state._svggroup, pts, opts);
-    };
-    GDIContext.prototype.polyPolygon = function (polygons, bounds) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
-        var cnt = polygons.length;
-        for (var i = 0; i < cnt; i++)
-            this.polygon(polygons[i], bounds, i == 0);
-    };
-    GDIContext.prototype.polyline = function (isLineTo, points, bounds) {
-        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
-        var pts = [];
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        if (this._svgPath != null) {
-            if (!isLineTo || pts.length == 0) {
-                this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
-            }
-            else {
-                var firstPts = pts[0];
-                this._svgPath.move(firstPts[0], firstPts[1]);
-            }
-            this._svgPath.line(pts);
-            Helper.log("[gdi] new path: " + this._svgPath.path());
+        this._reader.seek(this._location.header.offset);
+        if (data != null) {
+            data += this._reader.readBinary(this._location.header.size);
         }
         else {
-            this._pushGroup();
-            var opts = this._applyOpts(null, true, false, false);
-            if (isLineTo && points.length > 0) {
-                var firstPt = points[0];
-                if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
-                    pts.unshift([this._todevX(this.state.x), this._todevY(this.state.y)]);
-                }
-            }
-            this._svg.polyline(this.state._svggroup, pts, opts);
+            data = this._reader.readBinary(this._location.header.size);
         }
-        if (points.length > 0) {
-            var lastPt = points[points.length - 1];
-            this.state.x = lastPt.x;
-            this.state.y = lastPt.y;
-        }
+        this._reader.seek(this._location.data.offset);
+        data += this._reader.readBinary(this._location.data.size);
+        var ref = "data:" + mime + ";base64," + btoa(data);
+        this._reader.seek(prevpos);
+        return ref;
     };
-    GDIContext.prototype.polybezier = function (isPolyBezierTo, points, bounds) {
-        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
-        var pts = [];
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            pts.push({ x: this._todevX(point.x), y: this._todevY(point.y) });
-        }
-        if (this._svgPath != null) {
-            if (isPolyBezierTo && pts.length > 0) {
-                var firstPts = pts[0];
-                this._svgPath.move(firstPts.x, firstPts.y);
-            }
-            else {
-                this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
-            }
-            if (pts.length < (isPolyBezierTo ? 3 : 4))
-                throw new EMFJSError("Not enough points to draw bezier");
-            for (var i = isPolyBezierTo ? 1 : 0; i + 3 <= pts.length; i += 3) {
-                var cp1 = pts[i];
-                var cp2 = pts[i + 1];
-                var ep = pts[i + 2];
-                this._svgPath.curveC(cp1.x, cp1.y, cp2.x, cp2.y, ep.x, ep.y);
-            }
-            Helper.log("[gdi] new path: " + this._svgPath.path());
-        }
-        else {
-            throw new EMFJSError("polybezier not implemented (not a path)");
-        }
-        if (points.length > 0) {
-            var lastPt = points[points.length - 1];
-            this.state.x = lastPt.x;
-            this.state.y = lastPt.y;
-        }
+    return DIBitmap;
+}(BitmapBase));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Tom Zoehner
+Copyright (c) 2018 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$2 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    GDIContext.prototype.selectClipPath = function (rgnMode) {
-        Helper.log("[gdi] selectClipPath: rgnMode=0x" + rgnMode.toString(16));
-    };
-    GDIContext.prototype.selectClipRgn = function (rgnMode, region) {
-        Helper.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
-        if (rgnMode == Helper.GDI.RegionMode.RGN_COPY) {
-            this.state.selected.region = region;
-            this.state.clip = null;
-            this.state.ownclip = false;
+})();
+var ColorRef = /** @class */ (function () {
+    function ColorRef(reader, r, g, b) {
+        if (reader != null) {
+            this.r = reader.readUint8();
+            this.g = reader.readUint8();
+            this.b = reader.readUint8();
+            reader.skip(1);
         }
         else {
-            if (region == null)
-                throw new EMFJSError("No clip region to select");
-            throw new EMFJSError("Not implemented: rgnMode=0x" + rgnMode.toString(16));
+            this.r = r;
+            this.g = g;
+            this.b = b;
         }
-        this.state._svgclipChanged = true;
+    }
+    ColorRef.prototype.clone = function () {
+        return new ColorRef(null, this.r, this.g, this.b);
     };
-    GDIContext.prototype.offsetClipRgn = function (offset) {
-        Helper.log("[gdi] offsetClipRgn: offset=" + offset.toString());
-        this._getClipRgn().offset(offset.x, offset.y);
+    ColorRef.prototype.toHex = function () {
+        var rgb = (this.r << 16) | (this.g << 8) | this.b;
+        return (0x1000000 + rgb).toString(16).slice(1);
     };
-    GDIContext.prototype.setTextAlign = function (textAlignmentMode) {
-        Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
-        this.state.textalign = textAlignmentMode;
+    ColorRef.prototype.toString = function () {
+        return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
     };
-    GDIContext.prototype.setMiterLimit = function (miterLimit) {
-        Helper.log("[gdi] setMiterLimit: miterLimit=" + miterLimit);
-        this.state.miterlimit = miterLimit;
-    };
-    GDIContext.prototype.setBkMode = function (bkMode) {
-        Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
-        this.state.bkmode = bkMode;
-    };
-    GDIContext.prototype.setBkColor = function (bkColor) {
-        Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
-        this.state.bkcolor = bkColor;
-        this.state._svgtextbkfilter = null;
-    };
-    GDIContext.prototype.setPolyFillMode = function (polyFillMode) {
-        Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
-        this.state.polyfillmode = polyFillMode;
-    };
-    GDIContext.prototype.createBrush = function (index, brush) {
-        var idx = this._storeObject(brush, index);
-        Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
-    };
-    GDIContext.prototype.createPen = function (index, pen) {
-        var idx = this._storeObject(pen, index);
-        Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.createPenEx = function (index, pen) {
-        var idx = this._storeObject(pen, index);
-        Helper.log("[gdi] createPenEx: pen=" + pen.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.selectObject = function (objIdx, checkType) {
-        var obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type == checkType)) {
-            this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
-        }
-        else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
-        }
-    };
-    GDIContext.prototype._abortPath = function () {
-        if (this._svgPath != null)
-            this._svgPath = null;
-    };
-    GDIContext.prototype.abortPath = function () {
-        Helper.log("[gdi] abortPath");
-        this._abortPath();
-    };
-    GDIContext.prototype.beginPath = function () {
-        Helper.log("[gdi] beginPath");
-        this._abortPath();
-        this._svgPath = this._svg.createPath();
-    };
-    GDIContext.prototype.closeFigure = function () {
-        Helper.log("[gdi] closeFigure");
-        if (this._svgPath == null)
-            throw new EMFJSError("No path bracket: cannot close figure");
-        this._svgPath.close();
-    };
-    GDIContext.prototype.fillPath = function (bounds) {
-        Helper.log("[gdi] fillPath");
-        if (this.state.selected.path == null)
-            throw new EMFJSError("No path selected");
-        var selPath = this.state.selected.path;
-        var opts = this._applyOpts(null, true, true, false);
-        this._svg.path(this.state._svggroup, selPath.svgPath, opts);
-        this._pushGroup();
-        this.state.selected.path = null;
-    };
-    GDIContext.prototype.strokePath = function (bounds) {
-        Helper.log("[gdi] strokePath");
-        if (this.state.selected.path == null)
-            throw new EMFJSError("No path selected");
-        var selPath = this.state.selected.path;
-        var opts = this._applyOpts({ fill: "none" }, true, false, false);
-        this._svg.path(this.state._svggroup, selPath.svgPath, opts);
-        this._pushGroup();
-        this.state.selected.path = null;
-    };
-    GDIContext.prototype.endPath = function () {
-        Helper.log("[gdi] endPath");
-        if (this._svgPath == null)
-            throw new EMFJSError("No path bracket: cannot end path");
-        this._pushGroup();
-        this._selectObject(new Path(this._svgPath));
-        this._svgPath = null;
-    };
-    GDIContext.prototype.deleteObject = function (objIdx) {
-        var ret = this._deleteObject(objIdx);
-        Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
-    };
-    return GDIContext;
+    return ColorRef;
 }());
+var Font = /** @class */ (function (_super) {
+    __extends$2(Font, _super);
+    function Font(reader, copy) {
+        var _this = _super.call(this, "font") || this;
+        if (reader != null) {
+            _this.height = reader.readInt32();
+            _this.width = reader.readInt32();
+            _this.escapement = reader.readInt32();
+            _this.orientation = reader.readInt32();
+            _this.weight = reader.readInt32();
+            _this.italic = reader.readUint8();
+            _this.underline = reader.readUint8();
+            _this.strikeout = reader.readUint8();
+            _this.charset = reader.readUint8();
+            _this.outprecision = reader.readUint8();
+            _this.clipprecision = reader.readUint8();
+            _this.quality = reader.readUint8();
+            var pitchAndFamily = reader.readUint8();
+            _this.pitch = pitchAndFamily & 0xf; // TODO: double check
+            _this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
+            var dataLength = copy;
+            var start = reader.pos;
+            _this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
+        }
+        else if (copy != null) {
+            copy = copy;
+            _this.height = copy.height;
+            _this.width = copy.width;
+            _this.escapement = copy.escapement;
+            _this.orientation = copy.orientation;
+            _this.weight = copy.weight;
+            _this.italic = copy.italic;
+            _this.underline = copy.underline;
+            _this.strikeout = copy.strikeout;
+            _this.charset = copy.charset;
+            _this.outprecision = copy.outprecision;
+            _this.clipprecision = copy.clipprecision;
+            _this.quality = copy.quality;
+            _this.pitch = copy.pitch;
+            _this.family = copy.family;
+            _this.facename = copy.facename;
+        }
+        else {
+            // TODO: Values for a default font?
+            _this.height = -80;
+            _this.width = 0;
+            _this.escapement = 0;
+            _this.orientation = 0;
+            _this.weight = 400;
+            _this.italic = 0;
+            _this.underline = 0;
+            _this.strikeout = 0;
+            _this.charset = 0;
+            _this.outprecision = 0;
+            _this.clipprecision = 0;
+            _this.quality = 0;
+            _this.pitch = 0;
+            _this.family = 0;
+            _this.facename = "Helvetica";
+        }
+        return _this;
+    }
+    Font.prototype.clone = function () {
+        return new Font(null, this);
+    };
+    Font.prototype.toString = function () {
+        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
+        return JSON.stringify(this);
+    };
+    return Font;
+}(Obj));
+var Brush = /** @class */ (function (_super) {
+    __extends$2(Brush, _super);
+    function Brush(reader, copy) {
+        var _this = _super.call(this, "brush") || this;
+        if (reader != null) {
+            var start = reader.pos;
+            _this.style = reader.readUint32();
+            switch (_this.style) {
+                case Helper.GDI.BrushStyle.BS_SOLID:
+                    _this.color = new ColorRef(reader);
+                    break;
+                case Helper.GDI.BrushStyle.BS_PATTERN:
+                    _this.pattern = new DIBitmap(reader);
+                    break;
+                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    _this.dibpatternpt = new DIBitmap(reader);
+                    break;
+                case Helper.GDI.BrushStyle.BS_HATCHED:
+                    _this.color = new ColorRef(reader);
+                    _this.hatchstyle = reader.readUint32();
+                    break;
+            }
+            reader.seek(start + 12);
+        }
+        else {
+            _this.style = copy.style;
+            switch (_this.style) {
+                case Helper.GDI.BrushStyle.BS_SOLID:
+                    _this.color = copy.color.clone();
+                    break;
+                case Helper.GDI.BrushStyle.BS_PATTERN:
+                    _this.pattern = copy.pattern;
+                    break;
+                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    _this.dibpatternpt = copy.dibpatternpt;
+                    break;
+                case Helper.GDI.BrushStyle.BS_HATCHED:
+                    _this.color = copy.color.clone();
+                    _this.hatchstyle = copy.hatchstyle;
+                    break;
+            }
+        }
+        return _this;
+    }
+    Brush.prototype.clone = function () {
+        return new Brush(null, this);
+    };
+    Brush.prototype.toString = function () {
+        var ret = "{style: " + this.style;
+        switch (this.style) {
+            case Helper.GDI.BrushStyle.BS_SOLID:
+                ret += ", color: " + this.color.toString();
+                break;
+            case Helper.GDI.BrushStyle.BS_HATCHED:
+                ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
+                break;
+        }
+        return ret + "}";
+    };
+    return Brush;
+}(Obj));
+var Pen = /** @class */ (function (_super) {
+    __extends$2(Pen, _super);
+    function Pen(reader, style, width, color, brush) {
+        var _this = _super.call(this, "pen") || this;
+        if (reader != null) {
+            if (style != null) {
+                _this.style = reader.readUint32() & 0xFF;
+                _this.width = reader.readUint32();
+                _this.brush = new Brush(reader);
+                _this.color = _this.brush.color != null ? _this.brush.color.clone() : new ColorRef(null, 0, 0, 0);
+                // TODO: NumStyleEntries, StyleEntry
+            }
+            else {
+                // LogPen
+                _this.style = reader.readUint32() & 0xFF;
+                _this.width = (new PointL(reader)).x;
+                _this.color = new ColorRef(reader);
+            }
+        }
+        else {
+            _this.style = style;
+            _this.width = width;
+            if (color != null) {
+                _this.color = color;
+            }
+            if (brush != null) {
+                _this.brush = brush;
+            }
+        }
+        return _this;
+    }
+    Pen.prototype.clone = function () {
+        return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
+    };
+    Pen.prototype.toString = function () {
+        return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
+    };
+    return Pen;
+}(Obj));
 
 /*
 
@@ -2205,8 +1509,9 @@ var EmfHeader = /** @class */ (function () {
         this.size = headerSize;
         this.bounds = new RectL(reader);
         this.frame = new RectL(reader);
-        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE)
+        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
             throw new EMFJSError("Invalid header signature");
+        }
         reader.skip(4); // version
         reader.skip(4); // bytes (size of metafile)
         reader.skip(4); // number of records
@@ -2221,11 +1526,13 @@ var EmfHeader = /** @class */ (function () {
         this.refDevCyMm = reader.readUint32();
         var hdrSize = headerSize;
         if (descriptionLen > 0) {
-            if (descriptionOff < 88)
+            if (descriptionOff < 88) {
                 throw new EMFJSError("Invalid header description offset");
+            }
             hdrSize = descriptionOff + (descriptionLen * 2);
-            if (hdrSize > headerSize)
+            if (hdrSize > headerSize) {
                 throw new EMFJSError("Invalid header description length");
+            }
             var prevPos = reader.pos;
             reader.seek(recordStart + descriptionOff);
             this.description = reader.readFixedSizeUnicodeString(descriptionLen);
@@ -2239,14 +1546,17 @@ var EmfHeader = /** @class */ (function () {
             var pixelFormatSize = reader.readUint32();
             var pixelFormatOff = reader.readUint32();
             var haveOpenGl = reader.readUint32();
-            if (haveOpenGl != 0)
+            if (haveOpenGl != 0) {
                 throw new EMFJSError("OpenGL records are not yet supported");
+            }
             if (pixelFormatOff != 0) {
-                if (pixelFormatOff < 100 || pixelFormatOff < hdrSize)
+                if (pixelFormatOff < 100 || pixelFormatOff < hdrSize) {
                     throw new EMFJSError("Invalid pixel format offset");
+                }
                 hdrSize = pixelFormatOff + pixelFormatSize;
-                if (hdrSize > headerSize)
+                if (hdrSize > headerSize) {
                     throw new EMFJSError("Invalid pixel format size");
+                }
                 // TODO: read pixel format blob
             }
             if (hdrSize >= 108) {
@@ -2271,8 +1581,9 @@ var EMFRecords = /** @class */ (function () {
             reader.seek(curpos);
             var type = reader.readUint32();
             var size = reader.readUint32();
-            if (size < 8)
+            if (size < 8) {
                 throw new EMFJSError("Invalid record size");
+            }
             switch (type) {
                 case Helper.GDI.RecordType.EMR_EOF:
                     all = true;
@@ -2368,12 +1679,12 @@ var EMFRecords = /** @class */ (function () {
                     var pen_2 = new Pen(reader, {
                         header: {
                             off: offBmi,
-                            size: cbBmi
+                            size: cbBmi,
                         },
                         data: {
                             off: offBits,
-                            size: cbBits
-                        }
+                            size: cbBits,
+                        },
                     });
                     this_1._records.push(function (gdi) {
                         gdi.createPen(index_3, pen_2);
@@ -2447,14 +1758,16 @@ var EMFRecords = /** @class */ (function () {
                     var polyCnt = reader.readUint32();
                     reader.skip(4); // count
                     var polygonsPtCnts = [];
-                    for (var i = 0; i < polyCnt; i++)
+                    for (var i = 0; i < polyCnt; i++) {
                         polygonsPtCnts.push(reader.readUint32());
+                    }
                     var polygons_1 = [];
                     for (var i = 0; i < polyCnt; i++) {
                         var ptCnt = polygonsPtCnts[i];
                         var p = [];
-                        for (var ip = 0; ip < ptCnt; ip++)
+                        for (var ip = 0; ip < ptCnt; ip++) {
                             p.push(isSmall ? new PointS(reader) : new PointL(reader));
+                        }
                         polygons_1.push(p);
                     }
                     this_1._records.push(function (gdi) {
@@ -2713,8 +2026,9 @@ var EMFRecords = /** @class */ (function () {
                 case "break-main_loop": break main_loop;
             }
         }
-        if (!all)
+        if (!all) {
             throw new EMFJSError("Could not read all records");
+        }
     }
     EMFRecords.prototype.play = function (gdi) {
         var len = this._records.length;
@@ -2723,6 +2037,767 @@ var EMFRecords = /** @class */ (function () {
         }
     };
     return EMFRecords;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Tom Zoehner
+Copyright (c) 2018 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$3 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Path = /** @class */ (function (_super) {
+    __extends$3(Path, _super);
+    function Path(svgPath, copy) {
+        var _this = _super.call(this, "path") || this;
+        if (svgPath != null) {
+            _this.svgPath = svgPath;
+        }
+        else {
+            _this.svgPath = copy.svgPath;
+        }
+        return _this;
+    }
+    Path.prototype.clone = function () {
+        return new Path(null, this.svgPath);
+    };
+    Path.prototype.toString = function () {
+        return "{[path]}";
+    };
+    return Path;
+}(Obj));
+function createStockObjects() {
+    // Create global stock objects
+    var createSolidBrush = function (r, g, b) {
+        return new Brush(null, {
+            style: Helper.GDI.BrushStyle.BS_SOLID,
+            color: new ColorRef(null, r, g, b),
+        });
+    };
+    var createSolidPen = function (r, g, b) {
+        return new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, r, g, b), null);
+    };
+    var stockObjs = {
+        WHITE_BRUSH: createSolidBrush(255, 255, 255),
+        LTGRAY_BRUSH: createSolidBrush(212, 208, 200),
+        GRAY_BRUSH: createSolidBrush(128, 128, 128),
+        DKGRAY_BRUSH: createSolidBrush(64, 64, 64),
+        BLACK_BRUSH: createSolidBrush(0, 0, 0),
+        NULL_BRUSH: new Brush(null, {
+            style: Helper.GDI.BrushStyle.BS_NULL,
+        }),
+        WHITE_PEN: createSolidPen(255, 255, 255),
+        BLACK_PEN: createSolidPen(0, 0, 0),
+        NULL_PEN: new Pen(null, Helper.GDI.PenStyle.PS_NULL, 0, null, null),
+        OEM_FIXED_FONT: null,
+        ANSI_FIXED_FONT: null,
+        ANSI_VAR_FONT: null,
+        SYSTEM_FONT: null,
+        DEVICE_DEFAULT_FONT: null,
+        DEFAULT_PALETTE: null,
+        SYSTEM_FIXED_FONT: null,
+        DEFAULT_GUI_FONT: null,
+    };
+    var objs = {};
+    for (var t in stockObjs) {
+        var stockObjects = Helper.GDI.StockObject;
+        var idx = stockObjects[t] - 0x80000000;
+        objs[idx.toString()] = stockObjs[t];
+    }
+    return objs;
+}
+var _StockObjects = createStockObjects();
+var GDIContextState = /** @class */ (function () {
+    function GDIContextState(copy, defObjects) {
+        if (copy != null) {
+            this._svggroup = copy._svggroup;
+            this._svgclipChanged = copy._svgclipChanged;
+            this._svgtextbkfilter = copy._svgtextbkfilter;
+            this.mapmode = copy.mapmode;
+            this.stretchmode = copy.stretchmode;
+            this.textalign = copy.textalign;
+            this.bkmode = copy.bkmode;
+            this.textcolor = copy.textcolor.clone();
+            this.bkcolor = copy.bkcolor.clone();
+            this.polyfillmode = copy.polyfillmode;
+            this.miterlimit = copy.miterlimit;
+            this.wx = copy.wx;
+            this.wy = copy.wy;
+            this.ww = copy.ww;
+            this.wh = copy.wh;
+            this.vx = copy.vx;
+            this.vy = copy.vy;
+            this.vw = copy.vw;
+            this.vh = copy.vh;
+            this.x = copy.x;
+            this.y = copy.y;
+            this.nextbrx = copy.nextbrx;
+            this.nextbry = copy.nextbry;
+            this.brx = copy.brx;
+            this.bry = copy.bry;
+            this.clip = copy.clip;
+            this.ownclip = false;
+            this.selected = {};
+            for (var type in copy.selected) {
+                this.selected[type] = copy.selected[type];
+            }
+        }
+        else {
+            this._svggroup = null;
+            this._svgclipChanged = false;
+            this._svgtextbkfilter = null;
+            this.mapmode = Helper.GDI.MapMode.MM_ANISOTROPIC;
+            this.stretchmode = Helper.GDI.StretchMode.COLORONCOLOR;
+            this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
+            this.bkmode = Helper.GDI.MixMode.OPAQUE;
+            this.textcolor = new ColorRef(null, 0, 0, 0);
+            this.bkcolor = new ColorRef(null, 255, 255, 255);
+            this.polyfillmode = Helper.GDI.PolygonFillMode.ALTERNATE;
+            this.miterlimit = 10;
+            this.wx = 0;
+            this.wy = 0;
+            this.ww = 0;
+            this.wh = 0;
+            this.vx = 0;
+            this.vy = 0;
+            this.vw = 0;
+            this.vh = 0;
+            this.x = 0;
+            this.y = 0;
+            this.nextbrx = 0;
+            this.nextbry = 0;
+            this.brx = 0;
+            this.bry = 0;
+            this.clip = null;
+            this.ownclip = false;
+            this.selected = {};
+            for (var type in defObjects) {
+                var defObj = defObjects[type];
+                this.selected[type] = defObj != null ? defObj.clone() : null;
+            }
+        }
+    }
+    return GDIContextState;
+}());
+var GDIContext = /** @class */ (function () {
+    function GDIContext(svg) {
+        this._svg = svg;
+        this._svgdefs = null;
+        this._svgPatterns = {};
+        this._svgClipPaths = {};
+        this._svgPath = null;
+        this.defObjects = {
+            brush: new Brush(null, {
+                style: Helper.GDI.BrushStyle.BS_SOLID,
+                color: new ColorRef(null, 0, 0, 0),
+            }),
+            pen: new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, 0, 0, 0), null),
+            font: new Font(null, null),
+            palette: null,
+            region: null,
+        };
+        this.state = new GDIContextState(null, this.defObjects);
+        this.statestack = [this.state];
+        this.objects = {};
+    }
+    GDIContext.prototype._pushGroup = function () {
+        if (this.state._svggroup == null || this.state._svgclipChanged) {
+            this.state._svgclipChanged = false;
+            this.state._svgtextbkfilter = null;
+            var settings = {
+                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
+                preserveAspectRatio: "none",
+            };
+            if (this.state.clip != null) {
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
+            }
+            else {
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+            }
+            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
+        }
+    };
+    GDIContext.prototype._getStockObject = function (idx) {
+        if (idx >= 0x80000000 && idx <= 0x80000011) {
+            return _StockObjects[(idx - 0x80000000).toString()];
+        }
+        else if (idx == Helper.GDI.StockObject.DC_BRUSH) {
+            return this.state.selected.brush;
+        }
+        else if (idx == Helper.GDI.StockObject.DC_PEN) {
+            return this.state.selected.pen;
+        }
+        return null;
+    };
+    GDIContext.prototype._storeObject = function (obj, idx) {
+        if (!idx) {
+            idx = 0;
+            while (this.objects[idx.toString()] != null && idx <= 65535) {
+                idx++;
+            }
+            if (idx > 65535) {
+                Helper.log("[gdi] Too many objects!");
+                return -1;
+            }
+        }
+        this.objects[idx.toString()] = obj;
+        return idx;
+    };
+    GDIContext.prototype._getObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj == null) {
+            obj = this._getStockObject(objIdx);
+            if (obj == null) {
+                Helper.log("[gdi] No object with handle " + objIdx);
+            }
+        }
+        return obj;
+    };
+    GDIContext.prototype._getSvgDef = function () {
+        if (this._svgdefs == null) {
+            this._svgdefs = this._svg.defs();
+        }
+        return this._svgdefs;
+    };
+    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
+        for (var id_1 in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[id_1];
+            if (rgn == region) {
+                return id_1;
+            }
+        }
+        var id = Helper._makeUniqueId("c");
+        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
+        switch (region.complexity) {
+            case 1:
+                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: "black", strokeWidth: 0 });
+                break;
+            case 2:
+                for (var i = 0; i < region.scans.length; i++) {
+                    var scan = region.scans[i];
+                    for (var j = 0; j < scan.scanlines.length; j++) {
+                        var scanline = scan.scanlines[j];
+                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: "black", strokeWidth: 0 });
+                    }
+                }
+                break;
+        }
+        this._svgClipPaths[id] = region;
+        return id;
+    };
+    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
+        for (var id_2 in this._svgPatterns) {
+            var pat = this._svgPatterns[id_2];
+            if (pat == brush) {
+                return id_2;
+            }
+        }
+        var width, height, img;
+        switch (brush.style) {
+            case Helper.GDI.BrushStyle.BS_PATTERN:
+                width = brush.pattern.getWidth();
+                height = brush.pattern.getHeight();
+                break;
+            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                width = brush.dibpatternpt.getWidth();
+                height = brush.dibpatternpt.getHeight();
+                img = brush.dibpatternpt.base64ref();
+                break;
+            default:
+                throw new EMFJSError("Invalid brush style");
+        }
+        var id = Helper._makeUniqueId("p");
+        var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, { patternUnits: "userSpaceOnUse" });
+        this._svg.image(spat, 0, 0, width, height, img);
+        this._svgPatterns[id] = brush;
+        return id;
+    };
+    GDIContext.prototype._selectObject = function (obj) {
+        this.state.selected[obj.type] = obj;
+        switch (obj.type) {
+            case "region":
+                this.state._svgclipChanged = true;
+                break;
+            case "brush":
+                this.state.brx = this.state.nextbrx;
+                this.state.bry = this.state.nextbry;
+                break;
+        }
+    };
+    GDIContext.prototype._deleteObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj != null) {
+            for (var i = 0; i < this.statestack.length; i++) {
+                var state = this.statestack[i];
+                if (state.selected[obj.type] == obj) {
+                    state.selected[obj.type] = this.defObjects[obj.type].clone();
+                }
+            }
+            delete this.objects[objIdx.toString()];
+            return true;
+        }
+        Helper.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+        return false;
+    };
+    GDIContext.prototype._getClipRgn = function () {
+        if (this.state.clip != null) {
+            if (!this.state.ownclip) {
+                this.state.clip = this.state.clip.clone();
+            }
+        }
+        else {
+            if (this.state.selected.region != null) {
+                this.state.clip = this.state.selected.region.clone();
+            }
+            else {
+                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+            }
+        }
+        this.state.ownclip = true;
+        return this.state.clip;
+    };
+    GDIContext.prototype._todevX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._todevW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._tologicalX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype._tologicalW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype.setMapMode = function (mode) {
+        Helper.log("[gdi] setMapMode: mode=" + mode);
+        this.state.mapmode = mode;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setWindowOrgEx = function (x, y) {
+        Helper.log("[gdi] setWindowOrgEx: x=" + x + " y=" + y);
+        this.state.wx = x;
+        this.state.wy = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setWindowExtEx = function (x, y) {
+        Helper.log("[gdi] setWindowExtEx: x=" + x + " y=" + y);
+        this.state.ww = x;
+        this.state.wh = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setViewportOrgEx = function (x, y) {
+        Helper.log("[gdi] setViewportOrgEx: x=" + x + " y=" + y);
+        this.state.vx = x;
+        this.state.vy = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setViewportExtEx = function (x, y) {
+        Helper.log("[gdi] setViewportExtEx: x=" + x + " y=" + y);
+        this.state.vw = x;
+        this.state.vh = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setBrushOrgEx = function (origin) {
+        Helper.log("[gdi] setBrushOrgEx: x=" + origin.x + " y=" + origin.y);
+        this.state.nextbrx = origin.x;
+        this.state.nextbry = origin.y;
+    };
+    GDIContext.prototype.saveDC = function () {
+        Helper.log("[gdi] saveDC");
+        var prevstate = this.state;
+        this.state = new GDIContextState(this.state);
+        this.statestack.push(prevstate);
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.restoreDC = function (saved) {
+        Helper.log("[gdi] restoreDC: saved=" + saved);
+        if (this.statestack.length > 1) {
+            if (saved == -1) {
+                this.state = this.statestack.pop();
+            }
+            else if (saved < -1) {
+                throw new EMFJSError("restoreDC: relative restore not implemented");
+            }
+            else if (saved > 1) {
+                throw new EMFJSError("restoreDC: absolute restore not implemented");
+            }
+        }
+        else {
+            throw new EMFJSError("No saved contexts");
+        }
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setStretchBltMode = function (stretchMode) {
+        Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
+    };
+    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
+        if (opts == null) {
+            opts = {};
+        }
+        if (usePen) {
+            var pen = this.state.selected.pen;
+            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
+                opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
+                opts.strokeWidth = pen.width;
+                opts["stroke-miterlimit"] = this.state.miterlimit;
+                var dotWidth = void 0;
+                opts["stroke-linecap"] = "round";
+                dotWidth = 1;
+                opts["stroke-linejoin"] = "round";
+                var dashWidth = opts.strokeWidth * 4;
+                var dotSpacing = opts.strokeWidth * 2;
+                switch (pen.style) {
+                    case Helper.GDI.PenStyle.PS_DASH:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DOT:
+                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DASHDOT:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DASHDOTDOT:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                }
+            }
+        }
+        if (useBrush) {
+            var brush = this.state.selected.brush;
+            switch (brush.style) {
+                case Helper.GDI.BrushStyle.BS_SOLID:
+                    opts.fill = "#" + brush.color.toHex();
+                    break;
+                case Helper.GDI.BrushStyle.BS_PATTERN:
+                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
+                    break;
+                case Helper.GDI.BrushStyle.BS_NULL:
+                    opts.fill = "none";
+                    break;
+                default:
+                    Helper.log("[gdi] unsupported brush style: " + brush.style);
+                    opts.fill = "none";
+                    break;
+            }
+        }
+        if (useFont) {
+            var font = this.state.selected.font;
+            opts["font-family"] = font.facename;
+            opts["font-size"] = Math.abs(font.height);
+            opts.fill = "#" + this.state.textcolor.toHex();
+        }
+        return opts;
+    };
+    GDIContext.prototype.rectangle = function (rect, rw, rh) {
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        var bottom = this._todevY(rect.bottom);
+        var right = this._todevX(rect.right);
+        var top = this._todevY(rect.top);
+        var left = this._todevX(rect.left);
+        rw = this._todevH(rw);
+        rh = this._todevH(rh);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+        this._pushGroup();
+        var opts = this._applyOpts(null, true, true, false);
+        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
+    };
+    GDIContext.prototype.lineTo = function (x, y) {
+        Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+        var toX = this._todevX(x);
+        var toY = this._todevY(y);
+        var fromX = this._todevX(this.state.x);
+        var fromY = this._todevY(this.state.y);
+        // Update position
+        this.state.x = x;
+        this.state.y = y;
+        Helper.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+        this._pushGroup();
+        var opts = this._applyOpts(null, true, false, false);
+        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
+    };
+    GDIContext.prototype.moveToEx = function (x, y) {
+        Helper.log("[gdi] moveToEx: x=" + x + " y=" + y);
+        this.state.x = x;
+        this.state.y = y;
+        if (this._svgPath != null) {
+            this._svgPath.move(this.state.x, this.state.y);
+            Helper.log("[gdi] new path: " + this._svgPath.path());
+        }
+    };
+    GDIContext.prototype.polygon = function (points, bounds, first) {
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        var pts = [];
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        if (first) {
+            this._pushGroup();
+        }
+        var opts = {
+            "fill-rule": this.state.polyfillmode == Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
+        };
+        this._applyOpts(opts, true, true, false);
+        this._svg.polygon(this.state._svggroup, pts, opts);
+    };
+    GDIContext.prototype.polyPolygon = function (polygons, bounds) {
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        var cnt = polygons.length;
+        for (var i = 0; i < cnt; i++) {
+            this.polygon(polygons[i], bounds, i == 0);
+        }
+    };
+    GDIContext.prototype.polyline = function (isLineTo, points, bounds) {
+        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        var pts = [];
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        if (this._svgPath != null) {
+            if (!isLineTo || pts.length == 0) {
+                this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
+            }
+            else {
+                var firstPts = pts[0];
+                this._svgPath.move(firstPts[0], firstPts[1]);
+            }
+            this._svgPath.line(pts);
+            Helper.log("[gdi] new path: " + this._svgPath.path());
+        }
+        else {
+            this._pushGroup();
+            var opts = this._applyOpts(null, true, false, false);
+            if (isLineTo && points.length > 0) {
+                var firstPt = points[0];
+                if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
+                    pts.unshift([this._todevX(this.state.x), this._todevY(this.state.y)]);
+                }
+            }
+            this._svg.polyline(this.state._svggroup, pts, opts);
+        }
+        if (points.length > 0) {
+            var lastPt = points[points.length - 1];
+            this.state.x = lastPt.x;
+            this.state.y = lastPt.y;
+        }
+    };
+    GDIContext.prototype.polybezier = function (isPolyBezierTo, points, bounds) {
+        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        var pts = [];
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            pts.push({ x: this._todevX(point.x), y: this._todevY(point.y) });
+        }
+        if (this._svgPath != null) {
+            if (isPolyBezierTo && pts.length > 0) {
+                var firstPts = pts[0];
+                this._svgPath.move(firstPts.x, firstPts.y);
+            }
+            else {
+                this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
+            }
+            if (pts.length < (isPolyBezierTo ? 3 : 4)) {
+                throw new EMFJSError("Not enough points to draw bezier");
+            }
+            for (var i = isPolyBezierTo ? 1 : 0; i + 3 <= pts.length; i += 3) {
+                var cp1 = pts[i];
+                var cp2 = pts[i + 1];
+                var ep = pts[i + 2];
+                this._svgPath.curveC(cp1.x, cp1.y, cp2.x, cp2.y, ep.x, ep.y);
+            }
+            Helper.log("[gdi] new path: " + this._svgPath.path());
+        }
+        else {
+            throw new EMFJSError("polybezier not implemented (not a path)");
+        }
+        if (points.length > 0) {
+            var lastPt = points[points.length - 1];
+            this.state.x = lastPt.x;
+            this.state.y = lastPt.y;
+        }
+    };
+    GDIContext.prototype.selectClipPath = function (rgnMode) {
+        Helper.log("[gdi] selectClipPath: rgnMode=0x" + rgnMode.toString(16));
+    };
+    GDIContext.prototype.selectClipRgn = function (rgnMode, region) {
+        Helper.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
+        if (rgnMode == Helper.GDI.RegionMode.RGN_COPY) {
+            this.state.selected.region = region;
+            this.state.clip = null;
+            this.state.ownclip = false;
+        }
+        else {
+            if (region == null) {
+                throw new EMFJSError("No clip region to select");
+            }
+            throw new EMFJSError("Not implemented: rgnMode=0x" + rgnMode.toString(16));
+        }
+        this.state._svgclipChanged = true;
+    };
+    GDIContext.prototype.offsetClipRgn = function (offset) {
+        Helper.log("[gdi] offsetClipRgn: offset=" + offset.toString());
+        this._getClipRgn().offset(offset.x, offset.y);
+    };
+    GDIContext.prototype.setTextAlign = function (textAlignmentMode) {
+        Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+        this.state.textalign = textAlignmentMode;
+    };
+    GDIContext.prototype.setMiterLimit = function (miterLimit) {
+        Helper.log("[gdi] setMiterLimit: miterLimit=" + miterLimit);
+        this.state.miterlimit = miterLimit;
+    };
+    GDIContext.prototype.setBkMode = function (bkMode) {
+        Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+        this.state.bkmode = bkMode;
+    };
+    GDIContext.prototype.setBkColor = function (bkColor) {
+        Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+        this.state.bkcolor = bkColor;
+        this.state._svgtextbkfilter = null;
+    };
+    GDIContext.prototype.setPolyFillMode = function (polyFillMode) {
+        Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+        this.state.polyfillmode = polyFillMode;
+    };
+    GDIContext.prototype.createBrush = function (index, brush) {
+        var idx = this._storeObject(brush, index);
+        Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+    };
+    GDIContext.prototype.createPen = function (index, pen) {
+        var idx = this._storeObject(pen, index);
+        Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.createPenEx = function (index, pen) {
+        var idx = this._storeObject(pen, index);
+        Helper.log("[gdi] createPenEx: pen=" + pen.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.selectObject = function (objIdx, checkType) {
+        var obj = this._getObject(objIdx);
+        if (obj != null && (checkType == null || obj.type == checkType)) {
+            this._selectObject(obj);
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+        }
+        else {
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+        }
+    };
+    GDIContext.prototype._abortPath = function () {
+        if (this._svgPath != null) {
+            this._svgPath = null;
+        }
+    };
+    GDIContext.prototype.abortPath = function () {
+        Helper.log("[gdi] abortPath");
+        this._abortPath();
+    };
+    GDIContext.prototype.beginPath = function () {
+        Helper.log("[gdi] beginPath");
+        this._abortPath();
+        this._svgPath = this._svg.createPath();
+    };
+    GDIContext.prototype.closeFigure = function () {
+        Helper.log("[gdi] closeFigure");
+        if (this._svgPath == null) {
+            throw new EMFJSError("No path bracket: cannot close figure");
+        }
+        this._svgPath.close();
+    };
+    GDIContext.prototype.fillPath = function (bounds) {
+        Helper.log("[gdi] fillPath");
+        if (this.state.selected.path == null) {
+            throw new EMFJSError("No path selected");
+        }
+        var selPath = this.state.selected.path;
+        var opts = this._applyOpts(null, true, true, false);
+        this._svg.path(this.state._svggroup, selPath.svgPath, opts);
+        this._pushGroup();
+        this.state.selected.path = null;
+    };
+    GDIContext.prototype.strokePath = function (bounds) {
+        Helper.log("[gdi] strokePath");
+        if (this.state.selected.path == null) {
+            throw new EMFJSError("No path selected");
+        }
+        var selPath = this.state.selected.path;
+        var opts = this._applyOpts({ fill: "none" }, true, false, false);
+        this._svg.path(this.state._svggroup, selPath.svgPath, opts);
+        this._pushGroup();
+        this.state.selected.path = null;
+    };
+    GDIContext.prototype.endPath = function () {
+        Helper.log("[gdi] endPath");
+        if (this._svgPath == null) {
+            throw new EMFJSError("No path bracket: cannot end path");
+        }
+        this._pushGroup();
+        this._selectObject(new Path(this._svgPath));
+        this._svgPath = null;
+    };
+    GDIContext.prototype.deleteObject = function (objIdx) {
+        var ret = this._deleteObject(objIdx);
+        Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+    };
+    return GDIContext;
 }());
 
 /*
@@ -2769,11 +2844,13 @@ var Renderer = /** @class */ (function () {
             throw new EMFJSError("Not an EMF file");
         }
         var size = reader.readUint32();
-        if (size % 4 != 0)
+        if (size % 4 != 0) {
             throw new EMFJSError("Not an EMF file");
+        }
         this._img = new EMF(reader, size);
-        if (this._img == null)
+        if (this._img == null) {
             throw new EMFJSError("Format not recognized");
+        }
     };
     Renderer.prototype._render = function (svg, mapMode, w, h, xExt, yExt) {
         var gdi = new GDIContext(svg);
@@ -2793,8 +2870,8 @@ var Renderer = /** @class */ (function () {
                 },
                 settings: {
                     viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-                }
+                    preserveAspectRatio: "none",
+                },
             });
         })(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
         var svg = $(img[0]).svg("get");

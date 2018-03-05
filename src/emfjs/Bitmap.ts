@@ -25,8 +25,8 @@ SOFTWARE.
 
 */
 
-import { Helper, EMFJSError } from './Helper';
-import { Blob } from './Blob';
+import { Blob } from "./Blob";
+import { EMFJSError, Helper } from "./Helper";
 
 export class BitmapBase {
     getWidth() {
@@ -44,18 +44,18 @@ export class BitmapCoreHeader {
     bitcount: number;
 
     constructor(reader: Blob, skipsize: boolean) {
-        if (skipsize)
+        if (skipsize) {
             reader.skip(4);
+        }
         this.width = reader.readUint16();
         this.height = reader.readUint16();
         this.planes = reader.readUint16();
         this.bitcount = reader.readUint16();
     }
 
-
     colors() {
         return this.bitcount <= 8 ? 1 << this.bitcount : 0;
-    };
+    }
 }
 
 export class BitmapInfoHeader {
@@ -71,8 +71,9 @@ export class BitmapInfoHeader {
     clrimportant: number;
 
     constructor(reader: Blob, skipsize: boolean) {
-        if (skipsize)
+        if (skipsize) {
             reader.skip(4);
+        }
         this.width = reader.readInt32();
         this.height = reader.readInt32();
         this.planes = reader.readUint16();
@@ -86,12 +87,13 @@ export class BitmapInfoHeader {
     }
 
     colors() {
-        if (this.clrused != 0)
+        if (this.clrused != 0) {
             return this.clrused < 256 ? this.clrused : 256;
-        else
+        } else {
             return this.bitcount > 8 ? 0 : 1 << this.bitcount;
-    };
-};
+        }
+    }
+}
 
 export class BitmapInfo extends BitmapBase {
     _reader: Blob;
@@ -105,37 +107,37 @@ export class BitmapInfo extends BitmapBase {
         this._reader = reader;
         this._offset = reader.pos;
         this._usergb = usergb;
-        var hdrsize = reader.readUint32();
+        const hdrsize = reader.readUint32();
         this._infosize = hdrsize;
         if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
             this._header = new BitmapCoreHeader(reader, false);
             this._infosize += this._header.colors() * (usergb ? 3 : 2);
-        }
-        else {
+        } else {
             this._header = new BitmapInfoHeader(reader, false);
-            var masks = (<BitmapInfoHeader>this._header).compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
-            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4))
+            const masks = (this._header as BitmapInfoHeader).compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+            }
             this._infosize += this._header.colors() * (usergb ? 4 : 2);
         }
     }
 
     getWidth() {
         return this._header.width;
-    };
+    }
 
     getHeight() {
         return Math.abs(this._header.height);
-    };
+    }
 
     infosize() {
         return this._infosize;
-    };
+    }
 
     header() {
         return this._header;
-    };
-};
+    }
+}
 
 export class DIBitmap extends BitmapBase {
     _reader: Blob;
@@ -153,32 +155,32 @@ export class DIBitmap extends BitmapBase {
 
     getWidth() {
         return this._info.getWidth();
-    };
+    }
 
     getHeight() {
         return this._info.getHeight();
-    };
+    }
 
     totalSize() {
         return this._location.header.size + this._location.data.size;
     }
 
     makeBitmapFileHeader() {
-        var buf = new ArrayBuffer(14);
-        var view = new Uint8Array(buf);
+        const buf = new ArrayBuffer(14);
+        const view = new Uint8Array(buf);
         view[0] = 0x42;
         view[1] = 0x4d;
         Helper._writeUint32Val(view, 2, this.totalSize() + 14);
         Helper._writeUint32Val(view, 10, this._info.infosize() + 14);
         return Helper._blobToBinary(view);
-    };
+    }
 
     base64ref() {
-        var prevpos = this._reader.pos;
+        const prevpos = this._reader.pos;
         this._reader.seek(this._offset);
-        var mime = "image/bmp";
-        var header = this._info.header();
-        var data;
+        let mime = "image/bmp";
+        const header = this._info.header();
+        let data;
         if (header instanceof BitmapInfoHeader && header.compression != null) {
             switch (header.compression) {
                 case Helper.GDI.BitmapCompression.BI_JPEG:
@@ -196,16 +198,17 @@ export class DIBitmap extends BitmapBase {
         }
 
         this._reader.seek(this._location.header.offset);
-        if (data != null)
+        if (data != null) {
             data += this._reader.readBinary(this._location.header.size);
-        else
+        } else {
             data = this._reader.readBinary(this._location.header.size);
+        }
 
         this._reader.seek(this._location.data.offset);
         data += this._reader.readBinary(this._location.data.size);
 
-        var ref = "data:" + mime + ";base64," + btoa(data);
+        const ref = "data:" + mime + ";base64," + btoa(data);
         this._reader.seek(prevpos);
         return ref;
-    };
-};
+    }
+}

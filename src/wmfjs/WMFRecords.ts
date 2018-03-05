@@ -24,16 +24,16 @@ SOFTWARE.
 
 */
 
-import { Helper, WMFJSError } from './Helper';
-import { Blob } from './Blob';
-import { PointS, Rect } from './Primitives';
-import { Region } from './Region';
-import { DIBitmap, PatternBitmap16 } from './Bitmap';
-import { Brush, ColorRef, Font, Palette, Pen } from './Style';
-import { GDIContext } from './GDIContext';
+import { DIBitmap, PatternBitmap16 } from "./Bitmap";
+import { Blob } from "./Blob";
+import { GDIContext } from "./GDIContext";
+import { Helper, WMFJSError } from "./Helper";
+import { PointS, Rect } from "./Primitives";
+import { Region } from "./Region";
+import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
 
 export class WMFRecords {
-    _records: ((gdi: GDIContext) => void)[];
+    _records: Array<(gdi: GDIContext) => void>;
 
     constructor(reader: Blob, first: number) {
         this._records = [];
@@ -43,8 +43,9 @@ export class WMFRecords {
         main_loop: while (!all) {
             reader.seek(curpos);
             const size = reader.readUint32();
-            if (size < 3)
+            if (size < 3) {
                 throw new WMFJSError("Invalid record size");
+            }
             const type = reader.readUint16();
             switch (type) {
                 case Helper.GDI.RecordType.META_EOF:
@@ -52,15 +53,15 @@ export class WMFRecords {
                     break main_loop;
                 case Helper.GDI.RecordType.META_SETMAPMODE: {
                     const mapMode = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setMapMode(mapMode);
                     });
                     break;
                 }
-                case Helper.GDI.RecordType.META_SETWINDOWORG:{
+                case Helper.GDI.RecordType.META_SETWINDOWORG: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setWindowOrg(x, y);
                     });
                     break;
@@ -68,7 +69,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_SETWINDOWEXT: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setWindowExt(x, y);
                     });
                     break;
@@ -76,7 +77,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_OFFSETWINDOWORG: {
                     const offY = reader.readInt16();
                     const offX = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.offsetWindowOrg(offX, offY);
                     });
                     break;
@@ -84,7 +85,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_SETVIEWPORTORG: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setViewportOrg(x, y);
                     });
                     break;
@@ -92,7 +93,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_SETVIEWPORTEXT: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setViewportExt(x, y);
                     });
                     break;
@@ -100,27 +101,27 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_OFFSETVIEWPORTORG: {
                     const offY = reader.readInt16();
                     const offX = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.offsetViewportOrg(offX, offY);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SAVEDC: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.saveDC();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_RESTOREDC: {
                     const saved = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.restoreDC(saved);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETSTRETCHBLTMODE: {
                     const stretchMode = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setStretchBltMode(stretchMode);
                     });
                     break;
@@ -138,7 +139,7 @@ export class WMFRecords {
                     const destX = reader.readInt16();
                     const datalength = size * 2 - (reader.pos - curpos);
                     const dib = new DIBitmap(reader, datalength);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.stretchDibBits(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, dib);
                     });
                     break;
@@ -156,7 +157,7 @@ export class WMFRecords {
                     const destX = reader.readInt16();
                     const datalength = size * 2 - (reader.pos - curpos);
                     const dib = new DIBitmap(reader, datalength);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.stretchDib(srcX, srcY, srcW, srcH, destX, destY, destW, destH, rasterOp, colorUsage, dib);
                     });
                     break;
@@ -166,35 +167,35 @@ export class WMFRecords {
                     const count = reader.readUint16();
                     const offset = reader.pos;
                     const blob = new Blob(reader, offset);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.escape(func, blob, offset, count);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETTEXTALIGN: {
                     const textAlign = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setTextAlign(textAlign);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETBKMODE: {
                     const bkMode = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setBkMode(bkMode);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETTEXTCOLOR: {
                     const textColor = new ColorRef(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setTextColor(textColor);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETBKCOLOR: {
                     const bkColor = new ColorRef(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setBkColor(bkColor);
                     });
                     break;
@@ -202,7 +203,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT: {
                     const datalength = size * 2 - (reader.pos - curpos);
                     const brush = new Brush(reader, datalength, false);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createBrush(brush);
                     });
                     break;
@@ -210,14 +211,14 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH: {
                     const datalength = size * 2 - (reader.pos - curpos);
                     const brush = new Brush(reader, datalength, true);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createBrush(brush);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_CREATEPENINDIRECT: {
                     const pen = new Pen(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createPen(pen);
                     });
                     break;
@@ -225,42 +226,42 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_CREATEFONTINDIRECT: {
                     const datalength = size * 2 - (reader.pos - curpos);
                     const font = new Font(reader, datalength);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createFont(font);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SELECTOBJECT: {
                     const idx = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectObject(idx, null);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SELECTPALETTE: {
                     const idx = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectObject(idx, "palette");
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SELECTCLIPREGION: {
                     const idx = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectObject(idx, "region");
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_DELETEOBJECT: {
                     const idx = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.deleteObject(idx);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_RECTANGLE: {
                     const rect = new Rect(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.rectangle(rect, 0, 0);
                     });
                     break;
@@ -269,7 +270,7 @@ export class WMFRecords {
                     const rh = reader.readInt16();
                     const rw = reader.readInt16();
                     const rect = new Rect(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.rectangle(rect, rw, rh);
                     });
                     break;
@@ -277,7 +278,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_LINETO: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.lineTo(x, y);
                     });
                     break;
@@ -285,7 +286,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_MOVETO: {
                     const y = reader.readInt16();
                     const x = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.moveTo(x, y);
                     });
                     break;
@@ -297,7 +298,7 @@ export class WMFRecords {
                         reader.skip(len % 2);
                         const y = reader.readInt16();
                         const x = reader.readInt16();
-                        this._records.push(gdi => {
+                        this._records.push((gdi) => {
                             gdi.textOut(x, y, text);
                         });
                     }
@@ -340,7 +341,7 @@ export class WMFRecords {
                             }
                         }
 
-                        this._records.push(gdi => {
+                        this._records.push((gdi) => {
                             gdi.extTextOut(x, y, text, fwOpts, rect, dx);
                         });
                     }
@@ -348,14 +349,14 @@ export class WMFRecords {
                 }
                 case Helper.GDI.RecordType.META_EXCLUDECLIPRECT: {
                     const rect = new Rect(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.excludeClipRect(rect);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_INTERSECTCLIPRECT: {
                     const rect = new Rect(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.intersectClipRect(rect);
                     });
                     break;
@@ -367,14 +368,14 @@ export class WMFRecords {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polygon(points, true);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_SETPOLYFILLMODE: {
                     const polyfillmode = reader.readUint16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setPolyFillMode(polyfillmode);
                     });
                     break;
@@ -382,19 +383,21 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_POLYPOLYGON: {
                     const cnt = reader.readUint16();
                     const polygonsPtCnts = [];
-                    for (let i = 0; i < cnt; i++)
+                    for (let i = 0; i < cnt; i++) {
                         polygonsPtCnts.push(reader.readUint16());
+                    }
 
                     const polygons: PointS[][] = [];
                     for (let i = 0; i < cnt; i++) {
                         const ptCnt = polygonsPtCnts[i];
 
                         const p = [];
-                        for (let ip = 0; ip < ptCnt; ip++)
+                        for (let ip = 0; ip < ptCnt; ip++) {
                             p.push(new PointS(reader));
+                        }
                         polygons.push(p);
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polyPolygon(polygons);
                     });
                     break;
@@ -406,28 +409,28 @@ export class WMFRecords {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polyline(points);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_ELLIPSE: {
                     const rect = new Rect(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.ellipse(rect);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_CREATEPALETTE: {
                     const palette = new Palette(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createPalette(palette);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.META_CREATEREGION: {
                     const region = new Region(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createRegion(region);
                     });
                     break;
@@ -436,7 +439,7 @@ export class WMFRecords {
                     const datalength = size * 2 - (reader.pos - curpos);
                     const patternBitmap = new PatternBitmap16(reader, datalength);
                     const brush = new Brush(reader, datalength, patternBitmap);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createPatternBrush(brush);
                     });
                     break;
@@ -444,7 +447,7 @@ export class WMFRecords {
                 case Helper.GDI.RecordType.META_OFFSETCLIPRGN: {
                     const offY = reader.readInt16();
                     const offX = reader.readInt16();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.offsetClipRgn(offX, offY);
                     });
                     break;
@@ -479,7 +482,7 @@ export class WMFRecords {
                 default: {
                     let recordName = "UNKNOWN";
                     for (const name in Helper.GDI.RecordType) {
-                        let recordTypes: any = Helper.GDI.RecordType;
+                        const recordTypes: any = Helper.GDI.RecordType;
                         if (recordTypes[name] == type) {
                             recordName = name;
                             break;
@@ -494,8 +497,9 @@ export class WMFRecords {
             curpos += size * 2;
         }
 
-        if (!all)
+        if (!all) {
             throw new WMFJSError("Could not read all records");
+        }
     }
 
     play(gdi: GDIContext) {
@@ -503,5 +507,5 @@ export class WMFRecords {
         for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);
         }
-    };
+    }
 }

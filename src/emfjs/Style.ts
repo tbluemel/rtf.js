@@ -25,10 +25,10 @@ SOFTWARE.
 
 */
 
-import { Obj, PointL } from './Primitives';
-import { Helper } from './Helper';
-import { DIBitmap } from './Bitmap';
-import { Blob } from './Blob';
+import { DIBitmap } from "./Bitmap";
+import { Blob } from "./Blob";
+import { Helper } from "./Helper";
+import { Obj, PointL } from "./Primitives";
 
 export  class ColorRef {
     r: number;
@@ -50,19 +50,19 @@ export  class ColorRef {
 
     clone() {
         return new ColorRef(null, this.r, this.g, this.b);
-    };
+    }
 
     toHex() {
-        var rgb = (this.r << 16) | (this.g << 8) | this.b;
+        const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
-    };
+    }
 
     toString() {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
-    };
-};
+    }
+}
 
-export class Font extends Obj{
+export class Font extends Obj {
     height: number;
     width: number;
     escapement: number;
@@ -94,15 +94,15 @@ export class Font extends Obj{
             this.outprecision = reader.readUint8();
             this.clipprecision = reader.readUint8();
             this.quality = reader.readUint8();
-            var pitchAndFamily = reader.readUint8();
+            const pitchAndFamily = reader.readUint8();
             this.pitch = pitchAndFamily & 0xf; // TODO: double check
             this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
 
-            var dataLength = <number>copy;
-            var start = reader.pos;
+            const dataLength = copy as number;
+            const start = reader.pos;
             this.facename = reader.readFixedSizeUnicodeString(Math.min(dataLength - (reader.pos - start), 32));
         } else if (copy != null) {
-            copy = <Font> copy;
+            copy = copy as Font;
             this.height = copy.height;
             this.width = copy.width;
             this.escapement = copy.escapement;
@@ -140,15 +140,15 @@ export class Font extends Obj{
 
     clone() {
         return new Font(null, this);
-    };
+    }
 
     toString() {
         //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
-    };
-};
+    }
+}
 
-export class Brush extends Obj{
+export class Brush extends Obj {
     style: number;
     color: ColorRef;
     pattern: DIBitmap;
@@ -158,7 +158,7 @@ export class Brush extends Obj{
     constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap, dibpatternpt?: DIBitmap, hatchstyle?: number}) {
         super("brush");
         if (reader != null) {
-            var start = reader.pos;
+            const start = reader.pos;
 
             this.style = reader.readUint32();
             switch (this.style) {
@@ -200,10 +200,10 @@ export class Brush extends Obj{
 
     clone() {
         return new Brush(null, this);
-    };
+    }
 
     toString() {
-        var ret = "{style: " + this.style;
+        let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
@@ -213,10 +213,10 @@ export class Brush extends Obj{
                 break;
         }
         return ret + "}";
-    };
-};
+    }
+}
 
-export class Pen extends Obj{
+export class Pen extends Obj {
     style: number | {header: {off: number, size: number}, data: {off: number, size: number}};
     width: number;
     brush: Brush;
@@ -228,7 +228,7 @@ export class Pen extends Obj{
         if (reader != null) {
             if (style != null) {
                 // LogPenEx
-                var bitmapInfo = style;
+                const bitmapInfo = style;
 
                 this.style = reader.readUint32() & 0xFF;
                 this.width = reader.readUint32();
@@ -244,18 +244,20 @@ export class Pen extends Obj{
         } else {
             this.style = style;
             this.width = width;
-            if (color != null)
+            if (color != null) {
                 this.color = color;
-            if (brush != null)
+            }
+            if (brush != null) {
                 this.brush = brush;
+            }
         }
     }
 
     clone() {
         return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
-    };
+    }
 
     toString() {
         return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
-    };
-};
+    }
+}

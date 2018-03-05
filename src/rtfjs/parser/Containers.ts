@@ -24,9 +24,9 @@ SOFTWARE.
 
 */
 
-import { Helper } from '../Helper';
-import { Renderer } from '../Renderer';
-import { Destination } from './Destinations';
+import { Helper } from "../Helper";
+import { Renderer } from "../Renderer";
+import { Destination } from "./Destinations";
 
 export class Chp {
     bold: boolean;
@@ -58,7 +58,7 @@ export class Chp {
             this.fontsize = 24;
         }
     }
-};
+}
 
 export class Pap {
     indent: {left: number, right: number, firstline: number};
@@ -72,7 +72,7 @@ export class Pap {
             this.indent = {
                 left: parent.indent.left,
                 right: parent.indent.right,
-                firstline: parent.indent.firstline
+                firstline: parent.indent.firstline,
             };
             this.justification = parent.justification;
             this.spacebefore = parent.spacebefore;
@@ -82,14 +82,14 @@ export class Pap {
             this.indent = {
                 left: 0,
                 right: 0,
-                firstline: 0
+                firstline: 0,
             };
             this.justification = Helper.JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
         }
     }
-};
+}
 
 export class Sep {
     columns: number;
@@ -103,7 +103,7 @@ export class Sep {
             this.breaktype = parent.breaktype;
             this.pagenumber = {
                 x: parent.pagenumber.x,
-                y: parent.pagenumber.y
+                y: parent.pagenumber.y,
             };
             this.pagenumberformat = parent.pagenumberformat;
         } else {
@@ -116,7 +116,7 @@ export class Sep {
             this.pagenumberformat = Helper.PAGENUMBER.DECIMAL;
         }
     }
-};
+}
 
 export class Dop {
     width: number;
@@ -134,7 +134,7 @@ export class Dop {
                 left: parent.margin.left,
                 top: parent.margin.top,
                 right: parent.margin.right,
-                bottom: parent.margin.bottom
+                bottom: parent.margin.bottom,
             };
             this.pagenumberstart = parent.pagenumberstart;
             this.facingpages = parent.facingpages;
@@ -146,14 +146,14 @@ export class Dop {
                 left: 0,
                 top: 0,
                 right: 0,
-                bottom: 0
+                bottom: 0,
             };
             this.pagenumberstart = 0;
             this.facingpages = false;
             this.landscape = false;
         }
     }
-};
+}
 
 export class State {
     parent: State;
@@ -195,7 +195,7 @@ export class State {
             this.ucn = 1;
         }
     }
-};
+}
 
 export class GlobalState {
     data: Uint8Array;
@@ -206,7 +206,7 @@ export class GlobalState {
     version: number;
     text: string;
     codepage: number;
-    _asyncTasks: Promise<any>[];
+    _asyncTasks: Array<Promise<any>>;
     renderer: Renderer;
 
     constructor(blob: ArrayBuffer, renderer: Renderer) {
@@ -221,4 +221,4 @@ export class GlobalState {
         this._asyncTasks = [];
         this.renderer = renderer;
     }
-};
+}

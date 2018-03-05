@@ -24,10 +24,10 @@ SOFTWARE.
 
 */
 
-import { Helper, WMFJSError } from './Helper';
-import { GDIContext } from './GDIContext';
-import { Blob } from './Blob';
-import { WMFRecords } from './WMFRecords';
+import { Blob } from "./Blob";
+import { GDIContext } from "./GDIContext";
+import { Helper, WMFJSError } from "./Helper";
+import { WMFRecords } from "./WMFRecords";
 
 export class RendererSettings {
     width: string;
@@ -48,10 +48,10 @@ export class Renderer {
     parse(blob: ArrayBuffer) {
         this._img = null;
 
-        var reader = new Blob(blob);
+        const reader = new Blob(blob);
 
-        var type, size, placable, headerstart;
-        var key = reader.readUint32();
+        let type, size, placable, headerstart;
+        const key = reader.readUint32();
         if (key == 0x9ac6cdd7) {
             placable = new WMFPlacable(reader);
             headerstart = reader.pos;
@@ -66,7 +66,7 @@ export class Renderer {
             case Helper.GDI.MetafileType.MEMORYMETAFILE:
             case Helper.GDI.MetafileType.DISKMETAFILE:
                 if (size == Helper.GDI.METAHEADER_SIZE / 2) {
-                    var version = reader.readUint16();
+                    const version = reader.readUint16();
                     switch (version) {
                         case Helper.GDI.MetafileVersion.METAVERSION100:
                         case Helper.GDI.MetafileVersion.METAVERSION300:
@@ -77,37 +77,38 @@ export class Renderer {
                 break;
         }
 
-        if (this._img == null)
+        if (this._img == null) {
             throw new WMFJSError("Format not recognized");
-    };
+        }
+    }
 
     _render(svg: any, mapMode: number, xExt: number, yExt: number) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
-        var gdi = new GDIContext(svg);
+        const gdi = new GDIContext(svg);
         gdi.setViewportExt(xExt, yExt);
         gdi.setMapMode(mapMode);
         Helper.log("[WMF] BEGIN RENDERING --->");
         this._img.render(gdi);
         Helper.log("[WMF] <--- DONE RENDERING");
-    };
+    }
 
     render(info: RendererSettings) {
-        var inst = this;
-        var img = (function(mapMode, xExt, yExt) {
-            return (<any>$("<div>")).svg({
-                onLoad: function(svg: any) {
+        const inst = this;
+        const img = (function(mapMode, xExt, yExt) {
+            return ($("<div>") as any).svg({
+                onLoad(svg: any) {
                     return inst._render.call(inst, svg, mapMode, xExt, yExt);
                 },
                 settings: {
                     viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none" // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-                }
+                    preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+                },
             });
         })(info.mapMode, info.xExt, info.yExt);
-        var svg = (<any>$(img[0])).svg("get");
+        const svg = ($(img[0]) as any).svg("get");
         return $(svg.root()).attr("width", info.width).attr("height", info.height);
-    };
-};
+    }
+}
 
 export class WMFRect16 {
     left: number;
@@ -124,8 +125,8 @@ export class WMFRect16 {
 
     toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
-    };
-};
+    }
+}
 
 export class WMFPlacable {
     boundingBox: WMFRect16;
@@ -139,7 +140,7 @@ export class WMFPlacable {
         reader.skip(2); // TODO: checksum
         Helper.log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
     }
-};
+}
 
 export class WMF {
     _reader: Blob;
@@ -156,8 +157,7 @@ export class WMF {
         this._records = new WMFRecords(reader, this._hdrsize);
     }
 
-
     render(gdi: GDIContext) {
         this._records.play(gdi);
-    };
-};
+    }
+}

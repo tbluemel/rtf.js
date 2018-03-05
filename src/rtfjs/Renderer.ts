@@ -24,14 +24,14 @@ SOFTWARE.
 
 */
 
-import { Document } from './Document';
-import { RTFJSError } from './Helper';
-import { RenderChp } from './parser/RenderChp';
-import { RenderPap } from './parser/RenderPap';
+import { Document } from "./Document";
+import { RTFJSError } from "./Helper";
+import { RenderChp } from "./parser/RenderChp";
+import { RenderPap } from "./parser/RenderPap";
 
 export interface ContainerElement {
-    element: JQuery,
-    content: JQuery
+    element: JQuery;
+    content: JQuery;
 }
 
 export class Renderer {
@@ -56,50 +56,56 @@ export class Renderer {
     }
 
     pushContainer(contel: ContainerElement) {
-        if (this._curpar == null)
+        if (this._curpar == null) {
             this.startPar();
+        }
 
-        var len = this._curcont.push(contel);
+        const len = this._curcont.push(contel);
         if (len > 1) {
-            var prevcontel = this._curcont[len - 1];
+            const prevcontel = this._curcont[len - 1];
             prevcontel.content.append(contel.element);
         } else {
-            if (this._cursubpar != null)
+            if (this._cursubpar != null) {
                 this._cursubpar.append(contel.element);
-            else
+            } else {
                 this._curpar.append(contel.element);
+            }
         }
-    };
+    }
 
     popContainer() {
-        var contel = this._curcont.pop();
-        if (contel == null)
+        const contel = this._curcont.pop();
+        if (contel == null) {
             throw new RTFJSError("No container on rendering stack");
-    };
+        }
+    }
 
     buildHyperlinkElement(url: string): JQuery {
         return $("<a>").attr("href", url);
-    };
+    }
 
     _appendToPar(el: JQuery, newsubpar?: boolean) {
-        if (this._curpar == null)
+        if (this._curpar == null) {
             this.startPar();
+        }
         if (newsubpar == true) {
-            var subpar = $("<div>");
+            let subpar = $("<div>");
             if (this._cursubpar == null) {
                 this._curpar.children().appendTo(subpar);
                 this._curpar.append(subpar);
                 subpar = $("<div>");
             }
-            if (el)
+            if (el) {
                 subpar.append(el);
-            if (this._curRPap != null)
+            }
+            if (this._curRPap != null) {
                 this._curRPap.apply(this._doc, subpar, this._curRChp, false);
+            }
 
             this._cursubpar = subpar;
             this._curpar.append(subpar);
         } else if (el) {
-            var contelCnt = this._curcont.length;
+            const contelCnt = this._curcont.length;
             if (contelCnt > 0) {
                 this._curcont[contelCnt - 1].content.append(el);
             } else if (this._cursubpar != null) {
@@ -108,7 +114,7 @@ export class Renderer {
                 this._curpar.append(el);
             }
         }
-    };
+    }
 
     startPar() {
         this._curpar = $("<div>");
@@ -119,61 +125,64 @@ export class Renderer {
         this._cursubpar = null;
         this._curcont = [];
         this._dom.push(this._curpar);
-    };
+    }
 
     lineBreak() {
         this._appendToPar(null, true);
-    };
+    }
 
     setChp(rchp: RenderChp) {
         this._curRChp = rchp;
-    };
+    }
 
     setPap(rpap: RenderPap) {
         this._curRPap = rpap;
-        if (this._cursubpar != null)
+        if (this._cursubpar != null) {
             this._curRPap.apply(this._doc, this._cursubpar, null, false);
-        else if (this._curpar != null) {
+        } else if (this._curpar != null) {
             // Don't have a sub-paragraph at all, apply everything
             this._curRPap.apply(this._doc, this._curpar, null, true);
             this._curRPap.apply(this._doc, this._curpar, null, false);
         }
-    };
+    }
 
     appendElement(element: JQuery) {
         this._appendToPar(element);
-    };
+    }
 
     buildRenderedPicture(element: JQuery): JQuery {
-        if (element == null)
-            element = $("<span>").text("[failed to render image]")
+        if (element == null) {
+            element = $("<span>").text("[failed to render image]");
+        }
         return element;
-    };
+    }
 
     renderedPicture(element: JQuery) {
         this._appendToPar(this.buildRenderedPicture(element));
-    };
+    }
 
     buildPicture(mime: string, data: string): JQuery {
         if (data != null) {
             return $("<img>", {
-                src: "data:" + mime + ";base64," + btoa(data)
+                src: "data:" + mime + ";base64," + btoa(data),
             });
         } else {
-            var err = "image type not supported";
-            if (typeof mime === "string" && mime != "")
+            let err = "image type not supported";
+            if (typeof mime === "string" && mime != "") {
                 err = mime;
+            }
             return $("<span>").text("[" + mime + "]");
         }
-    };
+    }
 
     picture(mime: string, data: string) {
         this._appendToPar(this.buildPicture(mime, data));
-    };
+    }
 
     buildDom(): JQuery[] {
-        if (this._dom != null)
+        if (this._dom != null) {
             return this._dom;
+        }
 
         this._dom = [];
 
@@ -181,18 +190,19 @@ export class Renderer {
         this._curRPap = null;
         this._curpar = null;
 
-        var len = this._doc._ins.length;
-        for (var i = 0; i < len; i++) {
-            var ins = this._doc._ins[i];
+        const len = this._doc._ins.length;
+        for (let i = 0; i < len; i++) {
+            const ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                var span = $("<span>");
-                if (this._curRChp != null)
+                const span = $("<span>");
+                if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
+                }
                 this._appendToPar(span.text(ins));
             } else {
                 ins.call(this);
             }
         }
         return this._dom;
-    };
-};
+    }
+}

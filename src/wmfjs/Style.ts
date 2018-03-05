@@ -24,10 +24,10 @@ SOFTWARE.
 
 */
 
-import { Helper } from './Helper';
-import { Obj, PointS } from './Primitives';
-import { Bitmap16, DIBitmap, PatternBitmap16 } from './Bitmap';
-import { Blob } from './Blob';
+import { Bitmap16, DIBitmap, PatternBitmap16 } from "./Bitmap";
+import { Blob } from "./Blob";
+import { Helper } from "./Helper";
+import { Obj, PointS } from "./Primitives";
 
 export class ColorRef {
     r: number;
@@ -49,19 +49,19 @@ export class ColorRef {
 
     clone() {
         return new ColorRef(null, this.r, this.g, this.b);
-    };
+    }
 
     toHex() {
-        var rgb = (this.r << 16) | (this.g << 8) | this.b;
+        const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
-    };
+    }
 
     toString() {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
-    };
-};
+    }
+}
 
-export class Font extends Obj{
+export class Font extends Obj {
     height: number;
     width: number;
     escapement: number;
@@ -93,15 +93,15 @@ export class Font extends Obj{
             this.outprecision = reader.readUint8();
             this.clipprecision = reader.readUint8();
             this.quality = reader.readUint8();
-            var pitchAndFamily = reader.readUint8();
+            const pitchAndFamily = reader.readUint8();
             this.pitch = pitchAndFamily & 0xf; // TODO: double check
             this.family = (pitchAndFamily >> 6) & 0x3; // TODO: double check
 
-            var dataLength = <number>copy;
-            var start = reader.pos;
+            const dataLength = copy as number;
+            const start = reader.pos;
             this.facename = reader.readNullTermString(Math.min(dataLength - (reader.pos - start), 32));
         } else if (copy != null) {
-            copy = <Font> copy;
+            copy = copy as Font;
             this.height = copy.height;
             this.width = copy.width;
             this.escapement = copy.escapement;
@@ -139,13 +139,13 @@ export class Font extends Obj{
 
     clone() {
         return new Font(null, this);
-    };
+    }
 
     toString() {
         //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
-    };
-};
+    }
+}
 
 export class Brush extends Obj {
     style: number;
@@ -158,13 +158,14 @@ export class Brush extends Obj {
     constructor(reader: Blob, copy: Brush | number, forceDibPattern?: boolean | PatternBitmap16) {
         super("brush");
         if (reader != null) {
-            var dataLength = <number>copy;
-            var start = reader.pos;
+            const dataLength = copy as number;
+            const start = reader.pos;
 
             if (forceDibPattern === true || forceDibPattern === false) {
                 this.style = reader.readUint16();
-                if (forceDibPattern && this.style != Helper.GDI.BrushStyle.BS_PATTERN)
+                if (forceDibPattern && this.style != Helper.GDI.BrushStyle.BS_PATTERN) {
                     this.style = Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
+                }
                 switch (this.style) {
                     case Helper.GDI.BrushStyle.BS_SOLID:
                         this.color = new ColorRef(reader);
@@ -175,8 +176,9 @@ export class Brush extends Obj {
                         break;
                     case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                         this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
-                        if (!forceDibPattern)
+                        if (!forceDibPattern) {
                             reader.skip(2);
+                        }
                         this.dibpatternpt = new DIBitmap(reader, dataLength - (reader.pos - start));
                         break;
                     case Helper.GDI.BrushStyle.BS_HATCHED:
@@ -188,8 +190,8 @@ export class Brush extends Obj {
                 this.style = Helper.GDI.BrushStyle.BS_PATTERN;
                 this.pattern = forceDibPattern;
             }
-        } else if(copy != null) {
-            copy = <Brush> copy;
+        } else if (copy != null) {
+            copy = copy as Brush;
             this.style = copy.style;
             switch (this.style) {
                 case Helper.GDI.BrushStyle.BS_SOLID:
@@ -212,14 +214,14 @@ export class Brush extends Obj {
 
     clone() {
         return new Brush(null, this);
-    };
+    }
 
     toString() {
-        var ret = "{style: " + this.style;
+        let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
-                break
+                break;
             case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                 ret += ", colorusage: " + this.colorusage;
                 break;
@@ -228,10 +230,10 @@ export class Brush extends Obj {
                 break;
         }
         return ret + "}";
-    };
-};
+    }
+}
 
-export class Pen extends Obj{
+export class Pen extends Obj {
     style: number;
     width: PointS;
     color: ColorRef;
@@ -239,9 +241,9 @@ export class Pen extends Obj{
     join: number;
 
     constructor(reader: Blob, style?: number, width?: PointS, color?: ColorRef, linecap?: number, join?: number) {
-        super("pen")
+        super("pen");
         if (reader != null) {
-            var style: number = reader.readUint16();
+            const style: number = reader.readUint16();
             this.style = style & 0xFF;
             this.width = new PointS(reader);
             this.color = new ColorRef(reader);
@@ -258,12 +260,12 @@ export class Pen extends Obj{
 
     clone() {
         return new Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
-    };
+    }
 
     toString() {
         return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
-    };
-};
+    }
+}
 
 export class PaletteEntry {
     flag: number;
@@ -287,10 +289,10 @@ export class PaletteEntry {
 
     clone() {
         return new PaletteEntry(null, this);
-    };
-};
+    }
+}
 
-export class Palette extends Obj{
+export class Palette extends Obj {
     start: number;
     entries: PaletteEntry[];
 
@@ -298,24 +300,26 @@ export class Palette extends Obj{
         super("palette");
         if (reader != null) {
             this.start = reader.readUint16();
-            var cnt = reader.readUint16();
+            const cnt = reader.readUint16();
             this.entries = [];
-            while (cnt > 0)
+            while (cnt > 0) {
                 this.entries.push(new PaletteEntry(reader));
+            }
         } else {
             this.start = copy.start;
             this.entries = [];
-            var len = copy.entries.length;
-            for (var i = 0; i < len; i++)
+            const len = copy.entries.length;
+            for (let i = 0; i < len; i++) {
                 this.entries.push(copy.entries[i]);
+            }
         }
     }
 
     clone() {
         return new Palette(null, this);
-    };
+    }
 
     toString() {
         return "{ #entries: " + this.entries.length + "}"; // TODO
-    };
-};
+    }
+}

@@ -24,10 +24,10 @@ SOFTWARE.
 
 */
 
-import { Renderer } from './Renderer';
-import { Parser } from './parser/Parser';
-import { Document, Settings } from './Document';
-import { RTFJSError } from './Helper';
+import { Document, Settings } from "./Document";
+import { RTFJSError } from "./Helper";
+import { Parser } from "./parser/Parser";
+import { Renderer } from "./Renderer";
 
 export class DocumentFacade {
     _document: Document;
@@ -49,9 +49,9 @@ export class DocumentFacade {
         return this._parsed
             .then(() => {
                 return this._renderer.buildDom();
-            }).catch(error => {
+            }).catch((error) => {
                 throw new RTFJSError(error);
             });
-    };
+    }
 
-};
+}

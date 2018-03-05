@@ -24,10 +24,10 @@ SOFTWARE.
 
 */
 
-import { Helper } from '../Helper';
-import { Document } from '../Document';
-import { Pap } from './Containers';
-import { RenderChp } from './RenderChp';
+import { Document } from "../Document";
+import { Helper } from "../Helper";
+import { Pap } from "./Containers";
+import { RenderChp } from "./RenderChp";
 
 export class RenderPap {
     _pap: Pap;
@@ -38,16 +38,19 @@ export class RenderPap {
 
     apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
         if (ismaindiv) {
-            if (this._pap.spacebefore != 0)
+            if (this._pap.spacebefore != 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
-            else
+            } else {
                 el.css("margin-top", "");
-            if (this._pap.spaceafter != 0)
+            }
+            if (this._pap.spaceafter != 0) {
                 el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
-            else
+            } else {
                 el.css("margin-bottom", "");
-            if (rchp != null)
+            }
+            if (rchp != null) {
                 el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+            }
         } else {
             switch (this._pap.justification) {
                 case Helper.JUSTIFICATION.LEFT:
@@ -64,5 +67,5 @@ export class RenderPap {
                     break;
             }
         }
-    };
-};
+    }
+}

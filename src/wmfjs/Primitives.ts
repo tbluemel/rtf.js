@@ -24,8 +24,8 @@ SOFTWARE.
 
 */
 
+import { Blob } from "./Blob";
 import { WMFJSError } from "./Helper";
-import { Blob } from './Blob';
 
 export class PointS {
     x: number;
@@ -43,12 +43,12 @@ export class PointS {
 
     clone() {
         return new PointS(null, this.x, this.y);
-    };
+    }
 
     toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
-    };
-};
+    }
+}
 
 export class Rect {
     bottom: number;
@@ -72,26 +72,27 @@ export class Rect {
 
     clone() {
         return new Rect(null, this.left, this.top, this.right, this.bottom);
-    };
+    }
 
     toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
-    };
+    }
 
     empty() {
         return this.left >= this.right || this.top >= this.bottom;
-    };
+    }
 
     intersect(rect: Rect) {
-        if (this.empty() || rect.empty())
+        if (this.empty() || rect.empty()) {
             return null;
+        }
         if (this.left >= rect.right || this.top >= rect.bottom ||
             this.right <= rect.left || this.bottom <= rect.top) {
             return null;
         }
         return new Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top), Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
-    };
-};
+    }
+}
 
 export class Obj {
     type: string;

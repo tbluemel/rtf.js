@@ -36,7 +36,19 @@ $ npm run build
 ```
 
 ## Tests
+Please run `npm run lint` first to make sure your code adheres to the style guide.
+
 To run the test suite run:
 ```
 $ npm run test
+```
+
+To create a new test:
+```
+$ npm run generate-testcase test-name /path/to/test.rtf
+```
+
+To regenrate the expected json and html for an existing test:
+```
+$ npm run regenerate-testcase test-name
 ```

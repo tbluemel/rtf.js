@@ -25,12 +25,12 @@ SOFTWARE.
 
 */
 
-import { Helper, EMFJSError } from './Helper';
-import { Brush, ColorRef, Pen } from './Style';
-import { PointS, PointL, RectL, SizeL } from './Primitives';
-import { Region } from './Region';
-import { Blob } from './Blob';
-import { GDIContext } from './GDIContext';
+import { Blob } from "./Blob";
+import { GDIContext } from "./GDIContext";
+import { EMFJSError, Helper } from "./Helper";
+import { PointL, PointS, RectL, SizeL } from "./Primitives";
+import { Region } from "./Region";
+import { Brush, ColorRef, Pen } from "./Style";
 
 export class EmfHeader {
     size: number;
@@ -51,8 +51,9 @@ export class EmfHeader {
         this.size = headerSize;
         this.bounds = new RectL(reader);
         this.frame = new RectL(reader);
-        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE)
+        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
             throw new EMFJSError("Invalid header signature");
+        }
         reader.skip(4); // version
         reader.skip(4); // bytes (size of metafile)
         reader.skip(4); // number of records
@@ -68,12 +69,14 @@ export class EmfHeader {
 
         let hdrSize = headerSize;
         if (descriptionLen > 0) {
-            if (descriptionOff < 88)
+            if (descriptionOff < 88) {
                 throw new EMFJSError("Invalid header description offset");
+            }
 
             hdrSize = descriptionOff + (descriptionLen * 2);
-            if (hdrSize > headerSize)
+            if (hdrSize > headerSize) {
                 throw new EMFJSError("Invalid header description length");
+            }
 
             const prevPos = reader.pos;
             reader.seek(recordStart + descriptionOff);
@@ -88,16 +91,19 @@ export class EmfHeader {
             const pixelFormatSize = reader.readUint32();
             const pixelFormatOff = reader.readUint32();
             const haveOpenGl = reader.readUint32();
-            if (haveOpenGl != 0)
+            if (haveOpenGl != 0) {
                 throw new EMFJSError("OpenGL records are not yet supported");
+            }
 
             if (pixelFormatOff != 0) {
-                if (pixelFormatOff < 100 || pixelFormatOff < hdrSize)
+                if (pixelFormatOff < 100 || pixelFormatOff < hdrSize) {
                     throw new EMFJSError("Invalid pixel format offset");
+                }
 
                 hdrSize = pixelFormatOff + pixelFormatSize;
-                if (hdrSize > headerSize)
+                if (hdrSize > headerSize) {
                     throw new EMFJSError("Invalid pixel format size");
+                }
 
                 // TODO: read pixel format blob
             }
@@ -116,7 +122,7 @@ export class EmfHeader {
 }
 
 export class EMFRecords {
-    _records: ((gdi: GDIContext) => void)[];
+    _records: Array<(gdi: GDIContext) => void>;
     _header: EmfHeader;
 
     constructor(reader: Blob, first: number) {
@@ -130,15 +136,16 @@ export class EMFRecords {
             reader.seek(curpos);
             const type = reader.readUint32();
             const size = reader.readUint32();
-            if (size < 8)
+            if (size < 8) {
                 throw new EMFJSError("Invalid record size");
+            }
             switch (type) {
                 case Helper.GDI.RecordType.EMR_EOF:
                     all = true;
                     break main_loop;
                 case Helper.GDI.RecordType.EMR_SETMAPMODE: {
                     const mapMode = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setMapMode(mapMode);
                     });
                     break;
@@ -146,7 +153,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_SETWINDOWORGEX: {
                     const x = reader.readInt32();
                     const y = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setWindowOrgEx(x, y);
                     });
                     break;
@@ -154,7 +161,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_SETWINDOWEXTEX: {
                     const x = reader.readUint32();
                     const y = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setWindowExtEx(x, y);
                     });
                     break;
@@ -162,7 +169,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_SETVIEWPORTORGEX: {
                     const x = reader.readInt32();
                     const y = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setViewportOrgEx(x, y);
                     });
                     break;
@@ -170,34 +177,34 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_SETVIEWPORTEXTEX: {
                     const x = reader.readUint32();
                     const y = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setViewportExtEx(x, y);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SAVEDC: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.saveDC();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_RESTOREDC: {
                     const saved = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.restoreDC(saved);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETBKMODE: {
                     const bkMode = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setBkMode(bkMode);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETBKCOLOR: {
                     const bkColor = new ColorRef(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setBkColor(bkColor);
                     });
                     break;
@@ -205,7 +212,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_CREATEBRUSHINDIRECT: {
                     const index = reader.readUint32();
                     const brush = new Brush(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createBrush(index, brush);
                     });
                     break;
@@ -213,7 +220,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_CREATEPEN: {
                     const index = reader.readUint32();
                     const pen = new Pen(reader, null);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createPen(index, pen);
                     });
                     break;
@@ -227,35 +234,35 @@ export class EMFRecords {
                     const pen = new Pen(reader, {
                         header: {
                             off: offBmi,
-                            size: cbBmi
+                            size: cbBmi,
                         },
                         data: {
                             off: offBits,
-                            size: cbBits
-                        }
+                            size: cbBits,
+                        },
                     });
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.createPen(index, pen);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SELECTOBJECT: {
                     const idx = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectObject(idx, null);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_DELETEOBJECT: {
                     const idx = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.deleteObject(idx);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_RECTANGLE: {
                     const rect = new RectL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.rectangle(rect, 0, 0);
                     });
                     break;
@@ -263,7 +270,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_ROUNDRECT: {
                     const rect = new RectL(reader);
                     const corner = new SizeL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.rectangle(rect, corner.cx, corner.cy);
                     });
                     break;
@@ -271,7 +278,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_LINETO: {
                     const x = reader.readInt32();
                     const y = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.lineTo(x, y);
                     });
                     break;
@@ -279,7 +286,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_MOVETOEX: {
                     const x = reader.readInt32();
                     const y = reader.readInt32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.moveToEx(x, y);
                     });
                     break;
@@ -294,7 +301,7 @@ export class EMFRecords {
                         points.push(isSmall ? new PointS(reader) : new PointL(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polygon(points, bounds, true);
                     });
                     break;
@@ -306,26 +313,28 @@ export class EMFRecords {
                     const polyCnt = reader.readUint32();
                     reader.skip(4); // count
                     const polygonsPtCnts = [];
-                    for (let i = 0; i < polyCnt; i++)
+                    for (let i = 0; i < polyCnt; i++) {
                         polygonsPtCnts.push(reader.readUint32());
+                    }
 
                     const polygons: PointS[][] | PointL[][] = [];
                     for (let i = 0; i < polyCnt; i++) {
                         const ptCnt = polygonsPtCnts[i];
 
                         const p = [];
-                        for (let ip = 0; ip < ptCnt; ip++)
+                        for (let ip = 0; ip < ptCnt; ip++) {
                             p.push(isSmall ? new PointS(reader) : new PointL(reader));
+                        }
                         polygons.push(p);
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polyPolygon(polygons, bounds);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETPOLYFILLMODE: {
                     const polyfillmode = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setPolyFillMode(polyfillmode);
                     });
                     break;
@@ -340,7 +349,7 @@ export class EMFRecords {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polyline(isLineTo, points, bounds);
                     });
                     break;
@@ -355,7 +364,7 @@ export class EMFRecords {
                         points.push(new PointL(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polybezier(isPolyBezierTo, points, bounds);
                     });
                     break;
@@ -369,7 +378,7 @@ export class EMFRecords {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polybezier(false, points, bounds);
                     });
                     break;
@@ -382,73 +391,73 @@ export class EMFRecords {
                         points.push(new PointS(reader));
                         cnt--;
                     }
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.polybezier(true, points, bounds);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETTEXTALIGN: {
                     const textAlign = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setTextAlign(textAlign);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETSTRETCHBLTMODE: {
                     const stretchMode = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setStretchBltMode(stretchMode);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETBRUSHORGEX: {
                     const origin = new PointL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setBrushOrgEx(origin);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_BEGINPATH: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.beginPath();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_ENDPATH: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.endPath();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_ABORTPATH: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.abortPath();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_CLOSEFIGURE: {
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.closeFigure();
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_FILLPATH: {
                     const bounds = new RectL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.fillPath(bounds);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_STROKEPATH: {
                     const bounds = new RectL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.strokePath(bounds);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SELECTCLIPPATH: {
                     const rgnMode = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectClipPath(rgnMode);
                     });
                     break;
@@ -457,21 +466,21 @@ export class EMFRecords {
                     reader.skip(4);
                     const rgnMode = reader.readUint32();
                     const region = rgnMode != Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.selectClipRgn(rgnMode, region);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_OFFSETCLIPRGN: {
                     const offset = new PointL(reader);
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.offsetClipRgn(offset);
                     });
                     break;
                 }
                 case Helper.GDI.RecordType.EMR_SETMITERLIMIT: {
                     const miterLimit = reader.readUint32();
-                    this._records.push(gdi => {
+                    this._records.push((gdi) => {
                         gdi.setMiterLimit(miterLimit);
                     });
                     break;
@@ -553,8 +562,8 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_CREATECOLORSPACEW:
                 default: {
                     let recordName = "UNKNOWN";
-                    for (let name in Helper.GDI.RecordType) {
-                        let recordTypes: any = Helper.GDI.RecordType;
+                    for (const name in Helper.GDI.RecordType) {
+                        const recordTypes: any = Helper.GDI.RecordType;
                         if (recordTypes[name] == type) {
                             recordName = name;
                             break;
@@ -569,8 +578,9 @@ export class EMFRecords {
             curpos += size;
         }
 
-        if (!all)
+        if (!all) {
             throw new EMFJSError("Could not read all records");
+        }
     }
 
     play(gdi: GDIContext) {
@@ -578,5 +588,5 @@ export class EMFRecords {
         for (let i = 0; i < len; i++) {
             this._records[i].call(this, gdi);
         }
-    };
+    }
 }
