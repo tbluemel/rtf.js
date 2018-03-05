@@ -30,23 +30,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+// tslint:disable-next-line:variable-name
 var EMFJSError = function (message) {
     this.name = "EMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
-EMFJSError.prototype = new Error;
+EMFJSError.prototype = new Error();
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
     isLoggingEnabled = enabled;
 }
-var Helper = {
-    log: function (message) {
+var Helper = /** @class */ (function () {
+    function Helper() {
+    }
+    Helper.log = function (message) {
         if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
             console.log(message);
         }
-    },
-    GDI: {
+    };
+    Helper._makeUniqueId = function (prefix) {
+        return "EMFJS_" + prefix + (this._uniqueId++);
+    };
+    Helper._writeUint32Val = function (uint8arr, pos, val) {
+        uint8arr[pos++] = val & 0xff;
+        uint8arr[pos++] = (val >>> 8) & 0xff;
+        uint8arr[pos++] = (val >>> 16) & 0xff;
+        uint8arr[pos++] = (val >>> 24) & 0xff;
+    };
+    Helper._blobToBinary = function (blob) {
+        var ret = "";
+        var len = blob.length;
+        for (var i = 0; i < len; i++) {
+            ret += String.fromCharCode(blob[i]);
+        }
+        return ret;
+    };
+    Helper.GDI = {
         FormatSignature: {
             ENHMETA_SIGNATURE: 0x464D4520,
             EPS_SIGNATURE: 0x46535045,
@@ -326,26 +347,10 @@ var Helper = {
             DC_BRUSH: 0x80000012,
             DC_PEN: 0x80000013,
         },
-    },
-    _uniqueId: 0,
-    _makeUniqueId: function (prefix) {
-        return "EMFJS_" + prefix + (this._uniqueId++);
-    },
-    _writeUint32Val: function (uint8arr, pos, val) {
-        uint8arr[pos++] = val & 0xff;
-        uint8arr[pos++] = (val >>> 8) & 0xff;
-        uint8arr[pos++] = (val >>> 16) & 0xff;
-        uint8arr[pos++] = (val >>> 24) & 0xff;
-    },
-    _blobToBinary: function (blob) {
-        var ret = "";
-        var len = blob.length;
-        for (var i = 0; i < len; i++) {
-            ret += String.fromCharCode(blob[i]);
-        }
-        return ret;
-    },
-};
+    };
+    Helper._uniqueId = 0;
+    return Helper;
+}());
 
 /*
 
@@ -823,7 +828,10 @@ var Region = /** @class */ (function (_super) {
                 }
                 // Update bounds
                 if (this.scans != null) {
-                    var left = void 0, top_1, right = void 0, bottom = void 0;
+                    var left = void 0;
+                    var top_1;
+                    var right = void 0;
+                    var bottom = void 0;
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
@@ -1371,7 +1379,6 @@ var Font = /** @class */ (function (_super) {
         return new Font(null, this);
     };
     Font.prototype.toString = function () {
-        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
     };
     return Font;
@@ -2013,7 +2020,6 @@ var EMFRecords = /** @class */ (function () {
                         }
                     }
                     Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
-                    //throw new EMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
                 }
             }
@@ -2290,10 +2296,10 @@ var GDIContext = /** @class */ (function () {
         return this._svgdefs;
     };
     GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var id_1 in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[id_1];
+        for (var existingId in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[existingId];
             if (rgn == region) {
-                return id_1;
+                return existingId;
             }
         }
         var id = Helper._makeUniqueId("c");
@@ -2316,13 +2322,15 @@ var GDIContext = /** @class */ (function () {
         return id;
     };
     GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var id_2 in this._svgPatterns) {
-            var pat = this._svgPatterns[id_2];
+        for (var existingId in this._svgPatterns) {
+            var pat = this._svgPatterns[existingId];
             if (pat == brush) {
-                return id_2;
+                return existingId;
             }
         }
-        var width, height, img;
+        var width;
+        var height;
+        var img;
         switch (brush.style) {
             case Helper.GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();
@@ -2874,8 +2882,8 @@ var Renderer = /** @class */ (function () {
                 },
             });
         })(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-        var svg = $(img[0]).svg("get");
-        return $(svg.root()).attr("width", info.width).attr("height", info.height);
+        var svgContainer = $(img[0]).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };
     return Renderer;
 }());

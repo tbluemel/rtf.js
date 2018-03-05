@@ -22,6 +22,7 @@
 
 // Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
 
+// tslint:disable-next-line:variable-name
 export const SymbolTable: {[key: string]: string} = {
     "20": "\u0020",
     "21": "\u0021",

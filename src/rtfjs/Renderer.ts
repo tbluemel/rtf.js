@@ -29,7 +29,7 @@ import { RTFJSError } from "./Helper";
 import { RenderChp } from "./parser/RenderChp";
 import { RenderPap } from "./parser/RenderPap";
 
-export interface ContainerElement {
+export interface IContainerElement {
     element: JQuery;
     content: JQuery;
 }
@@ -42,7 +42,7 @@ export class Renderer {
     _curRPap: RenderPap;
     _curpar: JQuery;
     _cursubpar: JQuery;
-    _curcont: ContainerElement[];
+    _curcont: IContainerElement[];
 
     constructor(doc: Document) {
         this._doc = doc;
@@ -55,7 +55,7 @@ export class Renderer {
         this._curcont = [];
     }
 
-    pushContainer(contel: ContainerElement) {
+    pushContainer(contel: IContainerElement) {
         if (this._curpar == null) {
             this.startPar();
         }

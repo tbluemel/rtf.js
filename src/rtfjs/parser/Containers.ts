@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Helper } from "../Helper";
 import { Renderer } from "../Renderer";
-import { Destination } from "./Destinations";
+import { IDestination } from "./Destinations";
 
 export class Chp {
     bold: boolean;
@@ -164,7 +164,7 @@ export class State {
     pap: Pap;
     sep: Sep;
     dop: Dop;
-    destination: Destination;
+    destination: IDestination;
     skipunknowndestination: boolean;
     skipdestination: boolean;
     ucn: number;

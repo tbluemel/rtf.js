@@ -25,24 +25,24 @@ SOFTWARE.
 */
 
 import { RTFJSError } from "./Helper";
-import { Color, fonttblDestinationSub } from "./parser/Destinations";
+import { FonttblDestinationSub, IColor } from "./parser/Destinations";
 import { Renderer } from "./Renderer";
 
-export interface Settings {
+export interface ISettings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
     onPicture?(isLegacy: boolean, create: () => void): void;
     onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) => void): void;
 }
 export class Document {
-    _settings: Settings;
+    _settings: ISettings;
     _meta: {[key: string]: any};
-    _fonts: fonttblDestinationSub[];
-    _colors: Color[];
+    _fonts: FonttblDestinationSub[];
+    _colors: IColor[];
     _autoColor: number;
     _stylesheets: Array<{index: number, name: string}>;
     _ins: Array<string | ((this: Renderer) => void)>;
 
-    constructor(settings: Settings) {
+    constructor(settings: ISettings) {
         this._settings = settings || {};
         this._meta = {};
         this._fonts = [];

@@ -570,7 +570,6 @@ export class EMFRecords {
                         }
                     }
                     Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
-                    //throw new EMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
                 }
             }

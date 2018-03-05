@@ -92,8 +92,8 @@ export class Renderer {
                 },
             });
         })(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-        const svg = ($(img[0]) as any).svg("get");
-        return $(svg.root()).attr("width", info.width).attr("height", info.height);
+        const svgContainer = ($(img[0]) as any).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     }
 }
 

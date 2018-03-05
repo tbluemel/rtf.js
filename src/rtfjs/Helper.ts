@@ -24,20 +24,22 @@ SOFTWARE.
 
 */
 
-import { Color } from "./parser/Destinations";
+import { IColor } from "./parser/Destinations";
 
+// tslint:disable-next-line:interface-name
 export interface RTFJSError {
     name: string;
     message: string;
     stack: string;
 }
 
+// tslint:disable-next-line:variable-name
 export const RTFJSError = function(this: RTFJSError, message: string) {
     this.name = "RTFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 } as any as { new (message: string): RTFJSError; };
-RTFJSError.prototype = new Error;
+RTFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
 export function loggingEnabled(enabled: boolean) {
@@ -45,11 +47,6 @@ export function loggingEnabled(enabled: boolean) {
 }
 
 export class Helper {
-    static log(message: string) {
-        if (isLoggingEnabled) {
-            console.log(message);
-        }
-    }
     static _A = "A".charCodeAt(0);
     static _a = "a".charCodeAt(0);
     static _F = "F".charCodeAt(0);
@@ -109,6 +106,65 @@ export class Helper {
         HIGHANSI: "hich",
         DOUBLE: "dbch",
     };
+
+    static _charsetMap: {[key: string]: number} = {
+        0:   1252, // ANSI_CHARSET
+        77:  10000, // Mac Roman
+        78:  10001, // Mac Shift Jis
+        79:  10003, // Mac Hangul
+        80:  10008, // Mac GB2312
+        81:  10002, // Mac Big5
+        83:  10005, // Mac Hebrew
+        84:  10004, // Mac Arabic
+        85:  10006, // Mac Greek
+        86:  10081, // Mac Turkish
+        87:  10021, // Mac Thai
+        88:  10029, // Mac East Europe
+        89:  10007, // Mac Russian
+        128: 932,  // SHIFTJIS_CHARSET
+        129: 949,  // HANGEUL_CHARSET
+        130: 1361, // JOHAB_CHARSET
+        134: 936,  // GB2313_CHARSET
+        136: 950,  // CHINESEBIG5_CHARSET
+        161: 1253, // GREEK_CHARSET
+        162: 1254, // TURKISH_CHARSET
+        163: 1258, // VIETNAMESE_CHARSET
+        177: 1255, // HEBREW_CHARSET
+        178: 1256, // ARABIC_CHARSET
+        186: 1257, // BALTIC_CHARSET
+        204: 1251, // RUSSIAN_CHARSET
+        222: 874,  // THAI_CHARSET
+        238: 1250, // EE_CHARSET (Eastern European)
+        254: 437,  // PC 437
+        255: 850,  // OEM
+    };
+
+    static _colorThemeMap: {[key: string]: null} = {
+        // TODO
+        maindarkone: null,
+        mainlightone: null,
+        maindarktwo: null,
+        mainlighttwo: null,
+        accentone: null,
+        accenttwo: null,
+        accentthree: null,
+        accentfour: null,
+        accentfive: null,
+        accentsix: null,
+        hyperlink: null,
+        followedhyperlink: null,
+        backgroundone: null,
+        textone: null,
+        backgroundtwo: null,
+        texttwo: null,
+    };
+
+    static log(message: string) {
+        if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
+            console.log(message);
+        }
+    }
 
     static _isalpha(str: string): boolean {
         const len = str.length;
@@ -187,68 +243,15 @@ export class Helper {
         return bin;
     }
 
-    static _charsetMap: {[key: string]: number} = {
-        0:   1252, // ANSI_CHARSET
-        77:  10000, // Mac Roman
-        78:  10001, // Mac Shift Jis
-        79:  10003, // Mac Hangul
-        80:  10008, // Mac GB2312
-        81:  10002, // Mac Big5
-        83:  10005, // Mac Hebrew
-        84:  10004, // Mac Arabic
-        85:  10006, // Mac Greek
-        86:  10081, // Mac Turkish
-        87:  10021, // Mac Thai
-        88:  10029, // Mac East Europe
-        89:  10007, // Mac Russian
-        128: 932,  // SHIFTJIS_CHARSET
-        129: 949,  // HANGEUL_CHARSET
-        130: 1361, // JOHAB_CHARSET
-        134: 936,  // GB2313_CHARSET
-        136: 950,  // CHINESEBIG5_CHARSET
-        161: 1253, // GREEK_CHARSET
-        162: 1254, // TURKISH_CHARSET
-        163: 1258, // VIETNAMESE_CHARSET
-        177: 1255, // HEBREW_CHARSET
-        178: 1256, // ARABIC_CHARSET
-        186: 1257, // BALTIC_CHARSET
-        204: 1251, // RUSSIAN_CHARSET
-        222: 874,  // THAI_CHARSET
-        238: 1250, // EE_CHARSET (Eastern European)
-        254: 437,  // PC 437
-        255: 850,  // OEM
-    };
-
     static _mapCharset(idx: number): number {
         return this._charsetMap[idx.toString()];
     }
-
-    static _colorThemeMap: {[key: string]: null} = {
-        // TODO
-        maindarkone: null,
-        mainlightone: null,
-        maindarktwo: null,
-        mainlighttwo: null,
-        accentone: null,
-        accenttwo: null,
-        accentthree: null,
-        accentfour: null,
-        accentfive: null,
-        accentsix: null,
-        hyperlink: null,
-        followedhyperlink: null,
-        backgroundone: null,
-        textone: null,
-        backgroundtwo: null,
-        texttwo: null,
-
-    };
 
     static _mapColorTheme(name: string) {
         return this._colorThemeMap[name];
     }
 
-    static _colorToStr(color: Color) {
+    static _colorToStr(color: IColor) {
         return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
     }
 

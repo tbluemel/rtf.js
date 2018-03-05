@@ -33,7 +33,7 @@ import { Chp, GlobalState, Pap, Sep } from "./Containers";
 import { RenderChp } from "./RenderChp";
 import { RenderPap } from "./RenderPap";
 
-export abstract class DestinationFactory<T extends Destination> {
+export abstract class DestinationFactory<T extends IDestination> {
     class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
 
     newDestination(parser: GlobalState, inst: Document, name: string, param: number): T {
@@ -41,12 +41,12 @@ export abstract class DestinationFactory<T extends Destination> {
     }
 }
 
-export interface Destination {
+export interface IDestination {
     _name: string;
     setMetadata?(metaprop: string, metavalue: any): void;
     apply?(): void;
     appendText?(text: string): void;
-    sub?(): Destination;
+    sub?(): IDestination;
     handleKeyword?(keyword: string, param: number): void | boolean;
     handleBlob?(blob: ArrayBuffer): void;
     [key: string]: any;
@@ -66,7 +66,7 @@ const findParentDestination = function(parser: GlobalState, dest: string) {
     Helper.log("findParentDestination() did not find destination " + dest);
 };
 
-export class DestinationBase implements Destination {
+export class DestinationBase implements IDestination {
     _name: string;
 
     constructor(name: string) {
@@ -74,7 +74,7 @@ export class DestinationBase implements Destination {
     }
 }
 
-export class DestinationTextBase implements Destination {
+export class DestinationTextBase implements IDestination {
     _name: string;
     text: string;
 
@@ -88,10 +88,10 @@ export class DestinationTextBase implements Destination {
     }
 }
 
-export abstract class DestinationFormattedTextBase implements Destination {
+export abstract class DestinationFormattedTextBase implements IDestination {
     parser: GlobalState;
     _name: string;
-    _records: Array<(rtf: rtfDestination) => void>;
+    _records: Array<(rtf: RtfDestination) => void>;
 
     constructor(parser: GlobalState, name: string) {
         this.parser = parser;
@@ -100,21 +100,21 @@ export abstract class DestinationFormattedTextBase implements Destination {
     }
 
     appendText(text: string) {
-        this._records.push(function(rtf: rtfDestination) {
+        this._records.push(function(rtf: RtfDestination) {
             rtf.appendText(text);
         });
     }
 
     handleKeyword(keyword: string, param: number) {
-        this._records.push(function(rtf: rtfDestination) {
+        this._records.push(function(rtf: RtfDestination) {
             return rtf.handleKeyword(keyword, param);
         });
     }
 
     apply() {
-        const rtf = findParentDestination(this.parser, "rtf") as any as rtfDestination;
+        const rtf = findParentDestination(this.parser, "rtf") as any as RtfDestination;
         if (rtf == null) {
-            throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+            throw new RTFJSError("IDestination " + this._name + " is not child of rtf destination");
         }
 
         const len = this._records.length;
@@ -134,131 +134,32 @@ export abstract class DestinationFormattedTextBase implements Destination {
         delete this._records;
     }
 
-    abstract renderBegin(rtf: rtfDestination, records: number): boolean;
+    abstract renderBegin(rtf: RtfDestination, records: number): boolean;
 
-    abstract renderEnd(rtf: rtfDestination, records: number): void;
+    abstract renderEnd(rtf: RtfDestination, records: number): void;
 }
 
-export class rtfDestination extends DestinationBase {
+export class RtfDestination extends DestinationBase {
     _metadata: {[key: string]: any};
     parser: GlobalState;
     inst: Document;
-
-    constructor(parser: GlobalState, inst: Document, name: string, param: number) {
-        super(name);
-        if (parser.version != null) {
-            throw new RTFJSError("Unexpected rtf destination");
-        }
-
-        // This parameter should be one, but older versions of the spec allow for omission of the version number
-        if (param && param != 1) {
-            throw new RTFJSError("Unsupported rtf version");
-        }
-        parser.version = 1;
-
-        this._metadata = {};
-        this.parser = parser;
-        this.inst = inst;
-    }
-
-    addIns(func: (this: Renderer) => void) {
-        this.inst.addIns(func);
-    }
-
-    appendText(text: string) {
-        Helper.log("[rtf] output: " + text);
-        this.inst.addIns(text);
-    }
-
-    sub() {
-        Helper.log("[rtf].sub()");
-    }
-
-    _addInsHandler(func: (this: Renderer) => void) {
-        return function(this: rtfDestination, param: number) {
-            this.inst.addIns(func);
-        };
-    }
-
-    _addFormatIns(ptype: string, props: Chp | Pap) {
-        switch (ptype) {
-            case "chp":
-                const rchp = new RenderChp(new Chp(props as Chp));
-                this.inst.addIns(function() {
-                    this.setChp(rchp);
-                });
-                break;
-            case "pap":
-                const rpap = new RenderPap(new Pap(props as Pap));
-                this.inst.addIns(function() {
-                    this.setPap(rpap);
-                });
-                break;
-        }
-    }
-
-    _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
-        return function(this: rtfDestination, param: number) {
-            const props = this.parser.state[ptype];
-            props[prop] = val;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
-        };
-    }
-
-    _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
-        return function(this: rtfDestination, param: number) {
-            const props = this.parser.state[ptype];
-            props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
-        };
-    }
-    _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
-        return function(this: rtfDestination, param: number) {
-            const props = this.parser.state[ptype];
-            props[prop] = (param == null) ? defaultval : param;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
-        };
-    }
-    _genericFormatSetValRequired(ptype: string, prop: string) {
-        return function(this: rtfDestination, param: number) {
-            if (param == null) {
-                throw new RTFJSError("Keyword without required param");
-            }
-            const props = this.parser.state[ptype];
-            props[prop] = param;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
-        };
-    }
-    _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
-        return function(this: rtfDestination, param: number) {
-            const props = this.parser.state[ptype];
-            const members = props[prop];
-            members[member] = (param == null) ? defaultval : param;
-            Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            this._addFormatIns(ptype, props);
-        };
-    }
     _charFormatHandlers: {[key: string]: (param: number) => void} = {
-        ansicpg(this: rtfDestination, param: number) {
-            //if the value is 0, use the default charset as 0 is not valid
+        ansicpg(this: RtfDestination, param: number) {
+            // if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
                 Helper.log("[rtf] using charset: " + param);
                 this.parser.codepage = param;
             }
         },
-        sectd(this: rtfDestination) {
+        sectd(this: RtfDestination) {
             Helper.log("[rtf] reset to section defaults");
             this.parser.state.sep = new Sep(null);
         },
-        plain(this: rtfDestination) {
+        plain(this: RtfDestination) {
             Helper.log("[rtf] reset to character defaults");
             this.parser.state.chp = new Chp(null);
         },
-        pard(this: rtfDestination) {
+        pard(this: RtfDestination) {
             Helper.log("[rtf] reset to paragraph defaults");
             this.parser.state.pap = new Pap(null);
         },
@@ -328,13 +229,111 @@ export class rtfDestination extends DestinationBase {
         }),
     };
 
+    constructor(parser: GlobalState, inst: Document, name: string, param: number) {
+        super(name);
+        if (parser.version != null) {
+            throw new RTFJSError("Unexpected rtf destination");
+        }
+
+        // This parameter should be one, but older versions of the spec allow for omission of the version number
+        if (param && param != 1) {
+            throw new RTFJSError("Unsupported rtf version");
+        }
+        parser.version = 1;
+
+        this._metadata = {};
+        this.parser = parser;
+        this.inst = inst;
+    }
+
+    addIns(func: (this: Renderer) => void) {
+        this.inst.addIns(func);
+    }
+
+    appendText(text: string) {
+        Helper.log("[rtf] output: " + text);
+        this.inst.addIns(text);
+    }
+
+    sub() {
+        Helper.log("[rtf].sub()");
+    }
+
+    _addInsHandler(func: (this: Renderer) => void) {
+        return function(this: RtfDestination, param: number) {
+            this.inst.addIns(func);
+        };
+    }
+
+    _addFormatIns(ptype: string, props: Chp | Pap) {
+        switch (ptype) {
+            case "chp":
+                const rchp = new RenderChp(new Chp(props as Chp));
+                this.inst.addIns(function() {
+                    this.setChp(rchp);
+                });
+                break;
+            case "pap":
+                const rpap = new RenderPap(new Pap(props as Pap));
+                this.inst.addIns(function() {
+                    this.setPap(rpap);
+                });
+                break;
+        }
+    }
+
+    _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
+        return function(this: RtfDestination, param: number) {
+            const props = this.parser.state[ptype];
+            props[prop] = val;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            this._addFormatIns(ptype, props);
+        };
+    }
+
+    _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
+        return function(this: RtfDestination, param: number) {
+            const props = this.parser.state[ptype];
+            props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            this._addFormatIns(ptype, props);
+        };
+    }
+    _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
+        return function(this: RtfDestination, param: number) {
+            const props = this.parser.state[ptype];
+            props[prop] = (param == null) ? defaultval : param;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            this._addFormatIns(ptype, props);
+        };
+    }
+    _genericFormatSetValRequired(ptype: string, prop: string) {
+        return function(this: RtfDestination, param: number) {
+            if (param == null) {
+                throw new RTFJSError("Keyword without required param");
+            }
+            const props = this.parser.state[ptype];
+            props[prop] = param;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            this._addFormatIns(ptype, props);
+        };
+    }
+    _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
+        return function(this: RtfDestination, param: number) {
+            const props = this.parser.state[ptype];
+            const members = props[prop];
+            members[member] = (param == null) ? defaultval : param;
+            Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+            this._addFormatIns(ptype, props);
+        };
+    }
+
     handleKeyword(keyword: string, param: number) {
         const handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
         }
-        //Helper.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
         return false;
     }
 
@@ -350,10 +349,10 @@ export class rtfDestination extends DestinationBase {
     }
 }
 
-export interface genericPropertyDestination extends Destination {
+export interface IGenericPropertyDestination extends IDestination {
     apply(): void;
 }
-export class genericPropertyDestinationFactory extends DestinationFactory<genericPropertyDestination> {
+export class GenericPropertyDestinationFactory extends DestinationFactory<IGenericPropertyDestination> {
     parentdest: string;
     metaprop: string;
 
@@ -361,7 +360,7 @@ export class genericPropertyDestinationFactory extends DestinationFactory<generi
         super();
         this.parentdest = parentdest;
         this.metaprop = metaprop;
-        this.class = class extends DestinationTextBase implements genericPropertyDestination {
+        this.class = class extends DestinationTextBase implements IGenericPropertyDestination {
             parser: GlobalState;
 
             constructor(parser: GlobalState, inst: Document, name: string) {
@@ -372,10 +371,10 @@ export class genericPropertyDestinationFactory extends DestinationFactory<generi
             apply() {
                 const dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within " + parentdest + " destination");
                 }
                 if (dest.setMetadata == null) {
-                    throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+                    throw new RTFJSError("IDestination " + parentdest + " does not accept meta data");
                 }
                 dest.setMetadata(metaprop, this.text);
             }
@@ -383,7 +382,7 @@ export class genericPropertyDestinationFactory extends DestinationFactory<generi
     }
 }
 
-export class infoDestination extends DestinationBase {
+export class InfoDestination extends DestinationBase {
     _metadata: {[key: string]: any};
     inst: Document;
 
@@ -405,16 +404,16 @@ export class infoDestination extends DestinationBase {
     }
 }
 
-export interface metaPropertyDestination extends Destination {
+export interface IMetaPropertyDestination extends IDestination {
     apply(): void;
 }
-export class metaPropertyDestinationFactory extends DestinationFactory<metaPropertyDestination> {
+export class MetaPropertyDestinationFactory extends DestinationFactory<IMetaPropertyDestination> {
     metaprop: string;
 
     constructor(metaprop: string) {
         super();
         this.metaprop = metaprop;
-        this.class = class extends DestinationTextBase implements metaPropertyDestination {
+        this.class = class extends DestinationTextBase implements IMetaPropertyDestination {
             parser: GlobalState;
 
             constructor(parser: GlobalState, inst: Document, name: string) {
@@ -425,7 +424,7 @@ export class metaPropertyDestinationFactory extends DestinationFactory<metaPrope
             apply() {
                 const info = findParentDestination(this.parser, "info");
                 if (info == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
                 }
                 info.setMetadata(metaprop, this.text);
             }
@@ -433,17 +432,17 @@ export class metaPropertyDestinationFactory extends DestinationFactory<metaPrope
     }
 }
 
-export interface metaPropertyTimeDestination extends Destination {
+export interface IMetaPropertyTimeDestination extends IDestination {
     handleKeyword(keyword: string, param: number): boolean;
     apply(): void;
 }
-export class metaPropertyTimeDestinationFactory extends DestinationFactory<metaPropertyTimeDestination> {
+export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMetaPropertyTimeDestination> {
     metaprop: string;
 
     constructor(metaprop: string) {
         super();
         this.metaprop = metaprop;
-        this.class = class extends DestinationBase implements metaPropertyTimeDestination {
+        this.class = class extends DestinationBase implements IMetaPropertyTimeDestination {
             _yr: number;
             _mo: number;
             _dy: number;
@@ -496,7 +495,7 @@ export class metaPropertyTimeDestinationFactory extends DestinationFactory<metaP
             apply() {
                 const info = findParentDestination(this.parser, "info");
                 if (info == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
                 }
                 const date = new Date(Date.UTC(
                     this._yr != null ? this._yr : 1970,
@@ -512,8 +511,8 @@ export class metaPropertyTimeDestinationFactory extends DestinationFactory<metaP
     }
 }
 
-export class fonttblDestinationSub extends DestinationBase {
-    _fonttbl: fonttblDestination;
+export class FonttblDestinationSub extends DestinationBase {
+    _fonttbl: FonttblDestination;
     index: number;
     fontname: string;
     altfontname: string;
@@ -522,7 +521,7 @@ export class fonttblDestinationSub extends DestinationBase {
     bias: number;
     charset: number;
 
-    constructor(fonttbl: fonttblDestination) {
+    constructor(fonttbl: FonttblDestination) {
         super("fonttbl:sub");
         this._fonttbl = fonttbl;
         this.index = null;
@@ -617,9 +616,9 @@ export class fonttblDestinationSub extends DestinationBase {
     }
 }
 
-export class fonttblDestination extends DestinationBase {
-    _fonts: fonttblDestinationSub[];
-    _sub: fonttblDestinationSub;
+export class FonttblDestination extends DestinationBase {
+    _fonts: FonttblDestinationSub[];
+    _sub: FonttblDestinationSub;
     inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {
@@ -630,7 +629,7 @@ export class fonttblDestination extends DestinationBase {
     }
 
     sub() {
-        return new fonttblDestinationSub(this);
+        return new FonttblDestinationSub(this);
     }
 
     apply() {
@@ -654,15 +653,15 @@ export class fonttblDestination extends DestinationBase {
         this._sub.handleKeyword(keyword, param);
     }
 
-    addSub(sub: fonttblDestinationSub) {
+    addSub(sub: FonttblDestinationSub) {
         this._fonts[sub.index] = sub;
     }
 }
 
-export interface genericSubTextPropertyDestination extends Destination {
+export interface IGenericSubTextPropertyDestination extends IDestination {
     apply(): void;
 }
-export class genericSubTextPropertyDestinationFactory extends DestinationFactory<genericSubTextPropertyDestination> {
+export class GenericSubTextPropertyDestinationFactory extends DestinationFactory<IGenericSubTextPropertyDestination> {
     name: string;
     parentDest: string;
     propOrFunc: string;
@@ -672,7 +671,7 @@ export class genericSubTextPropertyDestinationFactory extends DestinationFactory
         this.name = name;
         this.parentDest = parentDest;
         this.propOrFunc = propOrFunc;
-        this.class = class extends DestinationTextBase implements genericSubTextPropertyDestination {
+        this.class = class extends DestinationTextBase implements IGenericSubTextPropertyDestination {
             parser: GlobalState;
 
             constructor(parser: GlobalState) {
@@ -698,7 +697,7 @@ export class genericSubTextPropertyDestinationFactory extends DestinationFactory
     }
 }
 
-export interface Color {
+export interface IColor {
     r: number;
     g: number;
     b: number;
@@ -707,9 +706,9 @@ export interface Color {
     theme: null;
 }
 
-export class colortblDestination extends DestinationBase {
-    _colors: Color[];
-    _current: Color;
+export class ColortblDestination extends DestinationBase {
+    _colors: IColor[];
+    _current: IColor;
     _autoIndex: number;
     inst: Document;
 
@@ -815,14 +814,14 @@ export class colortblDestination extends DestinationBase {
     }
 }
 
-export class stylesheetDestinationSub extends DestinationBase {
-    _stylesheet: stylesheetDestination;
+export class StylesheetDestinationSub extends DestinationBase {
+    _stylesheet: StylesheetDestination;
     index: number;
     name: string;
     handler: (keyword: string, param: number) => boolean;
     paragraph?: null;
 
-    constructor(stylesheet: stylesheetDestination) {
+    constructor(stylesheet: StylesheetDestination) {
         super("stylesheet:sub");
         this._stylesheet = stylesheet;
         this.index = 0;
@@ -879,7 +878,7 @@ export class stylesheetDestinationSub extends DestinationBase {
     }
 }
 
-export class stylesheetDestination extends DestinationBase {
+export class StylesheetDestination extends DestinationBase {
     _stylesheets: Array<{index: number, name: string}>;
     inst: Document;
 
@@ -890,7 +889,7 @@ export class stylesheetDestination extends DestinationBase {
     }
 
     sub() {
-        return new stylesheetDestinationSub(this);
+        return new StylesheetDestinationSub(this);
     }
 
     apply() {
@@ -903,22 +902,22 @@ export class stylesheetDestination extends DestinationBase {
     }
 
     addSub(sub: {index: number, name: string}) {
-        //Some documents will redefine stylesheets
+        // Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
         this._stylesheets[sub.index] = sub;
     }
 }
 
-export interface Field {
-    renderFieldBegin(field: fieldDestination, rtf: rtfDestination, records: number): boolean;
-    renderFieldEnd(field: fieldDestination, rtf: rtfDestination, records: number): void;
+export interface IField {
+    renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number): boolean;
+    renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number): void;
 }
 
-export class fieldDestination extends DestinationBase {
+export class FieldDestination extends DestinationBase {
     _haveInst: boolean;
-    _parsedInst: Field;
-    _result: fldrsltDestination;
+    _parsedInst: IField;
+    _result: FldrsltDestination;
 
     constructor() {
         super("field");
@@ -929,17 +928,17 @@ export class fieldDestination extends DestinationBase {
 
     apply() {
         if (!this._haveInst) {
-            throw new RTFJSError("Field has no fldinst destination");
+            throw new RTFJSError("IField has no fldinst destination");
         }
-        //A fldrslt destination should be included but is not required
+        // A fldrslt destination should be included but is not required
         // if (this._result == null)
-        //     throw new RTFJSError("Field has no fldrslt destination");
+        //     throw new RTFJSError("IField has no fldrslt destination");
     }
 
-    setInst(inst: Field | Promise<Field | null>) {
+    setInst(inst: IField | Promise<IField | null>) {
         this._haveInst = true;
         if (this._parsedInst != null) {
-            throw new RTFJSError("Field cannot have multiple fldinst destinations");
+            throw new RTFJSError("IField cannot have multiple fldinst destinations");
         }
         if (inst instanceof Promise) {
             inst.then((parsedInst) => {
@@ -957,22 +956,22 @@ export class fieldDestination extends DestinationBase {
         return this._parsedInst;
     }
 
-    setResult(inst: fldrsltDestination) {
+    setResult(inst: FldrsltDestination) {
         if (this._result != null) {
-            throw new RTFJSError("Field cannot have multiple fldrslt destinations");
+            throw new RTFJSError("IField cannot have multiple fldrslt destinations");
         }
         this._result = inst;
     }
 }
 
 export class FieldBase {
-    _fldinst: fldinstDestination;
+    _fldinst: FldinstDestination;
 
-    constructor(fldinst: fldinstDestination) {
+    constructor(fldinst: FldinstDestination) {
         this._fldinst = fldinst;
     }
 
-    renderFieldEnd(field: fieldDestination, rtf: rtfDestination, records: number) {
+    renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number) {
         if (records > 0) {
             rtf.addIns(function() {
                 this.popContainer();
@@ -985,7 +984,7 @@ export class FieldHyperlink extends FieldBase {
     _url: string;
     inst: Document;
 
-    constructor(inst: Document, fldinst: fldinstDestination, data: string) {
+    constructor(inst: Document, fldinst: FldinstDestination, data: string) {
         super(fldinst);
         this._url = data;
         this.inst = inst;
@@ -995,7 +994,7 @@ export class FieldHyperlink extends FieldBase {
         return this._url;
     }
 
-    renderFieldBegin(field: fieldDestination, rtf: rtfDestination, records: number) {
+    renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number) {
         const self = this;
         if (records > 0) {
             rtf.addIns(function() {
@@ -1023,7 +1022,7 @@ export class FieldHyperlink extends FieldBase {
     }
 }
 
-export class fldinstDestination extends DestinationTextBase {
+export class FldinstDestination extends DestinationTextBase {
     parser: GlobalState;
     inst: Document;
 
@@ -1034,7 +1033,7 @@ export class fldinstDestination extends DestinationTextBase {
     }
 
     apply() {
-        const field = findParentDestination(this.parser, "field") as fieldDestination;
+        const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field == null) {
             throw new RTFJSError("fldinst destination must be child of field destination");
         }
@@ -1057,7 +1056,7 @@ export class fldinstDestination extends DestinationTextBase {
                     return new FieldHyperlink(this.inst, this, data);
                 case "IMPORT":
                     if (typeof this.inst._settings.onImport === "function") {
-                        let pict: pictDestination;
+                        let pict: PictDestination;
 
                         this.inst.addIns(function() {
                             const inst = this._doc;
@@ -1065,6 +1064,7 @@ export class fldinstDestination extends DestinationTextBase {
                             const hook = inst._settings.onPicture;
                             inst._settings.onPicture = null;
 
+                            // tslint:disable-next-line:prefer-const
                             let {isLegacy, element} = pict.apply(true);
 
                             // restore
@@ -1079,7 +1079,7 @@ export class fldinstDestination extends DestinationTextBase {
                             }
                         });
 
-                        const promise: Promise<Field | null> = new Promise((resolve, reject) => {
+                        const promise: Promise<IField | null> = new Promise((resolve, reject) => {
                             try {
                                 const self = this;
                                 const cb = function({error, keyword, blob, width, height}
@@ -1089,7 +1089,7 @@ export class fldinstDestination extends DestinationTextBase {
                                             w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
-                                        pict = new pictDestination(self.parser, self.inst);
+                                        pict = new PictDestination(self.parser, self.inst);
 
                                         pict.handleBlob(blob);
                                         pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
@@ -1098,7 +1098,7 @@ export class fldinstDestination extends DestinationTextBase {
                                         pict._size.width  = dims.w;
                                         pict._size.height = dims.h;
 
-                                        const _parsedInst: Field = {
+                                        const _parsedInst: IField = {
                                             renderFieldBegin: () => true,
                                             renderFieldEnd: () => null,
                                         };
@@ -1129,13 +1129,13 @@ export class fldinstDestination extends DestinationTextBase {
     }
 }
 
-export class fldrsltDestination extends DestinationFormattedTextBase {
+export class FldrsltDestination extends DestinationFormattedTextBase {
     constructor(parser: GlobalState, inst: Document) {
         super(parser, "fldrslt");
     }
 
     apply() {
-        const field = findParentDestination(this.parser, "field") as fieldDestination;
+        const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             field.setResult(this);
         }
@@ -1143,8 +1143,8 @@ export class fldrsltDestination extends DestinationFormattedTextBase {
         super.apply();
     }
 
-    renderBegin(rtf: rtfDestination, records: number) {
-        const field = findParentDestination(this.parser, "field") as fieldDestination;
+    renderBegin(rtf: RtfDestination, records: number) {
+        const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             const inst = field.getInst();
             if (inst != null) {
@@ -1154,8 +1154,8 @@ export class fldrsltDestination extends DestinationFormattedTextBase {
         return false;
     }
 
-    renderEnd(rtf: rtfDestination, records: number) {
-        const field = findParentDestination(this.parser, "field") as fieldDestination;
+    renderEnd(rtf: RtfDestination, records: number) {
+        const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             const inst = field.getInst();
             if (inst != null) {
@@ -1165,16 +1165,16 @@ export class fldrsltDestination extends DestinationFormattedTextBase {
     }
 }
 
-export interface pictGroupDestination extends Destination {
+export interface IPictGroupDestination extends IDestination {
     isLegacy(): boolean;
 }
-export class pictGroupDestinationFactory extends DestinationFactory<pictGroupDestination> {
+export class PictGroupDestinationFactory extends DestinationFactory<IPictGroupDestination> {
     legacy: boolean;
 
     constructor(legacy: boolean) {
         super();
         this.legacy = legacy;
-        this.class = class extends DestinationTextBase implements pictGroupDestination {
+        this.class = class extends DestinationTextBase implements IPictGroupDestination {
             _legacy: boolean;
 
             constructor() {
@@ -1189,7 +1189,7 @@ export class pictGroupDestinationFactory extends DestinationFactory<pictGroupDes
     }
 }
 
-export class pictDestination extends DestinationTextBase {
+export class PictDestination extends DestinationTextBase {
     _type: string | (() => any);
     _blob: ArrayBuffer;
     _displaysize: {width: number, height: number};
@@ -1198,33 +1198,6 @@ export class pictDestination extends DestinationTextBase {
     inst: Document;
     [key: string]: any;
 
-    constructor(parser: GlobalState, inst: Document) {
-        super("pict");
-        this._type = null;
-        this._blob = null;
-        this._displaysize = {
-            width: null,
-            height: null,
-        };
-        this._size = {
-            width: null,
-            height: null,
-        };
-        this.parser = parser;
-        this.inst = inst;
-    }
-
-    _setPropValueRequired(member: string, prop: string) {
-        return function(this: pictDestination, param: number) {
-            if (param == null) {
-                throw new RTFJSError("Picture property has no value");
-            }
-            Helper.log("[pict] set " + member + "." + prop + " = " + param);
-            const obj = (member != null ? this[member] : this);
-            obj[prop] = param;
-        };
-    }
-
     _pictHandlers: {[key: string]: (param: number) => void} = {
         picw: this._setPropValueRequired("_size", "width"),
         pich: this._setPropValueRequired("_size", "height"),
@@ -1232,12 +1205,12 @@ export class pictDestination extends DestinationTextBase {
         pichgoal: this._setPropValueRequired("_displaysize", "height"),
     };
 
-    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: (this: pictDestination) => any, render: (this: pictDestination, img: any) => JQuery})} = {
+    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: (this: PictDestination) => any, render: (this: PictDestination, img: any) => JQuery})} = {
         emfblip: (function() {
             if (typeof EMFJS !== "undefined") {
                 return function() {
                     return {
-                        load(this: pictDestination) {
+                        load(this: PictDestination) {
                             try {
                                 return new EMFJS.Renderer(this._blob);
                             } catch (e) {
@@ -1248,7 +1221,7 @@ export class pictDestination extends DestinationTextBase {
                                 }
                             }
                         },
-                        render(this: pictDestination, img: EMFJS.Renderer) {
+                        render(this: PictDestination, img: EMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1276,7 +1249,7 @@ export class pictDestination extends DestinationTextBase {
                         throw new RTFJSError("Insufficient metafile information");
                     }
                     return {
-                        load(this: pictDestination) {
+                        load(this: PictDestination) {
                             try {
                                 return new WMFJS.Renderer(this._blob);
                             } catch (e) {
@@ -1287,7 +1260,7 @@ export class pictDestination extends DestinationTextBase {
                                 }
                             }
                         },
-                        render(this: pictDestination, img: WMFJS.Renderer) {
+                        render(this: PictDestination, img: WMFJS.Renderer) {
                             return img.render({
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
@@ -1305,6 +1278,33 @@ export class pictDestination extends DestinationTextBase {
         dibitmap: "", // TODO
         wbitmap: "", // TODO
     };
+
+    constructor(parser: GlobalState, inst: Document) {
+        super("pict");
+        this._type = null;
+        this._blob = null;
+        this._displaysize = {
+            width: null,
+            height: null,
+        };
+        this._size = {
+            width: null,
+            height: null,
+        };
+        this.parser = parser;
+        this.inst = inst;
+    }
+
+    _setPropValueRequired(member: string, prop: string) {
+        return function(this: PictDestination, param: number) {
+            if (param == null) {
+                throw new RTFJSError("Picture property has no value");
+            }
+            Helper.log("[pict] set " + member + "." + prop + " = " + param);
+            const obj = (member != null ? this[member] : this);
+            obj[prop] = param;
+        };
+    }
 
     handleKeyword(keyword: string, param: number) {
         const handler = this._pictHandlers[keyword];
@@ -1348,12 +1348,8 @@ export class pictDestination extends DestinationTextBase {
         if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
         }
-        //if (this._size.width == null || this._size.height == null)
-        //    throw new RTFJSError("Picture dimensions not specified");
-        //if (this._displaysize.width == null || this._displaysize.height == null)
-        //    throw new RTFJSError("Picture display dimensions not specified");
 
-        const pictGroup = findParentDestination(this.parser, "pict-group") as any as pictGroupDestination;
+        const pictGroup = findParentDestination(this.parser, "pict-group") as any as IPictGroupDestination;
         const isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
 
         const type = this._type;
@@ -1369,13 +1365,13 @@ export class pictDestination extends DestinationTextBase {
             }
 
             const info = this;
-            const doRender = function(this: Renderer, rendering: boolean) {
+            const doRender = function(this: Renderer, render: boolean) {
                 const inst = this._doc;
                 const pictrender = (type as (() => any)).call(info);
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
-                        if (rendering) {
+                        if (render) {
                             return this.buildPicture(pictrender, null);
                         } else {
                             inst.addIns(function() {
@@ -1386,7 +1382,7 @@ export class pictDestination extends DestinationTextBase {
                         if (typeof pictrender !== "function") {
                             throw new RTFJSError("Expected a picture render function");
                         }
-                        if (rendering) {
+                        if (render) {
                             return this.buildRenderedPicture(pictrender());
                         } else {
                             inst.addIns(function() {
@@ -1398,11 +1394,11 @@ export class pictDestination extends DestinationTextBase {
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function(isLegacy) {
+                this.inst.addIns((function(legacy) {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+                        const elem = inst._settings.onPicture.call(inst, legacy, function() {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {
@@ -1420,10 +1416,10 @@ export class pictDestination extends DestinationTextBase {
             const text = this.text;
             const blob = this._blob;
 
-            const doRender = function(this: Renderer, rendering: boolean) {
+            const doRender = function(this: Renderer, render: boolean) {
                 const bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
-                    if (rendering) {
+                    if (render) {
                         return this.buildPicture(type as string, bin);
                     } else {
                         this._doc.addIns(function() {
@@ -1431,7 +1427,7 @@ export class pictDestination extends DestinationTextBase {
                         });
                     }
                 } else {
-                    if (rendering) {
+                    if (render) {
                         return this.buildPicture("Unsupported image format", null);
                     } else {
                         this._doc.addIns(function() {
@@ -1442,11 +1438,11 @@ export class pictDestination extends DestinationTextBase {
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function(isLegacy) {
+                this.inst.addIns((function(legacy) {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, isLegacy, function() {
+                        const elem = inst._settings.onPicture.call(inst, legacy, function() {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {
@@ -1466,15 +1462,16 @@ export class pictDestination extends DestinationTextBase {
     }
 }
 
-export interface requiredDestination extends Destination {
+// tslint:disable-next-line:no-empty-interface
+export interface IRequiredDestination extends IDestination {
 }
-export class requiredDestinationFactory extends DestinationFactory<requiredDestination> {
+export class RequiredDestinationFactory extends DestinationFactory<IRequiredDestination> {
     name: string;
 
     constructor(name: string) {
         super();
         this.name = name;
-        this.class = class extends DestinationBase implements requiredDestination {
+        this.class = class extends DestinationBase implements IRequiredDestination {
             constructor() {
                 super(name);
             }
@@ -1483,48 +1480,48 @@ export class requiredDestinationFactory extends DestinationFactory<requiredDesti
 }
 
 export const destinations: {[key: string]: ({ new (parser: GlobalState, inst: Document, name: string, param: number): any } | DestinationFactory<any>)} = {
-    rtf: rtfDestination,
-    info: infoDestination,
-    title: new metaPropertyDestinationFactory("title"),
-    subject: new metaPropertyDestinationFactory("subject"),
-    author: new metaPropertyDestinationFactory("author"),
-    manager: new metaPropertyDestinationFactory("manager"),
-    company: new metaPropertyDestinationFactory("company"),
-    operator: new metaPropertyDestinationFactory("operator"),
-    category: new metaPropertyDestinationFactory("category"),
-    keywords: new metaPropertyDestinationFactory("keywords"),
-    doccomm: new metaPropertyDestinationFactory("doccomm"),
-    hlinkbase: new metaPropertyDestinationFactory("hlinkbase"),
-    generator: new genericPropertyDestinationFactory("rtf", "generator"),
-    creatim: new metaPropertyTimeDestinationFactory("creatim"),
-    revtim: new metaPropertyTimeDestinationFactory("revtim"),
-    printim: new metaPropertyTimeDestinationFactory("printim"),
-    buptim: new metaPropertyTimeDestinationFactory("buptim"),
-    fonttbl: fonttblDestination,
-    falt: new genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
-    colortbl: colortblDestination,
-    stylesheet: stylesheetDestination,
-    footer: new requiredDestinationFactory("footer"),
-    footerf: new requiredDestinationFactory("footerf"),
-    footerl: new requiredDestinationFactory("footerl"),
-    footerr: new requiredDestinationFactory("footerr"),
-    footnote: new requiredDestinationFactory("footnote"),
-    ftncn: new requiredDestinationFactory("ftncn"),
-    ftnsep: new requiredDestinationFactory("ftnsep"),
-    ftnsepc: new requiredDestinationFactory("ftnsepc"),
-    header: new requiredDestinationFactory("header"),
-    headerf: new requiredDestinationFactory("headerf"),
-    headerl: new requiredDestinationFactory("headerl"),
-    headerr: new requiredDestinationFactory("headerr"),
-    pict: pictDestination,
-    shppict: new pictGroupDestinationFactory(false),
-    nonshppict: new pictGroupDestinationFactory(true),
-    private1: new requiredDestinationFactory("private1"),
-    rxe: new requiredDestinationFactory("rxe"),
-    tc: new requiredDestinationFactory("tc"),
-    txe: new requiredDestinationFactory("txe"),
-    xe: new requiredDestinationFactory("xe"),
-    field: fieldDestination,
-    fldinst: fldinstDestination,
-    fldrslt: fldrsltDestination,
+    rtf: RtfDestination,
+    info: InfoDestination,
+    title: new MetaPropertyDestinationFactory("title"),
+    subject: new MetaPropertyDestinationFactory("subject"),
+    author: new MetaPropertyDestinationFactory("author"),
+    manager: new MetaPropertyDestinationFactory("manager"),
+    company: new MetaPropertyDestinationFactory("company"),
+    operator: new MetaPropertyDestinationFactory("operator"),
+    category: new MetaPropertyDestinationFactory("category"),
+    keywords: new MetaPropertyDestinationFactory("keywords"),
+    doccomm: new MetaPropertyDestinationFactory("doccomm"),
+    hlinkbase: new MetaPropertyDestinationFactory("hlinkbase"),
+    generator: new GenericPropertyDestinationFactory("rtf", "generator"),
+    creatim: new MetaPropertyTimeDestinationFactory("creatim"),
+    revtim: new MetaPropertyTimeDestinationFactory("revtim"),
+    printim: new MetaPropertyTimeDestinationFactory("printim"),
+    buptim: new MetaPropertyTimeDestinationFactory("buptim"),
+    fonttbl: FonttblDestination,
+    falt: new GenericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    colortbl: ColortblDestination,
+    stylesheet: StylesheetDestination,
+    footer: new RequiredDestinationFactory("footer"),
+    footerf: new RequiredDestinationFactory("footerf"),
+    footerl: new RequiredDestinationFactory("footerl"),
+    footerr: new RequiredDestinationFactory("footerr"),
+    footnote: new RequiredDestinationFactory("footnote"),
+    ftncn: new RequiredDestinationFactory("ftncn"),
+    ftnsep: new RequiredDestinationFactory("ftnsep"),
+    ftnsepc: new RequiredDestinationFactory("ftnsepc"),
+    header: new RequiredDestinationFactory("header"),
+    headerf: new RequiredDestinationFactory("headerf"),
+    headerl: new RequiredDestinationFactory("headerl"),
+    headerr: new RequiredDestinationFactory("headerr"),
+    pict: PictDestination,
+    shppict: new PictGroupDestinationFactory(false),
+    nonshppict: new PictGroupDestinationFactory(true),
+    private1: new RequiredDestinationFactory("private1"),
+    rxe: new RequiredDestinationFactory("rxe"),
+    tc: new RequiredDestinationFactory("tc"),
+    txe: new RequiredDestinationFactory("txe"),
+    xe: new RequiredDestinationFactory("xe"),
+    field: FieldDestination,
+    fldinst: FldinstDestination,
+    fldrslt: FldrsltDestination,
 };

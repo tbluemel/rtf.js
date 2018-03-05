@@ -48,7 +48,7 @@ To create a new test:
 $ npm run generate-testcase test-name /path/to/test.rtf
 ```
 
-To regenrate the expected json and html for an existing test:
+To regenerate the expected json and html for an existing test:
 ```
 $ npm run regenerate-testcase test-name
 ```

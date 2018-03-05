@@ -194,7 +194,10 @@ export class Region extends Obj {
 
                 // Update bounds
                 if (this.scans != null) {
-                    let left, top, right, bottom;
+                    let left;
+                    let top;
+                    let right;
+                    let bottom;
                     const len = this.scans.length;
                     for (let i = 0; i < len; i++) {
                         const scan = this.scans[i];

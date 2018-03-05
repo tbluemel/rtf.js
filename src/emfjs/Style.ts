@@ -143,7 +143,6 @@ export class Font extends Obj {
     }
 
     toString() {
-        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
     }
 }

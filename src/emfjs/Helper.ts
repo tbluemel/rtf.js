@@ -25,31 +25,28 @@ SOFTWARE.
 
 */
 
+// tslint:disable-next-line:interface-name
 export interface EMFJSError {
     name: string;
     message: string;
     stack: string;
 }
 
+// tslint:disable-next-line:variable-name
 export const EMFJSError = function(this: EMFJSError, message: string) {
     this.name = "EMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 } as any as { new (message: string): EMFJSError; };
-EMFJSError.prototype = new Error;
+EMFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
 export function loggingEnabled(enabled: boolean) {
     isLoggingEnabled = enabled;
 }
 
-export const Helper = {
-    log(message: string) {
-        if (isLoggingEnabled) {
-            console.log(message);
-        }
-    },
-    GDI: {
+export class Helper {
+    static GDI = {
         FormatSignature: {
             ENHMETA_SIGNATURE: 0x464D4520,
             EPS_SIGNATURE: 0x46535045,
@@ -329,23 +326,34 @@ export const Helper = {
             DC_BRUSH: 0x80000012,
             DC_PEN: 0x80000013,
         },
-    },
-    _uniqueId: 0,
-    _makeUniqueId(prefix: string) {
+    };
+
+    static _uniqueId = 0;
+
+    static log(message: string) {
+        if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
+            console.log(message);
+        }
+    }
+
+    static _makeUniqueId(prefix: string) {
         return "EMFJS_" + prefix + (this._uniqueId++);
-    },
-    _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
+    }
+
+    static _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
         uint8arr[pos++] = val & 0xff;
         uint8arr[pos++] = (val >>> 8) & 0xff;
         uint8arr[pos++] = (val >>> 16) & 0xff;
         uint8arr[pos++] = (val >>> 24) & 0xff;
-    },
-    _blobToBinary(blob: Uint8Array) {
+    }
+
+    static _blobToBinary(blob: Uint8Array) {
         let ret = "";
         const len = blob.length;
         for (let i = 0; i < len; i++) {
             ret += String.fromCharCode(blob[i]);
         }
         return ret;
-    },
-};
+    }
+}

@@ -30,7 +30,7 @@ import { Obj, PointL, PointS, RectL } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
 import { Brush, ColorRef, Font, Pen } from "./Style";
 
-export interface SelectedStyle {
+export interface ISelectedStyle {
     brush?: Brush;
     pen?: Pen;
     font?: Font;
@@ -132,9 +132,9 @@ export class GDIContextState {
     bry: number;
     clip: Region;
     ownclip: boolean;
-    selected: SelectedStyle;
+    selected: ISelectedStyle;
 
-    constructor(copy: GDIContextState, defObjects?: SelectedStyle) {
+    constructor(copy: GDIContextState, defObjects?: ISelectedStyle) {
         if (copy != null) {
             this._svggroup = copy._svggroup;
             this._svgclipChanged = copy._svgclipChanged;
@@ -211,13 +211,13 @@ export class GDIContextState {
 export class GDIContext {
     _svg: any;
     _svgdefs: any;
-    _svgPatterns: {[string: string]: Brush};
-    _svgClipPaths: {[string: string]: Region};
+    _svgPatterns: {[key: string]: Brush};
+    _svgClipPaths: {[key: string]: Region};
     _svgPath: any;
-    defObjects: SelectedStyle;
+    defObjects: ISelectedStyle;
     state: GDIContextState;
     statestack: GDIContextState[];
-    objects: {[string: string]: Obj};
+    objects: {[key: string]: Obj};
 
     constructor(svg: any) {
         this._svg = svg;
@@ -308,10 +308,10 @@ export class GDIContext {
     }
 
     _getSvgClipPathForRegion(region: Region) {
-        for (const id in this._svgClipPaths) {
-            const rgn = this._svgClipPaths[id];
+        for (const existingId in this._svgClipPaths) {
+            const rgn = this._svgClipPaths[existingId];
             if (rgn == region) {
-                return id;
+                return existingId;
             }
         }
 
@@ -340,14 +340,16 @@ export class GDIContext {
     }
 
     _getSvgPatternForBrush(brush: Brush) {
-        for (const id in this._svgPatterns) {
-            const pat = this._svgPatterns[id];
+        for (const existingId in this._svgPatterns) {
+            const pat = this._svgPatterns[existingId];
             if (pat == brush) {
-                return id;
+                return existingId;
             }
         }
 
-        let width, height, img;
+        let width;
+        let height;
+        let img;
         switch (brush.style) {
             case Helper.GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();

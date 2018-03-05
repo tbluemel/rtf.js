@@ -43,6 +43,19 @@ export class Parser {
         this.parser = new GlobalState(blob, renderer);
     }
 
+    public parse(): Promise<void> {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
+            this.parseLoop(false, true);
+            return Promise.all(this.parser._asyncTasks).then(() => { return; });
+        }
+        if (this.parser.version == null) {
+            throw new RTFJSError("Not a valid rtf document");
+        }
+        if (this.parser.state != null) {
+            throw new RTFJSError("File truncated");
+        }
+    }
+
     private eof() {
         return this.parser.pos >= this.parser.data.length;
     }
@@ -133,16 +146,16 @@ export class Parser {
 
         if (this.parser.state !== null) {
             this.inst._ins.push(
-                (function(state) {
+                (function(chpState) {
                     return function(this: Renderer) {
-                        this.setChp(new RenderChp(state.chp));
+                        this.setChp(new RenderChp(chpState.chp));
                     };
                 })(this.parser.state),
             );
             this.inst._ins.push(
-                (function(state) {
+                (function(papState) {
                     return function(this: Renderer) {
-                        this.setPap(new RenderPap(state.pap));
+                        this.setPap(new RenderPap(papState.pap));
                     };
                 })(this.parser.state),
             );
@@ -175,11 +188,6 @@ export class Parser {
 
             this.parser.state.first = false;
         }
-
-        //if (param != null)
-        //    Helper.log("keyword " + keyword + " with param " + param);
-        //else
-        //    Helper.log("keyword " + keyword);
 
         if (this.parser.state.bindata > 0) {
             throw new RTFJSError("Keyword encountered within binary data");
@@ -438,19 +446,6 @@ export class Parser {
                 error.message += " (line: " + this.parser.line + "; column: " + this.parser.column + ")";
             }
             throw error;
-        }
-    }
-
-    public parse(): Promise<void> {
-        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
-            this.parseLoop(false, true);
-            return Promise.all(this.parser._asyncTasks).then(() => {});
-        }
-        if (this.parser.version == null) {
-            throw new RTFJSError("Not a valid rtf document");
-        }
-        if (this.parser.state != null) {
-            throw new RTFJSError("File truncated");
         }
     }
 }

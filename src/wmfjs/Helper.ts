@@ -24,31 +24,28 @@ SOFTWARE.
 
 */
 
+// tslint:disable-next-line:interface-name
 export interface WMFJSError {
     name: string;
     message: string;
     stack: string;
 }
 
+// tslint:disable-next-line:variable-name
 export const WMFJSError = function(this: WMFJSError, message: string) {
     this.name = "WMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 } as any as { new (message: string): WMFJSError; };
-WMFJSError.prototype = new Error;
+WMFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
 export function loggingEnabled(enabled: boolean) {
     isLoggingEnabled = enabled;
 }
 
-export const Helper = {
-    log(message: string) {
-        if (isLoggingEnabled) {
-            console.log(message);
-        }
-    },
-    GDI: {
+export class Helper {
+    static GDI = {
         METAHEADER_SIZE: 18,
         BITMAPINFOHEADER_SIZE: 40,
         BITMAPCOREHEADER_SIZE: 12,
@@ -277,23 +274,33 @@ export const Helper = {
             BI_JPEG: 4,
             BI_PNG: 5,
         },
-    },
-    _uniqueId: 0,
-    _makeUniqueId(prefix: string) {
+    };
+    static _uniqueId = 0;
+
+    static log(message: string) {
+        if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
+            console.log(message);
+        }
+    }
+
+    static _makeUniqueId(prefix: string) {
         return "wmfjs_" + prefix + (this._uniqueId++);
-    },
-    _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
+    }
+
+    static _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
         uint8arr[pos++] = val & 0xff;
         uint8arr[pos++] = (val >>> 8) & 0xff;
         uint8arr[pos++] = (val >>> 16) & 0xff;
         uint8arr[pos++] = (val >>> 24) & 0xff;
-    },
-    _blobToBinary(blob: Uint8Array) {
+    }
+
+    static _blobToBinary(blob: Uint8Array) {
         let ret = "";
         const len = blob.length;
         for (let i = 0; i < len; i++) {
             ret += String.fromCharCode(blob[i]);
         }
         return ret;
-    },
-};
+    }
+}

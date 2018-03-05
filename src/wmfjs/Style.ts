@@ -142,7 +142,6 @@ export class Font extends Obj {
     }
 
     toString() {
-        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
     }
 }
@@ -243,7 +242,7 @@ export class Pen extends Obj {
     constructor(reader: Blob, style?: number, width?: PointS, color?: ColorRef, linecap?: number, join?: number) {
         super("pen");
         if (reader != null) {
-            const style: number = reader.readUint16();
+            style = reader.readUint16();
             this.style = style & 0xFF;
             this.width = new PointS(reader);
             this.color = new ColorRef(reader);

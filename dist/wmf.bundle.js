@@ -29,23 +29,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+// tslint:disable-next-line:variable-name
 var WMFJSError = function (message) {
     this.name = "WMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
-WMFJSError.prototype = new Error;
+WMFJSError.prototype = new Error();
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
     isLoggingEnabled = enabled;
 }
-var Helper = {
-    log: function (message) {
+var Helper = /** @class */ (function () {
+    function Helper() {
+    }
+    Helper.log = function (message) {
         if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
             console.log(message);
         }
-    },
-    GDI: {
+    };
+    Helper._makeUniqueId = function (prefix) {
+        return "wmfjs_" + prefix + (this._uniqueId++);
+    };
+    Helper._writeUint32Val = function (uint8arr, pos, val) {
+        uint8arr[pos++] = val & 0xff;
+        uint8arr[pos++] = (val >>> 8) & 0xff;
+        uint8arr[pos++] = (val >>> 16) & 0xff;
+        uint8arr[pos++] = (val >>> 24) & 0xff;
+    };
+    Helper._blobToBinary = function (blob) {
+        var ret = "";
+        var len = blob.length;
+        for (var i = 0; i < len; i++) {
+            ret += String.fromCharCode(blob[i]);
+        }
+        return ret;
+    };
+    Helper.GDI = {
         METAHEADER_SIZE: 18,
         BITMAPINFOHEADER_SIZE: 40,
         BITMAPCOREHEADER_SIZE: 12,
@@ -274,26 +295,10 @@ var Helper = {
             BI_JPEG: 4,
             BI_PNG: 5,
         },
-    },
-    _uniqueId: 0,
-    _makeUniqueId: function (prefix) {
-        return "wmfjs_" + prefix + (this._uniqueId++);
-    },
-    _writeUint32Val: function (uint8arr, pos, val) {
-        uint8arr[pos++] = val & 0xff;
-        uint8arr[pos++] = (val >>> 8) & 0xff;
-        uint8arr[pos++] = (val >>> 16) & 0xff;
-        uint8arr[pos++] = (val >>> 24) & 0xff;
-    },
-    _blobToBinary: function (blob) {
-        var ret = "";
-        var len = blob.length;
-        for (var i = 0; i < len; i++) {
-            ret += String.fromCharCode(blob[i]);
-        }
-        return ret;
-    },
-};
+    };
+    Helper._uniqueId = 0;
+    return Helper;
+}());
 
 /*
 
@@ -711,7 +716,10 @@ var Region = /** @class */ (function (_super) {
                 }
                 // Update bounds
                 if (this.scans != null) {
-                    var left = void 0, top_2, right = void 0, bottom = void 0;
+                    var left = void 0;
+                    var top_2;
+                    var right = void 0;
+                    var bottom = void 0;
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
@@ -1325,7 +1333,6 @@ var Font = /** @class */ (function (_super) {
         return new Font(null, this);
     };
     Font.prototype.toString = function () {
-        //return "{facename: " + this.facename + ", height: " + this.height + ", width: " + this.width + "}";
         return JSON.stringify(this);
     };
     return Font;
@@ -1415,12 +1422,12 @@ var Pen = /** @class */ (function (_super) {
     function Pen(reader, style, width, color, linecap, join) {
         var _this = _super.call(this, "pen") || this;
         if (reader != null) {
-            var style_1 = reader.readUint16();
-            _this.style = style_1 & 0xFF;
+            style = reader.readUint16();
+            _this.style = style & 0xFF;
             _this.width = new PointS(reader);
             _this.color = new ColorRef(reader);
-            _this.linecap = (style_1 & (Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
-            _this.join = (style_1 & (Helper.GDI.PenStyle.PS_JOIN_BEVEL | Helper.GDI.PenStyle.PS_JOIN_MITER));
+            _this.linecap = (style & (Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
+            _this.join = (style & (Helper.GDI.PenStyle.PS_JOIN_BEVEL | Helper.GDI.PenStyle.PS_JOIN_MITER));
         }
         else {
             _this.style = style;
@@ -1638,10 +1645,10 @@ var GDIContext = /** @class */ (function () {
         return this._svgdefs;
     };
     GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var id_1 in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[id_1];
+        for (var existingId in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[existingId];
             if (rgn == region) {
-                return id_1;
+                return existingId;
             }
         }
         var id = Helper._makeUniqueId("c");
@@ -1664,13 +1671,15 @@ var GDIContext = /** @class */ (function () {
         return id;
     };
     GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var id_2 in this._svgPatterns) {
-            var pat = this._svgPatterns[id_2];
+        for (var existingId in this._svgPatterns) {
+            var pat = this._svgPatterns[existingId];
             if (pat == brush) {
-                return id_2;
+                return existingId;
             }
         }
-        var width, height, img;
+        var width;
+        var height;
+        var img;
         switch (brush.style) {
             case Helper.GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();
@@ -2616,7 +2625,6 @@ var WMFRecords = /** @class */ (function () {
                         }
                     }
                     Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
-                    //throw new WMFJSError("Record type not recognized: 0x" + type.toString(16));
                     break;
                 }
             }
@@ -2680,7 +2688,10 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.parse = function (blob) {
         this._img = null;
         var reader = new Blob(blob);
-        var type, size, placable, headerstart;
+        var type;
+        var size;
+        var placable;
+        var headerstart;
         var key = reader.readUint32();
         if (key == 0x9ac6cdd7) {
             placable = new WMFPlacable(reader);
@@ -2733,8 +2744,8 @@ var Renderer = /** @class */ (function () {
                 },
             });
         })(info.mapMode, info.xExt, info.yExt);
-        var svg = $(img[0]).svg("get");
-        return $(svg.root()).attr("width", info.width).attr("height", info.height);
+        var svgContainer = $(img[0]).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };
     return Renderer;
 }());

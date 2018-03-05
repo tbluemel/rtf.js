@@ -29,12 +29,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+// tslint:disable-next-line:variable-name
 var RTFJSError = function (message) {
     this.name = "RTFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
 };
-RTFJSError.prototype = new Error;
+RTFJSError.prototype = new Error();
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
     isLoggingEnabled = enabled;
@@ -44,6 +45,7 @@ var Helper = /** @class */ (function () {
     }
     Helper.log = function (message) {
         if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
             console.log(message);
         }
     };
@@ -7202,6 +7204,7 @@ var cputils = createCommonjsModule(function (module) {
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
+// tslint:disable-next-line:variable-name
 var SymbolTable = {
     "20": "\u0020",
     "21": "\u0021",
@@ -7789,7 +7792,7 @@ var DestinationFormattedTextBase = /** @class */ (function () {
     DestinationFormattedTextBase.prototype.apply = function () {
         var rtf = findParentDestination(this.parser, "rtf");
         if (rtf == null) {
-            throw new RTFJSError("Destination " + this._name + " is not child of rtf destination");
+            throw new RTFJSError("IDestination " + this._name + " is not child of rtf destination");
         }
         var len = this._records.length;
         var doRender = true;
@@ -7808,13 +7811,13 @@ var DestinationFormattedTextBase = /** @class */ (function () {
     };
     return DestinationFormattedTextBase;
 }());
-var rtfDestination = /** @class */ (function (_super) {
-    __extends(rtfDestination, _super);
-    function rtfDestination(parser, inst, name, param) {
+var RtfDestination = /** @class */ (function (_super) {
+    __extends(RtfDestination, _super);
+    function RtfDestination(parser, inst, name, param) {
         var _this = _super.call(this, name) || this;
         _this._charFormatHandlers = {
             ansicpg: function (param) {
-                //if the value is 0, use the default charset as 0 is not valid
+                // if the value is 0, use the default charset as 0 is not valid
                 if (param > 0) {
                     Helper.log("[rtf] using charset: " + param);
                     this.parser.codepage = param;
@@ -7910,22 +7913,22 @@ var rtfDestination = /** @class */ (function (_super) {
         _this.inst = inst;
         return _this;
     }
-    rtfDestination.prototype.addIns = function (func) {
+    RtfDestination.prototype.addIns = function (func) {
         this.inst.addIns(func);
     };
-    rtfDestination.prototype.appendText = function (text) {
+    RtfDestination.prototype.appendText = function (text) {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     };
-    rtfDestination.prototype.sub = function () {
+    RtfDestination.prototype.sub = function () {
         Helper.log("[rtf].sub()");
     };
-    rtfDestination.prototype._addInsHandler = function (func) {
+    RtfDestination.prototype._addInsHandler = function (func) {
         return function (param) {
             this.inst.addIns(func);
         };
     };
-    rtfDestination.prototype._addFormatIns = function (ptype, props) {
+    RtfDestination.prototype._addFormatIns = function (ptype, props) {
         switch (ptype) {
             case "chp":
                 var rchp_1 = new RenderChp(new Chp(props));
@@ -7941,7 +7944,7 @@ var rtfDestination = /** @class */ (function (_super) {
                 break;
         }
     };
-    rtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
+    RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = val;
@@ -7949,7 +7952,7 @@ var rtfDestination = /** @class */ (function (_super) {
             this._addFormatIns(ptype, props);
         };
     };
-    rtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
+    RtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
@@ -7957,7 +7960,7 @@ var rtfDestination = /** @class */ (function (_super) {
             this._addFormatIns(ptype, props);
         };
     };
-    rtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
+    RtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
@@ -7965,7 +7968,7 @@ var rtfDestination = /** @class */ (function (_super) {
             this._addFormatIns(ptype, props);
         };
     };
-    rtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
+    RtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
         return function (param) {
             if (param == null) {
                 throw new RTFJSError("Keyword without required param");
@@ -7976,7 +7979,7 @@ var rtfDestination = /** @class */ (function (_super) {
             this._addFormatIns(ptype, props);
         };
     };
-    rtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+    RtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
         return function (param) {
             var props = this.parser.state[ptype];
             var members = props[prop];
@@ -7985,30 +7988,29 @@ var rtfDestination = /** @class */ (function (_super) {
             this._addFormatIns(ptype, props);
         };
     };
-    rtfDestination.prototype.handleKeyword = function (keyword, param) {
+    RtfDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
             return true;
         }
-        //Helper.log("[rtf] unhandled keyword: " + keyword + " param: " + param);
         return false;
     };
-    rtfDestination.prototype.apply = function () {
+    RtfDestination.prototype.apply = function () {
         Helper.log("[rtf] apply()");
         for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
         delete this._metadata;
     };
-    rtfDestination.prototype.setMetadata = function (prop, val) {
+    RtfDestination.prototype.setMetadata = function (prop, val) {
         this._metadata[prop] = val;
     };
-    return rtfDestination;
+    return RtfDestination;
 }(DestinationBase));
-var genericPropertyDestinationFactory = /** @class */ (function (_super) {
-    __extends(genericPropertyDestinationFactory, _super);
-    function genericPropertyDestinationFactory(parentdest, metaprop) {
+var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(GenericPropertyDestinationFactory, _super);
+    function GenericPropertyDestinationFactory(parentdest, metaprop) {
         var _this = _super.call(this) || this;
         _this.parentdest = parentdest;
         _this.metaprop = metaprop;
@@ -8022,10 +8024,10 @@ var genericPropertyDestinationFactory = /** @class */ (function (_super) {
             class_1.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within " + parentdest + " destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within " + parentdest + " destination");
                 }
                 if (dest.setMetadata == null) {
-                    throw new RTFJSError("Destination " + parentdest + " does not accept meta data");
+                    throw new RTFJSError("IDestination " + parentdest + " does not accept meta data");
                 }
                 dest.setMetadata(metaprop, this.text);
             };
@@ -8033,30 +8035,30 @@ var genericPropertyDestinationFactory = /** @class */ (function (_super) {
         }(DestinationTextBase));
         return _this;
     }
-    return genericPropertyDestinationFactory;
+    return GenericPropertyDestinationFactory;
 }(DestinationFactory));
-var infoDestination = /** @class */ (function (_super) {
-    __extends(infoDestination, _super);
-    function infoDestination(parser, inst, name) {
+var InfoDestination = /** @class */ (function (_super) {
+    __extends(InfoDestination, _super);
+    function InfoDestination(parser, inst, name) {
         var _this = _super.call(this, name) || this;
         _this._metadata = {};
         _this.inst = inst;
         return _this;
     }
-    infoDestination.prototype.apply = function () {
+    InfoDestination.prototype.apply = function () {
         for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
         delete this._metadata;
     };
-    infoDestination.prototype.setMetadata = function (prop, val) {
+    InfoDestination.prototype.setMetadata = function (prop, val) {
         this._metadata[prop] = val;
     };
-    return infoDestination;
+    return InfoDestination;
 }(DestinationBase));
-var metaPropertyDestinationFactory = /** @class */ (function (_super) {
-    __extends(metaPropertyDestinationFactory, _super);
-    function metaPropertyDestinationFactory(metaprop) {
+var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(MetaPropertyDestinationFactory, _super);
+    function MetaPropertyDestinationFactory(metaprop) {
         var _this = _super.call(this) || this;
         _this.metaprop = metaprop;
         _this.class = /** @class */ (function (_super) {
@@ -8069,7 +8071,7 @@ var metaPropertyDestinationFactory = /** @class */ (function (_super) {
             class_2.prototype.apply = function () {
                 var info = findParentDestination(this.parser, "info");
                 if (info == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
                 }
                 info.setMetadata(metaprop, this.text);
             };
@@ -8077,11 +8079,11 @@ var metaPropertyDestinationFactory = /** @class */ (function (_super) {
         }(DestinationTextBase));
         return _this;
     }
-    return metaPropertyDestinationFactory;
+    return MetaPropertyDestinationFactory;
 }(DestinationFactory));
-var metaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
-    __extends(metaPropertyTimeDestinationFactory, _super);
-    function metaPropertyTimeDestinationFactory(metaprop) {
+var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
+    __extends(MetaPropertyTimeDestinationFactory, _super);
+    function MetaPropertyTimeDestinationFactory(metaprop) {
         var _this = _super.call(this) || this;
         _this.metaprop = metaprop;
         _this.class = /** @class */ (function (_super) {
@@ -8128,7 +8130,7 @@ var metaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
             class_3.prototype.apply = function () {
                 var info = findParentDestination(this.parser, "info");
                 if (info == null) {
-                    throw new RTFJSError("Destination " + this._name + " must be within info destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
                 }
                 var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
                 info.setMetadata(metaprop, date);
@@ -8137,11 +8139,11 @@ var metaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
         }(DestinationBase));
         return _this;
     }
-    return metaPropertyTimeDestinationFactory;
+    return MetaPropertyTimeDestinationFactory;
 }(DestinationFactory));
-var fonttblDestinationSub = /** @class */ (function (_super) {
-    __extends(fonttblDestinationSub, _super);
-    function fonttblDestinationSub(fonttbl) {
+var FonttblDestinationSub = /** @class */ (function (_super) {
+    __extends(FonttblDestinationSub, _super);
+    function FonttblDestinationSub(fonttbl) {
         var _this = _super.call(this, "fonttbl:sub") || this;
         _this._fonttbl = fonttbl;
         _this.index = null;
@@ -8153,7 +8155,7 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
         _this.charset = null;
         return _this;
     }
-    fonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
+    FonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -8211,7 +8213,7 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
         }
         return false;
     };
-    fonttblDestinationSub.prototype.appendText = function (text) {
+    FonttblDestinationSub.prototype.appendText = function (text) {
         if (this.fontname == null) {
             this.fontname = text;
         }
@@ -8219,7 +8221,7 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
             this.fontname += text;
         }
     };
-    fonttblDestinationSub.prototype.apply = function () {
+    FonttblDestinationSub.prototype.apply = function () {
         if (this.index == null) {
             throw new RTFJSError("No font index provided");
         }
@@ -8229,24 +8231,24 @@ var fonttblDestinationSub = /** @class */ (function (_super) {
         this._fonttbl.addSub(this);
         delete this._fonttbl;
     };
-    fonttblDestinationSub.prototype.setAltFontName = function (name) {
+    FonttblDestinationSub.prototype.setAltFontName = function (name) {
         this.altfontname = name;
     };
-    return fonttblDestinationSub;
+    return FonttblDestinationSub;
 }(DestinationBase));
-var fonttblDestination = /** @class */ (function (_super) {
-    __extends(fonttblDestination, _super);
-    function fonttblDestination(parser, inst) {
+var FonttblDestination = /** @class */ (function (_super) {
+    __extends(FonttblDestination, _super);
+    function FonttblDestination(parser, inst) {
         var _this = _super.call(this, "fonttbl") || this;
         _this._fonts = [];
         _this._sub = null;
         _this.inst = inst;
         return _this;
     }
-    fonttblDestination.prototype.sub = function () {
-        return new fonttblDestinationSub(this);
+    FonttblDestination.prototype.sub = function () {
+        return new FonttblDestinationSub(this);
     };
-    fonttblDestination.prototype.apply = function () {
+    FonttblDestination.prototype.apply = function () {
         Helper.log("[fonttbl] apply()");
         for (var idx in this._fonts) {
             Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
@@ -8254,24 +8256,24 @@ var fonttblDestination = /** @class */ (function (_super) {
         this.inst._fonts = this._fonts;
         delete this._fonts;
     };
-    fonttblDestination.prototype.appendText = function (text) {
+    FonttblDestination.prototype.appendText = function (text) {
         this._sub.appendText(text);
         this._sub.apply();
     };
-    fonttblDestination.prototype.handleKeyword = function (keyword, param) {
+    FonttblDestination.prototype.handleKeyword = function (keyword, param) {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     };
-    fonttblDestination.prototype.addSub = function (sub) {
+    FonttblDestination.prototype.addSub = function (sub) {
         this._fonts[sub.index] = sub;
     };
-    return fonttblDestination;
+    return FonttblDestination;
 }(DestinationBase));
-var genericSubTextPropertyDestinationFactory = /** @class */ (function (_super) {
-    __extends(genericSubTextPropertyDestinationFactory, _super);
-    function genericSubTextPropertyDestinationFactory(name, parentDest, propOrFunc) {
+var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(GenericSubTextPropertyDestinationFactory, _super);
+    function GenericSubTextPropertyDestinationFactory(name, parentDest, propOrFunc) {
         var _this = _super.call(this) || this;
         _this.name = name;
         _this.parentDest = parentDest;
@@ -8302,11 +8304,11 @@ var genericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
         }(DestinationTextBase));
         return _this;
     }
-    return genericSubTextPropertyDestinationFactory;
+    return GenericSubTextPropertyDestinationFactory;
 }(DestinationFactory));
-var colortblDestination = /** @class */ (function (_super) {
-    __extends(colortblDestination, _super);
-    function colortblDestination(parser, inst) {
+var ColortblDestination = /** @class */ (function (_super) {
+    __extends(ColortblDestination, _super);
+    function ColortblDestination(parser, inst) {
         var _this = _super.call(this, "colortbl") || this;
         _this._colors = [];
         _this._current = null;
@@ -8314,7 +8316,7 @@ var colortblDestination = /** @class */ (function (_super) {
         _this.inst = inst;
         return _this;
     }
-    colortblDestination.prototype._startNewColor = function () {
+    ColortblDestination.prototype._startNewColor = function () {
         this._current = {
             r: 0,
             g: 0,
@@ -8325,7 +8327,7 @@ var colortblDestination = /** @class */ (function (_super) {
         };
         return this._current;
     };
-    colortblDestination.prototype.appendText = function (text) {
+    ColortblDestination.prototype.appendText = function (text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
             if (text[i] != ";") {
@@ -8347,7 +8349,7 @@ var colortblDestination = /** @class */ (function (_super) {
             this._current = null;
         }
     };
-    colortblDestination.prototype._validateColorValueRange = function (keyword, param) {
+    ColortblDestination.prototype._validateColorValueRange = function (keyword, param) {
         if (param == null) {
             throw new RTFJSError(keyword + " has no param");
         }
@@ -8356,7 +8358,7 @@ var colortblDestination = /** @class */ (function (_super) {
         }
         return param;
     };
-    colortblDestination.prototype.handleKeyword = function (keyword, param) {
+    ColortblDestination.prototype.handleKeyword = function (keyword, param) {
         if (this._current == null) {
             this._startNewColor();
         }
@@ -8386,7 +8388,7 @@ var colortblDestination = /** @class */ (function (_super) {
         Helper.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
         return false;
     };
-    colortblDestination.prototype.apply = function () {
+    ColortblDestination.prototype.apply = function () {
         Helper.log("[colortbl] apply()");
         if (this._autoIndex == null) {
             this._autoIndex = 0;
@@ -8401,11 +8403,11 @@ var colortblDestination = /** @class */ (function (_super) {
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
     };
-    return colortblDestination;
+    return ColortblDestination;
 }(DestinationBase));
-var stylesheetDestinationSub = /** @class */ (function (_super) {
-    __extends(stylesheetDestinationSub, _super);
-    function stylesheetDestinationSub(stylesheet) {
+var StylesheetDestinationSub = /** @class */ (function (_super) {
+    __extends(StylesheetDestinationSub, _super);
+    function StylesheetDestinationSub(stylesheet) {
         var _this = _super.call(this, "stylesheet:sub") || this;
         _this._handleKeywordCommon = function (member) {
             return function (keyword, param) {
@@ -8419,7 +8421,7 @@ var stylesheetDestinationSub = /** @class */ (function (_super) {
         _this.handler = _this._handleKeywordCommon("paragraph");
         return _this;
     }
-    stylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
+    StylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "s":
                 this.index = param;
@@ -8442,7 +8444,7 @@ var stylesheetDestinationSub = /** @class */ (function (_super) {
         }
         return this.handler(keyword, param);
     };
-    stylesheetDestinationSub.prototype.appendText = function (text) {
+    StylesheetDestinationSub.prototype.appendText = function (text) {
         if (this.name == null) {
             this.name = text;
         }
@@ -8450,27 +8452,27 @@ var stylesheetDestinationSub = /** @class */ (function (_super) {
             this.name += text;
         }
     };
-    stylesheetDestinationSub.prototype.apply = function () {
+    StylesheetDestinationSub.prototype.apply = function () {
         this._stylesheet.addSub({
             index: this.index,
             name: this.name,
         });
         delete this._stylesheet;
     };
-    return stylesheetDestinationSub;
+    return StylesheetDestinationSub;
 }(DestinationBase));
-var stylesheetDestination = /** @class */ (function (_super) {
-    __extends(stylesheetDestination, _super);
-    function stylesheetDestination(parser, inst) {
+var StylesheetDestination = /** @class */ (function (_super) {
+    __extends(StylesheetDestination, _super);
+    function StylesheetDestination(parser, inst) {
         var _this = _super.call(this, "stylesheet") || this;
         _this._stylesheets = [];
         _this.inst = inst;
         return _this;
     }
-    stylesheetDestination.prototype.sub = function () {
-        return new stylesheetDestinationSub(this);
+    StylesheetDestination.prototype.sub = function () {
+        return new StylesheetDestinationSub(this);
     };
-    stylesheetDestination.prototype.apply = function () {
+    StylesheetDestination.prototype.apply = function () {
         Helper.log("[stylesheet] apply()");
         for (var idx in this._stylesheets) {
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
@@ -8478,36 +8480,36 @@ var stylesheetDestination = /** @class */ (function (_super) {
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
     };
-    stylesheetDestination.prototype.addSub = function (sub) {
-        //Some documents will redefine stylesheets
+    StylesheetDestination.prototype.addSub = function (sub) {
+        // Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
         this._stylesheets[sub.index] = sub;
     };
-    return stylesheetDestination;
+    return StylesheetDestination;
 }(DestinationBase));
-var fieldDestination = /** @class */ (function (_super) {
-    __extends(fieldDestination, _super);
-    function fieldDestination() {
+var FieldDestination = /** @class */ (function (_super) {
+    __extends(FieldDestination, _super);
+    function FieldDestination() {
         var _this = _super.call(this, "field") || this;
         _this._haveInst = false;
         _this._parsedInst = null; // FieldBase
         _this._result = null;
         return _this;
     }
-    fieldDestination.prototype.apply = function () {
+    FieldDestination.prototype.apply = function () {
         if (!this._haveInst) {
-            throw new RTFJSError("Field has no fldinst destination");
+            throw new RTFJSError("IField has no fldinst destination");
         }
-        //A fldrslt destination should be included but is not required
+        // A fldrslt destination should be included but is not required
         // if (this._result == null)
-        //     throw new RTFJSError("Field has no fldrslt destination");
+        //     throw new RTFJSError("IField has no fldrslt destination");
     };
-    fieldDestination.prototype.setInst = function (inst) {
+    FieldDestination.prototype.setInst = function (inst) {
         var _this = this;
         this._haveInst = true;
         if (this._parsedInst != null) {
-            throw new RTFJSError("Field cannot have multiple fldinst destinations");
+            throw new RTFJSError("IField cannot have multiple fldinst destinations");
         }
         if (inst instanceof Promise) {
             inst.then(function (parsedInst) {
@@ -8521,16 +8523,16 @@ var fieldDestination = /** @class */ (function (_super) {
             this._parsedInst = inst;
         }
     };
-    fieldDestination.prototype.getInst = function () {
+    FieldDestination.prototype.getInst = function () {
         return this._parsedInst;
     };
-    fieldDestination.prototype.setResult = function (inst) {
+    FieldDestination.prototype.setResult = function (inst) {
         if (this._result != null) {
-            throw new RTFJSError("Field cannot have multiple fldrslt destinations");
+            throw new RTFJSError("IField cannot have multiple fldrslt destinations");
         }
         this._result = inst;
     };
-    return fieldDestination;
+    return FieldDestination;
 }(DestinationBase));
 var FieldBase = /** @class */ (function () {
     function FieldBase(fldinst) {
@@ -8584,22 +8586,22 @@ var FieldHyperlink = /** @class */ (function (_super) {
     };
     return FieldHyperlink;
 }(FieldBase));
-var fldinstDestination = /** @class */ (function (_super) {
-    __extends(fldinstDestination, _super);
-    function fldinstDestination(parser, inst) {
+var FldinstDestination = /** @class */ (function (_super) {
+    __extends(FldinstDestination, _super);
+    function FldinstDestination(parser, inst) {
         var _this = _super.call(this, "fldinst") || this;
         _this.parser = parser;
         _this.inst = inst;
         return _this;
     }
-    fldinstDestination.prototype.apply = function () {
+    FldinstDestination.prototype.apply = function () {
         var field = findParentDestination(this.parser, "field");
         if (field == null) {
             throw new RTFJSError("fldinst destination must be child of field destination");
         }
         field.setInst(this.parseType());
     };
-    fldinstDestination.prototype.parseType = function () {
+    FldinstDestination.prototype.parseType = function () {
         var _this = this;
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
@@ -8622,6 +8624,7 @@ var fldinstDestination = /** @class */ (function (_super) {
                             // backup
                             var hook = inst._settings.onPicture;
                             inst._settings.onPicture = null;
+                            // tslint:disable-next-line:prefer-const
                             var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
                             // restore
                             inst._settings.onPicture = hook;
@@ -8642,7 +8645,7 @@ var fldinstDestination = /** @class */ (function (_super) {
                                             w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
-                                        pict_1 = new pictDestination(self_1.parser, self_1.inst);
+                                        pict_1 = new PictDestination(self_1.parser, self_1.inst);
                                         pict_1.handleBlob(blob);
                                         pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
                                         pict_1._displaysize.width = dims.w;
@@ -8681,21 +8684,21 @@ var fldinstDestination = /** @class */ (function (_super) {
             }
         }
     };
-    return fldinstDestination;
+    return FldinstDestination;
 }(DestinationTextBase));
-var fldrsltDestination = /** @class */ (function (_super) {
-    __extends(fldrsltDestination, _super);
-    function fldrsltDestination(parser, inst) {
+var FldrsltDestination = /** @class */ (function (_super) {
+    __extends(FldrsltDestination, _super);
+    function FldrsltDestination(parser, inst) {
         return _super.call(this, parser, "fldrslt") || this;
     }
-    fldrsltDestination.prototype.apply = function () {
+    FldrsltDestination.prototype.apply = function () {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
         _super.prototype.apply.call(this);
     };
-    fldrsltDestination.prototype.renderBegin = function (rtf, records) {
+    FldrsltDestination.prototype.renderBegin = function (rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -8705,7 +8708,7 @@ var fldrsltDestination = /** @class */ (function (_super) {
         }
         return false;
     };
-    fldrsltDestination.prototype.renderEnd = function (rtf, records) {
+    FldrsltDestination.prototype.renderEnd = function (rtf, records) {
         var field = findParentDestination(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
@@ -8714,11 +8717,11 @@ var fldrsltDestination = /** @class */ (function (_super) {
             }
         }
     };
-    return fldrsltDestination;
+    return FldrsltDestination;
 }(DestinationFormattedTextBase));
-var pictGroupDestinationFactory = /** @class */ (function (_super) {
-    __extends(pictGroupDestinationFactory, _super);
-    function pictGroupDestinationFactory(legacy) {
+var PictGroupDestinationFactory = /** @class */ (function (_super) {
+    __extends(PictGroupDestinationFactory, _super);
+    function PictGroupDestinationFactory(legacy) {
         var _this = _super.call(this) || this;
         _this.legacy = legacy;
         _this.class = /** @class */ (function (_super) {
@@ -8735,11 +8738,11 @@ var pictGroupDestinationFactory = /** @class */ (function (_super) {
         }(DestinationTextBase));
         return _this;
     }
-    return pictGroupDestinationFactory;
+    return PictGroupDestinationFactory;
 }(DestinationFactory));
-var pictDestination = /** @class */ (function (_super) {
-    __extends(pictDestination, _super);
-    function pictDestination(parser, inst) {
+var PictDestination = /** @class */ (function (_super) {
+    __extends(PictDestination, _super);
+    function PictDestination(parser, inst) {
         var _this = _super.call(this, "pict") || this;
         _this._pictHandlers = {
             picw: _this._setPropValueRequired("_size", "width"),
@@ -8840,7 +8843,7 @@ var pictDestination = /** @class */ (function (_super) {
         _this.inst = inst;
         return _this;
     }
-    pictDestination.prototype._setPropValueRequired = function (member, prop) {
+    PictDestination.prototype._setPropValueRequired = function (member, prop) {
         return function (param) {
             if (param == null) {
                 throw new RTFJSError("Picture property has no value");
@@ -8850,7 +8853,7 @@ var pictDestination = /** @class */ (function (_super) {
             obj[prop] = param;
         };
     };
-    pictDestination.prototype.handleKeyword = function (keyword, param) {
+    PictDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler.call(this, param);
@@ -8884,18 +8887,14 @@ var pictDestination = /** @class */ (function (_super) {
         }
         return false;
     };
-    pictDestination.prototype.handleBlob = function (blob) {
+    PictDestination.prototype.handleBlob = function (blob) {
         this._blob = blob;
     };
-    pictDestination.prototype.apply = function (rendering) {
+    PictDestination.prototype.apply = function (rendering) {
         if (rendering === void 0) { rendering = false; }
         if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
         }
-        //if (this._size.width == null || this._size.height == null)
-        //    throw new RTFJSError("Picture dimensions not specified");
-        //if (this._displaysize.width == null || this._displaysize.height == null)
-        //    throw new RTFJSError("Picture display dimensions not specified");
         var pictGroup = findParentDestination(this.parser, "pict-group");
         var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
         var type = this._type;
@@ -8910,13 +8909,13 @@ var pictDestination = /** @class */ (function (_super) {
                 delete this.text;
             }
             var info_2 = this;
-            var doRender_1 = function (rendering) {
+            var doRender_1 = function (render) {
                 var inst = this._doc;
                 var pictrender = type.call(info_2);
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
-                        if (rendering) {
+                        if (render) {
                             return this.buildPicture(pictrender, null);
                         }
                         else {
@@ -8929,7 +8928,7 @@ var pictDestination = /** @class */ (function (_super) {
                         if (typeof pictrender !== "function") {
                             throw new RTFJSError("Expected a picture render function");
                         }
-                        if (rendering) {
+                        if (render) {
                             return this.buildRenderedPicture(pictrender());
                         }
                         else {
@@ -8941,11 +8940,11 @@ var pictDestination = /** @class */ (function (_super) {
                 }
             };
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function (isLegacy) {
+                this.inst.addIns((function (legacy) {
                     return function () {
                         var inst = this._doc;
                         var renderer = this;
-                        var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
+                        var elem = inst._settings.onPicture.call(inst, legacy, function () {
                             return doRender_1.call(renderer, true);
                         });
                         if (elem != null) {
@@ -8964,10 +8963,10 @@ var pictDestination = /** @class */ (function (_super) {
         else if (typeof type === "string") {
             var text_1 = this.text;
             var blob_1 = this._blob;
-            var doRender_2 = function (rendering) {
+            var doRender_2 = function (render) {
                 var bin = blob_1 != null ? Helper._blobToBinary(blob_1) : Helper._hexToBinary(text_1);
                 if (type !== "") {
-                    if (rendering) {
+                    if (render) {
                         return this.buildPicture(type, bin);
                     }
                     else {
@@ -8977,7 +8976,7 @@ var pictDestination = /** @class */ (function (_super) {
                     }
                 }
                 else {
-                    if (rendering) {
+                    if (render) {
                         return this.buildPicture("Unsupported image format", null);
                     }
                     else {
@@ -8988,11 +8987,11 @@ var pictDestination = /** @class */ (function (_super) {
                 }
             };
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function (isLegacy) {
+                this.inst.addIns((function (legacy) {
                     return function () {
                         var inst = this._doc;
                         var renderer = this;
-                        var elem = inst._settings.onPicture.call(inst, isLegacy, function () {
+                        var elem = inst._settings.onPicture.call(inst, legacy, function () {
                             return doRender_2.call(renderer, true);
                         });
                         if (elem != null) {
@@ -9010,11 +9009,11 @@ var pictDestination = /** @class */ (function (_super) {
         }
         delete this.text;
     };
-    return pictDestination;
+    return PictDestination;
 }(DestinationTextBase));
-var requiredDestinationFactory = /** @class */ (function (_super) {
-    __extends(requiredDestinationFactory, _super);
-    function requiredDestinationFactory(name) {
+var RequiredDestinationFactory = /** @class */ (function (_super) {
+    __extends(RequiredDestinationFactory, _super);
+    function RequiredDestinationFactory(name) {
         var _this = _super.call(this) || this;
         _this.name = name;
         _this.class = /** @class */ (function (_super) {
@@ -9026,53 +9025,53 @@ var requiredDestinationFactory = /** @class */ (function (_super) {
         }(DestinationBase));
         return _this;
     }
-    return requiredDestinationFactory;
+    return RequiredDestinationFactory;
 }(DestinationFactory));
 var destinations = {
-    rtf: rtfDestination,
-    info: infoDestination,
-    title: new metaPropertyDestinationFactory("title"),
-    subject: new metaPropertyDestinationFactory("subject"),
-    author: new metaPropertyDestinationFactory("author"),
-    manager: new metaPropertyDestinationFactory("manager"),
-    company: new metaPropertyDestinationFactory("company"),
-    operator: new metaPropertyDestinationFactory("operator"),
-    category: new metaPropertyDestinationFactory("category"),
-    keywords: new metaPropertyDestinationFactory("keywords"),
-    doccomm: new metaPropertyDestinationFactory("doccomm"),
-    hlinkbase: new metaPropertyDestinationFactory("hlinkbase"),
-    generator: new genericPropertyDestinationFactory("rtf", "generator"),
-    creatim: new metaPropertyTimeDestinationFactory("creatim"),
-    revtim: new metaPropertyTimeDestinationFactory("revtim"),
-    printim: new metaPropertyTimeDestinationFactory("printim"),
-    buptim: new metaPropertyTimeDestinationFactory("buptim"),
-    fonttbl: fonttblDestination,
-    falt: new genericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
-    colortbl: colortblDestination,
-    stylesheet: stylesheetDestination,
-    footer: new requiredDestinationFactory("footer"),
-    footerf: new requiredDestinationFactory("footerf"),
-    footerl: new requiredDestinationFactory("footerl"),
-    footerr: new requiredDestinationFactory("footerr"),
-    footnote: new requiredDestinationFactory("footnote"),
-    ftncn: new requiredDestinationFactory("ftncn"),
-    ftnsep: new requiredDestinationFactory("ftnsep"),
-    ftnsepc: new requiredDestinationFactory("ftnsepc"),
-    header: new requiredDestinationFactory("header"),
-    headerf: new requiredDestinationFactory("headerf"),
-    headerl: new requiredDestinationFactory("headerl"),
-    headerr: new requiredDestinationFactory("headerr"),
-    pict: pictDestination,
-    shppict: new pictGroupDestinationFactory(false),
-    nonshppict: new pictGroupDestinationFactory(true),
-    private1: new requiredDestinationFactory("private1"),
-    rxe: new requiredDestinationFactory("rxe"),
-    tc: new requiredDestinationFactory("tc"),
-    txe: new requiredDestinationFactory("txe"),
-    xe: new requiredDestinationFactory("xe"),
-    field: fieldDestination,
-    fldinst: fldinstDestination,
-    fldrslt: fldrsltDestination,
+    rtf: RtfDestination,
+    info: InfoDestination,
+    title: new MetaPropertyDestinationFactory("title"),
+    subject: new MetaPropertyDestinationFactory("subject"),
+    author: new MetaPropertyDestinationFactory("author"),
+    manager: new MetaPropertyDestinationFactory("manager"),
+    company: new MetaPropertyDestinationFactory("company"),
+    operator: new MetaPropertyDestinationFactory("operator"),
+    category: new MetaPropertyDestinationFactory("category"),
+    keywords: new MetaPropertyDestinationFactory("keywords"),
+    doccomm: new MetaPropertyDestinationFactory("doccomm"),
+    hlinkbase: new MetaPropertyDestinationFactory("hlinkbase"),
+    generator: new GenericPropertyDestinationFactory("rtf", "generator"),
+    creatim: new MetaPropertyTimeDestinationFactory("creatim"),
+    revtim: new MetaPropertyTimeDestinationFactory("revtim"),
+    printim: new MetaPropertyTimeDestinationFactory("printim"),
+    buptim: new MetaPropertyTimeDestinationFactory("buptim"),
+    fonttbl: FonttblDestination,
+    falt: new GenericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    colortbl: ColortblDestination,
+    stylesheet: StylesheetDestination,
+    footer: new RequiredDestinationFactory("footer"),
+    footerf: new RequiredDestinationFactory("footerf"),
+    footerl: new RequiredDestinationFactory("footerl"),
+    footerr: new RequiredDestinationFactory("footerr"),
+    footnote: new RequiredDestinationFactory("footnote"),
+    ftncn: new RequiredDestinationFactory("ftncn"),
+    ftnsep: new RequiredDestinationFactory("ftnsep"),
+    ftnsepc: new RequiredDestinationFactory("ftnsepc"),
+    header: new RequiredDestinationFactory("header"),
+    headerf: new RequiredDestinationFactory("headerf"),
+    headerl: new RequiredDestinationFactory("headerl"),
+    headerr: new RequiredDestinationFactory("headerr"),
+    pict: PictDestination,
+    shppict: new PictGroupDestinationFactory(false),
+    nonshppict: new PictGroupDestinationFactory(true),
+    private1: new RequiredDestinationFactory("private1"),
+    rxe: new RequiredDestinationFactory("rxe"),
+    tc: new RequiredDestinationFactory("tc"),
+    txe: new RequiredDestinationFactory("txe"),
+    xe: new RequiredDestinationFactory("xe"),
+    field: FieldDestination,
+    fldinst: FldinstDestination,
+    fldrslt: FldrsltDestination,
 };
 
 /*
@@ -9105,6 +9104,18 @@ var Parser = /** @class */ (function () {
         this.inst = document;
         this.parser = new GlobalState(blob, renderer);
     }
+    Parser.prototype.parse = function () {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
+            this.parseLoop(false, true);
+            return Promise.all(this.parser._asyncTasks).then(function () { return; });
+        }
+        if (this.parser.version == null) {
+            throw new RTFJSError("Not a valid rtf document");
+        }
+        if (this.parser.state != null) {
+            throw new RTFJSError("File truncated");
+        }
+    };
     Parser.prototype.eof = function () {
         return this.parser.pos >= this.parser.data.length;
     };
@@ -9184,14 +9195,14 @@ var Parser = /** @class */ (function () {
         }
         this.parser.state = state.parent;
         if (this.parser.state !== null) {
-            this.inst._ins.push((function (state) {
+            this.inst._ins.push((function (chpState) {
                 return function () {
-                    this.setChp(new RenderChp(state.chp));
+                    this.setChp(new RenderChp(chpState.chp));
                 };
             })(this.parser.state));
-            this.inst._ins.push((function (state) {
+            this.inst._ins.push((function (papState) {
                 return function () {
-                    this.setPap(new RenderPap(state.pap));
+                    this.setPap(new RenderPap(papState.pap));
                 };
             })(this.parser.state));
         }
@@ -9221,10 +9232,6 @@ var Parser = /** @class */ (function () {
             }
             this.parser.state.first = false;
         }
-        //if (param != null)
-        //    Helper.log("keyword " + keyword + " with param " + param);
-        //else
-        //    Helper.log("keyword " + keyword);
         if (this.parser.state.bindata > 0) {
             throw new RTFJSError("Keyword encountered within binary data");
         }
@@ -9470,18 +9477,6 @@ var Parser = /** @class */ (function () {
                 error.message += " (line: " + this.parser.line + "; column: " + this.parser.column + ")";
             }
             throw error;
-        }
-    };
-    Parser.prototype.parse = function () {
-        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
-            this.parseLoop(false, true);
-            return Promise.all(this.parser._asyncTasks).then(function () { });
-        }
-        if (this.parser.version == null) {
-            throw new RTFJSError("Not a valid rtf document");
-        }
-        if (this.parser.state != null) {
-            throw new RTFJSError("File truncated");
         }
     };
     return Parser;

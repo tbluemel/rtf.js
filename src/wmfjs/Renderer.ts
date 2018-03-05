@@ -50,7 +50,10 @@ export class Renderer {
 
         const reader = new Blob(blob);
 
-        let type, size, placable, headerstart;
+        let type;
+        let size;
+        let placable;
+        let headerstart;
         const key = reader.readUint32();
         if (key == 0x9ac6cdd7) {
             placable = new WMFPlacable(reader);
@@ -105,8 +108,8 @@ export class Renderer {
                 },
             });
         })(info.mapMode, info.xExt, info.yExt);
-        const svg = ($(img[0]) as any).svg("get");
-        return $(svg.root()).attr("width", info.width).attr("height", info.height);
+        const svgContainer = ($(img[0]) as any).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     }
 }
 
