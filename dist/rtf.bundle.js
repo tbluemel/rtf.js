@@ -7820,20 +7820,20 @@ var RtfDestination = /** @class */ (function (_super) {
                 // if the value is 0, use the default charset as 0 is not valid
                 if (param > 0) {
                     Helper.log("[rtf] using charset: " + param);
-                    this.parser.codepage = param;
+                    _this.parser.codepage = param;
                 }
             },
             sectd: function () {
                 Helper.log("[rtf] reset to section defaults");
-                this.parser.state.sep = new Sep(null);
+                _this.parser.state.sep = new Sep(null);
             },
             plain: function () {
                 Helper.log("[rtf] reset to character defaults");
-                this.parser.state.chp = new Chp(null);
+                _this.parser.state.chp = new Chp(null);
             },
             pard: function () {
                 Helper.log("[rtf] reset to paragraph defaults");
-                this.parser.state.pap = new Pap(null);
+                _this.parser.state.pap = new Pap(null);
             },
             b: _this._genericFormatOnOff("chp", "bold"),
             i: _this._genericFormatOnOff("chp", "italic"),
@@ -7924,8 +7924,9 @@ var RtfDestination = /** @class */ (function (_super) {
         Helper.log("[rtf].sub()");
     };
     RtfDestination.prototype._addInsHandler = function (func) {
+        var _this = this;
         return function (param) {
-            this.inst.addIns(func);
+            _this.inst.addIns(func);
         };
     };
     RtfDestination.prototype._addFormatIns = function (ptype, props) {
@@ -7945,53 +7946,58 @@ var RtfDestination = /** @class */ (function (_super) {
         }
     };
     RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
+        var _this = this;
         return function (param) {
-            var props = this.parser.state[ptype];
+            var props = _this.parser.state[ptype];
             props[prop] = val;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
+            _this._addFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
+        var _this = this;
         return function (param) {
-            var props = this.parser.state[ptype];
+            var props = _this.parser.state[ptype];
             props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
+            _this._addFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
+        var _this = this;
         return function (param) {
-            var props = this.parser.state[ptype];
+            var props = _this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
+            _this._addFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
+        var _this = this;
         return function (param) {
             if (param == null) {
                 throw new RTFJSError("Keyword without required param");
             }
-            var props = this.parser.state[ptype];
+            var props = _this.parser.state[ptype];
             props[prop] = param;
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            this._addFormatIns(ptype, props);
+            _this._addFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+        var _this = this;
         return function (param) {
-            var props = this.parser.state[ptype];
+            var props = _this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            this._addFormatIns(ptype, props);
+            _this._addFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._charFormatHandlers[keyword];
         if (handler != null) {
-            handler.call(this, param);
+            handler(param);
             return true;
         }
         return false;
@@ -8757,7 +8763,7 @@ var PictDestination = /** @class */ (function (_super) {
                         return {
                             load: function () {
                                 try {
-                                    return new EMFJS.Renderer(this._blob);
+                                    return new EMFJS.Renderer(_this._blob);
                                 }
                                 catch (e) {
                                     if (e instanceof EMFJS.Error) {
@@ -8770,12 +8776,12 @@ var PictDestination = /** @class */ (function (_super) {
                             },
                             render: function (img) {
                                 return img.render({
-                                    width: Helper._twipsToPt(this._displaysize.width) + "pt",
-                                    height: Helper._twipsToPt(this._displaysize.height) + "pt",
-                                    wExt: this._size.width,
-                                    hExt: this._size.width,
-                                    xExt: this._size.width,
-                                    yExt: this._size.height,
+                                    width: Helper._twipsToPt(_this._displaysize.width) + "pt",
+                                    height: Helper._twipsToPt(_this._displaysize.height) + "pt",
+                                    wExt: _this._size.width,
+                                    hExt: _this._size.width,
+                                    xExt: _this._size.width,
+                                    yExt: _this._size.height,
                                     mapMode: 8,
                                 });
                             },
@@ -8799,7 +8805,7 @@ var PictDestination = /** @class */ (function (_super) {
                         return {
                             load: function () {
                                 try {
-                                    return new WMFJS.Renderer(this._blob);
+                                    return new WMFJS.Renderer(_this._blob);
                                 }
                                 catch (e) {
                                     if (e instanceof WMFJS.Error) {
@@ -8812,10 +8818,10 @@ var PictDestination = /** @class */ (function (_super) {
                             },
                             render: function (img) {
                                 return img.render({
-                                    width: Helper._twipsToPt(this._displaysize.width) + "pt",
-                                    height: Helper._twipsToPt(this._displaysize.height) + "pt",
-                                    xExt: this._size.width,
-                                    yExt: this._size.height,
+                                    width: Helper._twipsToPt(_this._displaysize.width) + "pt",
+                                    height: Helper._twipsToPt(_this._displaysize.height) + "pt",
+                                    xExt: _this._size.width,
+                                    yExt: _this._size.height,
                                     mapMode: param,
                                 });
                             },
@@ -8844,36 +8850,36 @@ var PictDestination = /** @class */ (function (_super) {
         return _this;
     }
     PictDestination.prototype._setPropValueRequired = function (member, prop) {
+        var _this = this;
         return function (param) {
             if (param == null) {
                 throw new RTFJSError("Picture property has no value");
             }
             Helper.log("[pict] set " + member + "." + prop + " = " + param);
-            var obj = (member != null ? this[member] : this);
+            var obj = (member != null ? _this[member] : _this);
             obj[prop] = param;
         };
     };
     PictDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._pictHandlers[keyword];
         if (handler != null) {
-            handler.call(this, param);
+            handler(param);
             return true;
         }
-        var inst = this;
         var type = this._pictTypeHandler[keyword];
         if (type != null) {
             if (this._type == null) {
                 if (typeof type === "function") {
-                    var info_1 = type.call(this, param);
+                    var info_1 = type(param);
                     if (info_1 != null) {
                         this._type = function () {
-                            var renderer = info_1.load.call(inst);
+                            var renderer = info_1.load();
                             if (renderer != null) {
                                 if (typeof renderer === "string") {
                                     return renderer;
                                 }
                                 return function () {
-                                    return info_1.render.call(inst, renderer);
+                                    return info_1.render(renderer);
                                 };
                             }
                         };
@@ -8908,10 +8914,9 @@ var PictDestination = /** @class */ (function (_super) {
                 }
                 delete this.text;
             }
-            var info_2 = this;
             var doRender_1 = function (render) {
                 var inst = this._doc;
-                var pictrender = type.call(info_2);
+                var pictrender = type();
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
