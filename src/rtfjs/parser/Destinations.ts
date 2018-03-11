@@ -58,7 +58,7 @@ const findParentDestination = (parser: GlobalState, dest: string) => {
         if (state.destination == null) {
             break;
         }
-        if (state.destination._name == dest) {
+        if (state.destination._name === dest) {
             return state.destination;
         }
         state = state.parent;
@@ -236,7 +236,7 @@ export class RtfDestination extends DestinationBase {
         }
 
         // This parameter should be one, but older versions of the spec allow for omission of the version number
-        if (param && param != 1) {
+        if (param && param !== 1) {
             throw new RTFJSError("Unsupported rtf version");
         }
         parser.version = 1;
@@ -294,7 +294,7 @@ export class RtfDestination extends DestinationBase {
     _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
         return (param: number) => {
             const props = this.parser.state[ptype];
-            props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            props[prop] = (param == null || param !== 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             this._addFormatIns(ptype, props);
         };
@@ -735,7 +735,7 @@ export class ColortblDestination extends DestinationBase {
     appendText(text: string) {
         const len = text.length;
         for (let i = 0; i < len; i++) {
-            if (text[i] != ";") {
+            if (text[i] !== ";") {
                 throw new RTFJSError("Error parsing colortbl destination");
             }
             if (this._current == null) {
@@ -786,7 +786,7 @@ export class ColortblDestination extends DestinationBase {
                 this._current.shade = this._validateColorValueRange(keyword, param);
                 return true;
             default:
-                if (keyword[0] == "c") {
+                if (keyword[0] === "c") {
                     this._current.theme = Helper._mapColorTheme(keyword.slice(1));
                     return true;
                 }
@@ -1044,7 +1044,7 @@ export class FldinstDestination extends DestinationTextBase {
         const sep = this.text.indexOf(" ");
         if (sep > 0) {
             let data = this.text.substr(sep + 1);
-            if (data.length >= 2 && data[0] == "\"") {
+            if (data.length >= 2 && data[0] === "\"") {
                 const end = data.indexOf("\"", 1);
                 if (end >= 1) {
                     data = data.substring(1, end);

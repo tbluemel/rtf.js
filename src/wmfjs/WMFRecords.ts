@@ -127,7 +127,7 @@ export class WMFRecords {
                     break;
                 }
                 case Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
-                    const haveSrcDib = ((type >> 8) + 3 != size);
+                    const haveSrcDib = ((type >> 8) + 3 !== size);
                     const rasterOp = reader.readUint16() | (reader.readUint16() << 16);
                     const srcH = reader.readInt16();
                     const srcW = reader.readInt16();
@@ -483,7 +483,7 @@ export class WMFRecords {
                     let recordName = "UNKNOWN";
                     for (const name in Helper.GDI.RecordType) {
                         const recordTypes: any = Helper.GDI.RecordType;
-                        if (recordTypes[name] == type) {
+                        if (recordTypes[name] === type) {
                             recordName = name;
                             break;
                         }

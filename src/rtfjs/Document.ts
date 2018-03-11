@@ -53,7 +53,7 @@ export class Document {
     }
 
     _lookupColor(idx: number) {
-        if (idx == 0) {
+        if (idx === 0) {
             if (this._autoColor == null) {
                 return null;
             }

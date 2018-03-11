@@ -10,7 +10,6 @@
 
         // to be enabled eventually
         "max-line-length": false,
-        "triple-equals": false,
         "member-access": false,
         "forin": false
     },

@@ -421,7 +421,7 @@ var Blob = /** @class */ (function () {
                     throw new WMFJSError("Unexpected end of file");
                 }
                 var byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0) {
+                if (byte === 0) {
                     break;
                 }
                 ret += String.fromCharCode(byte);
@@ -566,7 +566,7 @@ var Region = /** @class */ (function (_super) {
         var _this = _super.call(this, "region") || this;
         if (reader != null) {
             reader.skip(2);
-            if (reader.readInt16() != 6) {
+            if (reader.readInt16() !== 6) {
                 throw new WMFJSError("Invalid region identifier");
             }
             reader.skip(2);
@@ -627,11 +627,11 @@ var Region = /** @class */ (function (_super) {
         }
         else {
             this.complexity = 2;
-            if (this.scans.length == 1) {
+            if (this.scans.length === 1) {
                 var scan = this.scans[0];
-                if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+                if (scan.top === this.bounds.top && scan.bottom === this.bounds.bottom && scan.scanlines.length === 1) {
                     var scanline = scan.scanlines[0];
-                    if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+                    if (scanline.left === this.bounds.left && scanline.right === this.bounds.right) {
                         this.scans = null;
                         this.complexity = 1;
                     }
@@ -723,10 +723,10 @@ var Region = /** @class */ (function (_super) {
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
-                        if (i == 0) {
+                        if (i === 0) {
                             top_2 = scan.top;
                         }
-                        if (i == len - 1) {
+                        if (i === len - 1) {
                             bottom = scan.bottom;
                         }
                         var slen = scan.scanlines.length;
@@ -1038,7 +1038,7 @@ var BitmapInfoHeader = /** @class */ (function () {
         this.clrimportant = reader.readUint32();
     }
     BitmapInfoHeader.prototype.colors = function () {
-        if (this.clrused != 0) {
+        if (this.clrused !== 0) {
             return this.clrused < 256 ? this.clrused : 256;
         }
         else {
@@ -1056,13 +1056,13 @@ var BitmapInfo = /** @class */ (function (_super) {
         _this._usergb = usergb;
         var hdrsize = reader.readUint32();
         _this._infosize = hdrsize;
-        if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
+        if (hdrsize === Helper.GDI.BITMAPCOREHEADER_SIZE) {
             _this._header = new BitmapCoreHeader(reader, false);
             _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
         }
         else {
             _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            var masks = _this._header.compression === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
@@ -1346,7 +1346,7 @@ var Brush = /** @class */ (function (_super) {
             var start = reader.pos;
             if (forceDibPattern === true || forceDibPattern === false) {
                 _this.style = reader.readUint16();
-                if (forceDibPattern && _this.style != Helper.GDI.BrushStyle.BS_PATTERN) {
+                if (forceDibPattern && _this.style !== Helper.GDI.BrushStyle.BS_PATTERN) {
                     _this.style = Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
                 }
                 switch (_this.style) {
@@ -1647,7 +1647,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype._getSvgClipPathForRegion = function (region) {
         for (var existingId in this._svgClipPaths) {
             var rgn = this._svgClipPaths[existingId];
-            if (rgn == region) {
+            if (rgn === region) {
                 return existingId;
             }
         }
@@ -1673,7 +1673,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype._getSvgPatternForBrush = function (brush) {
         for (var existingId in this._svgPatterns) {
             var pat = this._svgPatterns[existingId];
-            if (pat == brush) {
+            if (pat === brush) {
                 return existingId;
             }
         }
@@ -1701,7 +1701,7 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype._selectObject = function (obj) {
         this.state.selected[obj.type] = obj;
-        if (obj.type == "region") {
+        if (obj.type === "region") {
             this.state._svgclipChanged = true;
         }
     };
@@ -1710,7 +1710,7 @@ var GDIContext = /** @class */ (function () {
         if (obj != null) {
             for (var i = 0; i < this.statestack.length; i++) {
                 var state = this.statestack[i];
-                if (state.selected[obj.type] == obj) {
+                if (state.selected[obj.type] === obj) {
                     state.selected[obj.type] = this.defObjects[obj.type].clone();
                 }
             }
@@ -1828,7 +1828,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype.restoreDC = function (saved) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
-            if (saved == -1) {
+            if (saved === -1) {
                 this.state = this.statestack.pop();
             }
             else if (saved < -1) {
@@ -1883,14 +1883,14 @@ var GDIContext = /** @class */ (function () {
         }
         if (usePen) {
             var pen = this.state.selected.pen;
-            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
+            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke = "#" + pen.color.toHex(), opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
                 var dotWidth = void 0;
-                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
+                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
                     opts["stroke-linecap"] = "square";
                     dotWidth = 1;
                 }
-                else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
+                else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
                     opts["stroke-linecap"] = "butt";
                     dotWidth = opts.strokeWidth;
                 }
@@ -1898,10 +1898,10 @@ var GDIContext = /** @class */ (function () {
                     opts["stroke-linecap"] = "round";
                     dotWidth = 1;
                 }
-                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0) {
+                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
                     opts["stroke-linejoin"] = "bevel";
                 }
-                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0) {
+                else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) !== 0) {
                     opts["stroke-linejoin"] = "miter";
                 }
                 else {
@@ -1972,11 +1972,11 @@ var GDIContext = /** @class */ (function () {
         Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
         this._pushGroup();
         var opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement != 0) {
+        if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode == Helper.GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
                 var filterId = Helper._makeUniqueId("f");
                 var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
@@ -1995,11 +1995,11 @@ var GDIContext = /** @class */ (function () {
         Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
         this._pushGroup();
         var opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement != 0) {
+        if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode == Helper.GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
                 var filterId = Helper._makeUniqueId("f");
                 var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
@@ -2042,7 +2042,7 @@ var GDIContext = /** @class */ (function () {
             this._pushGroup();
         }
         var opts = {
-            "fill-rule": this.state.polyfillmode == Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+            "fill-rule": this.state.polyfillmode === Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
         this._applyOpts(opts, true, true, false);
         this._svg.polygon(this.state._svggroup, pts, opts);
@@ -2051,7 +2051,7 @@ var GDIContext = /** @class */ (function () {
         Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
         for (var i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], i == 0);
+            this.polygon(polygons[i], i === 0);
         }
     };
     GDIContext.prototype.polyline = function (points) {
@@ -2138,7 +2138,7 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype.selectObject = function (objIdx, checkType) {
         var obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type == checkType)) {
+        if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
             Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         }
@@ -2619,7 +2619,7 @@ var WMFRecords = /** @class */ (function () {
                     var recordName = "UNKNOWN";
                     for (var name_1 in Helper.GDI.RecordType) {
                         var recordTypes = Helper.GDI.RecordType;
-                        if (recordTypes[name_1] == type) {
+                        if (recordTypes[name_1] === type) {
                             recordName = name_1;
                             break;
                         }
@@ -2693,7 +2693,7 @@ var Renderer = /** @class */ (function () {
         var placable;
         var headerstart;
         var key = reader.readUint32();
-        if (key == 0x9ac6cdd7) {
+        if (key === 0x9ac6cdd7) {
             placable = new WMFPlacable(reader);
             headerstart = reader.pos;
             type = reader.readUint16();
@@ -2707,7 +2707,7 @@ var Renderer = /** @class */ (function () {
         switch (type) {
             case Helper.GDI.MetafileType.MEMORYMETAFILE:
             case Helper.GDI.MetafileType.DISKMETAFILE:
-                if (size == Helper.GDI.METAHEADER_SIZE / 2) {
+                if (size === Helper.GDI.METAHEADER_SIZE / 2) {
                     var version = reader.readUint16();
                     switch (version) {
                         case Helper.GDI.MetafileVersion.METAVERSION100:

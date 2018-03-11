@@ -38,13 +38,13 @@ export class Region extends Obj {
         super("region");
         if (reader != null) {
             const hdrSize = reader.readUint32();
-            if (hdrSize != 32) {
+            if (hdrSize !== 32) {
                 throw new EMFJSError("Invalid region header");
             }
             reader.skip(4);
             const rectCnt = reader.readUint32();
             const rgnSize = reader.readUint32();
-            if (rectCnt * 16 != rgnSize) {
+            if (rectCnt * 16 !== rgnSize) {
                 throw new EMFJSError("Invalid region data");
             }
 
@@ -53,7 +53,7 @@ export class Region extends Obj {
             let scanLine;
             for (let i = 0; i < rectCnt; i++) {
                 const r = new RectL(reader);
-                if (scanLine == null || scanLine.top != r.top || scanLine.bottom != r.bottom) {
+                if (scanLine == null || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
                     scanLine = new Scan(r);
                     this.scans.push(scanLine);
                 } else {
@@ -100,11 +100,11 @@ export class Region extends Obj {
             this.complexity = 1;
         } else {
             this.complexity = 2;
-            if (this.scans.length == 1) {
+            if (this.scans.length === 1) {
                 const scan = this.scans[0];
-                if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+                if (scan.top === this.bounds.top && scan.bottom === this.bounds.bottom && scan.scanlines.length === 1) {
                     const scanline = scan.scanlines[0];
-                    if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+                    if (scanline.left === this.bounds.left && scanline.right === this.bounds.right) {
                         this.scans = null;
                         this.complexity = 1;
                     }
@@ -201,10 +201,10 @@ export class Region extends Obj {
                     const len = this.scans.length;
                     for (let i = 0; i < len; i++) {
                         const scan = this.scans[i];
-                        if (i == 0) {
+                        if (i === 0) {
                             top = scan.top;
                         }
-                        if (i == len - 1) {
+                        if (i === len - 1) {
                             bottom = scan.bottom;
                         }
 

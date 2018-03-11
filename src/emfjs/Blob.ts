@@ -138,7 +138,7 @@ export class Blob {
                     throw new EMFJSError("Unexpected end of file");
                 }
                 const byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0) {
+                if (byte === 0) {
                     break;
                 }
                 ret += String.fromCharCode(byte);
@@ -151,7 +151,7 @@ export class Blob {
         let ret = "";
         for (let i = 0; i < fixedSizeChars; i++) {
             const charCode = this.readUint16();
-            if (charCode == 0) {
+            if (charCode === 0) {
                 if (++i < fixedSizeChars) {
                     this.skip((fixedSizeChars - i) * 2);
                 }

@@ -38,12 +38,12 @@ export class RenderPap {
 
     apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
         if (ismaindiv) {
-            if (this._pap.spacebefore != 0) {
+            if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
             } else {
                 el.css("margin-top", "");
             }
-            if (this._pap.spaceafter != 0) {
+            if (this._pap.spaceafter !== 0) {
                 el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
             } else {
                 el.css("margin-bottom", "");

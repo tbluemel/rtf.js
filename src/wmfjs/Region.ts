@@ -37,7 +37,7 @@ export class Region extends Obj {
         super("region");
         if (reader != null) {
             reader.skip(2);
-            if (reader.readInt16() != 6) {
+            if (reader.readInt16() !== 6) {
                 throw new WMFJSError("Invalid region identifier");
             }
             reader.skip(2);
@@ -94,11 +94,11 @@ export class Region extends Obj {
             this.complexity = 1;
         } else {
             this.complexity = 2;
-            if (this.scans.length == 1) {
+            if (this.scans.length === 1) {
                 const scan = this.scans[0];
-                if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+                if (scan.top === this.bounds.top && scan.bottom === this.bounds.bottom && scan.scanlines.length === 1) {
                     const scanline = scan.scanlines[0];
-                    if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+                    if (scanline.left === this.bounds.left && scanline.right === this.bounds.right) {
                         this.scans = null;
                         this.complexity = 1;
                     }
@@ -196,10 +196,10 @@ export class Region extends Obj {
                     const len = this.scans.length;
                     for (let i = 0; i < len; i++) {
                         const scan = this.scans[i];
-                        if (i == 0) {
+                        if (i === 0) {
                             top = scan.top;
                         }
-                        if (i == len - 1) {
+                        if (i === len - 1) {
                             bottom = scan.bottom;
                         }
 

@@ -162,7 +162,7 @@ export class Brush extends Obj {
 
             if (forceDibPattern === true || forceDibPattern === false) {
                 this.style = reader.readUint16();
-                if (forceDibPattern && this.style != Helper.GDI.BrushStyle.BS_PATTERN) {
+                if (forceDibPattern && this.style !== Helper.GDI.BrushStyle.BS_PATTERN) {
                     this.style = Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
                 }
                 switch (this.style) {

@@ -50,7 +50,7 @@ export class RenderChp {
         }
 
         const deco = [];
-        if (this._chp.underline != Helper.UNDERLINE.NONE) {
+        if (this._chp.underline !== Helper.UNDERLINE.NONE) {
             deco.push("underline");
         }
         if (this._chp.strikethrough || this._chp.dblstrikethrough) {
@@ -60,7 +60,7 @@ export class RenderChp {
         if (deco.length > 0) {
             el.css("text-decoration", deco.join(" "));
         }
-        if (this._chp.colorindex != 0) {
+        if (this._chp.colorindex !== 0) {
             const color = doc._lookupColor(this._chp.colorindex);
             if (color != null) {
                 el.css("color", Helper._colorToStr(color));

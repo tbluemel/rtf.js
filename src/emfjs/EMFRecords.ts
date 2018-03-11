@@ -51,7 +51,7 @@ export class EmfHeader {
         this.size = headerSize;
         this.bounds = new RectL(reader);
         this.frame = new RectL(reader);
-        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
+        if (reader.readUint32() !== Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
             throw new EMFJSError("Invalid header signature");
         }
         reader.skip(4); // version
@@ -91,11 +91,11 @@ export class EmfHeader {
             const pixelFormatSize = reader.readUint32();
             const pixelFormatOff = reader.readUint32();
             const haveOpenGl = reader.readUint32();
-            if (haveOpenGl != 0) {
+            if (haveOpenGl !== 0) {
                 throw new EMFJSError("OpenGL records are not yet supported");
             }
 
-            if (pixelFormatOff != 0) {
+            if (pixelFormatOff !== 0) {
                 if (pixelFormatOff < 100 || pixelFormatOff < hdrSize) {
                     throw new EMFJSError("Invalid pixel format offset");
                 }
@@ -293,7 +293,7 @@ export class EMFRecords {
                 }
                 case Helper.GDI.RecordType.EMR_POLYGON:
                 case Helper.GDI.RecordType.EMR_POLYGON16: {
-                    const isSmall = (type == Helper.GDI.RecordType.EMR_POLYGON16);
+                    const isSmall = (type === Helper.GDI.RecordType.EMR_POLYGON16);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
                     const points: PointS[] | PointL[] = [];
@@ -308,7 +308,7 @@ export class EMFRecords {
                 }
                 case Helper.GDI.RecordType.EMR_POLYPOLYGON:
                 case Helper.GDI.RecordType.EMR_POLYPOLYGON16: {
-                    const isSmall = (type == Helper.GDI.RecordType.EMR_POLYPOLYGON16);
+                    const isSmall = (type === Helper.GDI.RecordType.EMR_POLYPOLYGON16);
                     const bounds = new RectL(reader);
                     const polyCnt = reader.readUint32();
                     reader.skip(4); // count
@@ -341,7 +341,7 @@ export class EMFRecords {
                 }
                 case Helper.GDI.RecordType.EMR_POLYLINE16:
                 case Helper.GDI.RecordType.EMR_POLYLINETO16: {
-                    const isLineTo = (type == Helper.GDI.RecordType.EMR_POLYLINETO16);
+                    const isLineTo = (type === Helper.GDI.RecordType.EMR_POLYLINETO16);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
                     const points: PointS[] = [];
@@ -356,7 +356,7 @@ export class EMFRecords {
                 }
                 case Helper.GDI.RecordType.EMR_POLYBEZIER:
                 case Helper.GDI.RecordType.EMR_POLYBEZIERTO: {
-                    const isPolyBezierTo = (type == Helper.GDI.RecordType.EMR_POLYBEZIERTO);
+                    const isPolyBezierTo = (type === Helper.GDI.RecordType.EMR_POLYBEZIERTO);
                     const bounds = new RectL(reader);
                     let cnt = reader.readUint32();
                     const points: PointL[] = [];
@@ -465,7 +465,7 @@ export class EMFRecords {
                 case Helper.GDI.RecordType.EMR_EXTSELECTCLIPRGN: {
                     reader.skip(4);
                     const rgnMode = reader.readUint32();
-                    const region = rgnMode != Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
+                    const region = rgnMode !== Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
                     this._records.push((gdi) => {
                         gdi.selectClipRgn(rgnMode, region);
                     });
@@ -564,7 +564,7 @@ export class EMFRecords {
                     let recordName = "UNKNOWN";
                     for (const name in Helper.GDI.RecordType) {
                         const recordTypes: any = Helper.GDI.RecordType;
-                        if (recordTypes[name] == type) {
+                        if (recordTypes[name] === type) {
                             recordName = name;
                             break;
                         }

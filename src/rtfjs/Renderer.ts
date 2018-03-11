@@ -88,7 +88,7 @@ export class Renderer {
         if (this._curpar == null) {
             this.startPar();
         }
-        if (newsubpar == true) {
+        if (newsubpar === true) {
             let subpar = $("<div>");
             if (this._cursubpar == null) {
                 this._curpar.children().appendTo(subpar);
@@ -168,7 +168,7 @@ export class Renderer {
             });
         } else {
             let err = "image type not supported";
-            if (typeof mime === "string" && mime != "") {
+            if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
             return $("<span>").text("[" + mime + "]");

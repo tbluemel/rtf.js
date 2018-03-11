@@ -55,7 +55,7 @@ export class Renderer {
         let placable;
         let headerstart;
         const key = reader.readUint32();
-        if (key == 0x9ac6cdd7) {
+        if (key === 0x9ac6cdd7) {
             placable = new WMFPlacable(reader);
             headerstart = reader.pos;
             type = reader.readUint16();
@@ -68,7 +68,7 @@ export class Renderer {
         switch (type) {
             case Helper.GDI.MetafileType.MEMORYMETAFILE:
             case Helper.GDI.MetafileType.DISKMETAFILE:
-                if (size == Helper.GDI.METAHEADER_SIZE / 2) {
+                if (size === Helper.GDI.METAHEADER_SIZE / 2) {
                     const version = reader.readUint16();
                     switch (version) {
                         case Helper.GDI.MetafileVersion.METAVERSION100:

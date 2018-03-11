@@ -137,7 +137,7 @@ export class Blob {
                     throw new WMFJSError("Unexpected end of file");
                 }
                 const byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0) {
+                if (byte === 0) {
                     break;
                 }
                 ret += String.fromCharCode(byte);

@@ -44,7 +44,7 @@ export class Parser {
     }
 
     public parse(): Promise<void> {
-        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
             this.parseLoop(false, true);
             return Promise.all(this.parser._asyncTasks).then(() => { return; });
         }
@@ -93,7 +93,7 @@ export class Parser {
     private applyDestination(always: boolean) {
         const dest = this.parser.state.destination;
         if (dest != null) {
-            if (always || this.parser.state.parent == null || this.parser.state.parent.destination != this.parser.state.destination) {
+            if (always || this.parser.state.parent == null || this.parser.state.parent.destination !== this.parser.state.destination) {
                 if (dest.apply != null) {
                     dest.apply();
                 }
@@ -139,7 +139,7 @@ export class Parser {
         }
 
         this.applyText();
-        if (state.parent == null || state.destination != state.parent.destination) {
+        if (state.parent == null || state.destination !== state.parent.destination) {
             this.applyDestination(true);
         }
         this.parser.state = state.parent;
@@ -174,7 +174,7 @@ export class Parser {
     private processKeyword(keyword: string, param: number) {
         const first = this.parser.state.first;
         if (first) {
-            if (keyword == "*") {
+            if (keyword === "*") {
                 this.parser.state.skipunknowndestination = true;
                 return;
             }
@@ -320,7 +320,7 @@ export class Parser {
         let param: number;
         let ch = this.readChar();
         if (!Helper._isalpha(ch)) {
-            if (ch == "\'") {
+            if (ch === "\'") {
                 let hex = this.readChar() + this.readChar();
                 if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
                     this.readChar();
@@ -337,7 +337,8 @@ export class Parser {
                     let codepage = this.parser.codepage;
                     if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
                         const idx = this.parser.state.chp.fontfamily;
-                        if (this.inst._fonts != undefined && this.inst._fonts[idx] != null && this.inst._fonts[idx].charset != undefined) {
+                        if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
+                            && this.inst._fonts[idx].charset !== undefined && this.inst._fonts[idx].charset != null) {
                             codepage = this.inst._fonts[idx].charset;
                         }
                     }
@@ -359,7 +360,7 @@ export class Parser {
             }
 
             let num;
-            if (ch == "-") {
+            if (ch === "-") {
                 num = "-";
                 ch = this.readChar();
             } else {
@@ -382,7 +383,7 @@ export class Parser {
                 }
             }
 
-            if (ch != " ") {
+            if (ch !== " ") {
                 this.unreadChar();
             }
 
@@ -416,10 +417,10 @@ export class Parser {
                             this.pushState(skip);
                             break;
                         case "}":
-                            if (initialState == this.parser.state) {
+                            if (initialState === this.parser.state) {
                                 this.unreadChar();
                                 break main_loop;
-                            } else if (this.popState() == initialState) {
+                            } else if (this.popState() === initialState) {
                                 break main_loop;
                                  }
                             break;

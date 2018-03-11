@@ -58,7 +58,7 @@ export class Renderer {
             throw new EMFJSError("Not an EMF file");
         }
         const size = reader.readUint32();
-        if (size % 4 != 0) {
+        if (size % 4 !== 0) {
             throw new EMFJSError("Not an EMF file");
         }
 

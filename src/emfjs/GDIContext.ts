@@ -265,9 +265,9 @@ export class GDIContext {
     _getStockObject(idx: number) {
         if (idx >= 0x80000000 && idx <= 0x80000011) {
             return _StockObjects[(idx - 0x80000000).toString()];
-        } else if (idx == Helper.GDI.StockObject.DC_BRUSH) {
+        } else if (idx === Helper.GDI.StockObject.DC_BRUSH) {
             return this.state.selected.brush;
-             } else if (idx == Helper.GDI.StockObject.DC_PEN) {
+             } else if (idx === Helper.GDI.StockObject.DC_PEN) {
             return this.state.selected.pen;
              }
         return null;
@@ -310,7 +310,7 @@ export class GDIContext {
     _getSvgClipPathForRegion(region: Region) {
         for (const existingId in this._svgClipPaths) {
             const rgn = this._svgClipPaths[existingId];
-            if (rgn == region) {
+            if (rgn === region) {
                 return existingId;
             }
         }
@@ -342,7 +342,7 @@ export class GDIContext {
     _getSvgPatternForBrush(brush: Brush) {
         for (const existingId in this._svgPatterns) {
             const pat = this._svgPatterns[existingId];
-            if (pat == brush) {
+            if (pat === brush) {
                 return existingId;
             }
         }
@@ -389,7 +389,7 @@ export class GDIContext {
         if (obj != null) {
             for (let i = 0; i < this.statestack.length; i++) {
                 const state = this.statestack[i];
-                if (state.selected[obj.type] == obj) {
+                if (state.selected[obj.type] === obj) {
                     state.selected[obj.type] = this.defObjects[obj.type].clone();
                 }
             }
@@ -516,7 +516,7 @@ export class GDIContext {
     restoreDC(saved: number) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
-            if (saved == -1) {
+            if (saved === -1) {
                 this.state = this.statestack.pop();
             } else if (saved < -1) {
                 throw new EMFJSError("restoreDC: relative restore not implemented");
@@ -540,7 +540,7 @@ export class GDIContext {
         }
         if (usePen) {
             const pen = this.state.selected.pen;
-            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
+            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
                 opts.strokeWidth = pen.width;
 
@@ -652,7 +652,7 @@ export class GDIContext {
             this._pushGroup();
         }
         const opts = {
-            "fill-rule": this.state.polyfillmode == Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
+            "fill-rule": this.state.polyfillmode === Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
         this._applyOpts(opts, true, true, false);
         this._svg.polygon(this.state._svggroup, pts, opts);
@@ -663,7 +663,7 @@ export class GDIContext {
 
         const cnt = polygons.length;
         for (let i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], bounds, i == 0);
+            this.polygon(polygons[i], bounds, i === 0);
         }
     }
 
@@ -676,7 +676,7 @@ export class GDIContext {
         }
 
         if (this._svgPath != null) {
-            if (!isLineTo || pts.length == 0) {
+            if (!isLineTo || pts.length === 0) {
                 this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
             } else {
                 const firstPts = pts[0];
@@ -689,7 +689,7 @@ export class GDIContext {
             const opts = this._applyOpts(null, true, false, false);
             if (isLineTo && points.length > 0) {
                 const firstPt = points[0];
-                if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
+                if (firstPt.x !== this.state.x || firstPt.y !== this.state.y) {
                     pts.unshift([this._todevX(this.state.x), this._todevY(this.state.y)]);
                 }
             }
@@ -748,7 +748,7 @@ export class GDIContext {
 
     selectClipRgn(rgnMode: number, region: Region) {
         Helper.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
-        if (rgnMode == Helper.GDI.RegionMode.RGN_COPY) {
+        if (rgnMode === Helper.GDI.RegionMode.RGN_COPY) {
             this.state.selected.region = region;
             this.state.clip = null;
             this.state.ownclip = false;
@@ -810,7 +810,7 @@ export class GDIContext {
 
     selectObject(objIdx: number, checkType: string) {
         const obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type == checkType)) {
+        if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
             Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         } else {

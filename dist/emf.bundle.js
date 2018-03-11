@@ -474,7 +474,7 @@ var Blob = /** @class */ (function () {
                     throw new EMFJSError("Unexpected end of file");
                 }
                 var byte = this.data[this.pos + i] >>> 0;
-                if (byte == 0) {
+                if (byte === 0) {
                     break;
                 }
                 ret += String.fromCharCode(byte);
@@ -486,7 +486,7 @@ var Blob = /** @class */ (function () {
         var ret = "";
         for (var i = 0; i < fixedSizeChars; i++) {
             var charCode = this.readUint16();
-            if (charCode == 0) {
+            if (charCode === 0) {
                 if (++i < fixedSizeChars) {
                     this.skip((fixedSizeChars - i) * 2);
                 }
@@ -673,13 +673,13 @@ var Region = /** @class */ (function (_super) {
         var _this = _super.call(this, "region") || this;
         if (reader != null) {
             var hdrSize = reader.readUint32();
-            if (hdrSize != 32) {
+            if (hdrSize !== 32) {
                 throw new EMFJSError("Invalid region header");
             }
             reader.skip(4);
             var rectCnt = reader.readUint32();
             var rgnSize = reader.readUint32();
-            if (rectCnt * 16 != rgnSize) {
+            if (rectCnt * 16 !== rgnSize) {
                 throw new EMFJSError("Invalid region data");
             }
             _this.bounds = new RectL(reader);
@@ -687,7 +687,7 @@ var Region = /** @class */ (function (_super) {
             var scanLine = void 0;
             for (var i = 0; i < rectCnt; i++) {
                 var r = new RectL(reader);
-                if (scanLine == null || scanLine.top != r.top || scanLine.bottom != r.bottom) {
+                if (scanLine == null || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
                     scanLine = new Scan(r);
                     _this.scans.push(scanLine);
                 }
@@ -739,11 +739,11 @@ var Region = /** @class */ (function (_super) {
         }
         else {
             this.complexity = 2;
-            if (this.scans.length == 1) {
+            if (this.scans.length === 1) {
                 var scan = this.scans[0];
-                if (scan.top == this.bounds.top && scan.bottom == this.bounds.bottom && scan.scanlines.length == 1) {
+                if (scan.top === this.bounds.top && scan.bottom === this.bounds.bottom && scan.scanlines.length === 1) {
                     var scanline = scan.scanlines[0];
-                    if (scanline.left == this.bounds.left && scanline.right == this.bounds.right) {
+                    if (scanline.left === this.bounds.left && scanline.right === this.bounds.right) {
                         this.scans = null;
                         this.complexity = 1;
                     }
@@ -835,10 +835,10 @@ var Region = /** @class */ (function (_super) {
                     var len = this.scans.length;
                     for (var i = 0; i < len; i++) {
                         var scan = this.scans[i];
-                        if (i == 0) {
+                        if (i === 0) {
                             top_1 = scan.top;
                         }
-                        if (i == len - 1) {
+                        if (i === len - 1) {
                             bottom = scan.bottom;
                         }
                         var slen = scan.scanlines.length;
@@ -1139,7 +1139,7 @@ var BitmapInfoHeader = /** @class */ (function () {
         this.clrimportant = reader.readUint32();
     }
     BitmapInfoHeader.prototype.colors = function () {
-        if (this.clrused != 0) {
+        if (this.clrused !== 0) {
             return this.clrused < 256 ? this.clrused : 256;
         }
         else {
@@ -1157,13 +1157,13 @@ var BitmapInfo = /** @class */ (function (_super) {
         _this._usergb = usergb;
         var hdrsize = reader.readUint32();
         _this._infosize = hdrsize;
-        if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
+        if (hdrsize === Helper.GDI.BITMAPCOREHEADER_SIZE) {
             _this._header = new BitmapCoreHeader(reader, false);
             _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
         }
         else {
             _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            var masks = _this._header.compression === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
@@ -1516,7 +1516,7 @@ var EmfHeader = /** @class */ (function () {
         this.size = headerSize;
         this.bounds = new RectL(reader);
         this.frame = new RectL(reader);
-        if (reader.readUint32() != Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
+        if (reader.readUint32() !== Helper.GDI.FormatSignature.ENHMETA_SIGNATURE) {
             throw new EMFJSError("Invalid header signature");
         }
         reader.skip(4); // version
@@ -1553,10 +1553,10 @@ var EmfHeader = /** @class */ (function () {
             var pixelFormatSize = reader.readUint32();
             var pixelFormatOff = reader.readUint32();
             var haveOpenGl = reader.readUint32();
-            if (haveOpenGl != 0) {
+            if (haveOpenGl !== 0) {
                 throw new EMFJSError("OpenGL records are not yet supported");
             }
-            if (pixelFormatOff != 0) {
+            if (pixelFormatOff !== 0) {
                 if (pixelFormatOff < 100 || pixelFormatOff < hdrSize) {
                     throw new EMFJSError("Invalid pixel format offset");
                 }
@@ -1745,7 +1745,7 @@ var EMFRecords = /** @class */ (function () {
                 }
                 case Helper.GDI.RecordType.EMR_POLYGON:
                 case Helper.GDI.RecordType.EMR_POLYGON16: {
-                    var isSmall = (type == Helper.GDI.RecordType.EMR_POLYGON16);
+                    var isSmall = (type === Helper.GDI.RecordType.EMR_POLYGON16);
                     var bounds_1 = new RectL(reader);
                     var cnt = reader.readUint32();
                     var points_1 = [];
@@ -1760,7 +1760,7 @@ var EMFRecords = /** @class */ (function () {
                 }
                 case Helper.GDI.RecordType.EMR_POLYPOLYGON:
                 case Helper.GDI.RecordType.EMR_POLYPOLYGON16: {
-                    var isSmall = (type == Helper.GDI.RecordType.EMR_POLYPOLYGON16);
+                    var isSmall = (type === Helper.GDI.RecordType.EMR_POLYPOLYGON16);
                     var bounds_2 = new RectL(reader);
                     var polyCnt = reader.readUint32();
                     reader.skip(4); // count
@@ -1791,7 +1791,7 @@ var EMFRecords = /** @class */ (function () {
                 }
                 case Helper.GDI.RecordType.EMR_POLYLINE16:
                 case Helper.GDI.RecordType.EMR_POLYLINETO16: {
-                    var isLineTo_1 = (type == Helper.GDI.RecordType.EMR_POLYLINETO16);
+                    var isLineTo_1 = (type === Helper.GDI.RecordType.EMR_POLYLINETO16);
                     var bounds_3 = new RectL(reader);
                     var cnt = reader.readUint32();
                     var points_2 = [];
@@ -1806,7 +1806,7 @@ var EMFRecords = /** @class */ (function () {
                 }
                 case Helper.GDI.RecordType.EMR_POLYBEZIER:
                 case Helper.GDI.RecordType.EMR_POLYBEZIERTO: {
-                    var isPolyBezierTo_1 = (type == Helper.GDI.RecordType.EMR_POLYBEZIERTO);
+                    var isPolyBezierTo_1 = (type === Helper.GDI.RecordType.EMR_POLYBEZIERTO);
                     var bounds_4 = new RectL(reader);
                     var cnt = reader.readUint32();
                     var points_3 = [];
@@ -1915,7 +1915,7 @@ var EMFRecords = /** @class */ (function () {
                 case Helper.GDI.RecordType.EMR_EXTSELECTCLIPRGN: {
                     reader.skip(4);
                     var rgnMode_2 = reader.readUint32();
-                    var region_1 = rgnMode_2 != Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
+                    var region_1 = rgnMode_2 !== Helper.GDI.RegionMode.RGN_COPY ? new Region(reader) : null;
                     this_1._records.push(function (gdi) {
                         gdi.selectClipRgn(rgnMode_2, region_1);
                     });
@@ -2014,7 +2014,7 @@ var EMFRecords = /** @class */ (function () {
                     var recordName = "UNKNOWN";
                     for (var name_1 in Helper.GDI.RecordType) {
                         var recordTypes = Helper.GDI.RecordType;
-                        if (recordTypes[name_1] == type) {
+                        if (recordTypes[name_1] === type) {
                             recordName = name_1;
                             break;
                         }
@@ -2257,10 +2257,10 @@ var GDIContext = /** @class */ (function () {
         if (idx >= 0x80000000 && idx <= 0x80000011) {
             return _StockObjects[(idx - 0x80000000).toString()];
         }
-        else if (idx == Helper.GDI.StockObject.DC_BRUSH) {
+        else if (idx === Helper.GDI.StockObject.DC_BRUSH) {
             return this.state.selected.brush;
         }
-        else if (idx == Helper.GDI.StockObject.DC_PEN) {
+        else if (idx === Helper.GDI.StockObject.DC_PEN) {
             return this.state.selected.pen;
         }
         return null;
@@ -2298,7 +2298,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype._getSvgClipPathForRegion = function (region) {
         for (var existingId in this._svgClipPaths) {
             var rgn = this._svgClipPaths[existingId];
-            if (rgn == region) {
+            if (rgn === region) {
                 return existingId;
             }
         }
@@ -2324,7 +2324,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype._getSvgPatternForBrush = function (brush) {
         for (var existingId in this._svgPatterns) {
             var pat = this._svgPatterns[existingId];
-            if (pat == brush) {
+            if (pat === brush) {
                 return existingId;
             }
         }
@@ -2367,7 +2367,7 @@ var GDIContext = /** @class */ (function () {
         if (obj != null) {
             for (var i = 0; i < this.statestack.length; i++) {
                 var state = this.statestack[i];
-                if (state.selected[obj.type] == obj) {
+                if (state.selected[obj.type] === obj) {
                     state.selected[obj.type] = this.defObjects[obj.type].clone();
                 }
             }
@@ -2478,7 +2478,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype.restoreDC = function (saved) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
-            if (saved == -1) {
+            if (saved === -1) {
                 this.state = this.statestack.pop();
             }
             else if (saved < -1) {
@@ -2502,7 +2502,7 @@ var GDIContext = /** @class */ (function () {
         }
         if (usePen) {
             var pen = this.state.selected.pen;
-            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
+            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
                 opts.strokeWidth = pen.width;
                 opts["stroke-miterlimit"] = this.state.miterlimit;
@@ -2602,7 +2602,7 @@ var GDIContext = /** @class */ (function () {
             this._pushGroup();
         }
         var opts = {
-            "fill-rule": this.state.polyfillmode == Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
+            "fill-rule": this.state.polyfillmode === Helper.GDI.PolygonFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
         this._applyOpts(opts, true, true, false);
         this._svg.polygon(this.state._svggroup, pts, opts);
@@ -2611,7 +2611,7 @@ var GDIContext = /** @class */ (function () {
         Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
         for (var i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], bounds, i == 0);
+            this.polygon(polygons[i], bounds, i === 0);
         }
     };
     GDIContext.prototype.polyline = function (isLineTo, points, bounds) {
@@ -2622,7 +2622,7 @@ var GDIContext = /** @class */ (function () {
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
         }
         if (this._svgPath != null) {
-            if (!isLineTo || pts.length == 0) {
+            if (!isLineTo || pts.length === 0) {
                 this._svgPath.move(this._todevX(this.state.x), this._todevY(this.state.y));
             }
             else {
@@ -2637,7 +2637,7 @@ var GDIContext = /** @class */ (function () {
             var opts = this._applyOpts(null, true, false, false);
             if (isLineTo && points.length > 0) {
                 var firstPt = points[0];
-                if (firstPt.x != this.state.x || firstPt.y != this.state.y) {
+                if (firstPt.x !== this.state.x || firstPt.y !== this.state.y) {
                     pts.unshift([this._todevX(this.state.x), this._todevY(this.state.y)]);
                 }
             }
@@ -2689,7 +2689,7 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype.selectClipRgn = function (rgnMode, region) {
         Helper.log("[gdi] selectClipRgn: rgnMode=0x" + rgnMode.toString(16));
-        if (rgnMode == Helper.GDI.RegionMode.RGN_COPY) {
+        if (rgnMode === Helper.GDI.RegionMode.RGN_COPY) {
             this.state.selected.region = region;
             this.state.clip = null;
             this.state.ownclip = false;
@@ -2741,7 +2741,7 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype.selectObject = function (objIdx, checkType) {
         var obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type == checkType)) {
+        if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
             Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         }
@@ -2852,7 +2852,7 @@ var Renderer = /** @class */ (function () {
             throw new EMFJSError("Not an EMF file");
         }
         var size = reader.readUint32();
-        if (size % 4 != 0) {
+        if (size % 4 !== 0) {
             throw new EMFJSError("Not an EMF file");
         }
         this._img = new EMF(reader, size);

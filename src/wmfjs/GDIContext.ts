@@ -210,7 +210,7 @@ export class GDIContext {
     _getSvgClipPathForRegion(region: Region) {
         for (const existingId in this._svgClipPaths) {
             const rgn = this._svgClipPaths[existingId];
-            if (rgn == region) {
+            if (rgn === region) {
                 return existingId;
             }
         }
@@ -242,7 +242,7 @@ export class GDIContext {
     _getSvgPatternForBrush(brush: Brush) {
         for (const existingId in this._svgPatterns) {
             const pat = this._svgPatterns[existingId];
-            if (pat == brush) {
+            if (pat === brush) {
                 return existingId;
             }
         }
@@ -273,7 +273,7 @@ export class GDIContext {
 
     _selectObject(obj: Obj) {
         this.state.selected[obj.type] = obj;
-        if (obj.type == "region") {
+        if (obj.type === "region") {
             this.state._svgclipChanged = true;
         }
     }
@@ -283,7 +283,7 @@ export class GDIContext {
         if (obj != null) {
             for (let i = 0; i < this.statestack.length; i++) {
                 const state = this.statestack[i];
-                if (state.selected[obj.type] == obj) {
+                if (state.selected[obj.type] === obj) {
                     state.selected[obj.type] = this.defObjects[obj.type].clone();
                 }
             }
@@ -418,7 +418,7 @@ export class GDIContext {
     restoreDC(saved: number) {
         Helper.log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
-            if (saved == -1) {
+            if (saved === -1) {
                 this.state = this.statestack.pop();
             } else if (saved < -1) {
                 throw new WMFJSError("restoreDC: relative restore not implemented");
@@ -476,15 +476,15 @@ export class GDIContext {
         }
         if (usePen) {
             const pen = this.state.selected.pen;
-            if (pen.style != Helper.GDI.PenStyle.PS_NULL) {
+            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
                     opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
 
                 let dotWidth;
-                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) != 0) {
+                if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
                     opts["stroke-linecap"] = "square";
                     dotWidth = 1;
-                } else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) != 0) {
+                } else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
                     opts["stroke-linecap"] = "butt";
                     dotWidth = opts.strokeWidth;
                 } else {
@@ -492,9 +492,9 @@ export class GDIContext {
                     dotWidth = 1;
                 }
 
-                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) != 0) {
+                if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
                     opts["stroke-linejoin"] = "bevel";
-                } else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) != 0) {
+                } else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) !== 0) {
                     opts["stroke-linejoin"] = "miter";
                      } else {
                     opts["stroke-linejoin"] = "round";
@@ -569,11 +569,11 @@ export class GDIContext {
         this._pushGroup();
 
         const opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement != 0) {
+        if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode == Helper.GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
                 const filterId = Helper._makeUniqueId("f");
                 const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
@@ -595,11 +595,11 @@ export class GDIContext {
         this._pushGroup();
 
         const opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement != 0) {
+        if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode == Helper.GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
                 const filterId = Helper._makeUniqueId("f");
                 const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
@@ -649,7 +649,7 @@ export class GDIContext {
             this._pushGroup();
         }
         const opts = {
-            "fill-rule": this.state.polyfillmode == Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+            "fill-rule": this.state.polyfillmode === Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
         this._applyOpts(opts, true, true, false);
         this._svg.polygon(this.state._svggroup, pts, opts);
@@ -660,7 +660,7 @@ export class GDIContext {
 
         const cnt = polygons.length;
         for (let i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], i == 0);
+            this.polygon(polygons[i], i === 0);
         }
     }
 
@@ -764,7 +764,7 @@ export class GDIContext {
 
     selectObject(objIdx: number, checkType: string) {
         const obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type == checkType)) {
+        if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
             Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         } else {

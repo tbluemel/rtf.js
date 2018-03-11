@@ -87,7 +87,7 @@ export class BitmapInfoHeader {
     }
 
     colors() {
-        if (this.clrused != 0) {
+        if (this.clrused !== 0) {
             return this.clrused < 256 ? this.clrused : 256;
         } else {
             return this.bitcount > 8 ? 0 : 1 << this.bitcount;
@@ -109,12 +109,12 @@ export class BitmapInfo extends BitmapBase {
         this._usergb = usergb;
         const hdrsize = reader.readUint32();
         this._infosize = hdrsize;
-        if (hdrsize == Helper.GDI.BITMAPCOREHEADER_SIZE) {
+        if (hdrsize === Helper.GDI.BITMAPCOREHEADER_SIZE) {
             this._header = new BitmapCoreHeader(reader, false);
             this._infosize += this._header.colors() * (usergb ? 3 : 2);
         } else {
             this._header = new BitmapInfoHeader(reader, false);
-            const masks = (this._header as BitmapInfoHeader).compression == Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            const masks = (this._header as BitmapInfoHeader).compression === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }

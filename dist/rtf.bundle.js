@@ -285,7 +285,7 @@ var Document = /** @class */ (function () {
         this._ins = [];
     }
     Document.prototype._lookupColor = function (idx) {
-        if (idx == 0) {
+        if (idx === 0) {
             if (this._autoColor == null) {
                 return null;
             }
@@ -7614,7 +7614,7 @@ var RenderChp = /** @class */ (function () {
             }
         }
         var deco = [];
-        if (this._chp.underline != Helper.UNDERLINE.NONE) {
+        if (this._chp.underline !== Helper.UNDERLINE.NONE) {
             deco.push("underline");
         }
         if (this._chp.strikethrough || this._chp.dblstrikethrough) {
@@ -7623,7 +7623,7 @@ var RenderChp = /** @class */ (function () {
         if (deco.length > 0) {
             el.css("text-decoration", deco.join(" "));
         }
-        if (this._chp.colorindex != 0) {
+        if (this._chp.colorindex !== 0) {
             var color = doc._lookupColor(this._chp.colorindex);
             if (color != null) {
                 el.css("color", Helper._colorToStr(color));
@@ -7665,13 +7665,13 @@ var RenderPap = /** @class */ (function () {
     }
     RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
         if (ismaindiv) {
-            if (this._pap.spacebefore != 0) {
+            if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
             }
             else {
                 el.css("margin-top", "");
             }
-            if (this._pap.spaceafter != 0) {
+            if (this._pap.spaceafter !== 0) {
                 el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
             }
             else {
@@ -7750,7 +7750,7 @@ var findParentDestination = function (parser, dest) {
         if (state.destination == null) {
             break;
         }
-        if (state.destination._name == dest) {
+        if (state.destination._name === dest) {
             return state.destination;
         }
         state = state.parent;
@@ -7904,7 +7904,7 @@ var RtfDestination = /** @class */ (function (_super) {
             throw new RTFJSError("Unexpected rtf destination");
         }
         // This parameter should be one, but older versions of the spec allow for omission of the version number
-        if (param && param != 1) {
+        if (param && param !== 1) {
             throw new RTFJSError("Unsupported rtf version");
         }
         parser.version = 1;
@@ -7958,7 +7958,7 @@ var RtfDestination = /** @class */ (function (_super) {
         var _this = this;
         return function (param) {
             var props = _this.parser.state[ptype];
-            props[prop] = (param == null || param != 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            props[prop] = (param == null || param !== 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
@@ -8336,7 +8336,7 @@ var ColortblDestination = /** @class */ (function (_super) {
     ColortblDestination.prototype.appendText = function (text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
-            if (text[i] != ";") {
+            if (text[i] !== ";") {
                 throw new RTFJSError("Error parsing colortbl destination");
             }
             if (this._current == null) {
@@ -8385,7 +8385,7 @@ var ColortblDestination = /** @class */ (function (_super) {
                 this._current.shade = this._validateColorValueRange(keyword, param);
                 return true;
             default:
-                if (keyword[0] == "c") {
+                if (keyword[0] === "c") {
                     this._current.theme = Helper._mapColorTheme(keyword.slice(1));
                     return true;
                 }
@@ -8612,7 +8612,7 @@ var FldinstDestination = /** @class */ (function (_super) {
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
             var data_1 = this.text.substr(sep + 1);
-            if (data_1.length >= 2 && data_1[0] == "\"") {
+            if (data_1.length >= 2 && data_1[0] === "\"") {
                 var end = data_1.indexOf("\"", 1);
                 if (end >= 1) {
                     data_1 = data_1.substring(1, end);
@@ -9109,7 +9109,7 @@ var Parser = /** @class */ (function () {
         this.parser = new GlobalState(blob, renderer);
     }
     Parser.prototype.parse = function () {
-        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) == "{") {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
             this.parseLoop(false, true);
             return Promise.all(this.parser._asyncTasks).then(function () { return; });
         }
@@ -9153,7 +9153,7 @@ var Parser = /** @class */ (function () {
     Parser.prototype.applyDestination = function (always) {
         var dest = this.parser.state.destination;
         if (dest != null) {
-            if (always || this.parser.state.parent == null || this.parser.state.parent.destination != this.parser.state.destination) {
+            if (always || this.parser.state.parent == null || this.parser.state.parent.destination !== this.parser.state.destination) {
                 if (dest.apply != null) {
                     dest.apply();
                 }
@@ -9194,7 +9194,7 @@ var Parser = /** @class */ (function () {
             throw new RTFJSError("Unexpected end of state");
         }
         this.applyText();
-        if (state.parent == null || state.destination != state.parent.destination) {
+        if (state.parent == null || state.destination !== state.parent.destination) {
             this.applyDestination(true);
         }
         this.parser.state = state.parent;
@@ -9227,7 +9227,7 @@ var Parser = /** @class */ (function () {
     Parser.prototype.processKeyword = function (keyword, param) {
         var first = this.parser.state.first;
         if (first) {
-            if (keyword == "*") {
+            if (keyword === "*") {
                 this.parser.state.skipunknowndestination = true;
                 return;
             }
@@ -9362,7 +9362,7 @@ var Parser = /** @class */ (function () {
         var param;
         var ch = this.readChar();
         if (!Helper._isalpha(ch)) {
-            if (ch == "\'") {
+            if (ch === "\'") {
                 var hex = this.readChar() + this.readChar();
                 if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
                     this.readChar();
@@ -9378,7 +9378,8 @@ var Parser = /** @class */ (function () {
                     var codepage = this.parser.codepage;
                     if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
                         var idx = this.parser.state.chp.fontfamily;
-                        if (this.inst._fonts != undefined && this.inst._fonts[idx] != null && this.inst._fonts[idx].charset != undefined) {
+                        if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
+                            && this.inst._fonts[idx].charset !== undefined && this.inst._fonts[idx].charset != null) {
                             codepage = this.inst._fonts[idx].charset;
                         }
                     }
@@ -9400,7 +9401,7 @@ var Parser = /** @class */ (function () {
                 ch = this.readChar();
             }
             var num = void 0;
-            if (ch == "-") {
+            if (ch === "-") {
                 num = "-";
                 ch = this.readChar();
             }
@@ -9420,7 +9421,7 @@ var Parser = /** @class */ (function () {
                     throw new RTFJSError("Invalid keyword " + keyword + " param");
                 }
             }
-            if (ch != " ") {
+            if (ch !== " ") {
                 this.unreadChar();
             }
             if (process) {
@@ -9453,11 +9454,11 @@ var Parser = /** @class */ (function () {
                             this.pushState(skip);
                             break;
                         case "}":
-                            if (initialState == this.parser.state) {
+                            if (initialState === this.parser.state) {
                                 this.unreadChar();
                                 break main_loop;
                             }
-                            else if (this.popState() == initialState) {
+                            else if (this.popState() === initialState) {
                                 break main_loop;
                             }
                             break;
@@ -9549,7 +9550,7 @@ var Renderer = /** @class */ (function () {
         if (this._curpar == null) {
             this.startPar();
         }
-        if (newsubpar == true) {
+        if (newsubpar === true) {
             var subpar = $("<div>");
             if (this._cursubpar == null) {
                 this._curpar.children().appendTo(subpar);
