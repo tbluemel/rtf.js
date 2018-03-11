@@ -504,7 +504,7 @@ export class WMFRecords {
     play(gdi: GDIContext) {
         const len = this._records.length;
         for (let i = 0; i < len; i++) {
-            this._records[i].call(this, gdi);
+            this._records[i](gdi);
         }
     }
 }

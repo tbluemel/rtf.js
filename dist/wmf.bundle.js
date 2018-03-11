@@ -2644,7 +2644,7 @@ var WMFRecords = /** @class */ (function () {
     WMFRecords.prototype.play = function (gdi) {
         var len = this._records.length;
         for (var i = 0; i < len; i++) {
-            this._records[i].call(this, gdi);
+            this._records[i](gdi);
         }
     };
     return WMFRecords;
