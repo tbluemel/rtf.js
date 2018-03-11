@@ -95,12 +95,10 @@ export class Renderer {
 }
 
 export class EMF {
-    private _reader: Blob;
     private _hdrsize: number;
     private _records: EMFRecords;
 
     constructor(reader: Blob, hdrsize: number) {
-        this._reader = reader;
         this._hdrsize = hdrsize;
         this._records = new EMFRecords(reader, this._hdrsize);
     }

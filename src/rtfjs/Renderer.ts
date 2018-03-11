@@ -171,7 +171,7 @@ export class Renderer {
             if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
-            return $("<span>").text("[" + mime + "]");
+            return $("<span>").text("[" + err + "]");
         }
     }
 

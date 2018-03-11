@@ -2795,7 +2795,6 @@ var WMFPlacable = /** @class */ (function () {
 }());
 var WMF = /** @class */ (function () {
     function WMF(reader, placable, version, hdrsize) {
-        this._reader = reader;
         this._version = version;
         this._hdrsize = hdrsize;
         this._placable = placable;

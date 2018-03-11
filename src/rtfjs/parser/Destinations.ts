@@ -357,13 +357,8 @@ export interface IGenericPropertyDestination extends IDestination {
     apply(): void;
 }
 export class GenericPropertyDestinationFactory extends DestinationFactory<IGenericPropertyDestination> {
-    private parentdest: string;
-    private metaprop: string;
-
     constructor(parentdest: string, metaprop: string) {
         super();
-        this.parentdest = parentdest;
-        this.metaprop = metaprop;
         this.class = class extends DestinationTextBase implements IGenericPropertyDestination {
             private parser: GlobalState;
 
@@ -413,11 +408,8 @@ export interface IMetaPropertyDestination extends IDestination {
     apply(): void;
 }
 export class MetaPropertyDestinationFactory extends DestinationFactory<IMetaPropertyDestination> {
-    private metaprop: string;
-
     constructor(metaprop: string) {
         super();
-        this.metaprop = metaprop;
         this.class = class extends DestinationTextBase implements IMetaPropertyDestination {
             private parser: GlobalState;
 
@@ -442,11 +434,8 @@ export interface IMetaPropertyTimeDestination extends IDestination {
     apply(): void;
 }
 export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMetaPropertyTimeDestination> {
-    private metaprop: string;
-
     constructor(metaprop: string) {
         super();
-        this.metaprop = metaprop;
         this.class = class extends DestinationBase implements IMetaPropertyTimeDestination {
             private _yr: number;
             private _mo: number;
@@ -668,15 +657,8 @@ export interface IGenericSubTextPropertyDestination extends IDestination {
     apply(): void;
 }
 export class GenericSubTextPropertyDestinationFactory extends DestinationFactory<IGenericSubTextPropertyDestination> {
-    private name: string;
-    private parentDest: string;
-    private propOrFunc: string;
-
     constructor(name: string, parentDest: string, propOrFunc: string) {
         super();
-        this.name = name;
-        this.parentDest = parentDest;
-        this.propOrFunc = propOrFunc;
         this.class = class extends DestinationTextBase implements IGenericSubTextPropertyDestination {
             private parser: GlobalState;
 
@@ -991,12 +973,10 @@ export class FieldBase {
 
 export class FieldHyperlink extends FieldBase {
     private _url: string;
-    private inst: Document;
 
-    constructor(inst: Document, fldinst: FldinstDestination, data: string) {
+    constructor(fldinst: FldinstDestination, data: string) {
         super(fldinst);
         this._url = data;
-        this.inst = inst;
     }
 
     public url() {
@@ -1062,7 +1042,7 @@ export class FldinstDestination extends DestinationTextBase {
             const fieldType = this.text.substr(0, sep).toUpperCase();
             switch (fieldType) {
                 case "HYPERLINK":
-                    return new FieldHyperlink(this.inst, this, data);
+                    return new FieldHyperlink(this, data);
                 case "IMPORT":
                     if (typeof this.inst._settings.onImport === "function") {
                         let pict: PictDestination;
@@ -1179,11 +1159,8 @@ export interface IPictGroupDestination extends IDestination {
     isLegacy(): boolean;
 }
 export class PictGroupDestinationFactory extends DestinationFactory<IPictGroupDestination> {
-    private legacy: boolean;
-
     constructor(legacy: boolean) {
         super();
-        this.legacy = legacy;
         this.class = class extends DestinationTextBase implements IPictGroupDestination {
             private _legacy: boolean;
 
@@ -1475,11 +1452,8 @@ export class PictDestination extends DestinationTextBase {
 export interface IRequiredDestination extends IDestination {
 }
 export class RequiredDestinationFactory extends DestinationFactory<IRequiredDestination> {
-    private name: string;
-
     constructor(name: string) {
         super();
-        this.name = name;
         this.class = class extends DestinationBase implements IRequiredDestination {
             constructor() {
                 super(name);

@@ -8019,8 +8019,6 @@ var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
     __extends(GenericPropertyDestinationFactory, _super);
     function GenericPropertyDestinationFactory(parentdest, metaprop) {
         var _this = _super.call(this) || this;
-        _this.parentdest = parentdest;
-        _this.metaprop = metaprop;
         _this.class = /** @class */ (function (_super) {
             __extends(class_1, _super);
             function class_1(parser, inst, name) {
@@ -8068,7 +8066,6 @@ var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
     __extends(MetaPropertyDestinationFactory, _super);
     function MetaPropertyDestinationFactory(metaprop) {
         var _this = _super.call(this) || this;
-        _this.metaprop = metaprop;
         _this.class = /** @class */ (function (_super) {
             __extends(class_2, _super);
             function class_2(parser, inst, name) {
@@ -8093,7 +8090,6 @@ var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
     __extends(MetaPropertyTimeDestinationFactory, _super);
     function MetaPropertyTimeDestinationFactory(metaprop) {
         var _this = _super.call(this) || this;
-        _this.metaprop = metaprop;
         _this.class = /** @class */ (function (_super) {
             __extends(class_3, _super);
             function class_3(parser, inst, name) {
@@ -8284,9 +8280,6 @@ var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
     __extends(GenericSubTextPropertyDestinationFactory, _super);
     function GenericSubTextPropertyDestinationFactory(name, parentDest, propOrFunc) {
         var _this = _super.call(this) || this;
-        _this.name = name;
-        _this.parentDest = parentDest;
-        _this.propOrFunc = propOrFunc;
         _this.class = /** @class */ (function (_super) {
             __extends(class_4, _super);
             function class_4(parser) {
@@ -8561,10 +8554,9 @@ var FieldBase = /** @class */ (function () {
 }());
 var FieldHyperlink = /** @class */ (function (_super) {
     __extends(FieldHyperlink, _super);
-    function FieldHyperlink(inst, fldinst, data) {
+    function FieldHyperlink(fldinst, data) {
         var _this = _super.call(this, fldinst) || this;
         _this._url = data;
-        _this.inst = inst;
         return _this;
     }
     FieldHyperlink.prototype.url = function () {
@@ -8627,7 +8619,7 @@ var FldinstDestination = /** @class */ (function (_super) {
             var fieldType = this.text.substr(0, sep).toUpperCase();
             switch (fieldType) {
                 case "HYPERLINK":
-                    return new FieldHyperlink(this.inst, this, data_1);
+                    return new FieldHyperlink(this, data_1);
                 case "IMPORT":
                     if (typeof this.inst._settings.onImport === "function") {
                         var pict_1;
@@ -8735,7 +8727,6 @@ var PictGroupDestinationFactory = /** @class */ (function (_super) {
     __extends(PictGroupDestinationFactory, _super);
     function PictGroupDestinationFactory(legacy) {
         var _this = _super.call(this) || this;
-        _this.legacy = legacy;
         _this.class = /** @class */ (function (_super) {
             __extends(class_5, _super);
             function class_5() {
@@ -9026,7 +9017,6 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
     __extends(RequiredDestinationFactory, _super);
     function RequiredDestinationFactory(name) {
         var _this = _super.call(this) || this;
-        _this.name = name;
         _this.class = /** @class */ (function (_super) {
             __extends(class_6, _super);
             function class_6() {
@@ -9633,7 +9623,11 @@ var Renderer = /** @class */ (function () {
             });
         }
         else {
-            return $("<span>").text("[" + mime + "]");
+            var err = "image type not supported";
+            if (typeof mime === "string" && mime !== "") {
+                err = mime;
+            }
+            return $("<span>").text("[" + err + "]");
         }
     };
     Renderer.prototype.picture = function (mime, data) {

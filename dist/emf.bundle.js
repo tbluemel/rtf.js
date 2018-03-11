@@ -1155,8 +1155,6 @@ var BitmapInfo = /** @class */ (function (_super) {
     __extends$1(BitmapInfo, _super);
     function BitmapInfo(reader, usergb) {
         var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
         _this._usergb = usergb;
         var hdrsize = reader.readUint32();
         _this._infosize = hdrsize;
@@ -2899,7 +2897,6 @@ var Renderer = /** @class */ (function () {
 }());
 var EMF = /** @class */ (function () {
     function EMF(reader, hdrsize) {
-        this._reader = reader;
         this._hdrsize = hdrsize;
         this._records = new EMFRecords(reader, this._hdrsize);
     }

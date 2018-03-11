@@ -144,14 +144,12 @@ export class WMFPlacable {
 }
 
 export class WMF {
-    private _reader: Blob;
     private _version: number;
     private _hdrsize: number;
     private _placable: WMFPlacable;
     private _records: WMFRecords;
 
     constructor(reader: Blob, placable: WMFPlacable, version: number, hdrsize: number) {
-        this._reader = reader;
         this._version = version;
         this._hdrsize = hdrsize;
         this._placable = placable;

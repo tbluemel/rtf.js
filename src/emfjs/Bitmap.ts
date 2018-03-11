@@ -96,16 +96,12 @@ export class BitmapInfoHeader {
 }
 
 export class BitmapInfo extends BitmapBase {
-    private _reader: Blob;
-    private _offset: number;
     private _usergb: boolean;
     private _infosize: number;
     private _header: BitmapCoreHeader | BitmapInfoHeader;
 
     constructor(reader: Blob, usergb: boolean) {
         super();
-        this._reader = reader;
-        this._offset = reader.pos;
         this._usergb = usergb;
         const hdrsize = reader.readUint32();
         this._infosize = hdrsize;
