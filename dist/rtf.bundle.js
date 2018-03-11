@@ -8415,18 +8415,18 @@ var StylesheetDestinationSub = /** @class */ (function (_super) {
     __extends(StylesheetDestinationSub, _super);
     function StylesheetDestinationSub(stylesheet) {
         var _this = _super.call(this, "stylesheet:sub") || this;
-        _this._handleKeywordCommon = function (member) {
-            return function (keyword, param) {
-                Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
-                return false;
-            };
-        };
         _this._stylesheet = stylesheet;
         _this.index = 0;
         _this.name = null;
         _this.handler = _this._handleKeywordCommon("paragraph");
         return _this;
     }
+    StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
+        return function (keyword, param) {
+            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+            return false;
+        };
+    };
     StylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "s":
@@ -8643,7 +8643,6 @@ var FldinstDestination = /** @class */ (function (_super) {
                         });
                         var promise = new Promise(function (resolve, reject) {
                             try {
-                                var self_1 = _this;
                                 var cb = function (_a) {
                                     var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
                                     if (!error && typeof keyword === "string" && keyword && blob) {
@@ -8651,7 +8650,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                                             w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
-                                        pict_1 = new PictDestination(self_1.parser, self_1.inst);
+                                        pict_1 = new PictDestination(_this.parser, _this.inst);
                                         pict_1.handleBlob(blob);
                                         pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
                                         pict_1._displaysize.width = dims.w;
@@ -9200,16 +9199,13 @@ var Parser = /** @class */ (function () {
         }
         this.parser.state = state.parent;
         if (this.parser.state !== null) {
-            this.inst._ins.push((function (chpState) {
-                return function () {
-                    this.setChp(new RenderChp(chpState.chp));
-                };
-            })(this.parser.state));
-            this.inst._ins.push((function (papState) {
-                return function () {
-                    this.setPap(new RenderPap(papState.pap));
-                };
-            })(this.parser.state));
+            var currentState_1 = this.parser.state;
+            this.inst._ins.push(function () {
+                this.setChp(new RenderChp(currentState_1.chp));
+            });
+            this.inst._ins.push(function () {
+                this.setPap(new RenderPap(currentState_1.pap));
+            });
         }
         return this.parser.state;
     };

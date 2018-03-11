@@ -2732,18 +2732,16 @@ var Renderer = /** @class */ (function () {
         Helper.log("[WMF] <--- DONE RENDERING");
     };
     Renderer.prototype.render = function (info) {
-        var inst = this;
-        var img = (function (mapMode, xExt, yExt) {
-            return $("<div>").svg({
-                onLoad: function (svg) {
-                    return inst._render.call(inst, svg, mapMode, xExt, yExt);
-                },
-                settings: {
-                    viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none",
-                },
-            });
-        })(info.mapMode, info.xExt, info.yExt);
+        var _this = this;
+        var img = $("<div>").svg({
+            onLoad: function (svg) {
+                return _this._render(svg, info.mapMode, info.xExt, info.yExt);
+            },
+            settings: {
+                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+                preserveAspectRatio: "none",
+            },
+        });
         var svgContainer = $(img[0]).svg("get");
         return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };

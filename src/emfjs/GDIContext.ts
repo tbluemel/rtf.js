@@ -62,13 +62,13 @@ export class Path extends Obj {
 
 function createStockObjects(): {[key: string]: Obj} {
     // Create global stock objects
-    const createSolidBrush = function(r: number, g: number, b: number) {
+    const createSolidBrush = (r: number, g: number, b: number) => {
         return new Brush(null, {
             style: Helper.GDI.BrushStyle.BS_SOLID,
             color: new ColorRef(null, r, g, b),
         });
     };
-    const createSolidPen = function(r: number, g: number, b: number) {
+    const createSolidPen = (r: number, g: number, b: number) => {
         return new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, r, g, b), null);
     };
     const stockObjs: {[key: string]: Obj} = {

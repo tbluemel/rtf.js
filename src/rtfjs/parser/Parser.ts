@@ -145,20 +145,13 @@ export class Parser {
         this.parser.state = state.parent;
 
         if (this.parser.state !== null) {
-            this.inst._ins.push(
-                (function(chpState) {
-                    return function(this: Renderer) {
-                        this.setChp(new RenderChp(chpState.chp));
-                    };
-                })(this.parser.state),
-            );
-            this.inst._ins.push(
-                (function(papState) {
-                    return function(this: Renderer) {
-                        this.setPap(new RenderPap(papState.pap));
-                    };
-                })(this.parser.state),
-            );
+            const currentState = this.parser.state;
+            this.inst._ins.push(function(this: Renderer) {
+                this.setChp(new RenderChp(currentState.chp));
+            });
+            this.inst._ins.push(function(this: Renderer) {
+                this.setPap(new RenderPap(currentState.pap));
+            });
         }
         return this.parser.state;
     }

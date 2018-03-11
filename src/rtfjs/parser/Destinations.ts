@@ -52,7 +52,7 @@ export interface IDestination {
     [key: string]: any;
 }
 
-const findParentDestination = function(parser: GlobalState, dest: string) {
+const findParentDestination = (parser: GlobalState, dest: string) => {
     let state = parser.state;
     while (state != null) {
         if (state.destination == null) {
@@ -100,13 +100,13 @@ export abstract class DestinationFormattedTextBase implements IDestination {
     }
 
     appendText(text: string) {
-        this._records.push(function(rtf: RtfDestination) {
+        this._records.push((rtf: RtfDestination) => {
             rtf.appendText(text);
         });
     }
 
     handleKeyword(keyword: string, param: number) {
-        this._records.push(function(rtf: RtfDestination) {
+        this._records.push((rtf: RtfDestination) => {
             return rtf.handleKeyword(keyword, param);
         });
     }
@@ -829,12 +829,12 @@ export class StylesheetDestinationSub extends DestinationBase {
         this.handler = this._handleKeywordCommon("paragraph");
     }
 
-    _handleKeywordCommon = function(member: string) {
-        return function(keyword: string, param: number) {
+    _handleKeywordCommon(member: string) {
+        return (keyword: string, param: number) => {
             Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
             return false;
         };
-    };
+    }
 
     handleKeyword(keyword: string, param: number) {
         switch (keyword) {
@@ -1000,7 +1000,7 @@ export class FieldHyperlink extends FieldBase {
             rtf.addIns(function() {
                 const inst = this._doc;
                 const renderer = this;
-                const create = function() {
+                const create = () => {
                     return renderer.buildHyperlinkElement(self._url);
                 };
                 let container;
@@ -1081,15 +1081,14 @@ export class FldinstDestination extends DestinationTextBase {
 
                         const promise: Promise<IField | null> = new Promise((resolve, reject) => {
                             try {
-                                const self = this;
-                                const cb = function({error, keyword, blob, width, height}
-                                        : {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) {
+                                const cb = ({error, keyword, blob, width, height}
+                                        : {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) => {
                                     if (!error && typeof keyword === "string" && keyword && blob) {
                                         const dims = {
                                             w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
-                                        pict = new PictDestination(self.parser, self.inst);
+                                        pict = new PictDestination(this.parser, this.inst);
 
                                         pict.handleBlob(blob);
                                         pict.handleKeyword(keyword, 8);  // mapMode: 8 => preserve aspect ratio
@@ -1324,7 +1323,7 @@ export class PictDestination extends DestinationTextBase {
                                 if (typeof renderer === "string") {
                                     return renderer;
                                 }
-                                return function() {
+                                return () => {
                                     return info.render(renderer);
                                 };
                             }
@@ -1392,11 +1391,11 @@ export class PictDestination extends DestinationTextBase {
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function(legacy) {
+                this.inst.addIns(((legacy) => {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, legacy, function() {
+                        const elem = inst._settings.onPicture.call(inst, legacy, () => {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {
@@ -1436,11 +1435,11 @@ export class PictDestination extends DestinationTextBase {
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function(legacy) {
+                this.inst.addIns(((legacy) => {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, legacy, function() {
+                        const elem = inst._settings.onPicture.call(inst, legacy, () => {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {

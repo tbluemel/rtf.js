@@ -80,18 +80,15 @@ export class Renderer {
     }
 
     render(info: RendererSettings) {
-        const inst = this;
-        const img = (function(mapMode, w, h, xExt, yExt) {
-            return ($("<div>") as any).svg({
-                onLoad(svg: any) {
-                    return inst._render.call(inst, svg, mapMode, w, h, xExt, yExt);
-                },
-                settings: {
-                    viewBox: [0, 0, xExt, yExt].join(" "),
-                    preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-                },
-            });
-        })(info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
+        const img = ($("<div>") as any).svg({
+            onLoad: (svg: any) => {
+                return this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
+            },
+            settings: {
+                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+            },
+        });
         const svgContainer = ($(img[0]) as any).svg("get");
         return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     }
