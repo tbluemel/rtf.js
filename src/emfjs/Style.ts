@@ -31,9 +31,9 @@ import { Helper } from "./Helper";
 import { Obj, PointL } from "./Primitives";
 
 export  class ColorRef {
-    r: number;
-    g: number;
-    b: number;
+    public r: number;
+    public g: number;
+    public b: number;
 
     constructor(reader: Blob, r?: number, g?: number, b?: number) {
         if (reader != null) {
@@ -48,36 +48,36 @@ export  class ColorRef {
         }
     }
 
-    clone() {
+    public clone() {
         return new ColorRef(null, this.r, this.g, this.b);
     }
 
-    toHex() {
+    public toHex() {
         const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
     }
 
-    toString() {
+    public toString() {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
     }
 }
 
 export class Font extends Obj {
-    height: number;
-    width: number;
-    escapement: number;
-    orientation: number;
-    weight: number;
-    italic: number;
-    underline: number;
-    strikeout: number;
-    charset: number;
-    outprecision: number;
-    clipprecision: number;
-    quality: number;
-    pitch: number;
-    family: number;
-    facename: string;
+    public height: number;
+    public width: number;
+    public escapement: number;
+    public orientation: number;
+    public weight: number;
+    public italic: number;
+    public underline: number;
+    public strikeout: number;
+    public charset: number;
+    public outprecision: number;
+    public clipprecision: number;
+    public quality: number;
+    public pitch: number;
+    public family: number;
+    public facename: string;
 
     constructor(reader: Blob, copy: Font | number) {
         super("font");
@@ -138,21 +138,21 @@ export class Font extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Font(null, this);
     }
 
-    toString() {
+    public toString() {
         return JSON.stringify(this);
     }
 }
 
 export class Brush extends Obj {
-    style: number;
-    color: ColorRef;
-    pattern: DIBitmap;
-    dibpatternpt: DIBitmap;
-    hatchstyle: number;
+    public style: number;
+    public color: ColorRef;
+    public pattern: DIBitmap;
+    public dibpatternpt: DIBitmap;
+    public hatchstyle: number;
 
     constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap,
         dibpatternpt?: DIBitmap, hatchstyle?: number}) {
@@ -198,11 +198,11 @@ export class Brush extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Brush(null, this);
     }
 
-    toString() {
+    public toString() {
         let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
@@ -217,10 +217,10 @@ export class Brush extends Obj {
 }
 
 export class Pen extends Obj {
-    style: number | {header: {off: number, size: number}, data: {off: number, size: number}};
-    width: number;
-    brush: Brush;
-    color: ColorRef;
+    public style: number | {header: {off: number, size: number}, data: {off: number, size: number}};
+    public width: number;
+    public brush: Brush;
+    public color: ColorRef;
 
     constructor(reader: Blob, style?: number | {header: {off: number, size: number}, data: {off: number, size: number}},
                 width?: number, color?: ColorRef, brush?: Brush) {
@@ -253,12 +253,12 @@ export class Pen extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null,
             this.brush != null ? this.brush.clone() : null);
     }
 
-    toString() {
+    public toString() {
         return "{style: " + this.style + ", width: " + this.width
             + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
     }

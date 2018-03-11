@@ -46,7 +46,7 @@ export function loggingEnabled(enabled: boolean) {
 }
 
 export class Helper {
-    static GDI = {
+    public static GDI = {
         FormatSignature: {
             ENHMETA_SIGNATURE: 0x464D4520,
             EPS_SIGNATURE: 0x46535045,
@@ -328,27 +328,27 @@ export class Helper {
         },
     };
 
-    static _uniqueId = 0;
+    public static _uniqueId = 0;
 
-    static log(message: string) {
+    public static log(message: string) {
         if (isLoggingEnabled) {
             // tslint:disable-next-line:no-console
             console.log(message);
         }
     }
 
-    static _makeUniqueId(prefix: string) {
+    public static _makeUniqueId(prefix: string) {
         return "EMFJS_" + prefix + (this._uniqueId++);
     }
 
-    static _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
+    public static _writeUint32Val(uint8arr: Uint8Array, pos: number, val: number) {
         uint8arr[pos++] = val & 0xff;
         uint8arr[pos++] = (val >>> 8) & 0xff;
         uint8arr[pos++] = (val >>> 16) & 0xff;
         uint8arr[pos++] = (val >>> 24) & 0xff;
     }
 
-    static _blobToBinary(blob: Uint8Array) {
+    public static _blobToBinary(blob: Uint8Array) {
         let ret = "";
         const len = blob.length;
         for (let i = 0; i < len; i++) {

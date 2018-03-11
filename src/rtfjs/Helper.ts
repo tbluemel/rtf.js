@@ -47,36 +47,27 @@ export function loggingEnabled(enabled: boolean) {
 }
 
 export class Helper {
-    static _A = "A".charCodeAt(0);
-    static _a = "a".charCodeAt(0);
-    static _F = "F".charCodeAt(0);
-    static _f = "f".charCodeAt(0);
-    static _Z = "Z".charCodeAt(0);
-    static _z = "z".charCodeAt(0);
-    static _0 = "0".charCodeAt(0);
-    static _9 = "9".charCodeAt(0);
-
-    static JUSTIFICATION = {
+    public static JUSTIFICATION = {
         LEFT: "left",
         CENTER: "center",
         RIGHT: "right",
         JUSTIFY: "justify",
     };
-    static BREAKTYPE = {
+    public static BREAKTYPE = {
         NONE: "none",
         COL: "col", // TODO: ???
         EVEN: "even",
         ODD: "odd",
         PAGE: "page",
     };
-    static PAGENUMBER = {
+    public static PAGENUMBER = {
         DECIMAL: "decimal",
         UROM: "urom", // TODO: ???
         LROM: "lrom", // TODO: ???
         ULTR: "ultr", // TODO: ???
         LLTR: "lltr", // TODO: ???
     };
-    static UNDERLINE = {
+    public static UNDERLINE = {
         NONE: "none",
         CONTINUOUS: "continuous",
         DOTTED: "dotted",
@@ -96,18 +87,135 @@ export class Helper {
         WORD: "word",
         WAVE: "wave",
     };
-    static FONTPITCH = {
+    public static FONTPITCH = {
         DEFAULT: 0,
         FIXED: 1,
         VARIABLE: 2,
     };
-    static CHARACTER_TYPE = {
+    public static CHARACTER_TYPE = {
         LOWANSI: "loch",
         HIGHANSI: "hich",
         DOUBLE: "dbch",
     };
 
-    static _charsetMap: {[key: string]: number} = {
+    public static log(message: string) {
+        if (isLoggingEnabled) {
+            // tslint:disable-next-line:no-console
+            console.log(message);
+        }
+    }
+
+    public static _isalpha(str: string): boolean {
+        const len = str.length;
+        for (let i = 0; i < len; i++) {
+            const ch = str.charCodeAt(i);
+            if (!((ch >= this._A && ch <= this._Z) ||
+                    (ch >= this._a && ch <= this._z))) {
+                return false;
+            }
+        }
+        return len > 0;
+    }
+
+    public static _isdigit(str: string): boolean {
+        const len = str.length;
+        for (let i = 0; i < len; i++) {
+            const ch = str.charCodeAt(i);
+            if (ch < this._0 || ch > this._9) {
+                return false;
+            }
+        }
+        return len > 0;
+    }
+
+    public static _parseHex(str: string): number {
+        const len = str.length;
+        for (let i = 0; i < len; i++) {
+            const ch = str.charCodeAt(i);
+            if (!((ch >= this._0 && ch <= this._9) ||
+                    (ch >= this._a && ch <= this._f) ||
+                    (ch >= this._A && ch <= this._F))) {
+                return NaN;
+            }
+        }
+        if (len > 0) {
+            return parseInt(str, 16);
+        }
+        return NaN;
+    }
+
+    public static _blobToBinary(blob: ArrayBuffer): string {
+        const view = new Uint8Array(blob);
+        let ret = "";
+        const len = view.length;
+        for (let i = 0; i < len; i++) {
+            ret += String.fromCharCode(view[i]);
+        }
+        return ret;
+    }
+
+    public static _hexToBlob(str: string): ArrayBuffer {
+        let len = str.length;
+        const buf = new ArrayBuffer(Math.floor(len-- / 2));
+        const view = new Uint8Array(buf);
+        let d = 0;
+        for (let i = 0; i < len; i += 2) {
+            const val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val)) {
+                return null;
+            }
+            view[d++] = val;
+        }
+        return buf;
+    }
+
+    public static _hexToBinary(str: string): string {
+        let bin = "";
+        const len = str.length - 1;
+        for (let i = 0; i < len; i += 2) {
+            const val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val)) {
+                return null;
+            }
+            bin += String.fromCharCode(val);
+        }
+        return bin;
+    }
+
+    public static _mapCharset(idx: number): number {
+        return this._charsetMap[idx.toString()];
+    }
+
+    public static _mapColorTheme(name: string) {
+        return this._colorThemeMap[name];
+    }
+
+    public static _colorToStr(color: IColor) {
+        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+    }
+
+    public static _twipsToPt(twips: number) {
+        return Math.floor(twips / 20);
+    }
+
+    public static _twipsToPx(twips: number) {
+        return Math.floor(twips / 20 * 96 / 72);
+    }
+
+    public static _pxToTwips(px: number) {
+        return Math.floor(px * 20 * 72 / 96);
+    }
+
+    private static _A = "A".charCodeAt(0);
+    private static _a = "a".charCodeAt(0);
+    private static _F = "F".charCodeAt(0);
+    private static _f = "f".charCodeAt(0);
+    private static _Z = "Z".charCodeAt(0);
+    private static _z = "z".charCodeAt(0);
+    private static _0 = "0".charCodeAt(0);
+    private static _9 = "9".charCodeAt(0);
+
+    private static _charsetMap: {[key: string]: number} = {
         0:   1252, // ANSI_CHARSET
         77:  10000, // Mac Roman
         78:  10001, // Mac Shift Jis
@@ -139,7 +247,7 @@ export class Helper {
         255: 850,  // OEM
     };
 
-    static _colorThemeMap: {[key: string]: null} = {
+    private static _colorThemeMap: {[key: string]: null} = {
         // TODO
         maindarkone: null,
         mainlightone: null,
@@ -158,112 +266,4 @@ export class Helper {
         backgroundtwo: null,
         texttwo: null,
     };
-
-    static log(message: string) {
-        if (isLoggingEnabled) {
-            // tslint:disable-next-line:no-console
-            console.log(message);
-        }
-    }
-
-    static _isalpha(str: string): boolean {
-        const len = str.length;
-        for (let i = 0; i < len; i++) {
-            const ch = str.charCodeAt(i);
-            if (!((ch >= this._A && ch <= this._Z) ||
-                (ch >= this._a && ch <= this._z))) {
-                return false;
-            }
-        }
-        return len > 0;
-    }
-
-    static _isdigit(str: string): boolean {
-        const len = str.length;
-        for (let i = 0; i < len; i++) {
-            const ch = str.charCodeAt(i);
-            if (ch < this._0 || ch > this._9) {
-                return false;
-            }
-        }
-        return len > 0;
-    }
-
-    static _parseHex(str: string): number {
-        const len = str.length;
-        for (let i = 0; i < len; i++) {
-            const ch = str.charCodeAt(i);
-            if (!((ch >= this._0 && ch <= this._9) ||
-                (ch >= this._a && ch <= this._f) ||
-                (ch >= this._A && ch <= this._F))) {
-                return NaN;
-            }
-        }
-        if (len > 0) {
-            return parseInt(str, 16);
-        }
-        return NaN;
-    }
-
-    static _blobToBinary(blob: ArrayBuffer): string {
-        const view = new Uint8Array(blob);
-        let ret = "";
-        const len = view.length;
-        for (let i = 0; i < len; i++) {
-            ret += String.fromCharCode(view[i]);
-        }
-        return ret;
-    }
-
-    static _hexToBlob(str: string): ArrayBuffer {
-        let len = str.length;
-        const buf = new ArrayBuffer(Math.floor(len-- / 2));
-        const view = new Uint8Array(buf);
-        let d = 0;
-        for (let i = 0; i < len; i += 2) {
-            const val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val)) {
-                return null;
-            }
-            view[d++] = val;
-        }
-        return buf;
-    }
-
-    static _hexToBinary(str: string): string {
-        let bin = "";
-        const len = str.length - 1;
-        for (let i = 0; i < len; i += 2) {
-            const val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val)) {
-                return null;
-            }
-            bin += String.fromCharCode(val);
-        }
-        return bin;
-    }
-
-    static _mapCharset(idx: number): number {
-        return this._charsetMap[idx.toString()];
-    }
-
-    static _mapColorTheme(name: string) {
-        return this._colorThemeMap[name];
-    }
-
-    static _colorToStr(color: IColor) {
-        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-    }
-
-    static _twipsToPt(twips: number) {
-        return Math.floor(twips / 20);
-    }
-
-    static _twipsToPx(twips: number) {
-        return Math.floor(twips / 20 * 96 / 72);
-    }
-
-    static _pxToTwips(px: number) {
-        return Math.floor(px * 20 * 72 / 96);
-    }
 }

@@ -138,14 +138,6 @@ var Helper = /** @class */ (function () {
     Helper._pxToTwips = function (px) {
         return Math.floor(px * 20 * 72 / 96);
     };
-    Helper._A = "A".charCodeAt(0);
-    Helper._a = "a".charCodeAt(0);
-    Helper._F = "F".charCodeAt(0);
-    Helper._f = "f".charCodeAt(0);
-    Helper._Z = "Z".charCodeAt(0);
-    Helper._z = "z".charCodeAt(0);
-    Helper._0 = "0".charCodeAt(0);
-    Helper._9 = "9".charCodeAt(0);
     Helper.JUSTIFICATION = {
         LEFT: "left",
         CENTER: "center",
@@ -196,6 +188,14 @@ var Helper = /** @class */ (function () {
         HIGHANSI: "hich",
         DOUBLE: "dbch",
     };
+    Helper._A = "A".charCodeAt(0);
+    Helper._a = "a".charCodeAt(0);
+    Helper._F = "F".charCodeAt(0);
+    Helper._f = "f".charCodeAt(0);
+    Helper._Z = "Z".charCodeAt(0);
+    Helper._z = "z".charCodeAt(0);
+    Helper._0 = "0".charCodeAt(0);
+    Helper._9 = "9".charCodeAt(0);
     Helper._charsetMap = {
         0: 1252,
         77: 10000,
@@ -7923,6 +7923,24 @@ var RtfDestination = /** @class */ (function (_super) {
     RtfDestination.prototype.sub = function () {
         Helper.log("[rtf].sub()");
     };
+    RtfDestination.prototype.handleKeyword = function (keyword, param) {
+        var handler = this._charFormatHandlers[keyword];
+        if (handler != null) {
+            handler(param);
+            return true;
+        }
+        return false;
+    };
+    RtfDestination.prototype.apply = function () {
+        Helper.log("[rtf] apply()");
+        for (var prop in this._metadata) {
+            this.inst._meta[prop] = this._metadata[prop];
+        }
+        delete this._metadata;
+    };
+    RtfDestination.prototype.setMetadata = function (prop, val) {
+        this._metadata[prop] = val;
+    };
     RtfDestination.prototype._addInsHandler = function (func) {
         var _this = this;
         return function (param) {
@@ -7994,24 +8012,6 @@ var RtfDestination = /** @class */ (function (_super) {
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
             _this._addFormatIns(ptype, props);
         };
-    };
-    RtfDestination.prototype.handleKeyword = function (keyword, param) {
-        var handler = this._charFormatHandlers[keyword];
-        if (handler != null) {
-            handler(param);
-            return true;
-        }
-        return false;
-    };
-    RtfDestination.prototype.apply = function () {
-        Helper.log("[rtf] apply()");
-        for (var prop in this._metadata) {
-            this.inst._meta[prop] = this._metadata[prop];
-        }
-        delete this._metadata;
-    };
-    RtfDestination.prototype.setMetadata = function (prop, val) {
-        this._metadata[prop] = val;
     };
     return RtfDestination;
 }(DestinationBase));
@@ -8326,17 +8326,6 @@ var ColortblDestination = /** @class */ (function (_super) {
         _this.inst = inst;
         return _this;
     }
-    ColortblDestination.prototype._startNewColor = function () {
-        this._current = {
-            r: 0,
-            g: 0,
-            b: 0,
-            tint: 255,
-            shade: 255,
-            theme: null,
-        };
-        return this._current;
-    };
     ColortblDestination.prototype.appendText = function (text) {
         var len = text.length;
         for (var i = 0; i < len; i++) {
@@ -8358,15 +8347,6 @@ var ColortblDestination = /** @class */ (function (_super) {
             this._colors.push(this._current);
             this._current = null;
         }
-    };
-    ColortblDestination.prototype._validateColorValueRange = function (keyword, param) {
-        if (param == null) {
-            throw new RTFJSError(keyword + " has no param");
-        }
-        if (param < 0 || param > 255) {
-            throw new RTFJSError(keyword + " has invalid param value");
-        }
-        return param;
     };
     ColortblDestination.prototype.handleKeyword = function (keyword, param) {
         if (this._current == null) {
@@ -8415,6 +8395,26 @@ var ColortblDestination = /** @class */ (function (_super) {
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
     };
+    ColortblDestination.prototype._startNewColor = function () {
+        this._current = {
+            r: 0,
+            g: 0,
+            b: 0,
+            tint: 255,
+            shade: 255,
+            theme: null,
+        };
+        return this._current;
+    };
+    ColortblDestination.prototype._validateColorValueRange = function (keyword, param) {
+        if (param == null) {
+            throw new RTFJSError(keyword + " has no param");
+        }
+        if (param < 0 || param > 255) {
+            throw new RTFJSError(keyword + " has invalid param value");
+        }
+        return param;
+    };
     return ColortblDestination;
 }(DestinationBase));
 var StylesheetDestinationSub = /** @class */ (function (_super) {
@@ -8427,12 +8427,6 @@ var StylesheetDestinationSub = /** @class */ (function (_super) {
         _this.handler = _this._handleKeywordCommon("paragraph");
         return _this;
     }
-    StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
-        return function (keyword, param) {
-            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
-            return false;
-        };
-    };
     StylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
         switch (keyword) {
             case "s":
@@ -8470,6 +8464,12 @@ var StylesheetDestinationSub = /** @class */ (function (_super) {
             name: this.name,
         });
         delete this._stylesheet;
+    };
+    StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
+        return function (keyword, param) {
+            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+            return false;
+        };
     };
     return StylesheetDestinationSub;
 }(DestinationBase));
@@ -8855,17 +8855,6 @@ var PictDestination = /** @class */ (function (_super) {
         _this.inst = inst;
         return _this;
     }
-    PictDestination.prototype._setPropValueRequired = function (member, prop) {
-        var _this = this;
-        return function (param) {
-            if (param == null) {
-                throw new RTFJSError("Picture property has no value");
-            }
-            Helper.log("[pict] set " + member + "." + prop + " = " + param);
-            var obj = (member != null ? _this[member] : _this);
-            obj[prop] = param;
-        };
-    };
     PictDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._pictHandlers[keyword];
         if (handler != null) {
@@ -9019,6 +9008,17 @@ var PictDestination = /** @class */ (function (_super) {
             }
         }
         delete this.text;
+    };
+    PictDestination.prototype._setPropValueRequired = function (member, prop) {
+        var _this = this;
+        return function (param) {
+            if (param == null) {
+                throw new RTFJSError("Picture property has no value");
+            }
+            Helper.log("[pict] set " + member + "." + prop + " = " + param);
+            var obj = (member != null ? _this[member] : _this);
+            obj[prop] = param;
+        };
     };
     return PictDestination;
 }(DestinationTextBase));

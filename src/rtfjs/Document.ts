@@ -35,13 +35,13 @@ export interface ISettings {
         width?: number, height?: number}) => void): void;
 }
 export class Document {
-    _settings: ISettings;
-    _meta: {[key: string]: any};
-    _fonts: FonttblDestinationSub[];
-    _colors: IColor[];
-    _autoColor: number;
-    _stylesheets: Array<{index: number, name: string}>;
-    _ins: Array<string | ((this: Renderer) => void)>;
+    public _settings: ISettings;
+    public _meta: {[key: string]: any};
+    public _fonts: FonttblDestinationSub[];
+    public _colors: IColor[];
+    public _autoColor: number;
+    public _stylesheets: Array<{index: number, name: string}>;
+    public _ins: Array<string | ((this: Renderer) => void)>;
 
     constructor(settings: ISettings) {
         this._settings = settings || {};
@@ -53,7 +53,7 @@ export class Document {
         this._ins = [];
     }
 
-    _lookupColor(idx: number) {
+    public _lookupColor(idx: number) {
         if (idx === 0) {
             if (this._autoColor == null) {
                 return null;
@@ -66,7 +66,7 @@ export class Document {
         return this._colors[idx];
     }
 
-    addIns(ins: string | ((this: Renderer) => void)) {
+    public addIns(ins: string | ((this: Renderer) => void)) {
         this._ins.push(ins);
     }
 

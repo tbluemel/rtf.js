@@ -28,8 +28,8 @@ import { Blob } from "./Blob";
 import { WMFJSError } from "./Helper";
 
 export class PointS {
-    x: number;
-    y: number;
+    public x: number;
+    public y: number;
 
     constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
@@ -41,20 +41,20 @@ export class PointS {
         }
     }
 
-    clone() {
+    public clone() {
         return new PointS(null, this.x, this.y);
     }
 
-    toString() {
+    public toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
 
 export class Rect {
-    bottom: number;
-    right: number;
-    top: number;
-    left: number;
+    public bottom: number;
+    public right: number;
+    public top: number;
+    public left: number;
 
     constructor(reader: Blob, left?: number, top?: number, right?: number, bottom?: number) {
         if (reader != null) {
@@ -70,20 +70,20 @@ export class Rect {
         }
     }
 
-    clone() {
+    public clone() {
         return new Rect(null, this.left, this.top, this.right, this.bottom);
     }
 
-    toString() {
+    public toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
 
-    empty() {
+    public empty() {
         return this.left >= this.right || this.top >= this.bottom;
     }
 
-    intersect(rect: Rect) {
+    public intersect(rect: Rect) {
         if (this.empty() || rect.empty()) {
             return null;
         }
@@ -97,17 +97,17 @@ export class Rect {
 }
 
 export class Obj {
-    type: string;
+    public type: string;
 
     constructor(type: string) {
         this.type = type;
     }
 
-    clone(): Obj {
+    public clone(): Obj {
         throw new WMFJSError("clone not implemented");
     }
 
-    toString() {
+    public toString() {
         throw new WMFJSError("toString not implemented");
     }
 }

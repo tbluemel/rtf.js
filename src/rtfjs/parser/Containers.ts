@@ -29,14 +29,14 @@ import { Renderer } from "../Renderer";
 import { IDestination } from "./Destinations";
 
 export class Chp {
-    bold: boolean;
-    underline: string;
-    italic: boolean;
-    strikethrough: boolean;
-    dblstrikethrough: boolean;
-    colorindex: number;
-    fontsize: number;
-    fontfamily: number;
+    public bold: boolean;
+    public underline: string;
+    public italic: boolean;
+    public strikethrough: boolean;
+    public dblstrikethrough: boolean;
+    public colorindex: number;
+    public fontsize: number;
+    public fontfamily: number;
 
     constructor(parent: Chp) {
         if (parent != null) {
@@ -61,11 +61,11 @@ export class Chp {
 }
 
 export class Pap {
-    indent: {left: number, right: number, firstline: number};
-    justification: string;
-    spacebefore: number;
-    spaceafter: number;
-    charactertype: string;
+    public indent: {left: number, right: number, firstline: number};
+    public justification: string;
+    public spacebefore: number;
+    public spaceafter: number;
+    public charactertype: string;
 
     constructor(parent: Pap) {
         if (parent != null) {
@@ -92,10 +92,10 @@ export class Pap {
 }
 
 export class Sep {
-    columns: number;
-    breaktype: string;
-    pagenumber: {x: number, y: number};
-    pagenumberformat: string;
+    public columns: number;
+    public breaktype: string;
+    public pagenumber: {x: number, y: number};
+    public pagenumberformat: string;
 
     constructor(parent: Sep) {
         if (parent != null) {
@@ -119,12 +119,12 @@ export class Sep {
 }
 
 export class Dop {
-    width: number;
-    height: number;
-    margin: {left: number, top: number, right: number, bottom: number};
-    pagenumberstart: number;
-    facingpages: boolean;
-    landscape: boolean;
+    public width: number;
+    public height: number;
+    public margin: {left: number, top: number, right: number, bottom: number};
+    public pagenumberstart: number;
+    public facingpages: boolean;
+    public landscape: boolean;
 
     constructor(parent: Dop) {
         if (parent != null) {
@@ -156,18 +156,18 @@ export class Dop {
 }
 
 export class State {
-    parent: State;
-    first: boolean;
-    skipchars: number;
-    bindata: number;
-    chp: Chp;
-    pap: Pap;
-    sep: Sep;
-    dop: Dop;
-    destination: IDestination;
-    skipunknowndestination: boolean;
-    skipdestination: boolean;
-    ucn: number;
+    public parent: State;
+    public first: boolean;
+    public skipchars: number;
+    public bindata: number;
+    public chp: Chp;
+    public pap: Pap;
+    public sep: Sep;
+    public dop: Dop;
+    public destination: IDestination;
+    public skipunknowndestination: boolean;
+    public skipdestination: boolean;
+    public ucn: number;
     [key: string]: any;
 
     constructor(parent: State) {
@@ -198,16 +198,16 @@ export class State {
 }
 
 export class GlobalState {
-    data: Uint8Array;
-    pos: number;
-    line: number;
-    column: number;
-    state: State;
-    version: number;
-    text: string;
-    codepage: number;
-    _asyncTasks: Array<Promise<any>>;
-    renderer: Renderer;
+    public data: Uint8Array;
+    public pos: number;
+    public line: number;
+    public column: number;
+    public state: State;
+    public version: number;
+    public text: string;
+    public codepage: number;
+    public _asyncTasks: Array<Promise<any>>;
+    public renderer: Renderer;
 
     constructor(blob: ArrayBuffer, renderer: Renderer) {
         this.data = new Uint8Array(blob);

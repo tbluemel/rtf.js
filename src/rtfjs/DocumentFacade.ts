@@ -30,9 +30,9 @@ import { Parser } from "./parser/Parser";
 import { Renderer } from "./Renderer";
 
 export class DocumentFacade {
-    _document: Document;
-    _renderer: Renderer;
-    _parsed: Promise<void>;
+    private _document: Document;
+    private _renderer: Renderer;
+    private _parsed: Promise<void>;
 
     constructor(blob: ArrayBuffer, settings: ISettings) {
         this._document = new Document(settings);
@@ -41,11 +41,11 @@ export class DocumentFacade {
         this._parsed = parser.parse();
     }
 
-    metadata() {
+    public metadata() {
         return this._document._meta;
     }
 
-    render(): Promise<JQuery[]> {
+    public render(): Promise<JQuery[]> {
         return this._parsed
             .then(() => {
                 return this._renderer.buildDom();

@@ -34,9 +34,9 @@ import { RenderChp } from "./RenderChp";
 import { RenderPap } from "./RenderPap";
 
 export abstract class DestinationFactory<T extends IDestination> {
-    class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
+    public class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
 
-    newDestination(parser: GlobalState, inst: Document, name: string, param: number): T {
+    public newDestination(parser: GlobalState, inst: Document, name: string, param: number): T {
         return new this.class(parser, inst, name, param);
     }
 }
@@ -67,7 +67,7 @@ const findParentDestination = (parser: GlobalState, dest: string) => {
 };
 
 export class DestinationBase implements IDestination {
-    _name: string;
+    public _name: string;
 
     constructor(name: string) {
         this._name = name;
@@ -75,23 +75,23 @@ export class DestinationBase implements IDestination {
 }
 
 export class DestinationTextBase implements IDestination {
-    _name: string;
-    text: string;
+    public _name: string;
+    public text: string;
 
     constructor(name: string) {
         this._name = name;
         this.text = "";
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         this.text += text;
     }
 }
 
 export abstract class DestinationFormattedTextBase implements IDestination {
-    parser: GlobalState;
-    _name: string;
-    _records: Array<(rtf: RtfDestination) => void>;
+    public _name: string;
+    protected parser: GlobalState;
+    private _records: Array<(rtf: RtfDestination) => void>;
 
     constructor(parser: GlobalState, name: string) {
         this.parser = parser;
@@ -99,19 +99,19 @@ export abstract class DestinationFormattedTextBase implements IDestination {
         this._records = [];
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         this._records.push((rtf: RtfDestination) => {
             rtf.appendText(text);
         });
     }
 
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         this._records.push((rtf: RtfDestination) => {
             return rtf.handleKeyword(keyword, param);
         });
     }
 
-    apply() {
+    public apply() {
         const rtf = findParentDestination(this.parser, "rtf") as any as RtfDestination;
         if (rtf == null) {
             throw new RTFJSError("IDestination " + this._name + " is not child of rtf destination");
@@ -134,16 +134,16 @@ export abstract class DestinationFormattedTextBase implements IDestination {
         delete this._records;
     }
 
-    abstract renderBegin(rtf: RtfDestination, records: number): boolean;
+    public abstract renderBegin(rtf: RtfDestination, records: number): boolean;
 
-    abstract renderEnd(rtf: RtfDestination, records: number): void;
+    public abstract renderEnd(rtf: RtfDestination, records: number): void;
 }
 
 export class RtfDestination extends DestinationBase {
-    _metadata: {[key: string]: any};
-    parser: GlobalState;
-    inst: Document;
-    _charFormatHandlers: {[key: string]: (param: number) => void} = {
+    private _metadata: {[key: string]: any};
+    private parser: GlobalState;
+    private inst: Document;
+    private _charFormatHandlers: {[key: string]: (param: number) => void} = {
         ansicpg: (param: number) => {
             // if the value is 0, use the default charset as 0 is not valid
             if (param > 0) {
@@ -248,26 +248,47 @@ export class RtfDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    addIns(func: (this: Renderer) => void) {
+    public addIns(func: (this: Renderer) => void) {
         this.inst.addIns(func);
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     }
 
-    sub() {
+    public sub() {
         Helper.log("[rtf].sub()");
     }
 
-    _addInsHandler(func: (this: Renderer) => void) {
+    public handleKeyword(keyword: string, param: number) {
+        const handler = this._charFormatHandlers[keyword];
+        if (handler != null) {
+            handler(param);
+            return true;
+        }
+        return false;
+    }
+
+    public apply() {
+        Helper.log("[rtf] apply()");
+        for (const prop in this._metadata) {
+            this.inst._meta[prop] = this._metadata[prop];
+        }
+        delete this._metadata;
+    }
+
+    public setMetadata(prop: string, val: any) {
+        this._metadata[prop] = val;
+    }
+
+    private _addInsHandler(func: (this: Renderer) => void) {
         return (param: number) => {
             this.inst.addIns(func);
         };
     }
 
-    _addFormatIns(ptype: string, props: Chp | Pap) {
+    private _addFormatIns(ptype: string, props: Chp | Pap) {
         switch (ptype) {
             case "chp":
                 const rchp = new RenderChp(new Chp(props as Chp));
@@ -284,7 +305,7 @@ export class RtfDestination extends DestinationBase {
         }
     }
 
-    _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
+    private _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
         return (param: number) => {
             const props = this.parser.state[ptype];
             props[prop] = val;
@@ -293,7 +314,7 @@ export class RtfDestination extends DestinationBase {
         };
     }
 
-    _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
+    private _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
         return (param: number) => {
             const props = this.parser.state[ptype];
             props[prop] = (param == null || param !== 0)
@@ -302,7 +323,7 @@ export class RtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     }
-    _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
+    private _genericFormatSetVal(ptype: string, prop: string, defaultval: number) {
         return (param: number) => {
             const props = this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
@@ -310,7 +331,7 @@ export class RtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     }
-    _genericFormatSetValRequired(ptype: string, prop: string) {
+    private _genericFormatSetValRequired(ptype: string, prop: string) {
         return (param: number) => {
             if (param == null) {
                 throw new RTFJSError("Keyword without required param");
@@ -321,7 +342,7 @@ export class RtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     }
-    _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
+    private _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
         return (param: number) => {
             const props = this.parser.state[ptype];
             const members = props[prop];
@@ -330,48 +351,28 @@ export class RtfDestination extends DestinationBase {
             this._addFormatIns(ptype, props);
         };
     }
-
-    handleKeyword(keyword: string, param: number) {
-        const handler = this._charFormatHandlers[keyword];
-        if (handler != null) {
-            handler(param);
-            return true;
-        }
-        return false;
-    }
-
-    apply() {
-        Helper.log("[rtf] apply()");
-        for (const prop in this._metadata) {
-            this.inst._meta[prop] = this._metadata[prop];
-        }
-        delete this._metadata;
-    }
-    setMetadata(prop: string, val: any) {
-        this._metadata[prop] = val;
-    }
 }
 
 export interface IGenericPropertyDestination extends IDestination {
     apply(): void;
 }
 export class GenericPropertyDestinationFactory extends DestinationFactory<IGenericPropertyDestination> {
-    parentdest: string;
-    metaprop: string;
+    private parentdest: string;
+    private metaprop: string;
 
     constructor(parentdest: string, metaprop: string) {
         super();
         this.parentdest = parentdest;
         this.metaprop = metaprop;
         this.class = class extends DestinationTextBase implements IGenericPropertyDestination {
-            parser: GlobalState;
+            private parser: GlobalState;
 
             constructor(parser: GlobalState, inst: Document, name: string) {
                 super(name);
                 this.parser = parser;
             }
 
-            apply() {
+            public apply() {
                 const dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
                     throw new RTFJSError("IDestination " + this._name + " must be within "
@@ -387,8 +388,8 @@ export class GenericPropertyDestinationFactory extends DestinationFactory<IGener
 }
 
 export class InfoDestination extends DestinationBase {
-    _metadata: {[key: string]: any};
-    inst: Document;
+    private _metadata: {[key: string]: any};
+    private inst: Document;
 
     constructor(parser: GlobalState, inst: Document, name: string) {
         super(name);
@@ -396,14 +397,14 @@ export class InfoDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    apply() {
+    public apply() {
         for (const prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
         delete this._metadata;
     }
 
-    setMetadata(prop: string, val: any) {
+    public setMetadata(prop: string, val: any) {
         this._metadata[prop] = val;
     }
 }
@@ -412,20 +413,20 @@ export interface IMetaPropertyDestination extends IDestination {
     apply(): void;
 }
 export class MetaPropertyDestinationFactory extends DestinationFactory<IMetaPropertyDestination> {
-    metaprop: string;
+    private metaprop: string;
 
     constructor(metaprop: string) {
         super();
         this.metaprop = metaprop;
         this.class = class extends DestinationTextBase implements IMetaPropertyDestination {
-            parser: GlobalState;
+            private parser: GlobalState;
 
             constructor(parser: GlobalState, inst: Document, name: string) {
                 super(name);
                 this.parser = parser;
             }
 
-            apply() {
+            public apply() {
                 const info = findParentDestination(this.parser, "info");
                 if (info == null) {
                     throw new RTFJSError("IDestination " + this._name + " must be within info destination");
@@ -441,19 +442,19 @@ export interface IMetaPropertyTimeDestination extends IDestination {
     apply(): void;
 }
 export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMetaPropertyTimeDestination> {
-    metaprop: string;
+    private metaprop: string;
 
     constructor(metaprop: string) {
         super();
         this.metaprop = metaprop;
         this.class = class extends DestinationBase implements IMetaPropertyTimeDestination {
-            _yr: number;
-            _mo: number;
-            _dy: number;
-            _hr: number;
-            _min: number;
-            _sec: number;
-            parser: GlobalState;
+            private _yr: number;
+            private _mo: number;
+            private _dy: number;
+            private _hr: number;
+            private _min: number;
+            private _sec: number;
+            private parser: GlobalState;
 
             constructor(parser: GlobalState, inst: Document, name: string) {
                 super(name);
@@ -466,7 +467,7 @@ export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMeta
                 this.parser = parser;
             }
 
-            handleKeyword(keyword: string, param: number) {
+            public handleKeyword(keyword: string, param: number) {
                 switch (keyword) {
                     case "yr":
                         this._yr = param;
@@ -496,7 +497,7 @@ export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMeta
                 return true;
             }
 
-            apply() {
+            public apply() {
                 const info = findParentDestination(this.parser, "info");
                 if (info == null) {
                     throw new RTFJSError("IDestination " + this._name + " must be within info destination");
@@ -516,14 +517,14 @@ export class MetaPropertyTimeDestinationFactory extends DestinationFactory<IMeta
 }
 
 export class FonttblDestinationSub extends DestinationBase {
-    _fonttbl: FonttblDestination;
-    index: number;
-    fontname: string;
-    altfontname: string;
-    family: string;
-    pitch: number;
-    bias: number;
-    charset: number;
+    public index: number;
+    public fontname: string;
+    public altfontname: string;
+    public family: string;
+    public pitch: number;
+    public bias: number;
+    public charset: number;
+    private _fonttbl: FonttblDestination;
 
     constructor(fonttbl: FonttblDestination) {
         super("fonttbl:sub");
@@ -537,7 +538,7 @@ export class FonttblDestinationSub extends DestinationBase {
         this.charset = null;
     }
 
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -596,7 +597,7 @@ export class FonttblDestinationSub extends DestinationBase {
         return false;
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         if (this.fontname == null) {
             this.fontname = text;
         } else {
@@ -604,7 +605,7 @@ export class FonttblDestinationSub extends DestinationBase {
         }
     }
 
-    apply() {
+    public apply() {
         if (this.index == null) {
             throw new RTFJSError("No font index provided");
         }
@@ -615,15 +616,15 @@ export class FonttblDestinationSub extends DestinationBase {
         delete this._fonttbl;
     }
 
-    setAltFontName(name: string) {
+    public setAltFontName(name: string) {
         this.altfontname = name;
     }
 }
 
 export class FonttblDestination extends DestinationBase {
-    _fonts: FonttblDestinationSub[];
-    _sub: FonttblDestinationSub;
-    inst: Document;
+    private _fonts: FonttblDestinationSub[];
+    private _sub: FonttblDestinationSub;
+    private inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {
         super("fonttbl");
@@ -632,11 +633,11 @@ export class FonttblDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    sub() {
+    public sub() {
         return new FonttblDestinationSub(this);
     }
 
-    apply() {
+    public apply() {
         Helper.log("[fonttbl] apply()");
         for (const idx in this._fonts) {
             Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
@@ -646,19 +647,19 @@ export class FonttblDestination extends DestinationBase {
         delete this._fonts;
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         this._sub.appendText(text);
         this._sub.apply();
     }
 
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     }
 
-    addSub(sub: FonttblDestinationSub) {
+    public addSub(sub: FonttblDestinationSub) {
         this._fonts[sub.index] = sub;
     }
 }
@@ -667,9 +668,9 @@ export interface IGenericSubTextPropertyDestination extends IDestination {
     apply(): void;
 }
 export class GenericSubTextPropertyDestinationFactory extends DestinationFactory<IGenericSubTextPropertyDestination> {
-    name: string;
-    parentDest: string;
-    propOrFunc: string;
+    private name: string;
+    private parentDest: string;
+    private propOrFunc: string;
 
     constructor(name: string, parentDest: string, propOrFunc: string) {
         super();
@@ -677,14 +678,14 @@ export class GenericSubTextPropertyDestinationFactory extends DestinationFactory
         this.parentDest = parentDest;
         this.propOrFunc = propOrFunc;
         this.class = class extends DestinationTextBase implements IGenericSubTextPropertyDestination {
-            parser: GlobalState;
+            private parser: GlobalState;
 
             constructor(parser: GlobalState) {
                 super(name);
                 this.parser = parser;
             }
 
-            apply() {
+            public apply() {
                 const dest = findParentDestination(this.parser, parentDest);
                 if (dest == null) {
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
@@ -713,10 +714,10 @@ export interface IColor {
 }
 
 export class ColortblDestination extends DestinationBase {
-    _colors: IColor[];
-    _current: IColor;
-    _autoIndex: number;
-    inst: Document;
+    private _colors: IColor[];
+    private _current: IColor;
+    private _autoIndex: number;
+    private inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {
         super("colortbl");
@@ -726,19 +727,7 @@ export class ColortblDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    _startNewColor() {
-        this._current = {
-            r: 0,
-            g: 0,
-            b: 0,
-            tint: 255,
-            shade: 255,
-            theme: null,
-        };
-        return this._current;
-    }
-
-    appendText(text: string) {
+    public appendText(text: string) {
         const len = text.length;
         for (let i = 0; i < len; i++) {
             if (text[i] !== ";") {
@@ -760,17 +749,7 @@ export class ColortblDestination extends DestinationBase {
         }
     }
 
-    _validateColorValueRange(keyword: string, param: number) {
-        if (param == null) {
-            throw new RTFJSError(keyword + " has no param");
-        }
-        if (param < 0 || param > 255) {
-            throw new RTFJSError(keyword + " has invalid param value");
-        }
-        return param;
-    }
-
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         if (this._current == null) {
             this._startNewColor();
         }
@@ -803,7 +782,7 @@ export class ColortblDestination extends DestinationBase {
         return false;
     }
 
-    apply() {
+    public apply() {
         Helper.log("[colortbl] apply()");
         if (this._autoIndex == null) {
             this._autoIndex = 0;
@@ -820,14 +799,36 @@ export class ColortblDestination extends DestinationBase {
         this.inst._autoColor = this._autoIndex;
         delete this._colors;
     }
+
+    private _startNewColor() {
+        this._current = {
+            r: 0,
+            g: 0,
+            b: 0,
+            tint: 255,
+            shade: 255,
+            theme: null,
+        };
+        return this._current;
+    }
+
+    private _validateColorValueRange(keyword: string, param: number) {
+        if (param == null) {
+            throw new RTFJSError(keyword + " has no param");
+        }
+        if (param < 0 || param > 255) {
+            throw new RTFJSError(keyword + " has invalid param value");
+        }
+        return param;
+    }
 }
 
 export class StylesheetDestinationSub extends DestinationBase {
-    _stylesheet: StylesheetDestination;
-    index: number;
-    name: string;
-    handler: (keyword: string, param: number) => boolean;
-    paragraph?: null;
+    private _stylesheet: StylesheetDestination;
+    private index: number;
+    private name: string;
+    private handler: (keyword: string, param: number) => boolean;
+    private paragraph?: null;
 
     constructor(stylesheet: StylesheetDestination) {
         super("stylesheet:sub");
@@ -837,14 +838,7 @@ export class StylesheetDestinationSub extends DestinationBase {
         this.handler = this._handleKeywordCommon("paragraph");
     }
 
-    _handleKeywordCommon(member: string) {
-        return (keyword: string, param: number) => {
-            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
-            return false;
-        };
-    }
-
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         switch (keyword) {
             case "s":
                 this.index = param;
@@ -869,7 +863,7 @@ export class StylesheetDestinationSub extends DestinationBase {
         return this.handler(keyword, param);
     }
 
-    appendText(text: string) {
+    public appendText(text: string) {
         if (this.name == null) {
             this.name = text;
         } else {
@@ -877,18 +871,25 @@ export class StylesheetDestinationSub extends DestinationBase {
         }
     }
 
-    apply() {
+    public apply() {
         this._stylesheet.addSub({
             index: this.index,
             name: this.name,
         });
         delete this._stylesheet;
     }
+
+    private _handleKeywordCommon(member: string) {
+        return (keyword: string, param: number) => {
+            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+            return false;
+        };
+    }
 }
 
 export class StylesheetDestination extends DestinationBase {
-    _stylesheets: Array<{index: number, name: string}>;
-    inst: Document;
+    private _stylesheets: Array<{index: number, name: string}>;
+    private inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {
         super("stylesheet");
@@ -896,11 +897,11 @@ export class StylesheetDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    sub() {
+    public sub() {
         return new StylesheetDestinationSub(this);
     }
 
-    apply() {
+    public apply() {
         Helper.log("[stylesheet] apply()");
         for (const idx in this._stylesheets) {
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
@@ -909,7 +910,7 @@ export class StylesheetDestination extends DestinationBase {
         delete this._stylesheets;
     }
 
-    addSub(sub: {index: number, name: string}) {
+    public addSub(sub: {index: number, name: string}) {
         // Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
@@ -923,9 +924,9 @@ export interface IField {
 }
 
 export class FieldDestination extends DestinationBase {
-    _haveInst: boolean;
-    _parsedInst: IField;
-    _result: FldrsltDestination;
+    private _haveInst: boolean;
+    private _parsedInst: IField;
+    private _result: FldrsltDestination;
 
     constructor() {
         super("field");
@@ -934,7 +935,7 @@ export class FieldDestination extends DestinationBase {
         this._result = null;
     }
 
-    apply() {
+    public apply() {
         if (!this._haveInst) {
             throw new RTFJSError("IField has no fldinst destination");
         }
@@ -943,7 +944,7 @@ export class FieldDestination extends DestinationBase {
         //     throw new RTFJSError("IField has no fldrslt destination");
     }
 
-    setInst(inst: IField | Promise<IField | null>) {
+    public setInst(inst: IField | Promise<IField | null>) {
         this._haveInst = true;
         if (this._parsedInst != null) {
             throw new RTFJSError("IField cannot have multiple fldinst destinations");
@@ -960,11 +961,11 @@ export class FieldDestination extends DestinationBase {
         }
     }
 
-    getInst() {
+    public getInst() {
         return this._parsedInst;
     }
 
-    setResult(inst: FldrsltDestination) {
+    public setResult(inst: FldrsltDestination) {
         if (this._result != null) {
             throw new RTFJSError("IField cannot have multiple fldrslt destinations");
         }
@@ -973,13 +974,13 @@ export class FieldDestination extends DestinationBase {
 }
 
 export class FieldBase {
-    _fldinst: FldinstDestination;
+    private _fldinst: FldinstDestination;
 
     constructor(fldinst: FldinstDestination) {
         this._fldinst = fldinst;
     }
 
-    renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number) {
+    public renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number) {
         if (records > 0) {
             rtf.addIns(function() {
                 this.popContainer();
@@ -989,8 +990,8 @@ export class FieldBase {
 }
 
 export class FieldHyperlink extends FieldBase {
-    _url: string;
-    inst: Document;
+    private _url: string;
+    private inst: Document;
 
     constructor(inst: Document, fldinst: FldinstDestination, data: string) {
         super(fldinst);
@@ -998,11 +999,11 @@ export class FieldHyperlink extends FieldBase {
         this.inst = inst;
     }
 
-    url() {
+    public url() {
         return this._url;
     }
 
-    renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number) {
+    public renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number) {
         const self = this;
         if (records > 0) {
             rtf.addIns(function() {
@@ -1031,8 +1032,8 @@ export class FieldHyperlink extends FieldBase {
 }
 
 export class FldinstDestination extends DestinationTextBase {
-    parser: GlobalState;
-    inst: Document;
+    private parser: GlobalState;
+    private inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {
         super("fldinst");
@@ -1040,7 +1041,7 @@ export class FldinstDestination extends DestinationTextBase {
         this.inst = inst;
     }
 
-    apply() {
+    public apply() {
         const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field == null) {
             throw new RTFJSError("fldinst destination must be child of field destination");
@@ -1048,7 +1049,7 @@ export class FldinstDestination extends DestinationTextBase {
         field.setInst(this.parseType());
     }
 
-    parseType() {
+    private parseType() {
         const sep = this.text.indexOf(" ");
         if (sep > 0) {
             let data = this.text.substr(sep + 1);
@@ -1143,7 +1144,7 @@ export class FldrsltDestination extends DestinationFormattedTextBase {
         super(parser, "fldrslt");
     }
 
-    apply() {
+    public apply() {
         const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             field.setResult(this);
@@ -1152,7 +1153,7 @@ export class FldrsltDestination extends DestinationFormattedTextBase {
         super.apply();
     }
 
-    renderBegin(rtf: RtfDestination, records: number) {
+    public renderBegin(rtf: RtfDestination, records: number) {
         const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             const inst = field.getInst();
@@ -1163,7 +1164,7 @@ export class FldrsltDestination extends DestinationFormattedTextBase {
         return false;
     }
 
-    renderEnd(rtf: RtfDestination, records: number) {
+    public renderEnd(rtf: RtfDestination, records: number) {
         const field = findParentDestination(this.parser, "field") as FieldDestination;
         if (field != null) {
             const inst = field.getInst();
@@ -1178,20 +1179,20 @@ export interface IPictGroupDestination extends IDestination {
     isLegacy(): boolean;
 }
 export class PictGroupDestinationFactory extends DestinationFactory<IPictGroupDestination> {
-    legacy: boolean;
+    private legacy: boolean;
 
     constructor(legacy: boolean) {
         super();
         this.legacy = legacy;
         this.class = class extends DestinationTextBase implements IPictGroupDestination {
-            _legacy: boolean;
+            private _legacy: boolean;
 
             constructor() {
                 super("pict-group");
                 this._legacy = legacy;
             }
 
-            isLegacy() {
+            public isLegacy() {
                 return this._legacy;
             }
         };
@@ -1199,22 +1200,22 @@ export class PictGroupDestinationFactory extends DestinationFactory<IPictGroupDe
 }
 
 export class PictDestination extends DestinationTextBase {
-    _type: string | (() => any);
-    _blob: ArrayBuffer;
-    _displaysize: {width: number, height: number};
-    _size: {width: number, height: number};
-    parser: GlobalState;
-    inst: Document;
+    public _displaysize: {width: number, height: number};
+    public _size: {width: number, height: number};
+    private _type: string | (() => any);
+    private _blob: ArrayBuffer;
+    private parser: GlobalState;
+    private inst: Document;
     [key: string]: any;
 
-    _pictHandlers: {[key: string]: (param: number) => void} = {
+    private _pictHandlers: {[key: string]: (param: number) => void} = {
         picw: this._setPropValueRequired("_size", "width"),
         pich: this._setPropValueRequired("_size", "height"),
         picwgoal: this._setPropValueRequired("_displaysize", "width"),
         pichgoal: this._setPropValueRequired("_displaysize", "height"),
     };
 
-    _pictTypeHandler
+    private _pictTypeHandler
         : {[key: string]: string | ((param?: number) => {load: () => any, render: (img: any) => JQuery})} = {
         emfblip: (() => {
             if (typeof EMFJS !== "undefined") {
@@ -1305,18 +1306,7 @@ export class PictDestination extends DestinationTextBase {
         this.inst = inst;
     }
 
-    _setPropValueRequired(member: string, prop: string) {
-        return (param: number) => {
-            if (param == null) {
-                throw new RTFJSError("Picture property has no value");
-            }
-            Helper.log("[pict] set " + member + "." + prop + " = " + param);
-            const obj = (member != null ? this[member] : this);
-            obj[prop] = param;
-        };
-    }
-
-    handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number) {
         const handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler(param);
@@ -1349,11 +1339,11 @@ export class PictDestination extends DestinationTextBase {
         return false;
     }
 
-    handleBlob(blob: ArrayBuffer) {
+    public handleBlob(blob: ArrayBuffer) {
         this._blob = blob;
     }
 
-    apply(rendering= false) {
+    public apply(rendering= false) {
         if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
         }
@@ -1468,13 +1458,24 @@ export class PictDestination extends DestinationTextBase {
 
         delete this.text;
     }
+
+    private _setPropValueRequired(member: string, prop: string) {
+        return (param: number) => {
+            if (param == null) {
+                throw new RTFJSError("Picture property has no value");
+            }
+            Helper.log("[pict] set " + member + "." + prop + " = " + param);
+            const obj = (member != null ? this[member] : this);
+            obj[prop] = param;
+        };
+    }
 }
 
 // tslint:disable-next-line:no-empty-interface
 export interface IRequiredDestination extends IDestination {
 }
 export class RequiredDestinationFactory extends DestinationFactory<IRequiredDestination> {
-    name: string;
+    private name: string;
 
     constructor(name: string) {
         super();

@@ -29,13 +29,13 @@ import { Helper } from "../Helper";
 import { Chp } from "./Containers";
 
 export class RenderChp {
-    _chp: Chp;
+    public _chp: Chp;
 
     constructor(chp: Chp) {
         this._chp = chp;
     }
 
-    apply(doc: Document, el: JQuery) {
+    public apply(doc: Document, el: JQuery) {
         if (this._chp.bold) {
             el.css("font-weight", "bold");
         }

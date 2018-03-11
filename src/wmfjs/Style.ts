@@ -30,9 +30,9 @@ import { Helper } from "./Helper";
 import { Obj, PointS } from "./Primitives";
 
 export class ColorRef {
-    r: number;
-    g: number;
-    b: number;
+    public r: number;
+    public g: number;
+    public b: number;
 
     constructor(reader: Blob, r?: number, g?: number, b?: number) {
         if (reader != null) {
@@ -47,36 +47,36 @@ export class ColorRef {
         }
     }
 
-    clone() {
+    public clone() {
         return new ColorRef(null, this.r, this.g, this.b);
     }
 
-    toHex() {
+    public toHex() {
         const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
     }
 
-    toString() {
+    public toString() {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
     }
 }
 
 export class Font extends Obj {
-    height: number;
-    width: number;
-    escapement: number;
-    orientation: number;
-    weight: number;
-    italic: number;
-    underline: number;
-    strikeout: number;
-    charset: number;
-    outprecision: number;
-    clipprecision: number;
-    quality: number;
-    pitch: number;
-    family: number;
-    facename: string;
+    public height: number;
+    public width: number;
+    public escapement: number;
+    public orientation: number;
+    public weight: number;
+    public italic: number;
+    public underline: number;
+    public strikeout: number;
+    public charset: number;
+    public outprecision: number;
+    public clipprecision: number;
+    public quality: number;
+    public pitch: number;
+    public family: number;
+    public facename: string;
 
     constructor(reader: Blob, copy: Font | number) {
         super("font");
@@ -137,22 +137,22 @@ export class Font extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Font(null, this);
     }
 
-    toString() {
+    public toString() {
         return JSON.stringify(this);
     }
 }
 
 export class Brush extends Obj {
-    style: number;
-    color: ColorRef;
-    pattern: Bitmap16;
-    colorusage: number;
-    dibpatternpt: DIBitmap;
-    hatchstyle: number;
+    public style: number;
+    public color: ColorRef;
+    public pattern: Bitmap16;
+    public colorusage: number;
+    public dibpatternpt: DIBitmap;
+    public hatchstyle: number;
 
     constructor(reader: Blob, copy: Brush | number, forceDibPattern?: boolean | PatternBitmap16) {
         super("brush");
@@ -211,11 +211,11 @@ export class Brush extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Brush(null, this);
     }
 
-    toString() {
+    public toString() {
         let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
@@ -233,11 +233,11 @@ export class Brush extends Obj {
 }
 
 export class Pen extends Obj {
-    style: number;
-    width: PointS;
-    color: ColorRef;
-    linecap: number;
-    join: number;
+    public style: number;
+    public width: PointS;
+    public color: ColorRef;
+    public linecap: number;
+    public join: number;
 
     constructor(reader: Blob, style?: number, width?: PointS, color?: ColorRef, linecap?: number, join?: number) {
         super("pen");
@@ -257,21 +257,21 @@ export class Pen extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
     }
 
-    toString() {
+    public toString() {
         return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString()
             + ", linecap: " + this.linecap + ", join: " + this.join + "}";
     }
 }
 
 export class PaletteEntry {
-    flag: number;
-    b: number;
-    g: number;
-    r: number;
+    public flag: number;
+    public b: number;
+    public g: number;
+    public r: number;
 
     constructor(reader: Blob, copy?: PaletteEntry) {
         if (reader != null) {
@@ -287,14 +287,14 @@ export class PaletteEntry {
         }
     }
 
-    clone() {
+    public clone() {
         return new PaletteEntry(null, this);
     }
 }
 
 export class Palette extends Obj {
-    start: number;
-    entries: PaletteEntry[];
+    public start: number;
+    public entries: PaletteEntry[];
 
     constructor(reader: Blob, copy?: Palette) {
         super("palette");
@@ -315,11 +315,11 @@ export class Palette extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Palette(null, this);
     }
 
-    toString() {
+    public toString() {
         return "{ #entries: " + this.entries.length + "}"; // TODO
     }
 }

@@ -33,17 +33,17 @@ import { Region } from "./Region";
 import { Brush, ColorRef, Pen } from "./Style";
 
 export class EmfHeader {
-    size: number;
-    bounds: RectL;
-    frame: RectL;
-    nPalEntries: number;
-    refDevCx: number;
-    refDevCy: number;
-    refDevCxMm: number;
-    refDevCyMm: number;
-    description: string;
-    displayDevCxUm: number;
-    displayDevCyUm: number;
+    private size: number;
+    private bounds: RectL;
+    private frame: RectL;
+    private nPalEntries: number;
+    private refDevCx: number;
+    private refDevCy: number;
+    private refDevCxMm: number;
+    private refDevCyMm: number;
+    private description: string;
+    private displayDevCxUm: number;
+    private displayDevCyUm: number;
 
     constructor(reader: Blob, headerSize: number) {
         const recordStart = reader.pos - 8;
@@ -116,15 +116,15 @@ export class EmfHeader {
         }
     }
 
-    toString() {
+    public toString() {
         return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString()
             + ", description: " + this.description + "}";
     }
 }
 
 export class EMFRecords {
-    _records: Array<(gdi: GDIContext) => void>;
-    _header: EmfHeader;
+    private _records: Array<(gdi: GDIContext) => void>;
+    private _header: EmfHeader;
 
     constructor(reader: Blob, first: number) {
         this._records = [];
@@ -584,7 +584,7 @@ export class EMFRecords {
         }
     }
 
-    play(gdi: GDIContext) {
+    public play(gdi: GDIContext) {
         const len = this._records.length;
         for (let i = 0; i < len; i++) {
             this._records[i](gdi);

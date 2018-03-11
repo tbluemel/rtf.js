@@ -9,7 +9,6 @@
         "prefer-for-of": false,
 
         // to be enabled eventually
-        "member-access": false,
         "forin": false
     },
     "defaultSeverity": "error"

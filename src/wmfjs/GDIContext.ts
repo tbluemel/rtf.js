@@ -41,29 +41,29 @@ export interface ISelectedStyle {
 }
 
 export class GDIContextState {
-    _svggroup: any;
-    _svgclipChanged: boolean;
-    _svgtextbkfilter: any;
-    mapmode: number;
-    stretchmode: number;
-    textalign: number;
-    bkmode: number;
-    textcolor: ColorRef;
-    bkcolor: ColorRef;
-    polyfillmode: number;
-    wx: number;
-    wy: number;
-    ww: number;
-    wh: number;
-    vx: number;
-    vy: number;
-    vw: number;
-    vh: number;
-    x: number;
-    y: number;
-    clip: Region;
-    ownclip: boolean;
-    selected: ISelectedStyle;
+    public _svggroup: any;
+    public _svgclipChanged: boolean;
+    public _svgtextbkfilter: any;
+    public mapmode: number;
+    public stretchmode: number;
+    public textalign: number;
+    public bkmode: number;
+    public textcolor: ColorRef;
+    public bkcolor: ColorRef;
+    public polyfillmode: number;
+    public wx: number;
+    public wy: number;
+    public ww: number;
+    public wh: number;
+    public vx: number;
+    public vy: number;
+    public vw: number;
+    public vh: number;
+    public x: number;
+    public y: number;
+    public clip: Region;
+    public ownclip: boolean;
+    public selected: ISelectedStyle;
 
     constructor(copy: GDIContextState, defObjects?: ISelectedStyle) {
         if (copy != null) {
@@ -130,14 +130,14 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    _svg: any;
-    _svgdefs: any;
-    _svgPatterns: {[key: string]: Brush};
-    _svgClipPaths: {[key: string]: Region};
-    defObjects: ISelectedStyle;
-    state: GDIContextState;
-    statestack: GDIContextState[];
-    objects: {[key: string]: Obj};
+    private _svg: any;
+    private _svgdefs: any;
+    private _svgPatterns: {[key: string]: Brush};
+    private _svgClipPaths: {[key: string]: Region};
+    private defObjects: ISelectedStyle;
+    private state: GDIContextState;
+    private statestack: GDIContextState[];
+    private objects: {[key: string]: Obj};
 
     constructor(svg: any) {
         this._svg = svg;
@@ -158,7 +158,372 @@ export class GDIContext {
         this.objects = {};
     }
 
-    _pushGroup() {
+    public setMapMode(mode: number) {
+        Helper.log("[gdi] setMapMode: mode=" + mode);
+        this.state.mapmode = mode;
+        this.state._svggroup = null;
+    }
+
+    public setWindowOrg(x: number, y: number) {
+        Helper.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
+        this.state.wx = x;
+        this.state.wy = y;
+        this.state._svggroup = null;
+    }
+
+    public setWindowExt(x: number, y: number) {
+        Helper.log("[gdi] setWindowExt: x=" + x + " y=" + y);
+        this.state.ww = x;
+        this.state.wh = y;
+        this.state._svggroup = null;
+    }
+
+    public offsetWindowOrg(offX: number, offY: number) {
+        Helper.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
+        this.state.wx += offX;
+        this.state.wy += offY;
+        this.state._svggroup = null;
+    }
+
+    public setViewportOrg(x: number, y: number) {
+        Helper.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
+        this.state.vx = x;
+        this.state.vy = y;
+        this.state._svggroup = null;
+    }
+
+    public setViewportExt(x: number, y: number) {
+        Helper.log("[gdi] setViewportExt: x=" + x + " y=" + y);
+        this.state.vw = x;
+        this.state.vh = y;
+        this.state._svggroup = null;
+    }
+
+    public offsetViewportOrg(offX: number, offY: number) {
+        Helper.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
+        this.state.vx += offX;
+        this.state.vy += offY;
+        this.state._svggroup = null;
+    }
+
+    public saveDC() {
+        Helper.log("[gdi] saveDC");
+        const prevstate = this.state;
+        this.state = new GDIContextState(this.state);
+        this.statestack.push(prevstate);
+        this.state._svggroup = null;
+    }
+
+    public restoreDC(saved: number) {
+        Helper.log("[gdi] restoreDC: saved=" + saved);
+        if (this.statestack.length > 1) {
+            if (saved === -1) {
+                this.state = this.statestack.pop();
+            } else if (saved < -1) {
+                throw new WMFJSError("restoreDC: relative restore not implemented");
+            } else if (saved > 1) {
+                throw new WMFJSError("restoreDC: absolute restore not implemented");
+            }
+        } else {
+            throw new WMFJSError("No saved contexts");
+        }
+
+        this.state._svggroup = null;
+    }
+
+    public escape(func: number, blob: Blob, offset: number, count: number) {
+        Helper.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
+    }
+
+    public setStretchBltMode(stretchMode: number) {
+        Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
+    }
+
+    public stretchDib(srcX: number, srcY: number, srcW: number, srcH: number,
+                      dstX: number, dstY: number, dstW: number, dstH: number,
+                      rasterOp: number, colorUsage: number, dib: DIBitmap) {
+        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        srcW = this._todevW(srcW);
+        srcH = this._todevH(srcH);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        dstW = this._todevW(dstW);
+        dstH = this._todevH(dstH);
+        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+    }
+
+    public stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number,
+                          dstX: number, dstY: number, dstW: number, dstH: number,
+                          rasterOp: number, dib: DIBitmap) {
+        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        srcW = this._todevW(srcW);
+        srcH = this._todevH(srcH);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        dstW = this._todevW(dstW);
+        dstH = this._todevH(dstH);
+        Helper.log("[gdi] stretchDibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+    }
+
+    public rectangle(rect: Rect, rw: number, rh: number) {
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        const bottom = this._todevY(rect.bottom);
+        const right = this._todevX(rect.right);
+        const top = this._todevY(rect.top);
+        const left = this._todevX(rect.left);
+        rw = this._todevH(rw);
+        rh = this._todevH(rh);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
+        this._pushGroup();
+
+        const opts = this._applyOpts(null, true, true, false);
+        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
+    }
+
+    public textOut(x: number, y: number, text: string) {
+        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
+        x = this._todevX(x);
+        y = this._todevY(y);
+        Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
+        this._pushGroup();
+
+        const opts = this._applyOpts(null, false, false, true);
+        if (this.state.selected.font.escapement !== 0) {
+            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+            opts.style = "dominant-baseline: middle; text-anchor: start;";
+        }
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
+            if (this.state._svgtextbkfilter == null) {
+                const filterId = Helper._makeUniqueId("f");
+                const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
+                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+                this._svg.filters.composite(filter, null, null, "SourceGraphic");
+                this.state._svgtextbkfilter = filter;
+            }
+
+            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+        }
+        this._svg.text(this.state._svggroup, x, y, text, opts);
+    }
+
+    public extTextOut(x: number, y: number, text: string, fwOpts: number, rect: Rect, dx: number[]) {
+        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
+        x = this._todevX(x);
+        y = this._todevY(y);
+        Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
+        this._pushGroup();
+
+        const opts = this._applyOpts(null, false, false, true);
+        if (this.state.selected.font.escapement !== 0) {
+            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+            opts.style = "dominant-baseline: middle; text-anchor: start;";
+        }
+        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
+            if (this.state._svgtextbkfilter == null) {
+                const filterId = Helper._makeUniqueId("f");
+                const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
+                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+                this._svg.filters.composite(filter, null, null, "SourceGraphic");
+                this.state._svgtextbkfilter = filter;
+            }
+
+            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+        }
+        this._svg.text(this.state._svggroup, x, y, text, opts);
+    }
+
+    public lineTo(x: number, y: number) {
+        Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+        const toX = this._todevX(x);
+        const toY = this._todevY(y);
+        const fromX = this._todevX(this.state.x);
+        const fromY = this._todevY(this.state.y);
+
+        // Update position
+        this.state.x = x;
+        this.state.y = y;
+
+        Helper.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+        this._pushGroup();
+
+        const opts = this._applyOpts(null, true, false, false);
+        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
+    }
+
+    public moveTo(x: number, y: number) {
+        Helper.log("[gdi] moveTo: x=" + x + " y=" + y);
+        this.state.x = x;
+        this.state.y = y;
+    }
+
+    public polygon(points: PointS[], first: boolean) {
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        const pts = [];
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        Helper.log("[gdi] polygon: TRANSLATED: pts=" + pts);
+        if (first) {
+            this._pushGroup();
+        }
+        const opts = {
+            "fill-rule": this.state.polyfillmode === Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+        };
+        this._applyOpts(opts, true, true, false);
+        this._svg.polygon(this.state._svggroup, pts, opts);
+    }
+
+    public polyPolygon(polygons: PointS[][]) {
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+
+        const cnt = polygons.length;
+        for (let i = 0; i < cnt; i++) {
+            this.polygon(polygons[i], i === 0);
+        }
+    }
+
+    public polyline(points: PointS[]) {
+        Helper.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
+        const pts = [];
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        Helper.log("[gdi] polyline: TRANSLATED: pts=" + pts);
+        this._pushGroup();
+        const opts = this._applyOpts({fill: "none"}, true, false, false);
+        this._svg.polyline(this.state._svggroup, pts, opts);
+    }
+
+    public ellipse(rect: Rect) {
+        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        const bottom = this._todevY(rect.bottom);
+        const right = this._todevX(rect.right);
+        const top = this._todevY(rect.top);
+        const left = this._todevX(rect.left);
+        Helper.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+        this._pushGroup();
+        const width2 = (right - left) / 2;
+        const height2 = (bottom - top) / 2;
+        const opts = this._applyOpts(null, true, true, false);
+        this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
+    }
+
+    public excludeClipRect(rect: Rect) {
+        Helper.log("[gdi] excludeClipRect: rect=" + rect.toString());
+        this._getClipRgn().subtract(rect);
+    }
+
+    public intersectClipRect(rect: Rect) {
+        Helper.log("[gdi] intersectClipRect: rect=" + rect.toString());
+        this._getClipRgn().intersect(rect);
+    }
+
+    public offsetClipRgn(offX: number, offY: number) {
+        Helper.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
+        this._getClipRgn().offset(offX, offY);
+    }
+
+    public setTextAlign(textAlignmentMode: number) {
+        Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+        this.state.textalign = textAlignmentMode;
+    }
+
+    public setBkMode(bkMode: number) {
+        Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+        this.state.bkmode = bkMode;
+    }
+
+    public setTextColor(textColor: ColorRef) {
+        Helper.log("[gdi] setTextColor: textColor=" + textColor.toString());
+        this.state.textcolor = textColor;
+    }
+
+    public setBkColor(bkColor: ColorRef) {
+        Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+        this.state.bkcolor = bkColor;
+        this.state._svgtextbkfilter = null;
+    }
+
+    public setPolyFillMode(polyFillMode: number) {
+        Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+        this.state.polyfillmode = polyFillMode;
+    }
+
+    public createBrush(brush: Brush) {
+        const idx = this._storeObject(brush);
+        Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+    }
+
+    public createFont(font: Font) {
+        const idx = this._storeObject(font);
+        Helper.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
+    }
+
+    public createPen(pen: Pen) {
+        const idx = this._storeObject(pen);
+        Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+    }
+
+    public createPalette(palette: Palette) {
+        const idx = this._storeObject(palette);
+        Helper.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
+    }
+
+    public createRegion(region: Region) {
+        const idx = this._storeObject(region);
+        Helper.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
+    }
+
+    public createPatternBrush(patternBrush: Brush) {
+        const idx = this._storeObject(patternBrush);
+        Helper.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
+    }
+
+    public selectObject(objIdx: number, checkType: string) {
+        const obj = this._getObject(objIdx);
+        if (obj != null && (checkType == null || obj.type === checkType)) {
+            this._selectObject(obj);
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+        } else {
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+        }
+    }
+
+    public deleteObject(objIdx: number) {
+        const ret = this._deleteObject(objIdx);
+        Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+    }
+
+    private _pushGroup() {
         if (this.state._svggroup == null || this.state._svgclipChanged) {
             this.state._svgclipChanged = false;
             this.state._svgtextbkfilter = null;
@@ -180,7 +545,7 @@ export class GDIContext {
         }
     }
 
-    _storeObject(obj: Obj) {
+    private _storeObject(obj: Obj) {
         let i = 0;
         while (this.objects[i.toString()] != null && i <= 65535) {
             i++;
@@ -194,7 +559,7 @@ export class GDIContext {
         return i;
     }
 
-    _getObject(objIdx: number) {
+    private _getObject(objIdx: number) {
         const obj = this.objects[objIdx.toString()];
         if (obj == null) {
             Helper.log("[gdi] No object with handle " + objIdx);
@@ -202,14 +567,14 @@ export class GDIContext {
         return obj;
     }
 
-    _getSvgDef() {
+    private _getSvgDef() {
         if (this._svgdefs == null) {
             this._svgdefs = this._svg.defs();
         }
         return this._svgdefs;
     }
 
-    _getSvgClipPathForRegion(region: Region) {
+    private _getSvgClipPathForRegion(region: Region) {
         for (const existingId in this._svgClipPaths) {
             const rgn = this._svgClipPaths[existingId];
             if (rgn === region) {
@@ -242,7 +607,7 @@ export class GDIContext {
         return id;
     }
 
-    _getSvgPatternForBrush(brush: Brush) {
+    private _getSvgPatternForBrush(brush: Brush) {
         for (const existingId in this._svgPatterns) {
             const pat = this._svgPatterns[existingId];
             if (pat === brush) {
@@ -274,14 +639,14 @@ export class GDIContext {
         return id;
     }
 
-    _selectObject(obj: Obj) {
+    private _selectObject(obj: Obj) {
         this.state.selected[obj.type] = obj;
         if (obj.type === "region") {
             this.state._svgclipChanged = true;
         }
     }
 
-    _deleteObject(objIdx: number) {
+    private _deleteObject(objIdx: number) {
         const obj = this.objects[objIdx.toString()];
         if (obj != null) {
             for (let i = 0; i < this.statestack.length; i++) {
@@ -298,7 +663,7 @@ export class GDIContext {
         return false;
     }
 
-    _getClipRgn() {
+    private _getClipRgn() {
         if (this.state.clip != null) {
             if (!this.state.ownclip) {
                 this.state.clip = this.state.clip.clone();
@@ -315,179 +680,55 @@ export class GDIContext {
         return this.state.clip;
     }
 
-    _todevX(val: number) {
+    private _todevX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
     }
 
-    _todevY(val: number) {
+    private _todevY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
     }
 
-    _todevW(val: number) {
+    private _todevW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
     }
 
-    _todevH(val: number) {
+    private _todevH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
     }
 
-    _tologicalX(val: number) {
+    private _tologicalX(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
     }
 
-    _tologicalY(val: number) {
+    private _tologicalY(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
     }
 
-    _tologicalW(val: number) {
+    private _tologicalW(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
     }
 
-    _tologicalH(val: number) {
+    private _tologicalH(val: number) {
         // http://wvware.sourceforge.net/caolan/mapmode.html
         // logical -> device
         return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
     }
 
-    setMapMode(mode: number) {
-        Helper.log("[gdi] setMapMode: mode=" + mode);
-        this.state.mapmode = mode;
-        this.state._svggroup = null;
-    }
-
-    setWindowOrg(x: number, y: number) {
-        Helper.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
-        this.state.wx = x;
-        this.state.wy = y;
-        this.state._svggroup = null;
-    }
-
-    setWindowExt(x: number, y: number) {
-        Helper.log("[gdi] setWindowExt: x=" + x + " y=" + y);
-        this.state.ww = x;
-        this.state.wh = y;
-        this.state._svggroup = null;
-    }
-
-    offsetWindowOrg(offX: number, offY: number) {
-        Helper.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
-        this.state.wx += offX;
-        this.state.wy += offY;
-        this.state._svggroup = null;
-    }
-
-    setViewportOrg(x: number, y: number) {
-        Helper.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
-        this.state.vx = x;
-        this.state.vy = y;
-        this.state._svggroup = null;
-    }
-
-    setViewportExt(x: number, y: number) {
-        Helper.log("[gdi] setViewportExt: x=" + x + " y=" + y);
-        this.state.vw = x;
-        this.state.vh = y;
-        this.state._svggroup = null;
-    }
-
-    offsetViewportOrg(offX: number, offY: number) {
-        Helper.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
-        this.state.vx += offX;
-        this.state.vy += offY;
-        this.state._svggroup = null;
-    }
-
-    saveDC() {
-        Helper.log("[gdi] saveDC");
-        const prevstate = this.state;
-        this.state = new GDIContextState(this.state);
-        this.statestack.push(prevstate);
-        this.state._svggroup = null;
-    }
-
-    restoreDC(saved: number) {
-        Helper.log("[gdi] restoreDC: saved=" + saved);
-        if (this.statestack.length > 1) {
-            if (saved === -1) {
-                this.state = this.statestack.pop();
-            } else if (saved < -1) {
-                throw new WMFJSError("restoreDC: relative restore not implemented");
-            } else if (saved > 1) {
-                throw new WMFJSError("restoreDC: absolute restore not implemented");
-            }
-        } else {
-            throw new WMFJSError("No saved contexts");
-        }
-
-        this.state._svggroup = null;
-    }
-
-    escape(func: number, blob: Blob, offset: number, count: number) {
-        Helper.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
-    }
-
-    setStretchBltMode(stretchMode: number) {
-        Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
-    }
-
-    stretchDib(srcX: number, srcY: number, srcW: number, srcH: number,
-               dstX: number, dstY: number, dstW: number, dstH: number,
-               rasterOp: number, colorUsage: number, dib: DIBitmap) {
-        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        srcX = this._todevX(srcX);
-        srcY = this._todevY(srcY);
-        srcW = this._todevW(srcW);
-        srcH = this._todevH(srcH);
-        dstX = this._todevX(dstX);
-        dstY = this._todevY(dstY);
-        dstW = this._todevW(dstW);
-        dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
-        this._pushGroup();
-        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
-    }
-
-    stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number,
-                   dstX: number, dstY: number, dstW: number, dstH: number,
-                   rasterOp: number, dib: DIBitmap) {
-        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        srcX = this._todevX(srcX);
-        srcY = this._todevY(srcY);
-        srcW = this._todevW(srcW);
-        srcH = this._todevH(srcH);
-        dstX = this._todevX(dstX);
-        dstY = this._todevY(dstY);
-        dstW = this._todevW(dstW);
-        dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDibBits: TRANSLATED:"
-            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        this._pushGroup();
-        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
-    }
-
-    _applyOpts(opts: any, usePen: boolean, useBrush: boolean, useFont: boolean) {
+    private _applyOpts(opts: any, usePen: boolean, useBrush: boolean, useFont: boolean) {
         if (opts == null) {
             opts = {};
         }
@@ -513,9 +754,9 @@ export class GDIContext {
                     opts["stroke-linejoin"] = "bevel";
                 } else if ((pen.join & Helper.GDI.PenStyle.PS_JOIN_MITER) !== 0) {
                     opts["stroke-linejoin"] = "miter";
-                     } else {
+                } else {
                     opts["stroke-linejoin"] = "round";
-                     }
+                }
 
                 const dashWidth = opts.strokeWidth * 4;
                 const dotSpacing = opts.strokeWidth * 2;
@@ -562,246 +803,5 @@ export class GDIContext {
             opts.fill = "#" + this.state.textcolor.toHex();
         }
         return opts;
-    }
-
-    rectangle(rect: Rect, rw: number, rh: number) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        const bottom = this._todevY(rect.bottom);
-        const right = this._todevX(rect.right);
-        const top = this._todevY(rect.top);
-        const left = this._todevX(rect.left);
-        rw = this._todevH(rw);
-        rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
-            + " left=" + left + " rh=" + rh + " rw=" + rw);
-        this._pushGroup();
-
-        const opts = this._applyOpts(null, true, true, false);
-        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
-    }
-
-    textOut(x: number, y: number, text: string) {
-        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
-            + " with font " + this.state.selected.font.toString());
-        x = this._todevX(x);
-        y = this._todevY(y);
-        Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
-        this._pushGroup();
-
-        const opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement !== 0) {
-            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
-            opts.style = "dominant-baseline: middle; text-anchor: start;";
-        }
-        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
-            if (this.state._svgtextbkfilter == null) {
-                const filterId = Helper._makeUniqueId("f");
-                const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
-                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
-                this._svg.filters.composite(filter, null, null, "SourceGraphic");
-                this.state._svgtextbkfilter = filter;
-            }
-
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
-        }
-        this._svg.text(this.state._svggroup, x, y, text, opts);
-    }
-
-    extTextOut(x: number, y: number, text: string, fwOpts: number, rect: Rect, dx: number[]) {
-        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
-            + " with font " + this.state.selected.font.toString());
-        x = this._todevX(x);
-        y = this._todevY(y);
-        Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
-        this._pushGroup();
-
-        const opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement !== 0) {
-            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
-            opts.style = "dominant-baseline: middle; text-anchor: start;";
-        }
-        if (this.state.bkmode === Helper.GDI.MixMode.OPAQUE) {
-            if (this.state._svgtextbkfilter == null) {
-                const filterId = Helper._makeUniqueId("f");
-                const filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
-                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
-                this._svg.filters.composite(filter, null, null, "SourceGraphic");
-                this.state._svgtextbkfilter = filter;
-            }
-
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
-        }
-        this._svg.text(this.state._svggroup, x, y, text, opts);
-    }
-
-    lineTo(x: number, y: number) {
-        Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-        const toX = this._todevX(x);
-        const toY = this._todevY(y);
-        const fromX = this._todevX(this.state.x);
-        const fromY = this._todevY(this.state.y);
-
-        // Update position
-        this.state.x = x;
-        this.state.y = y;
-
-        Helper.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
-        this._pushGroup();
-
-        const opts = this._applyOpts(null, true, false, false);
-        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
-    }
-
-    moveTo(x: number, y: number) {
-        Helper.log("[gdi] moveTo: x=" + x + " y=" + y);
-        this.state.x = x;
-        this.state.y = y;
-    }
-
-    polygon(points: PointS[], first: boolean) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        const pts = [];
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        Helper.log("[gdi] polygon: TRANSLATED: pts=" + pts);
-        if (first) {
-            this._pushGroup();
-        }
-        const opts = {
-            "fill-rule": this.state.polyfillmode === Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
-        };
-        this._applyOpts(opts, true, true, false);
-        this._svg.polygon(this.state._svggroup, pts, opts);
-    }
-
-    polyPolygon(polygons: PointS[][]) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
-            + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-
-        const cnt = polygons.length;
-        for (let i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], i === 0);
-        }
-    }
-
-    polyline(points: PointS[]) {
-        Helper.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
-        const pts = [];
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        Helper.log("[gdi] polyline: TRANSLATED: pts=" + pts);
-        this._pushGroup();
-        const opts = this._applyOpts({fill: "none"}, true, false, false);
-        this._svg.polyline(this.state._svggroup, pts, opts);
-    }
-
-    ellipse(rect: Rect) {
-        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        const bottom = this._todevY(rect.bottom);
-        const right = this._todevX(rect.right);
-        const top = this._todevY(rect.top);
-        const left = this._todevX(rect.left);
-        Helper.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
-        this._pushGroup();
-        const width2 = (right - left) / 2;
-        const height2 = (bottom - top) / 2;
-        const opts = this._applyOpts(null, true, true, false);
-        this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
-    }
-
-    excludeClipRect(rect: Rect) {
-        Helper.log("[gdi] excludeClipRect: rect=" + rect.toString());
-        this._getClipRgn().subtract(rect);
-    }
-
-    intersectClipRect(rect: Rect) {
-        Helper.log("[gdi] intersectClipRect: rect=" + rect.toString());
-        this._getClipRgn().intersect(rect);
-    }
-
-    offsetClipRgn(offX: number, offY: number) {
-        Helper.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
-        this._getClipRgn().offset(offX, offY);
-    }
-
-    setTextAlign(textAlignmentMode: number) {
-        Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
-        this.state.textalign = textAlignmentMode;
-    }
-
-    setBkMode(bkMode: number) {
-        Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
-        this.state.bkmode = bkMode;
-    }
-
-    setTextColor(textColor: ColorRef) {
-        Helper.log("[gdi] setTextColor: textColor=" + textColor.toString());
-        this.state.textcolor = textColor;
-    }
-
-    setBkColor(bkColor: ColorRef) {
-        Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
-        this.state.bkcolor = bkColor;
-        this.state._svgtextbkfilter = null;
-    }
-
-    setPolyFillMode(polyFillMode: number) {
-        Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
-        this.state.polyfillmode = polyFillMode;
-    }
-
-    createBrush(brush: Brush) {
-        const idx = this._storeObject(brush);
-        Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
-    }
-
-    createFont(font: Font) {
-        const idx = this._storeObject(font);
-        Helper.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
-    }
-
-    createPen(pen: Pen) {
-        const idx = this._storeObject(pen);
-        Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
-    }
-
-    createPalette(palette: Palette) {
-        const idx = this._storeObject(palette);
-        Helper.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
-    }
-
-    createRegion(region: Region) {
-        const idx = this._storeObject(region);
-        Helper.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
-    }
-
-    createPatternBrush(patternBrush: Brush) {
-        const idx = this._storeObject(patternBrush);
-        Helper.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
-    }
-
-    selectObject(objIdx: number, checkType: string) {
-        const obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type === checkType)) {
-            this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx
-                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
-        } else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx
-                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
-        }
-    }
-
-    deleteObject(objIdx: number) {
-        const ret = this._deleteObject(objIdx);
-        Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
     }
 }

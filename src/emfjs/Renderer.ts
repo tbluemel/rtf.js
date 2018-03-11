@@ -30,7 +30,7 @@ import { EMFRecords } from "./EMFRecords";
 import { GDIContext } from "./GDIContext";
 import { EMFJSError, Helper } from "./Helper";
 
-export class RendererSettings {
+export interface IRendererSettings {
     width: string;
     height: string;
     wExt: number;
@@ -41,14 +41,28 @@ export class RendererSettings {
 }
 
 export class Renderer {
-    _img: EMF;
+    private _img: EMF;
 
     constructor(blob: ArrayBuffer) {
         this.parse(blob);
         Helper.log("EMFJS.Renderer instantiated");
     }
 
-    parse(blob: ArrayBuffer) {
+    public render(info: IRendererSettings) {
+        const img = ($("<div>") as any).svg({
+            onLoad: (svg: any) => {
+                return this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
+            },
+            settings: {
+                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+            },
+        });
+        const svgContainer = ($(img[0]) as any).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+    }
+
+    private parse(blob: ArrayBuffer) {
         this._img = null;
 
         const reader = new Blob(blob);
@@ -69,7 +83,7 @@ export class Renderer {
         }
     }
 
-    _render(svg: any, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
+    private _render(svg: any, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
         const gdi = new GDIContext(svg);
         gdi.setWindowExtEx(w, h);
         gdi.setViewportExtEx(xExt, yExt);
@@ -78,26 +92,12 @@ export class Renderer {
         this._img.render(gdi);
         Helper.log("[EMF] <--- DONE RENDERING");
     }
-
-    render(info: RendererSettings) {
-        const img = ($("<div>") as any).svg({
-            onLoad: (svg: any) => {
-                return this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-            },
-            settings: {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-            },
-        });
-        const svgContainer = ($(img[0]) as any).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
-    }
 }
 
 export class EMF {
-    _reader: Blob;
-    _hdrsize: number;
-    _records: EMFRecords;
+    private _reader: Blob;
+    private _hdrsize: number;
+    private _records: EMFRecords;
 
     constructor(reader: Blob, hdrsize: number) {
         this._reader = reader;
@@ -105,7 +105,7 @@ export class EMF {
         this._records = new EMFRecords(reader, this._hdrsize);
     }
 
-    render(gdi: GDIContext) {
+    public render(gdi: GDIContext) {
         this._records.play(gdi);
     }
 }

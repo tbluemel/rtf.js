@@ -30,13 +30,13 @@ import { Pap } from "./Containers";
 import { RenderChp } from "./RenderChp";
 
 export class RenderPap {
-    _pap: Pap;
+    private _pap: Pap;
 
     constructor(pap: Pap) {
         this._pap = pap;
     }
 
-    apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
+    public apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");

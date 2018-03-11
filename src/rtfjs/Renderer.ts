@@ -35,14 +35,14 @@ export interface IContainerElement {
 }
 
 export class Renderer {
-    _doc: Document;
-    _dom: JQuery[];
+    public _doc: Document;
+    private _dom: JQuery[];
 
-    _curRChp: RenderChp;
-    _curRPap: RenderPap;
-    _curpar: JQuery;
-    _cursubpar: JQuery;
-    _curcont: IContainerElement[];
+    private _curRChp: RenderChp;
+    private _curRPap: RenderPap;
+    private _curpar: JQuery;
+    private _cursubpar: JQuery;
+    private _curcont: IContainerElement[];
 
     constructor(doc: Document) {
         this._doc = doc;
@@ -55,7 +55,7 @@ export class Renderer {
         this._curcont = [];
     }
 
-    pushContainer(contel: IContainerElement) {
+    public pushContainer(contel: IContainerElement) {
         if (this._curpar == null) {
             this.startPar();
         }
@@ -73,18 +73,18 @@ export class Renderer {
         }
     }
 
-    popContainer() {
+    public popContainer() {
         const contel = this._curcont.pop();
         if (contel == null) {
             throw new RTFJSError("No container on rendering stack");
         }
     }
 
-    buildHyperlinkElement(url: string): JQuery {
+    public buildHyperlinkElement(url: string): JQuery {
         return $("<a>").attr("href", url);
     }
 
-    _appendToPar(el: JQuery, newsubpar?: boolean) {
+    public _appendToPar(el: JQuery, newsubpar?: boolean) {
         if (this._curpar == null) {
             this.startPar();
         }
@@ -116,7 +116,7 @@ export class Renderer {
         }
     }
 
-    startPar() {
+    public startPar() {
         this._curpar = $("<div>");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
@@ -127,15 +127,15 @@ export class Renderer {
         this._dom.push(this._curpar);
     }
 
-    lineBreak() {
+    public lineBreak() {
         this._appendToPar(null, true);
     }
 
-    setChp(rchp: RenderChp) {
+    public setChp(rchp: RenderChp) {
         this._curRChp = rchp;
     }
 
-    setPap(rpap: RenderPap) {
+    public setPap(rpap: RenderPap) {
         this._curRPap = rpap;
         if (this._cursubpar != null) {
             this._curRPap.apply(this._doc, this._cursubpar, null, false);
@@ -146,22 +146,22 @@ export class Renderer {
         }
     }
 
-    appendElement(element: JQuery) {
+    public appendElement(element: JQuery) {
         this._appendToPar(element);
     }
 
-    buildRenderedPicture(element: JQuery): JQuery {
+    public buildRenderedPicture(element: JQuery): JQuery {
         if (element == null) {
             element = $("<span>").text("[failed to render image]");
         }
         return element;
     }
 
-    renderedPicture(element: JQuery) {
+    public renderedPicture(element: JQuery) {
         this._appendToPar(this.buildRenderedPicture(element));
     }
 
-    buildPicture(mime: string, data: string): JQuery {
+    public buildPicture(mime: string, data: string): JQuery {
         if (data != null) {
             return $("<img>", {
                 src: "data:" + mime + ";base64," + btoa(data),
@@ -175,11 +175,11 @@ export class Renderer {
         }
     }
 
-    picture(mime: string, data: string) {
+    public picture(mime: string, data: string) {
         this._appendToPar(this.buildPicture(mime, data));
     }
 
-    buildDom(): JQuery[] {
+    public buildDom(): JQuery[] {
         if (this._dom != null) {
             return this._dom;
         }

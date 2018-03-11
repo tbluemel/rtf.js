@@ -29,8 +29,8 @@ import { Blob } from "./Blob";
 import { EMFJSError } from "./Helper";
 
 export class PointS {
-    x: number;
-    y: number;
+    public x: number;
+    public y: number;
 
     constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
@@ -42,18 +42,18 @@ export class PointS {
         }
     }
 
-    clone() {
+    public clone() {
         return new PointS(null, this.x, this.y);
     }
 
-    toString() {
+    public toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
 
 export class PointL {
-    x: number;
-    y: number;
+    public x: number;
+    public y: number;
 
     constructor(reader: Blob, x?: number, y?: number) {
         if (reader != null) {
@@ -65,20 +65,20 @@ export class PointL {
         }
     }
 
-    clone() {
+    public clone() {
         return new PointL(null, this.x, this.y);
     }
 
-    toString() {
+    public toString() {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
 
 export class RectL {
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
+    public left: number;
+    public top: number;
+    public right: number;
+    public bottom: number;
 
     constructor(reader: Blob, left?: number, top?: number, right?: number, bottom?: number) {
         if (reader != null) {
@@ -94,20 +94,20 @@ export class RectL {
         }
     }
 
-    clone() {
+    public clone() {
         return new RectL(null, this.left, this.top, this.right, this.bottom);
     }
 
-    toString() {
+    public toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
 
-    empty() {
+    public empty() {
         return this.left >= this.right || this.top >= this.bottom;
     }
 
-    intersect(rectL: RectL) {
+    public intersect(rectL: RectL) {
         if (this.empty() || rectL.empty()) {
             return null;
         }
@@ -121,8 +121,8 @@ export class RectL {
 }
 
 export class SizeL {
-    cx: number;
-    cy: number;
+    public cx: number;
+    public cy: number;
 
     constructor(reader: Blob, cx?: number, cy?: number) {
         if (reader != null) {
@@ -134,27 +134,27 @@ export class SizeL {
         }
     }
 
-    clone() {
+    public clone() {
         return new SizeL(null, this.cx, this.cy);
     }
 
-    toString() {
+    public toString() {
         return "{cx: " + this.cx + ", cy: " + this.cy + "}";
     }
 }
 
 export class Obj {
-    type: string;
+    public type: string;
 
     constructor(type: string) {
         this.type = type;
     }
 
-    clone(): Obj {
+    public clone(): Obj {
         throw new EMFJSError("clone not implemented");
     }
 
-    toString() {
+    public toString() {
         throw new EMFJSError("toString not implemented");
     }
 }

@@ -2242,207 +2242,6 @@ var GDIContext = /** @class */ (function () {
         this.statestack = [this.state];
         this.objects = {};
     }
-    GDIContext.prototype._pushGroup = function () {
-        if (this.state._svggroup == null || this.state._svgclipChanged) {
-            this.state._svgclipChanged = false;
-            this.state._svgtextbkfilter = null;
-            var settings = {
-                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
-                preserveAspectRatio: "none",
-            };
-            if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
-                    + " height=" + this.state.vh + " with clipping");
-                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
-            }
-            else {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
-                    + " height=" + this.state.vh + " without clipping");
-            }
-            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
-        }
-    };
-    GDIContext.prototype._getStockObject = function (idx) {
-        if (idx >= 0x80000000 && idx <= 0x80000011) {
-            return _StockObjects[(idx - 0x80000000).toString()];
-        }
-        else if (idx === Helper.GDI.StockObject.DC_BRUSH) {
-            return this.state.selected.brush;
-        }
-        else if (idx === Helper.GDI.StockObject.DC_PEN) {
-            return this.state.selected.pen;
-        }
-        return null;
-    };
-    GDIContext.prototype._storeObject = function (obj, idx) {
-        if (!idx) {
-            idx = 0;
-            while (this.objects[idx.toString()] != null && idx <= 65535) {
-                idx++;
-            }
-            if (idx > 65535) {
-                Helper.log("[gdi] Too many objects!");
-                return -1;
-            }
-        }
-        this.objects[idx.toString()] = obj;
-        return idx;
-    };
-    GDIContext.prototype._getObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj == null) {
-            obj = this._getStockObject(objIdx);
-            if (obj == null) {
-                Helper.log("[gdi] No object with handle " + objIdx);
-            }
-        }
-        return obj;
-    };
-    GDIContext.prototype._getSvgDef = function () {
-        if (this._svgdefs == null) {
-            this._svgdefs = this._svg.defs();
-        }
-        return this._svgdefs;
-    };
-    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var existingId in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[existingId];
-            if (rgn === region) {
-                return existingId;
-            }
-        }
-        var id = Helper._makeUniqueId("c");
-        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
-        switch (region.complexity) {
-            case 1:
-                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: "black", strokeWidth: 0 });
-                break;
-            case 2:
-                for (var i = 0; i < region.scans.length; i++) {
-                    var scan = region.scans[i];
-                    for (var j = 0; j < scan.scanlines.length; j++) {
-                        var scanline = scan.scanlines[j];
-                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: "black", strokeWidth: 0 });
-                    }
-                }
-                break;
-        }
-        this._svgClipPaths[id] = region;
-        return id;
-    };
-    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var existingId in this._svgPatterns) {
-            var pat = this._svgPatterns[existingId];
-            if (pat === brush) {
-                return existingId;
-            }
-        }
-        var width;
-        var height;
-        var img;
-        switch (brush.style) {
-            case Helper.GDI.BrushStyle.BS_PATTERN:
-                width = brush.pattern.getWidth();
-                height = brush.pattern.getHeight();
-                break;
-            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                width = brush.dibpatternpt.getWidth();
-                height = brush.dibpatternpt.getHeight();
-                img = brush.dibpatternpt.base64ref();
-                break;
-            default:
-                throw new EMFJSError("Invalid brush style");
-        }
-        var id = Helper._makeUniqueId("p");
-        var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, { patternUnits: "userSpaceOnUse" });
-        this._svg.image(spat, 0, 0, width, height, img);
-        this._svgPatterns[id] = brush;
-        return id;
-    };
-    GDIContext.prototype._selectObject = function (obj) {
-        this.state.selected[obj.type] = obj;
-        switch (obj.type) {
-            case "region":
-                this.state._svgclipChanged = true;
-                break;
-            case "brush":
-                this.state.brx = this.state.nextbrx;
-                this.state.bry = this.state.nextbry;
-                break;
-        }
-    };
-    GDIContext.prototype._deleteObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj != null) {
-            for (var i = 0; i < this.statestack.length; i++) {
-                var state = this.statestack[i];
-                if (state.selected[obj.type] === obj) {
-                    state.selected[obj.type] = this.defObjects[obj.type].clone();
-                }
-            }
-            delete this.objects[objIdx.toString()];
-            return true;
-        }
-        Helper.log("[gdi] Cannot delete object with invalid handle " + objIdx);
-        return false;
-    };
-    GDIContext.prototype._getClipRgn = function () {
-        if (this.state.clip != null) {
-            if (!this.state.ownclip) {
-                this.state.clip = this.state.clip.clone();
-            }
-        }
-        else {
-            if (this.state.selected.region != null) {
-                this.state.clip = this.state.selected.region.clone();
-            }
-            else {
-                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
-            }
-        }
-        this.state.ownclip = true;
-        return this.state.clip;
-    };
-    GDIContext.prototype._todevX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._todevW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._tologicalX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
-    GDIContext.prototype._tologicalW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
     GDIContext.prototype.setMapMode = function (mode) {
         Helper.log("[gdi] setMapMode: mode=" + mode);
         this.state.mapmode = mode;
@@ -2504,66 +2303,6 @@ var GDIContext = /** @class */ (function () {
     };
     GDIContext.prototype.setStretchBltMode = function (stretchMode) {
         Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
-    };
-    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
-        if (opts == null) {
-            opts = {};
-        }
-        if (usePen) {
-            var pen = this.state.selected.pen;
-            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
-                opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
-                opts.strokeWidth = pen.width;
-                opts["stroke-miterlimit"] = this.state.miterlimit;
-                var dotWidth = void 0;
-                opts["stroke-linecap"] = "round";
-                dotWidth = 1;
-                opts["stroke-linejoin"] = "round";
-                var dashWidth = opts.strokeWidth * 4;
-                var dotSpacing = opts.strokeWidth * 2;
-                switch (pen.style) {
-                    case Helper.GDI.PenStyle.PS_DASH:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DOT:
-                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DASHDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                    case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] =
-                            [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                }
-            }
-        }
-        if (useBrush) {
-            var brush = this.state.selected.brush;
-            switch (brush.style) {
-                case Helper.GDI.BrushStyle.BS_SOLID:
-                    opts.fill = "#" + brush.color.toHex();
-                    break;
-                case Helper.GDI.BrushStyle.BS_PATTERN:
-                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
-                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
-                    break;
-                case Helper.GDI.BrushStyle.BS_NULL:
-                    opts.fill = "none";
-                    break;
-                default:
-                    Helper.log("[gdi] unsupported brush style: " + brush.style);
-                    opts.fill = "none";
-                    break;
-            }
-        }
-        if (useFont) {
-            var font = this.state.selected.font;
-            opts["font-family"] = font.facename;
-            opts["font-size"] = Math.abs(font.height);
-            opts.fill = "#" + this.state.textcolor.toHex();
-        }
-        return opts;
     };
     GDIContext.prototype.rectangle = function (rect, rw, rh) {
         Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
@@ -2767,18 +2506,17 @@ var GDIContext = /** @class */ (function () {
                 + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     };
-    GDIContext.prototype._abortPath = function () {
+    GDIContext.prototype.abortPath = function () {
+        Helper.log("[gdi] abortPath");
         if (this._svgPath != null) {
             this._svgPath = null;
         }
     };
-    GDIContext.prototype.abortPath = function () {
-        Helper.log("[gdi] abortPath");
-        this._abortPath();
-    };
     GDIContext.prototype.beginPath = function () {
         Helper.log("[gdi] beginPath");
-        this._abortPath();
+        if (this._svgPath != null) {
+            this._svgPath = null;
+        }
         this._svgPath = this._svg.createPath();
     };
     GDIContext.prototype.closeFigure = function () {
@@ -2823,6 +2561,267 @@ var GDIContext = /** @class */ (function () {
         var ret = this._deleteObject(objIdx);
         Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
     };
+    GDIContext.prototype._pushGroup = function () {
+        if (this.state._svggroup == null || this.state._svgclipChanged) {
+            this.state._svgclipChanged = false;
+            this.state._svgtextbkfilter = null;
+            var settings = {
+                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
+                preserveAspectRatio: "none",
+            };
+            if (this.state.clip != null) {
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " with clipping");
+                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
+            }
+            else {
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " without clipping");
+            }
+            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
+        }
+    };
+    GDIContext.prototype._getStockObject = function (idx) {
+        if (idx >= 0x80000000 && idx <= 0x80000011) {
+            return _StockObjects[(idx - 0x80000000).toString()];
+        }
+        else if (idx === Helper.GDI.StockObject.DC_BRUSH) {
+            return this.state.selected.brush;
+        }
+        else if (idx === Helper.GDI.StockObject.DC_PEN) {
+            return this.state.selected.pen;
+        }
+        return null;
+    };
+    GDIContext.prototype._storeObject = function (obj, idx) {
+        if (!idx) {
+            idx = 0;
+            while (this.objects[idx.toString()] != null && idx <= 65535) {
+                idx++;
+            }
+            if (idx > 65535) {
+                Helper.log("[gdi] Too many objects!");
+                return -1;
+            }
+        }
+        this.objects[idx.toString()] = obj;
+        return idx;
+    };
+    GDIContext.prototype._getObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj == null) {
+            obj = this._getStockObject(objIdx);
+            if (obj == null) {
+                Helper.log("[gdi] No object with handle " + objIdx);
+            }
+        }
+        return obj;
+    };
+    GDIContext.prototype._getSvgDef = function () {
+        if (this._svgdefs == null) {
+            this._svgdefs = this._svg.defs();
+        }
+        return this._svgdefs;
+    };
+    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
+        for (var existingId in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[existingId];
+            if (rgn === region) {
+                return existingId;
+            }
+        }
+        var id = Helper._makeUniqueId("c");
+        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
+        switch (region.complexity) {
+            case 1:
+                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { fill: "black", strokeWidth: 0 });
+                break;
+            case 2:
+                for (var i = 0; i < region.scans.length; i++) {
+                    var scan = region.scans[i];
+                    for (var j = 0; j < scan.scanlines.length; j++) {
+                        var scanline = scan.scanlines[j];
+                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { fill: "black", strokeWidth: 0 });
+                    }
+                }
+                break;
+        }
+        this._svgClipPaths[id] = region;
+        return id;
+    };
+    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
+        for (var existingId in this._svgPatterns) {
+            var pat = this._svgPatterns[existingId];
+            if (pat === brush) {
+                return existingId;
+            }
+        }
+        var width;
+        var height;
+        var img;
+        switch (brush.style) {
+            case Helper.GDI.BrushStyle.BS_PATTERN:
+                width = brush.pattern.getWidth();
+                height = brush.pattern.getHeight();
+                break;
+            case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                width = brush.dibpatternpt.getWidth();
+                height = brush.dibpatternpt.getHeight();
+                img = brush.dibpatternpt.base64ref();
+                break;
+            default:
+                throw new EMFJSError("Invalid brush style");
+        }
+        var id = Helper._makeUniqueId("p");
+        var spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, { patternUnits: "userSpaceOnUse" });
+        this._svg.image(spat, 0, 0, width, height, img);
+        this._svgPatterns[id] = brush;
+        return id;
+    };
+    GDIContext.prototype._selectObject = function (obj) {
+        this.state.selected[obj.type] = obj;
+        switch (obj.type) {
+            case "region":
+                this.state._svgclipChanged = true;
+                break;
+            case "brush":
+                this.state.brx = this.state.nextbrx;
+                this.state.bry = this.state.nextbry;
+                break;
+        }
+    };
+    GDIContext.prototype._deleteObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj != null) {
+            for (var i = 0; i < this.statestack.length; i++) {
+                var state = this.statestack[i];
+                if (state.selected[obj.type] === obj) {
+                    state.selected[obj.type] = this.defObjects[obj.type].clone();
+                }
+            }
+            delete this.objects[objIdx.toString()];
+            return true;
+        }
+        Helper.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+        return false;
+    };
+    GDIContext.prototype._getClipRgn = function () {
+        if (this.state.clip != null) {
+            if (!this.state.ownclip) {
+                this.state.clip = this.state.clip.clone();
+            }
+        }
+        else {
+            if (this.state.selected.region != null) {
+                this.state.clip = this.state.selected.region.clone();
+            }
+            else {
+                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+            }
+        }
+        this.state.ownclip = true;
+        return this.state.clip;
+    };
+    GDIContext.prototype._todevX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._todevW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._tologicalX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype._tologicalW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
+        if (opts == null) {
+            opts = {};
+        }
+        if (usePen) {
+            var pen = this.state.selected.pen;
+            if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
+                opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
+                opts.strokeWidth = pen.width;
+                opts["stroke-miterlimit"] = this.state.miterlimit;
+                var dotWidth = void 0;
+                opts["stroke-linecap"] = "round";
+                dotWidth = 1;
+                opts["stroke-linejoin"] = "round";
+                var dashWidth = opts.strokeWidth * 4;
+                var dotSpacing = opts.strokeWidth * 2;
+                switch (pen.style) {
+                    case Helper.GDI.PenStyle.PS_DASH:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DOT:
+                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DASHDOT:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                    case Helper.GDI.PenStyle.PS_DASHDOTDOT:
+                        opts["stroke-dasharray"] =
+                            [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                }
+            }
+        }
+        if (useBrush) {
+            var brush = this.state.selected.brush;
+            switch (brush.style) {
+                case Helper.GDI.BrushStyle.BS_SOLID:
+                    opts.fill = "#" + brush.color.toHex();
+                    break;
+                case Helper.GDI.BrushStyle.BS_PATTERN:
+                case Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
+                    break;
+                case Helper.GDI.BrushStyle.BS_NULL:
+                    opts.fill = "none";
+                    break;
+                default:
+                    Helper.log("[gdi] unsupported brush style: " + brush.style);
+                    opts.fill = "none";
+                    break;
+            }
+        }
+        if (useFont) {
+            var font = this.state.selected.font;
+            opts["font-family"] = font.facename;
+            opts["font-size"] = Math.abs(font.height);
+            opts.fill = "#" + this.state.textcolor.toHex();
+        }
+        return opts;
+    };
     return GDIContext;
 }());
 
@@ -2852,16 +2851,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var RendererSettings = /** @class */ (function () {
-    function RendererSettings() {
-    }
-    return RendererSettings;
-}());
 var Renderer = /** @class */ (function () {
     function Renderer(blob) {
         this.parse(blob);
         Helper.log("EMFJS.Renderer instantiated");
     }
+    Renderer.prototype.render = function (info) {
+        var _this = this;
+        var img = $("<div>").svg({
+            onLoad: function (svg) {
+                return _this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
+            },
+            settings: {
+                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+                preserveAspectRatio: "none",
+            },
+        });
+        var svgContainer = $(img[0]).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+    };
     Renderer.prototype.parse = function (blob) {
         this._img = null;
         var reader = new Blob(blob);
@@ -2886,20 +2894,6 @@ var Renderer = /** @class */ (function () {
         Helper.log("[EMF] BEGIN RENDERING --->");
         this._img.render(gdi);
         Helper.log("[EMF] <--- DONE RENDERING");
-    };
-    Renderer.prototype.render = function (info) {
-        var _this = this;
-        var img = $("<div>").svg({
-            onLoad: function (svg) {
-                return _this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-            },
-            settings: {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none",
-            },
-        });
-        var svgContainer = $(img[0]).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };
     return Renderer;
 }());
@@ -2944,7 +2938,6 @@ SOFTWARE.
 
 exports.Error = EMFJSError;
 exports.loggingEnabled = loggingEnabled;
-exports.RendererSettings = RendererSettings;
 exports.Renderer = Renderer;
 exports.EMF = EMF;
 

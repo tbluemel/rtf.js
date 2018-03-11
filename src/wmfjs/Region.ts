@@ -29,9 +29,9 @@ import { Helper, WMFJSError } from "./Helper";
 import { Obj, Rect } from "./Primitives";
 
 export class Region extends Obj {
-    bounds: Rect;
-    scans: Scan[];
-    complexity: number;
+    public bounds: Rect;
+    public scans: Scan[];
+    public complexity: number;
 
     constructor(reader: Blob, copy?: Region) {
         super("region");
@@ -73,18 +73,18 @@ export class Region extends Obj {
         }
     }
 
-    clone() {
+    public clone() {
         return new Region(null, this);
     }
 
-    toString() {
+    public toString() {
         const _complexity = ["null", "simple", "complex"];
         return "{complexity: " + _complexity[this.complexity]
             + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
             + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     }
 
-    _updateComplexity() {
+    public _updateComplexity() {
         if (this.bounds == null) {
             this.complexity = 0;
             this.scans = null;
@@ -109,7 +109,7 @@ export class Region extends Obj {
         }
     }
 
-    subtract(rect: Rect) {
+    public subtract(rect: Rect) {
         Helper.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
 
         if (this.bounds != null) {
@@ -236,7 +236,7 @@ export class Region extends Obj {
         Helper.log("[wmf] Region subtraction -> " + this.toString());
     }
 
-    intersect(rect: Rect) {
+    public intersect(rect: Rect) {
         Helper.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
         if (this.bounds != null) {
             this.bounds = this.bounds.intersect(rect);
@@ -296,7 +296,7 @@ export class Region extends Obj {
         Helper.log("[wmf] Region intersection -> " + this.toString());
     }
 
-    offset(offX: number, offY: number) {
+    public offset(offX: number, offY: number) {
         if (this.bounds != null) {
             this.bounds.left += offX;
             this.bounds.top += offY;
@@ -330,9 +330,9 @@ export function CreateSimpleRegion(left: number, top: number, right: number, bot
 }
 
 export class Scan {
-    top: number;
-    bottom: number;
-    scanlines: Array<{left: number, right: number}>;
+    public top: number;
+    public bottom: number;
+    public scanlines: Array<{left: number, right: number}>;
 
     constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number,
                 scanlines?: Array<{left: number, right: number}>) {
@@ -362,11 +362,11 @@ export class Scan {
         }
     }
 
-    clone() {
+    public clone() {
         return new Scan(null, this);
     }
 
-    subtract(left: number, right: number) {
+    public subtract(left: number, right: number) {
         let i;
 
         // Keep everything on the left side
@@ -411,7 +411,7 @@ export class Scan {
         return this.scanlines.length > 0;
     }
 
-    intersect(left: number, right: number) {
+    public intersect(left: number, right: number) {
         // Get rid of anything that falls entirely outside to the left
         for (let i = 0; i < this.scanlines.length; i++) {
             const scanline = this.scanlines[i];
@@ -450,7 +450,7 @@ export class Scan {
         return this.scanlines.length > 0;
     }
 
-    toString() {
+    public toString() {
         return "{ #scanlines: " + this.scanlines.length + "}";
     }
 }

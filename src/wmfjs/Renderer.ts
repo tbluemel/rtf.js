@@ -29,7 +29,7 @@ import { GDIContext } from "./GDIContext";
 import { Helper, WMFJSError } from "./Helper";
 import { WMFRecords } from "./WMFRecords";
 
-export class RendererSettings {
+export interface IRendererSettings {
     width: string;
     height: string;
     xExt: number;
@@ -38,14 +38,28 @@ export class RendererSettings {
 }
 
 export class Renderer {
-    _img: WMF;
+    private _img: WMF;
 
     constructor(blob: ArrayBuffer) {
         this.parse(blob);
         Helper.log("WMFJS.Renderer instantiated");
     }
 
-    parse(blob: ArrayBuffer) {
+    public render(info: IRendererSettings) {
+        const img = ($("<div>") as any).svg({
+            onLoad: (svg: any) => {
+                return this._render(svg, info.mapMode, info.xExt, info.yExt);
+            },
+            settings: {
+                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
+                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+            },
+        });
+        const svgContainer = ($(img[0]) as any).svg("get");
+        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+    }
+
+    private parse(blob: ArrayBuffer) {
         this._img = null;
 
         const reader = new Blob(blob);
@@ -85,7 +99,7 @@ export class Renderer {
         }
     }
 
-    _render(svg: any, mapMode: number, xExt: number, yExt: number) {
+    private _render(svg: any, mapMode: number, xExt: number, yExt: number) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
         const gdi = new GDIContext(svg);
         gdi.setViewportExt(xExt, yExt);
@@ -94,28 +108,13 @@ export class Renderer {
         this._img.render(gdi);
         Helper.log("[WMF] <--- DONE RENDERING");
     }
-
-    render(info: RendererSettings) {
-        const inst = this;
-        const img = ($("<div>") as any).svg({
-            onLoad: (svg: any) => {
-                return this._render(svg, info.mapMode, info.xExt, info.yExt);
-            },
-            settings: {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-            },
-        });
-        const svgContainer = ($(img[0]) as any).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
-    }
 }
 
 export class WMFRect16 {
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
+    private left: number;
+    private top: number;
+    private right: number;
+    private bottom: number;
 
     constructor(reader: Blob) {
         this.left = reader.readInt16();
@@ -124,15 +123,15 @@ export class WMFRect16 {
         this.bottom = reader.readInt16();
     }
 
-    toString() {
+    public toString() {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
 }
 
 export class WMFPlacable {
-    boundingBox: WMFRect16;
-    unitsPerInch: number;
+    private boundingBox: WMFRect16;
+    private unitsPerInch: number;
 
     constructor(reader: Blob) {
         reader.skip(2);
@@ -145,11 +144,11 @@ export class WMFPlacable {
 }
 
 export class WMF {
-    _reader: Blob;
-    _version: number;
-    _hdrsize: number;
-    _placable: WMFPlacable;
-    _records: WMFRecords;
+    private _reader: Blob;
+    private _version: number;
+    private _hdrsize: number;
+    private _placable: WMFPlacable;
+    private _records: WMFRecords;
 
     constructor(reader: Blob, placable: WMFPlacable, version: number, hdrsize: number) {
         this._reader = reader;
@@ -159,7 +158,7 @@ export class WMF {
         this._records = new WMFRecords(reader, this._hdrsize);
     }
 
-    render(gdi: GDIContext) {
+    public render(gdi: GDIContext) {
         this._records.play(gdi);
     }
 }
