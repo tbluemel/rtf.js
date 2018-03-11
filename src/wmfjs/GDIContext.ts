@@ -168,10 +168,12 @@ export class GDIContext {
                 preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             } else {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
             }
             this.state._svggroup = this._svg.svg(this.state._svggroup,
                 this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
@@ -220,7 +222,8 @@ export class GDIContext {
         switch (region.complexity) {
             case 1:
                 this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top),
-                    this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top),
+                    this._todevW(region.bounds.right - region.bounds.left),
+                    this._todevH(region.bounds.bottom - region.bounds.top),
                     { fill: "black", strokeWidth: 0 });
                 break;
             case 2:
@@ -304,7 +307,8 @@ export class GDIContext {
             if (this.state.selected.region != null) {
                 this.state.clip = this.state.selected.region.clone();
             } else {
-                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww,
+                    this.state.wy + this.state.wh);
             }
         }
         this.state.ownclip = true;
@@ -440,8 +444,12 @@ export class GDIContext {
         Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
     }
 
-    stretchDib(srcX: number, srcY: number, srcW: number, srcH: number, dstX: number, dstY: number, dstW: number, dstH: number, rasterOp: number, colorUsage: number, dib: DIBitmap) {
-        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+    stretchDib(srcX: number, srcY: number, srcW: number, srcH: number,
+               dstX: number, dstY: number, dstW: number, dstH: number,
+               rasterOp: number, colorUsage: number, dib: DIBitmap) {
+        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
         srcW = this._todevW(srcW);
@@ -450,13 +458,19 @@ export class GDIContext {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     }
 
-    stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number, dstX: number, dstY: number, dstW: number, dstH: number, rasterOp: number, dib: DIBitmap) {
-        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+    stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number,
+                   dstX: number, dstY: number, dstW: number, dstH: number,
+                   rasterOp: number, dib: DIBitmap) {
+        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
         srcW = this._todevW(srcW);
@@ -465,7 +479,10 @@ export class GDIContext {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDibBits: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+        Helper.log("[gdi] stretchDibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     }
@@ -513,7 +530,8 @@ export class GDIContext {
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                     case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        opts["stroke-dasharray"]
+                            = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                 }
             }
@@ -547,14 +565,16 @@ export class GDIContext {
     }
 
     rectangle(rect: Rect, rw: number, rh: number) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         const bottom = this._todevY(rect.bottom);
         const right = this._todevX(rect.right);
         const top = this._todevY(rect.top);
         const left = this._todevX(rect.left);
         rw = this._todevH(rw);
         rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
         this._pushGroup();
 
         const opts = this._applyOpts(null, true, true, false);
@@ -562,7 +582,8 @@ export class GDIContext {
     }
 
     textOut(x: number, y: number, text: string) {
-        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
         Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
@@ -588,7 +609,8 @@ export class GDIContext {
     }
 
     extTextOut(x: number, y: number, text: string, fwOpts: number, rect: Rect, dx: number[]) {
-        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
         Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
@@ -638,7 +660,8 @@ export class GDIContext {
     }
 
     polygon(points: PointS[], first: boolean) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         const pts = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -656,7 +679,9 @@ export class GDIContext {
     }
 
     polyPolygon(polygons: PointS[][]) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
 
         const cnt = polygons.length;
         for (let i = 0; i < cnt; i++) {
@@ -678,7 +703,8 @@ export class GDIContext {
     }
 
     ellipse(rect: Rect) {
-        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         const bottom = this._todevY(rect.bottom);
         const right = this._todevX(rect.right);
         const top = this._todevY(rect.top);
@@ -766,9 +792,11 @@ export class GDIContext {
         const obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         } else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     }
 

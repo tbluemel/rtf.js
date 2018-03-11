@@ -582,7 +582,8 @@ var RectL = /** @class */ (function () {
         return new RectL(null, this.left, this.top, this.right, this.bottom);
     };
     RectL.prototype.toString = function () {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     };
     RectL.prototype.empty = function () {
         return this.left >= this.right || this.top >= this.bottom;
@@ -722,7 +723,9 @@ var Region = /** @class */ (function (_super) {
     };
     Region.prototype.toString = function () {
         var _complexity = ["null", "simple", "complex"];
-        return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+        return "{complexity: " + _complexity[this.complexity]
+            + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
+            + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     };
     Region.prototype._updateComplexity = function () {
         if (this.bounds == null) {
@@ -1163,7 +1166,8 @@ var BitmapInfo = /** @class */ (function (_super) {
         }
         else {
             _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            var masks = _this._header.compression
+                === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 _this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
@@ -1479,7 +1483,8 @@ var Pen = /** @class */ (function (_super) {
         return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
     };
     Pen.prototype.toString = function () {
-        return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
+        return "{style: " + this.style + ", width: " + this.width
+            + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
     };
     return Pen;
 }(Obj));
@@ -1574,7 +1579,8 @@ var EmfHeader = /** @class */ (function () {
         }
     }
     EmfHeader.prototype.toString = function () {
-        return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString() + ", description: " + this.description + "}";
+        return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString()
+            + ", description: " + this.description + "}";
     };
     return EmfHeader;
 }());
@@ -2019,7 +2025,8 @@ var EMFRecords = /** @class */ (function () {
                             break;
                         }
                     }
-                    Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
+                    Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
+                        + curpos.toString(16) + " with " + size + " bytes");
                     break;
                 }
             }
@@ -2244,11 +2251,13 @@ var GDIContext = /** @class */ (function () {
                 preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             }
             else {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " without clipping");
             }
             this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
         }
@@ -2523,7 +2532,8 @@ var GDIContext = /** @class */ (function () {
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                     case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        opts["stroke-dasharray"] =
+                            [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                 }
             }
@@ -2556,14 +2566,16 @@ var GDIContext = /** @class */ (function () {
         return opts;
     };
     GDIContext.prototype.rectangle = function (rect, rw, rh) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
         var top = this._todevY(rect.top);
         var left = this._todevX(rect.left);
         rw = this._todevH(rw);
         rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
         this._pushGroup();
         var opts = this._applyOpts(null, true, true, false);
         this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
@@ -2592,7 +2604,8 @@ var GDIContext = /** @class */ (function () {
         }
     };
     GDIContext.prototype.polygon = function (points, bounds, first) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
@@ -2608,14 +2621,16 @@ var GDIContext = /** @class */ (function () {
         this._svg.polygon(this.state._svggroup, pts, opts);
     };
     GDIContext.prototype.polyPolygon = function (polygons, bounds) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
         for (var i = 0; i < cnt; i++) {
             this.polygon(polygons[i], bounds, i === 0);
         }
     };
     GDIContext.prototype.polyline = function (isLineTo, points, bounds) {
-        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points
+            + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
@@ -2650,7 +2665,8 @@ var GDIContext = /** @class */ (function () {
         }
     };
     GDIContext.prototype.polybezier = function (isPolyBezierTo, points, bounds) {
-        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points
+            + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
@@ -2743,10 +2759,12 @@ var GDIContext = /** @class */ (function () {
         var obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         }
         else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     };
     GDIContext.prototype._abortPath = function () {

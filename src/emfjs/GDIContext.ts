@@ -252,10 +252,12 @@ export class GDIContext {
                 preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             } else {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw
+                    + " height=" + this.state.vh + " without clipping");
             }
             this.state._svggroup = this._svg.svg(this.state._svggroup,
                 this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
@@ -319,8 +321,11 @@ export class GDIContext {
         const sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
         switch (region.complexity) {
             case 1:
-                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top),
-                    this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top),
+                this._svg.rect(sclip,
+                    this._todevX(region.bounds.left),
+                    this._todevY(region.bounds.top),
+                    this._todevW(region.bounds.right - region.bounds.left),
+                    this._todevH(region.bounds.bottom - region.bounds.top),
                     { fill: "black", strokeWidth: 0 });
                 break;
             case 2:
@@ -365,7 +370,8 @@ export class GDIContext {
         }
 
         const id = Helper._makeUniqueId("p");
-        const spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height, {patternUnits: "userSpaceOnUse"});
+        const spat = this._svg.pattern(this._getSvgDef(), id, this.state.brx, this.state.bry, width, height,
+            {patternUnits: "userSpaceOnUse"});
         this._svg.image(spat, 0, 0, width, height, img);
         this._svgPatterns[id] = brush;
         return id;
@@ -410,7 +416,8 @@ export class GDIContext {
             if (this.state.selected.region != null) {
                 this.state.clip = this.state.selected.region.clone();
             } else {
-                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+                this.state.clip = CreateSimpleRegion(this.state.wx, this.state.wy, this.state.wx + this.state.ww,
+                    this.state.wy + this.state.wh);
             }
         }
         this.state.ownclip = true;
@@ -565,7 +572,8 @@ export class GDIContext {
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                     case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        opts["stroke-dasharray"] =
+                            [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                 }
             }
@@ -599,14 +607,16 @@ export class GDIContext {
     }
 
     rectangle(rect: RectL, rw: number, rh: number) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         const bottom = this._todevY(rect.bottom);
         const right = this._todevX(rect.right);
         const top = this._todevY(rect.top);
         const left = this._todevX(rect.left);
         rw = this._todevH(rw);
         rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
         this._pushGroup();
 
         const opts = this._applyOpts(null, true, true, false);
@@ -642,7 +652,8 @@ export class GDIContext {
     }
 
     polygon(points: PointS[] | PointL[], bounds: RectL, first: boolean) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         const pts = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -659,7 +670,8 @@ export class GDIContext {
     }
 
     polyPolygon(polygons: PointS[][] | PointL[][], bounds: RectL) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
 
         const cnt = polygons.length;
         for (let i = 0; i < cnt; i++) {
@@ -668,7 +680,8 @@ export class GDIContext {
     }
 
     polyline(isLineTo: boolean, points: PointS[], bounds: RectL) {
-        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points
+            + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         const pts = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -704,7 +717,8 @@ export class GDIContext {
     }
 
     polybezier(isPolyBezierTo: boolean, points: PointS[], bounds: RectL) {
-        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
+        Helper.log("[gdi] polybezier: isPolyBezierTo=" + isPolyBezierTo.toString() + ", points=" + points
+            + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
         const pts = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -812,9 +826,11 @@ export class GDIContext {
         const obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         } else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     }
 

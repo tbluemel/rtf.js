@@ -262,7 +262,8 @@ export class Pen extends Obj {
     }
 
     toString() {
-        return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
+        return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString()
+            + ", linecap: " + this.linecap + ", join: " + this.join + "}";
     }
 }
 

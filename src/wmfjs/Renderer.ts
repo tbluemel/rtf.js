@@ -125,7 +125,8 @@ export class WMFRect16 {
     }
 
     toString() {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     }
 }
 

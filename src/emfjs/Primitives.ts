@@ -99,7 +99,8 @@ export class RectL {
     }
 
     toString() {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     }
 
     empty() {
@@ -114,7 +115,8 @@ export class RectL {
             this.right <= rectL.left || this.bottom <= rectL.top) {
             return null;
         }
-        return new RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top), Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
+        return new RectL(null, Math.max(this.left, rectL.left), Math.max(this.top, rectL.top),
+            Math.min(this.right, rectL.right), Math.min(this.bottom, rectL.bottom));
     }
 }
 

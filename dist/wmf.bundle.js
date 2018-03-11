@@ -495,7 +495,8 @@ var Rect = /** @class */ (function () {
         return new Rect(null, this.left, this.top, this.right, this.bottom);
     };
     Rect.prototype.toString = function () {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     };
     Rect.prototype.empty = function () {
         return this.left >= this.right || this.top >= this.bottom;
@@ -610,7 +611,9 @@ var Region = /** @class */ (function (_super) {
     };
     Region.prototype.toString = function () {
         var _complexity = ["null", "simple", "complex"];
-        return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+        return "{complexity: " + _complexity[this.complexity]
+            + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
+            + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     };
     Region.prototype._updateComplexity = function () {
         if (this.bounds == null) {
@@ -1442,7 +1445,8 @@ var Pen = /** @class */ (function (_super) {
         return new Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
     };
     Pen.prototype.toString = function () {
-        return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString() + ", linecap: " + this.linecap + ", join: " + this.join + "}";
+        return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString()
+            + ", linecap: " + this.linecap + ", join: " + this.join + "}";
     };
     return Pen;
 }(Obj));
@@ -1610,11 +1614,13 @@ var GDIContext = /** @class */ (function () {
                 preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             }
             else {
-                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+                Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
             }
             this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
         }
@@ -1850,7 +1856,9 @@ var GDIContext = /** @class */ (function () {
         Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
     };
     GDIContext.prototype.stretchDib = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
-        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+        Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
         srcW = this._todevW(srcW);
@@ -1859,12 +1867,16 @@ var GDIContext = /** @class */ (function () {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+        Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
     GDIContext.prototype.stretchDibBits = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
-        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
         srcY = this._todevY(srcY);
         srcW = this._todevW(srcW);
@@ -1873,7 +1885,10 @@ var GDIContext = /** @class */ (function () {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        Helper.log("[gdi] stretchDibBits: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH + " rasterOp=0x" + rasterOp.toString(16));
+        Helper.log("[gdi] stretchDibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
@@ -1920,7 +1935,8 @@ var GDIContext = /** @class */ (function () {
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                     case Helper.GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        opts["stroke-dasharray"]
+                            = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
                 }
             }
@@ -1953,20 +1969,23 @@ var GDIContext = /** @class */ (function () {
         return opts;
     };
     GDIContext.prototype.rectangle = function (rect, rw, rh) {
-        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
         var top = this._todevY(rect.top);
         var left = this._todevX(rect.left);
         rw = this._todevH(rw);
         rh = this._todevH(rh);
-        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left + " rh=" + rh + " rw=" + rw);
+        Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
         this._pushGroup();
         var opts = this._applyOpts(null, true, true, false);
         this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
     };
     GDIContext.prototype.textOut = function (x, y, text) {
-        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+        Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
         Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
@@ -1989,7 +2008,8 @@ var GDIContext = /** @class */ (function () {
         this._svg.text(this.state._svggroup, x, y, text, opts);
     };
     GDIContext.prototype.extTextOut = function (x, y, text, fwOpts, rect, dx) {
-        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text + " with font " + this.state.selected.font.toString());
+        Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
         Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
@@ -2031,7 +2051,8 @@ var GDIContext = /** @class */ (function () {
         this.state.y = y;
     };
     GDIContext.prototype.polygon = function (points, first) {
-        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
@@ -2048,7 +2069,9 @@ var GDIContext = /** @class */ (function () {
         this._svg.polygon(this.state._svggroup, pts, opts);
     };
     GDIContext.prototype.polyPolygon = function (polygons) {
-        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
         for (var i = 0; i < cnt; i++) {
             this.polygon(polygons[i], i === 0);
@@ -2067,7 +2090,8 @@ var GDIContext = /** @class */ (function () {
         this._svg.polyline(this.state._svggroup, pts, opts);
     };
     GDIContext.prototype.ellipse = function (rect) {
-        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString() + " and brush " + this.state.selected.brush.toString());
+        Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
         var top = this._todevY(rect.top);
@@ -2140,10 +2164,12 @@ var GDIContext = /** @class */ (function () {
         var obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         }
         else {
-            Helper.log("[gdi] selectObject: objIdx=" + objIdx + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+            Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     };
     GDIContext.prototype.deleteObject = function (objIdx) {
@@ -2624,7 +2650,8 @@ var WMFRecords = /** @class */ (function () {
                             break;
                         }
                     }
-                    Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
+                    Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
+                        + curpos.toString(16) + " with " + (size * 2) + " bytes");
                     break;
                 }
             }
@@ -2755,7 +2782,8 @@ var WMFRect16 = /** @class */ (function () {
         this.bottom = reader.readInt16();
     }
     WMFRect16.prototype.toString = function () {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     };
     return WMFRect16;
 }());

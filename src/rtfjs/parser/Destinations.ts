@@ -172,7 +172,7 @@ export class RtfDestination extends DestinationBase {
         hich: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
         dbch: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
         strike: this._genericFormatOnOff("chp", "strikethrough"),
-        striked: this._genericFormatOnOff("chp", "dblstrikethrough"), // TODO: reject param == null in this particular case?
+        striked: this._genericFormatOnOff("chp", "dblstrikethrough"),
         ul: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
         uld: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
         uldash: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
@@ -185,8 +185,10 @@ export class RtfDestination extends DestinationBase {
         ulth: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
         ulthd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
         ulthdash: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
-        ulthdashd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
-        ulthdashdd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
+        ulthdashd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED,
+            Helper.UNDERLINE.NONE),
+        ulthdashdd: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED,
+            Helper.UNDERLINE.NONE),
         ululdbwave: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
         ulw: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
         ulwave: this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
@@ -294,7 +296,8 @@ export class RtfDestination extends DestinationBase {
     _genericFormatOnOff(ptype: string, prop: string, onval?: string, offval?: string) {
         return (param: number) => {
             const props = this.parser.state[ptype];
-            props[prop] = (param == null || param !== 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            props[prop] = (param == null || param !== 0)
+                ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             this._addFormatIns(ptype, props);
         };
@@ -371,7 +374,8 @@ export class GenericPropertyDestinationFactory extends DestinationFactory<IGener
             apply() {
                 const dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
-                    throw new RTFJSError("IDestination " + this._name + " must be within " + parentdest + " destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within "
+                        + parentdest + " destination");
                 }
                 if (dest.setMetadata == null) {
                     throw new RTFJSError("IDestination " + parentdest + " does not accept meta data");
@@ -635,7 +639,8 @@ export class FonttblDestination extends DestinationBase {
     apply() {
         Helper.log("[fonttbl] apply()");
         for (const idx in this._fonts) {
-            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
+            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
+                + " alternative: " + this._fonts[idx].altfontname);
         }
         this.inst._fonts = this._fonts;
         delete this._fonts;
@@ -685,7 +690,8 @@ export class GenericSubTextPropertyDestinationFactory extends DestinationFactory
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] == null) {
-                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc
+                        + " in " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] instanceof Function) {
                     dest[propOrFunc](this.text);
@@ -806,7 +812,9 @@ export class ColortblDestination extends DestinationBase {
             throw new RTFJSError("colortbl doesn't define auto color");
         }
         for (const idx in this._colors) {
-            Helper.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
+            Helper.log("[colortbl] [" + idx + "] = "
+                + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b
+                + " theme: " + this._colors[idx].theme);
         }
         this.inst._colors = this._colors;
         this.inst._autoColor = this._autoIndex;
@@ -1082,10 +1090,12 @@ export class FldinstDestination extends DestinationTextBase {
                         const promise: Promise<IField | null> = new Promise((resolve, reject) => {
                             try {
                                 const cb = ({error, keyword, blob, width, height}
-                                        : {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) => {
+                                        : {error?: Error, keyword?: string, blob?: ArrayBuffer,
+                                            width?: number, height?: number}) => {
                                     if (!error && typeof keyword === "string" && keyword && blob) {
                                         const dims = {
-                                            w: Helper._pxToTwips(width  || window.document.body.clientWidth || window.innerWidth),
+                                            w: Helper._pxToTwips(width  || window.document.body.clientWidth
+                                                || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
                                         pict = new PictDestination(this.parser, this.inst);
@@ -1204,7 +1214,8 @@ export class PictDestination extends DestinationTextBase {
         pichgoal: this._setPropValueRequired("_displaysize", "height"),
     };
 
-    _pictTypeHandler: {[key: string]: string | ((param?: number) => {load: () => any, render: (img: any) => JQuery})} = {
+    _pictTypeHandler
+        : {[key: string]: string | ((param?: number) => {load: () => any, render: (img: any) => JQuery})} = {
         emfblip: (() => {
             if (typeof EMFJS !== "undefined") {
                 return () => {
@@ -1476,7 +1487,10 @@ export class RequiredDestinationFactory extends DestinationFactory<IRequiredDest
     }
 }
 
-export const destinations: {[key: string]: ({ new (parser: GlobalState, inst: Document, name: string, param: number): any } | DestinationFactory<any>)} = {
+export const destinations
+    : {[key: string]
+        : ({ new (parser: GlobalState, inst: Document, name: string, param: number): any }
+            | DestinationFactory<any>)} = {
     rtf: RtfDestination,
     info: InfoDestination,
     title: new MetaPropertyDestinationFactory("title"),

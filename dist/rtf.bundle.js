@@ -7958,7 +7958,8 @@ var RtfDestination = /** @class */ (function (_super) {
         var _this = this;
         return function (param) {
             var props = _this.parser.state[ptype];
-            props[prop] = (param == null || param !== 0) ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            props[prop] = (param == null || param !== 0)
+                ? (onval != null ? onval : true) : (offval != null ? offval : false);
             Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
@@ -8030,7 +8031,8 @@ var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
             class_1.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
-                    throw new RTFJSError("IDestination " + this._name + " must be within " + parentdest + " destination");
+                    throw new RTFJSError("IDestination " + this._name + " must be within "
+                        + parentdest + " destination");
                 }
                 if (dest.setMetadata == null) {
                     throw new RTFJSError("IDestination " + parentdest + " does not accept meta data");
@@ -8257,7 +8259,8 @@ var FonttblDestination = /** @class */ (function (_super) {
     FonttblDestination.prototype.apply = function () {
         Helper.log("[fonttbl] apply()");
         for (var idx in this._fonts) {
-            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname + " alternative: " + this._fonts[idx].altfontname);
+            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
+                + " alternative: " + this._fonts[idx].altfontname);
         }
         this.inst._fonts = this._fonts;
         delete this._fonts;
@@ -8297,7 +8300,8 @@ var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] == null) {
-                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc + " in " + parentDest + " destination");
+                    throw new RTFJSError(this._name + " destination cannot find member + " + propOrFunc
+                        + " in " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] instanceof Function) {
                     dest[propOrFunc](this.text);
@@ -8403,7 +8407,9 @@ var ColortblDestination = /** @class */ (function (_super) {
             throw new RTFJSError("colortbl doesn't define auto color");
         }
         for (var idx in this._colors) {
-            Helper.log("[colortbl] [" + idx + "] = " + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b + " theme: " + this._colors[idx].theme);
+            Helper.log("[colortbl] [" + idx + "] = "
+                + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b
+                + " theme: " + this._colors[idx].theme);
         }
         this.inst._colors = this._colors;
         this.inst._autoColor = this._autoIndex;
@@ -8647,7 +8653,8 @@ var FldinstDestination = /** @class */ (function (_super) {
                                     var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
                                     if (!error && typeof keyword === "string" && keyword && blob) {
                                         var dims = {
-                                            w: Helper._pxToTwips(width || window.document.body.clientWidth || window.innerWidth),
+                                            w: Helper._pxToTwips(width || window.document.body.clientWidth
+                                                || window.innerWidth),
                                             h: Helper._pxToTwips(height || 300),
                                         };
                                         pict_1 = new PictDestination(_this.parser, _this.inst);
@@ -9153,7 +9160,8 @@ var Parser = /** @class */ (function () {
     Parser.prototype.applyDestination = function (always) {
         var dest = this.parser.state.destination;
         if (dest != null) {
-            if (always || this.parser.state.parent == null || this.parser.state.parent.destination !== this.parser.state.destination) {
+            if (always || this.parser.state.parent == null
+                || this.parser.state.parent.destination !== this.parser.state.destination) {
                 if (dest.apply != null) {
                     dest.apply();
                 }

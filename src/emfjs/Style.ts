@@ -154,7 +154,8 @@ export class Brush extends Obj {
     dibpatternpt: DIBitmap;
     hatchstyle: number;
 
-    constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap, dibpatternpt?: DIBitmap, hatchstyle?: number}) {
+    constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap,
+        dibpatternpt?: DIBitmap, hatchstyle?: number}) {
         super("brush");
         if (reader != null) {
             const start = reader.pos;
@@ -253,10 +254,12 @@ export class Pen extends Obj {
     }
 
     clone() {
-        return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null, this.brush != null ? this.brush.clone() : null);
+        return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null,
+            this.brush != null ? this.brush.clone() : null);
     }
 
     toString() {
-        return "{style: " + this.style + ", width: " + this.width + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
+        return "{style: " + this.style + ", width: " + this.width
+            + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
     }
 }

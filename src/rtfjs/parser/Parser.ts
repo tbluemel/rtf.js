@@ -93,7 +93,8 @@ export class Parser {
     private applyDestination(always: boolean) {
         const dest = this.parser.state.destination;
         if (dest != null) {
-            if (always || this.parser.state.parent == null || this.parser.state.parent.destination !== this.parser.state.destination) {
+            if (always || this.parser.state.parent == null
+                || this.parser.state.parent.destination !== this.parser.state.destination) {
                 if (dest.apply != null) {
                     dest.apply();
                 }

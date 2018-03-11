@@ -79,7 +79,9 @@ export class Region extends Obj {
 
     toString() {
         const _complexity = ["null", "simple", "complex"];
-        return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+        return "{complexity: " + _complexity[this.complexity]
+            + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
+            + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     }
 
     _updateComplexity() {
@@ -332,7 +334,8 @@ export class Scan {
     bottom: number;
     scanlines: Array<{left: number, right: number}>;
 
-    constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number, scanlines?: Array<{left: number, right: number}>) {
+    constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number,
+                scanlines?: Array<{left: number, right: number}>) {
         if (reader != null) {
             const cnt = reader.readUint16();
             this.top = reader.readUint16();

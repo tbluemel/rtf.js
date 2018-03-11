@@ -75,7 +75,8 @@ export class Rect {
     }
 
     toString() {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right + ", bottom: " + this.bottom + "}";
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
     }
 
     empty() {
@@ -90,7 +91,8 @@ export class Rect {
             this.right <= rect.left || this.bottom <= rect.top) {
             return null;
         }
-        return new Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top), Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
+        return new Rect(null, Math.max(this.left, rect.left), Math.max(this.top, rect.top),
+            Math.min(this.right, rect.right), Math.min(this.bottom, rect.bottom));
     }
 }
 

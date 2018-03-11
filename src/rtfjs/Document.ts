@@ -31,7 +31,8 @@ import { Renderer } from "./Renderer";
 export interface ISettings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
     onPicture?(isLegacy: boolean, create: () => void): void;
-    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer, width?: number, height?: number}) => void): void;
+    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
+        width?: number, height?: number}) => void): void;
 }
 export class Document {
     _settings: ISettings;

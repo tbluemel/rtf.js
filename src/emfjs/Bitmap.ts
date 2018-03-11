@@ -114,7 +114,8 @@ export class BitmapInfo extends BitmapBase {
             this._infosize += this._header.colors() * (usergb ? 3 : 2);
         } else {
             this._header = new BitmapInfoHeader(reader, false);
-            const masks = (this._header as BitmapInfoHeader).compression === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            const masks = (this._header as BitmapInfoHeader).compression
+                === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }

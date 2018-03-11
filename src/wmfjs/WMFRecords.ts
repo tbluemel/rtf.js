@@ -488,7 +488,8 @@ export class WMFRecords {
                             break;
                         }
                     }
-                    Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + (size * 2) + " bytes");
+                    Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
+                        + curpos.toString(16) + " with " + (size * 2) + " bytes");
                     break;
                 }
             }

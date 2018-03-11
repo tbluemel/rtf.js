@@ -85,7 +85,9 @@ export class Region extends Obj {
 
     toString() {
         const _complexity = ["null", "simple", "complex"];
-        return "{complexity: " + _complexity[this.complexity] + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]") + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
+        return "{complexity: " + _complexity[this.complexity]
+            + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
+            + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     }
 
     _updateComplexity() {
@@ -124,7 +126,8 @@ export class Region extends Obj {
                     // We need to create scanlines now.  Simplest method is to fake one scan line
                     // that equals the simple region and re-use the same logic as for complex regions
                     this.scans = [];
-                    this.scans.push(new Scan(new RectL(null, this.bounds.left, this.bounds.top, this.bounds.right, this.bounds.bottom)));
+                    this.scans.push(new Scan(new RectL(null, this.bounds.left, this.bounds.top,
+                        this.bounds.right, this.bounds.bottom)));
                     this.complexity = 2;
                 }
 

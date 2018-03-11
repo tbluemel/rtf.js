@@ -117,7 +117,8 @@ export class EmfHeader {
     }
 
     toString() {
-        return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString() + ", description: " + this.description + "}";
+        return "{bounds: " + this.bounds.toString() + ", frame: " + this.frame.toString()
+            + ", description: " + this.description + "}";
     }
 }
 
@@ -569,7 +570,8 @@ export class EMFRecords {
                             break;
                         }
                     }
-                    Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x" + curpos.toString(16) + " with " + size + " bytes");
+                    Helper.log("[EMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
+                        + curpos.toString(16) + " with " + size + " bytes");
                     break;
                 }
             }
