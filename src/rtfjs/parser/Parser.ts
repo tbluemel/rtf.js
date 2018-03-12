@@ -148,11 +148,11 @@ export class Parser {
 
         if (this.parser.state !== null) {
             const currentState = this.parser.state;
-            this.inst._ins.push(function(this: Renderer) {
-                this.setChp(new RenderChp(currentState.chp));
+            this.inst._ins.push((renderer) => {
+                renderer.setChp(new RenderChp(currentState.chp));
             });
-            this.inst._ins.push(function(this: Renderer) {
-                this.setPap(new RenderPap(currentState.pap));
+            this.inst._ins.push((renderer) => {
+                renderer.setPap(new RenderPap(currentState.pap));
             });
         }
         return this.parser.state;

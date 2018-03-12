@@ -116,11 +116,11 @@ export class RtfDestination extends DestinationBase {
         pgnstart: this._genericFormatSetVal("dop", "pagenumberstart", 1),
         facingp: this._genericFormatSetNoParam("dop", "facingpages", true),
         landscape: this._genericFormatSetNoParam("dop", "landscape", true),
-        par: this._addInsHandler(function() {
-            this.startPar();
+        par: this._addInsHandler((renderer) => {
+            renderer.startPar();
         }),
-        line: this._addInsHandler(function() {
-            this.lineBreak();
+        line: this._addInsHandler((renderer) => {
+            renderer.lineBreak();
         }),
     };
 
@@ -141,7 +141,7 @@ export class RtfDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public addIns(func: (this: Renderer) => void) {
+    public addIns(func: (renderer: Renderer) => void) {
         this.inst.addIns(func);
     }
 
@@ -175,7 +175,7 @@ export class RtfDestination extends DestinationBase {
         this._metadata[prop] = val;
     }
 
-    private _addInsHandler(func: (this: Renderer) => void) {
+    private _addInsHandler(func: (renderer: Renderer) => void) {
         return (param: number) => {
             this.inst.addIns(func);
         };
@@ -185,14 +185,14 @@ export class RtfDestination extends DestinationBase {
         switch (ptype) {
             case "chp":
                 const rchp = new RenderChp(new Chp(props as Chp));
-                this.inst.addIns(function() {
-                    this.setChp(rchp);
+                this.inst.addIns((renderer) => {
+                    renderer.setChp(rchp);
                 });
                 break;
             case "pap":
                 const rpap = new RenderPap(new Pap(props as Pap));
-                this.inst.addIns(function() {
-                    this.setPap(rpap);
+                this.inst.addIns((renderer) => {
+                    renderer.setPap(rpap);
                 });
                 break;
         }

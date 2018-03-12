@@ -8220,6 +8220,7 @@ var PictDestination = /** @class */ (function (_super) {
         this._blob = blob;
     };
     PictDestination.prototype.apply = function (rendering) {
+        var _this = this;
         if (rendering === void 0) { rendering = false; }
         if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
@@ -8237,18 +8238,18 @@ var PictDestination = /** @class */ (function (_super) {
                 }
                 delete this.text;
             }
-            var doRender_1 = function (render) {
-                var inst = this._doc;
+            var doRender_1 = function (renderer, render) {
+                var inst = renderer._doc;
                 var pictrender = type();
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
                         if (render) {
-                            return this.buildPicture(pictrender, null);
+                            return renderer.buildPicture(pictrender, null);
                         }
                         else {
-                            inst.addIns(function () {
-                                this.picture(pictrender, null);
+                            inst.addIns(function (rendererForPicture) {
+                                rendererForPicture.picture(pictrender, null);
                             });
                         }
                     }
@@ -8257,81 +8258,75 @@ var PictDestination = /** @class */ (function (_super) {
                             throw new RTFJSError("Expected a picture render function");
                         }
                         if (render) {
-                            return this.buildRenderedPicture(pictrender());
+                            return renderer.buildRenderedPicture(pictrender());
                         }
                         else {
-                            inst.addIns(function () {
-                                this.renderedPicture(pictrender());
+                            inst.addIns(function (rendererForPicture) {
+                                rendererForPicture.renderedPicture(pictrender());
                             });
                         }
                     }
                 }
             };
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function (legacy) {
-                    return function () {
-                        var inst = this._doc;
-                        var renderer = this;
-                        var elem = inst._settings.onPicture(legacy, function () {
-                            return doRender_1.call(renderer, true);
-                        });
-                        if (elem != null) {
-                            this.appendElement(elem);
-                        }
-                    };
-                })(isLegacy));
+                this.inst.addIns(function (renderer) {
+                    var inst = _this._doc;
+                    var elem = inst._settings.onPicture(isLegacy, function () {
+                        return doRender_1(renderer, true);
+                    });
+                    if (elem != null) {
+                        _this.appendElement(elem);
+                    }
+                });
             }
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender_1.call(this.parser.renderer, rendering),
+                    element: doRender_1(this.parser.renderer, rendering),
                 };
             }
         }
         else if (typeof type === "string") {
             var text_1 = this.text;
             var blob_1 = this._blob;
-            var doRender_2 = function (render) {
+            var doRender_2 = function (renderer, render) {
                 var bin = blob_1 != null ? Helper._blobToBinary(blob_1) : Helper._hexToBinary(text_1);
                 if (type !== "") {
                     if (render) {
-                        return this.buildPicture(type, bin);
+                        return renderer.buildPicture(type, bin);
                     }
                     else {
-                        this._doc.addIns(function () {
-                            this.picture(type, bin);
+                        renderer._doc.addIns(function (rendererForPicture) {
+                            rendererForPicture.picture(type, bin);
                         });
                     }
                 }
                 else {
                     if (render) {
-                        return this.buildPicture("Unsupported image format", null);
+                        return renderer.buildPicture("Unsupported image format", null);
                     }
                     else {
-                        this._doc.addIns(function () {
-                            this.picture("Unsupported image format", null);
+                        renderer._doc.addIns(function (rendererForPicture) {
+                            rendererForPicture.picture("Unsupported image format", null);
                         });
                     }
                 }
             };
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns((function (legacy) {
-                    return function () {
-                        var inst = this._doc;
-                        var renderer = this;
-                        var elem = inst._settings.onPicture(legacy, function () {
-                            return doRender_2.call(renderer, true);
-                        });
-                        if (elem != null) {
-                            this.appendElement(elem);
-                        }
-                    };
-                })(isLegacy));
+                this.inst.addIns(function (renderer) {
+                    var inst = _this._doc;
+                    var elem = inst._settings.onPicture(isLegacy, function () {
+                        return doRender_2(renderer, true);
+                    });
+                    if (elem != null) {
+                        _this.appendElement(elem);
+                    }
+                });
             }
             else {
                 return {
                     isLegacy: isLegacy,
-                    element: doRender_2.call(this.parser.renderer, rendering),
+                    element: doRender_2(this.parser.renderer, rendering),
                 };
             }
         }
@@ -8438,8 +8433,8 @@ var FieldBase = /** @class */ (function () {
     }
     FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
         if (records > 0) {
-            rtf.addIns(function () {
-                this.popContainer();
+            rtf.addIns(function (renderer) {
+                renderer.popContainer();
             });
         }
     };
@@ -8458,9 +8453,8 @@ var FieldHyperlink = /** @class */ (function (_super) {
     FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
         var self = this;
         if (records > 0) {
-            rtf.addIns(function () {
-                var inst = this._doc;
-                var renderer = this;
+            rtf.addIns(function (renderer) {
+                var inst = renderer._doc;
                 var create = function () {
                     return renderer.buildHyperlinkElement(self._url);
                 };
@@ -8479,7 +8473,7 @@ var FieldHyperlink = /** @class */ (function (_super) {
                         content: elem,
                     };
                 }
-                this.pushContainer(container);
+                renderer.pushContainer(container);
             });
             return true;
         }
@@ -8520,8 +8514,8 @@ var FldinstDestination = /** @class */ (function (_super) {
                 case "IMPORT":
                     if (typeof this.inst._settings.onImport === "function") {
                         var pict_1;
-                        this.inst.addIns(function () {
-                            var inst = this._doc;
+                        this.inst.addIns(function (renderer) {
+                            var inst = renderer._doc;
                             // backup
                             var hook = inst._settings.onPicture;
                             inst._settings.onPicture = null;
@@ -8533,7 +8527,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                                 element = hook(isLegacy, function () { return element; });
                             }
                             if (element != null) {
-                                this.appendElement(element);
+                                renderer.appendElement(element);
                             }
                         });
                         var promise = new Promise(function (resolve, reject) {
@@ -9043,11 +9037,11 @@ var RtfDestination = /** @class */ (function (_super) {
             pgnstart: _this._genericFormatSetVal("dop", "pagenumberstart", 1),
             facingp: _this._genericFormatSetNoParam("dop", "facingpages", true),
             landscape: _this._genericFormatSetNoParam("dop", "landscape", true),
-            par: _this._addInsHandler(function () {
-                this.startPar();
+            par: _this._addInsHandler(function (renderer) {
+                renderer.startPar();
             }),
-            line: _this._addInsHandler(function () {
-                this.lineBreak();
+            line: _this._addInsHandler(function (renderer) {
+                renderer.lineBreak();
             }),
         };
         if (parser.version != null) {
@@ -9101,14 +9095,14 @@ var RtfDestination = /** @class */ (function (_super) {
         switch (ptype) {
             case "chp":
                 var rchp_1 = new RenderChp(new Chp(props));
-                this.inst.addIns(function () {
-                    this.setChp(rchp_1);
+                this.inst.addIns(function (renderer) {
+                    renderer.setChp(rchp_1);
                 });
                 break;
             case "pap":
                 var rpap_1 = new RenderPap(new Pap(props));
-                this.inst.addIns(function () {
-                    this.setPap(rpap_1);
+                this.inst.addIns(function (renderer) {
+                    renderer.setPap(rpap_1);
                 });
                 break;
         }
@@ -9481,11 +9475,11 @@ var Parser = /** @class */ (function () {
         this.parser.state = state.parent;
         if (this.parser.state !== null) {
             var currentState_1 = this.parser.state;
-            this.inst._ins.push(function () {
-                this.setChp(new RenderChp(currentState_1.chp));
+            this.inst._ins.push(function (renderer) {
+                renderer.setChp(new RenderChp(currentState_1.chp));
             });
-            this.inst._ins.push(function () {
-                this.setPap(new RenderPap(currentState_1.pap));
+            this.inst._ins.push(function (renderer) {
+                renderer.setPap(new RenderPap(currentState_1.pap));
             });
         }
         return this.parser.state;
@@ -9935,7 +9929,7 @@ var Renderer = /** @class */ (function () {
                 this._appendToPar(span.text(ins));
             }
             else {
-                ins.call(this);
+                ins(this);
             }
         }
         return this._dom;

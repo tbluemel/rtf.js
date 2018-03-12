@@ -218,17 +218,17 @@ export class PictDestination extends DestinationTextBase {
                 delete this.text;
             }
 
-            const doRender = function(this: Renderer, render: boolean) {
-                const inst = this._doc;
+            const doRender = (renderer: Renderer, render: boolean) => {
+                const inst = renderer._doc;
                 const pictrender = (type as (() => any))();
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
                         if (render) {
-                            return this.buildPicture(pictrender, null);
+                            return renderer.buildPicture(pictrender, null);
                         } else {
-                            inst.addIns(function() {
-                                this.picture(pictrender, null);
+                            inst.addIns((rendererForPicture) => {
+                                rendererForPicture.picture(pictrender, null);
                             });
                         }
                     } else {
@@ -236,10 +236,10 @@ export class PictDestination extends DestinationTextBase {
                             throw new RTFJSError("Expected a picture render function");
                         }
                         if (render) {
-                            return this.buildRenderedPicture(pictrender());
+                            return renderer.buildRenderedPicture(pictrender());
                         } else {
-                            inst.addIns(function() {
-                                this.renderedPicture(pictrender());
+                            inst.addIns((rendererForPicture) => {
+                                rendererForPicture.renderedPicture(pictrender());
                             });
                         }
                     }
@@ -247,66 +247,60 @@ export class PictDestination extends DestinationTextBase {
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns(((legacy) => {
-                    return function(this: Renderer) {
+                this.inst.addIns((renderer) => {
                         const inst = this._doc;
-                        const renderer = this;
-                        const elem = inst._settings.onPicture(legacy, () => {
-                            return doRender.call(renderer, true);
+                        const elem = inst._settings.onPicture(isLegacy, () => {
+                            return doRender(renderer, true);
                         });
                         if (elem != null) {
                             this.appendElement(elem);
                         }
-                    };
-                })(isLegacy));
+                    });
             } else {
                 return {
                     isLegacy,
-                    element: doRender.call(this.parser.renderer, rendering),
+                    element: doRender(this.parser.renderer, rendering),
                 };
             }
         } else if (typeof type === "string") {
             const text = this.text;
             const blob = this._blob;
 
-            const doRender = function(this: Renderer, render: boolean) {
+            const doRender = (renderer: Renderer, render: boolean) => {
                 const bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
                     if (render) {
-                        return this.buildPicture(type as string, bin);
+                        return renderer.buildPicture(type as string, bin);
                     } else {
-                        this._doc.addIns(function() {
-                            this.picture(type as string, bin);
+                        renderer._doc.addIns((rendererForPicture) => {
+                            rendererForPicture.picture(type as string, bin);
                         });
                     }
                 } else {
                     if (render) {
-                        return this.buildPicture("Unsupported image format", null);
+                        return renderer.buildPicture("Unsupported image format", null);
                     } else {
-                        this._doc.addIns(function() {
-                            this.picture("Unsupported image format", null);
+                        renderer._doc.addIns((rendererForPicture) => {
+                            rendererForPicture.picture("Unsupported image format", null);
                         });
                     }
                 }
             };
 
             if (this.inst._settings.onPicture != null) {
-                this.inst.addIns(((legacy) => {
-                    return function(this: Renderer) {
+                this.inst.addIns((renderer) => {
                         const inst = this._doc;
-                        const renderer = this;
-                        const elem = inst._settings.onPicture(legacy, () => {
-                            return doRender.call(renderer, true);
+                        const elem = inst._settings.onPicture(isLegacy, () => {
+                            return doRender(renderer, true);
                         });
                         if (elem != null) {
                             this.appendElement(elem);
                         }
-                    };
-                })(isLegacy));
+                    });
             } else {
                 return {
                     isLegacy,
-                    element: doRender.call(this.parser.renderer, rendering),
+                    element: doRender(this.parser.renderer, rendering),
                 };
             }
         }

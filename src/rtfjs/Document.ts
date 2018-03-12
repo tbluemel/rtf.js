@@ -42,7 +42,7 @@ export class Document {
     public _colors: IColor[];
     public _autoColor: number;
     public _stylesheets: Array<{index: number, name: string}>;
-    public _ins: Array<string | ((this: Renderer) => void)>;
+    public _ins: Array<string | ((renderer: Renderer) => void)>;
 
     constructor(settings: ISettings) {
         this._settings = settings || {};
@@ -67,7 +67,7 @@ export class Document {
         return this._colors[idx];
     }
 
-    public addIns(ins: string | ((this: Renderer) => void)) {
+    public addIns(ins: string | ((renderer: Renderer) => void)) {
         this._ins.push(ins);
     }
 

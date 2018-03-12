@@ -101,8 +101,8 @@ export class FieldBase {
 
     public renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number) {
         if (records > 0) {
-            rtf.addIns(function() {
-                this.popContainer();
+            rtf.addIns((renderer) => {
+                renderer.popContainer();
             });
         }
     }
@@ -123,9 +123,8 @@ export class FieldHyperlink extends FieldBase {
     public renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number) {
         const self = this;
         if (records > 0) {
-            rtf.addIns(function() {
-                const inst = this._doc;
-                const renderer = this;
+            rtf.addIns((renderer) => {
+                const inst = renderer._doc;
                 const create = () => {
                     return renderer.buildHyperlinkElement(self._url);
                 };
@@ -144,7 +143,7 @@ export class FieldHyperlink extends FieldBase {
                         content: elem,
                     };
                 }
-                this.pushContainer(container);
+                renderer.pushContainer(container);
             });
             return true;
         }
@@ -188,8 +187,8 @@ export class FldinstDestination extends DestinationTextBase {
                     if (typeof this.inst._settings.onImport === "function") {
                         let pict: PictDestination;
 
-                        this.inst.addIns(function() {
-                            const inst = this._doc;
+                        this.inst.addIns((renderer) => {
+                            const inst = renderer._doc;
                             // backup
                             const hook = inst._settings.onPicture;
                             inst._settings.onPicture = null;
@@ -205,7 +204,7 @@ export class FldinstDestination extends DestinationTextBase {
                             }
 
                             if (element != null) {
-                                this.appendElement(element);
+                                renderer.appendElement(element);
                             }
                         });
 

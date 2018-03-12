@@ -200,7 +200,7 @@ export class Renderer {
                 }
                 this._appendToPar(span.text(ins));
             } else {
-                ins.call(this);
+                ins(this);
             }
         }
         return this._dom;
