@@ -7596,136 +7596,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var RenderChp = /** @class */ (function () {
-    function RenderChp(chp) {
-        this._chp = chp;
-    }
-    RenderChp.prototype.apply = function (doc, el) {
-        if (this._chp.bold) {
-            el.css("font-weight", "bold");
-        }
-        if (this._chp.italic) {
-            el.css("font-style", "italic");
-        }
-        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
-            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol") {
-                el.css("font-family", fontFamily);
-            }
-        }
-        var deco = [];
-        if (this._chp.underline !== Helper.UNDERLINE.NONE) {
-            deco.push("underline");
-        }
-        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
-            deco.push("line-through");
-        }
-        if (deco.length > 0) {
-            el.css("text-decoration", deco.join(" "));
-        }
-        if (this._chp.colorindex !== 0) {
-            var color = doc._lookupColor(this._chp.colorindex);
-            if (color != null) {
-                el.css("color", Helper._colorToStr(color));
-            }
-        }
-        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
-    };
-    return RenderChp;
-}());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var RenderPap = /** @class */ (function () {
-    function RenderPap(pap) {
-        this._pap = pap;
-    }
-    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        if (ismaindiv) {
-            if (this._pap.spacebefore !== 0) {
-                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
-            }
-            else {
-                el.css("margin-top", "");
-            }
-            if (this._pap.spaceafter !== 0) {
-                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
-            }
-            else {
-                el.css("margin-bottom", "");
-            }
-            if (rchp != null) {
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
-            }
-        }
-        else {
-            switch (this._pap.justification) {
-                case Helper.JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
-                    break;
-                case Helper.JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
-                    break;
-                case Helper.JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
-                    break;
-                case Helper.JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
-                    break;
-            }
-        }
-    };
-    return RenderPap;
-}());
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -7811,210 +7681,6 @@ var DestinationFormattedTextBase = /** @class */ (function () {
     };
     return DestinationFormattedTextBase;
 }());
-var RtfDestination = /** @class */ (function (_super) {
-    __extends(RtfDestination, _super);
-    function RtfDestination(parser, inst, name, param) {
-        var _this = _super.call(this, name) || this;
-        _this._charFormatHandlers = {
-            ansicpg: function (param) {
-                // if the value is 0, use the default charset as 0 is not valid
-                if (param > 0) {
-                    Helper.log("[rtf] using charset: " + param);
-                    _this.parser.codepage = param;
-                }
-            },
-            sectd: function () {
-                Helper.log("[rtf] reset to section defaults");
-                _this.parser.state.sep = new Sep(null);
-            },
-            plain: function () {
-                Helper.log("[rtf] reset to character defaults");
-                _this.parser.state.chp = new Chp(null);
-            },
-            pard: function () {
-                Helper.log("[rtf] reset to paragraph defaults");
-                _this.parser.state.pap = new Pap(null);
-            },
-            b: _this._genericFormatOnOff("chp", "bold"),
-            i: _this._genericFormatOnOff("chp", "italic"),
-            cf: _this._genericFormatSetValRequired("chp", "colorindex"),
-            fs: _this._genericFormatSetValRequired("chp", "fontsize"),
-            f: _this._genericFormatSetValRequired("chp", "fontfamily"),
-            loch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
-            hich: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
-            dbch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
-            strike: _this._genericFormatOnOff("chp", "strikethrough"),
-            striked: _this._genericFormatOnOff("chp", "dblstrikethrough"),
-            ul: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
-            uld: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
-            uldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
-            uldashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
-            uldashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
-            uldb: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
-            ulhwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
-            ulldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
-            ulnone: _this._genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
-            ulth: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
-            ulthd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
-            ulthdash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
-            ulthdashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
-            ulthdashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
-            ululdbwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
-            ulw: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
-            ulwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
-            li: _this._genericFormatSetMemberVal("pap", "indent", "left", 0),
-            ri: _this._genericFormatSetMemberVal("pap", "indent", "right", 0),
-            fi: _this._genericFormatSetMemberVal("pap", "indent", "firstline", 0),
-            sa: _this._genericFormatSetValRequired("pap", "spaceafter"),
-            sb: _this._genericFormatSetValRequired("pap", "spacebefore"),
-            cols: _this._genericFormatSetVal("sep", "columns", 0),
-            sbknone: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
-            sbkcol: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
-            sbkeven: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
-            sbkodd: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
-            sbkpage: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
-            pgnx: _this._genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
-            pgny: _this._genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
-            pgndec: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
-            pgnucrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
-            pgnlcrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
-            pgnucltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
-            pgnlcltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
-            qc: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
-            ql: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
-            qr: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
-            qj: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
-            paperw: _this._genericFormatSetVal("dop", "width", 12240),
-            paperh: _this._genericFormatSetVal("dop", "height", 15480),
-            margl: _this._genericFormatSetMemberVal("dop", "margin", "left", 1800),
-            margr: _this._genericFormatSetMemberVal("dop", "margin", "right", 1800),
-            margt: _this._genericFormatSetMemberVal("dop", "margin", "top", 1440),
-            margb: _this._genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
-            pgnstart: _this._genericFormatSetVal("dop", "pagenumberstart", 1),
-            facingp: _this._genericFormatSetNoParam("dop", "facingpages", true),
-            landscape: _this._genericFormatSetNoParam("dop", "landscape", true),
-            par: _this._addInsHandler(function () {
-                this.startPar();
-            }),
-            line: _this._addInsHandler(function () {
-                this.lineBreak();
-            }),
-        };
-        if (parser.version != null) {
-            throw new RTFJSError("Unexpected rtf destination");
-        }
-        // This parameter should be one, but older versions of the spec allow for omission of the version number
-        if (param && param !== 1) {
-            throw new RTFJSError("Unsupported rtf version");
-        }
-        parser.version = 1;
-        _this._metadata = {};
-        _this.parser = parser;
-        _this.inst = inst;
-        return _this;
-    }
-    RtfDestination.prototype.addIns = function (func) {
-        this.inst.addIns(func);
-    };
-    RtfDestination.prototype.appendText = function (text) {
-        Helper.log("[rtf] output: " + text);
-        this.inst.addIns(text);
-    };
-    RtfDestination.prototype.sub = function () {
-        Helper.log("[rtf].sub()");
-    };
-    RtfDestination.prototype.handleKeyword = function (keyword, param) {
-        var handler = this._charFormatHandlers[keyword];
-        if (handler != null) {
-            handler(param);
-            return true;
-        }
-        return false;
-    };
-    RtfDestination.prototype.apply = function () {
-        Helper.log("[rtf] apply()");
-        for (var prop in this._metadata) {
-            this.inst._meta[prop] = this._metadata[prop];
-        }
-        delete this._metadata;
-    };
-    RtfDestination.prototype.setMetadata = function (prop, val) {
-        this._metadata[prop] = val;
-    };
-    RtfDestination.prototype._addInsHandler = function (func) {
-        var _this = this;
-        return function (param) {
-            _this.inst.addIns(func);
-        };
-    };
-    RtfDestination.prototype._addFormatIns = function (ptype, props) {
-        switch (ptype) {
-            case "chp":
-                var rchp_1 = new RenderChp(new Chp(props));
-                this.inst.addIns(function () {
-                    this.setChp(rchp_1);
-                });
-                break;
-            case "pap":
-                var rpap_1 = new RenderPap(new Pap(props));
-                this.inst.addIns(function () {
-                    this.setPap(rpap_1);
-                });
-                break;
-        }
-    };
-    RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
-        var _this = this;
-        return function (param) {
-            var props = _this.parser.state[ptype];
-            props[prop] = val;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
-        };
-    };
-    RtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
-        var _this = this;
-        return function (param) {
-            var props = _this.parser.state[ptype];
-            props[prop] = (param == null || param !== 0)
-                ? (onval != null ? onval : true) : (offval != null ? offval : false);
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
-        };
-    };
-    RtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
-        var _this = this;
-        return function (param) {
-            var props = _this.parser.state[ptype];
-            props[prop] = (param == null) ? defaultval : param;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
-        };
-    };
-    RtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
-        var _this = this;
-        return function (param) {
-            if (param == null) {
-                throw new RTFJSError("Keyword without required param");
-            }
-            var props = _this.parser.state[ptype];
-            props[prop] = param;
-            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
-        };
-    };
-    RtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
-        var _this = this;
-        return function (param) {
-            var props = _this.parser.state[ptype];
-            var members = props[prop];
-            members[member] = (param == null) ? defaultval : param;
-            Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            _this._addFormatIns(ptype, props);
-        };
-    };
-    return RtfDestination;
-}(DestinationBase));
 var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
     __extends(GenericPropertyDestinationFactory, _super);
     function GenericPropertyDestinationFactory(parentdest, metaprop) {
@@ -8043,251 +7709,18 @@ var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
     }
     return GenericPropertyDestinationFactory;
 }(DestinationFactory));
-var InfoDestination = /** @class */ (function (_super) {
-    __extends(InfoDestination, _super);
-    function InfoDestination(parser, inst, name) {
-        var _this = _super.call(this, name) || this;
-        _this._metadata = {};
-        _this.inst = inst;
-        return _this;
-    }
-    InfoDestination.prototype.apply = function () {
-        for (var prop in this._metadata) {
-            this.inst._meta[prop] = this._metadata[prop];
-        }
-        delete this._metadata;
-    };
-    InfoDestination.prototype.setMetadata = function (prop, val) {
-        this._metadata[prop] = val;
-    };
-    return InfoDestination;
-}(DestinationBase));
-var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
-    __extends(MetaPropertyDestinationFactory, _super);
-    function MetaPropertyDestinationFactory(metaprop) {
-        var _this = _super.call(this) || this;
-        _this.class = /** @class */ (function (_super) {
-            __extends(class_2, _super);
-            function class_2(parser, inst, name) {
-                var _this = _super.call(this, name) || this;
-                _this.parser = parser;
-                return _this;
-            }
-            class_2.prototype.apply = function () {
-                var info = findParentDestination(this.parser, "info");
-                if (info == null) {
-                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
-                }
-                info.setMetadata(metaprop, this.text);
-            };
-            return class_2;
-        }(DestinationTextBase));
-        return _this;
-    }
-    return MetaPropertyDestinationFactory;
-}(DestinationFactory));
-var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
-    __extends(MetaPropertyTimeDestinationFactory, _super);
-    function MetaPropertyTimeDestinationFactory(metaprop) {
-        var _this = _super.call(this) || this;
-        _this.class = /** @class */ (function (_super) {
-            __extends(class_3, _super);
-            function class_3(parser, inst, name) {
-                var _this = _super.call(this, name) || this;
-                _this._yr = null;
-                _this._mo = null;
-                _this._dy = null;
-                _this._hr = null;
-                _this._min = null;
-                _this._sec = null;
-                _this.parser = parser;
-                return _this;
-            }
-            class_3.prototype.handleKeyword = function (keyword, param) {
-                switch (keyword) {
-                    case "yr":
-                        this._yr = param;
-                        break;
-                    case "mo":
-                        this._mo = param;
-                        break;
-                    case "dy":
-                        this._dy = param;
-                        break;
-                    case "hr":
-                        this._hr = param;
-                        break;
-                    case "min":
-                        this._min = param;
-                        break;
-                    case "sec":
-                        this._sec = param;
-                        break;
-                    default:
-                        return false;
-                }
-                if (param == null) {
-                    throw new RTFJSError("No param found for keyword " + keyword);
-                }
-                return true;
-            };
-            class_3.prototype.apply = function () {
-                var info = findParentDestination(this.parser, "info");
-                if (info == null) {
-                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
-                }
-                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
-                info.setMetadata(metaprop, date);
-            };
-            return class_3;
-        }(DestinationBase));
-        return _this;
-    }
-    return MetaPropertyTimeDestinationFactory;
-}(DestinationFactory));
-var FonttblDestinationSub = /** @class */ (function (_super) {
-    __extends(FonttblDestinationSub, _super);
-    function FonttblDestinationSub(fonttbl) {
-        var _this = _super.call(this, "fonttbl:sub") || this;
-        _this._fonttbl = fonttbl;
-        _this.index = null;
-        _this.fontname = null;
-        _this.altfontname = null;
-        _this.family = null;
-        _this.pitch = Helper.FONTPITCH.DEFAULT;
-        _this.bias = 0;
-        _this.charset = null;
-        return _this;
-    }
-    FonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
-        switch (keyword) {
-            case "f":
-                this.index = param;
-                return true;
-            case "fnil":
-                return true;
-            case "froman":
-            case "fswiss":
-            case "fmodern":
-            case "fscript":
-            case "fdecor":
-            case "ftech":
-            case "fbidi":
-            case "flomajor":
-            case "fhimajor":
-            case "fdbmajor":
-            case "fbimajor":
-            case "flominor":
-            case "fhiminor":
-            case "fdbminor":
-            case "fbiminor":
-                this.family = keyword.slice(1);
-                return true;
-            case "fprq":
-                switch (param) {
-                    case 0:
-                        this.pitch = Helper.FONTPITCH.DEFAULT;
-                        break;
-                    case 1:
-                        this.pitch = Helper.FONTPITCH.FIXED;
-                        break;
-                    case 2:
-                        this.pitch = Helper.FONTPITCH.VARIABLE;
-                        break;
-                }
-                return true;
-            case "fbias":
-                if (param != null) {
-                    this.bias = param;
-                }
-                return true;
-            case "fcharset":
-                if (param != null) {
-                    this.charset = Helper._mapCharset(param);
-                    if (this.charset == null) {
-                        Helper.log("Unknown font charset: " + param);
-                    }
-                }
-                return true;
-            case "cpg":
-                if (param != null) {
-                    this.charset = param;
-                }
-                return true;
-        }
-        return false;
-    };
-    FonttblDestinationSub.prototype.appendText = function (text) {
-        if (this.fontname == null) {
-            this.fontname = text;
-        }
-        else {
-            this.fontname += text;
-        }
-    };
-    FonttblDestinationSub.prototype.apply = function () {
-        if (this.index == null) {
-            throw new RTFJSError("No font index provided");
-        }
-        if (this.fontname == null) {
-            throw new RTFJSError("No font name provided");
-        }
-        this._fonttbl.addSub(this);
-        delete this._fonttbl;
-    };
-    FonttblDestinationSub.prototype.setAltFontName = function (name) {
-        this.altfontname = name;
-    };
-    return FonttblDestinationSub;
-}(DestinationBase));
-var FonttblDestination = /** @class */ (function (_super) {
-    __extends(FonttblDestination, _super);
-    function FonttblDestination(parser, inst) {
-        var _this = _super.call(this, "fonttbl") || this;
-        _this._fonts = [];
-        _this._sub = null;
-        _this.inst = inst;
-        return _this;
-    }
-    FonttblDestination.prototype.sub = function () {
-        return new FonttblDestinationSub(this);
-    };
-    FonttblDestination.prototype.apply = function () {
-        Helper.log("[fonttbl] apply()");
-        for (var idx in this._fonts) {
-            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
-                + " alternative: " + this._fonts[idx].altfontname);
-        }
-        this.inst._fonts = this._fonts;
-        delete this._fonts;
-    };
-    FonttblDestination.prototype.appendText = function (text) {
-        this._sub.appendText(text);
-        this._sub.apply();
-    };
-    FonttblDestination.prototype.handleKeyword = function (keyword, param) {
-        if (keyword === "f") {
-            this._sub = this.sub();
-        }
-        this._sub.handleKeyword(keyword, param);
-    };
-    FonttblDestination.prototype.addSub = function (sub) {
-        this._fonts[sub.index] = sub;
-    };
-    return FonttblDestination;
-}(DestinationBase));
 var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) {
     __extends(GenericSubTextPropertyDestinationFactory, _super);
     function GenericSubTextPropertyDestinationFactory(name, parentDest, propOrFunc) {
         var _this = _super.call(this) || this;
         _this.class = /** @class */ (function (_super) {
-            __extends(class_4, _super);
-            function class_4(parser) {
+            __extends(class_2, _super);
+            function class_2(parser) {
                 var _this = _super.call(this, name) || this;
                 _this.parser = parser;
                 return _this;
             }
-            class_4.prototype.apply = function () {
+            class_2.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentDest);
                 if (dest == null) {
                     throw new RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
@@ -8303,14 +7736,65 @@ var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
                     dest[propOrFunc] = this.text;
                 }
             };
-            return class_4;
+            return class_2;
         }(DestinationTextBase));
         return _this;
     }
     return GenericSubTextPropertyDestinationFactory;
 }(DestinationFactory));
+var RequiredDestinationFactory = /** @class */ (function (_super) {
+    __extends(RequiredDestinationFactory, _super);
+    function RequiredDestinationFactory(name) {
+        var _this = _super.call(this) || this;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_3, _super);
+            function class_3() {
+                return _super.call(this, name) || this;
+            }
+            return class_3;
+        }(DestinationBase));
+        return _this;
+    }
+    return RequiredDestinationFactory;
+}(DestinationFactory));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$1 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var ColortblDestination = /** @class */ (function (_super) {
-    __extends(ColortblDestination, _super);
+    __extends$1(ColortblDestination, _super);
     function ColortblDestination(parser, inst) {
         var _this = _super.call(this, "colortbl") || this;
         _this._colors = [];
@@ -8410,341 +7894,64 @@ var ColortblDestination = /** @class */ (function (_super) {
     };
     return ColortblDestination;
 }(DestinationBase));
-var StylesheetDestinationSub = /** @class */ (function (_super) {
-    __extends(StylesheetDestinationSub, _super);
-    function StylesheetDestinationSub(stylesheet) {
-        var _this = _super.call(this, "stylesheet:sub") || this;
-        _this._stylesheet = stylesheet;
-        _this.index = 0;
-        _this.name = null;
-        _this.handler = _this._handleKeywordCommon("paragraph");
-        return _this;
-    }
-    StylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
-        switch (keyword) {
-            case "s":
-                this.index = param;
-                return true;
-            case "cs":
-                delete this.paragraph;
-                this.handler = this._handleKeywordCommon("character");
-                this.index = param;
-                return true;
-            case "ds":
-                delete this.paragraph;
-                this.handler = this._handleKeywordCommon("section");
-                this.index = param;
-                return true;
-            case "ts":
-                delete this.paragraph;
-                this.handler = this._handleKeywordCommon("table");
-                this.index = param;
-                return true;
-        }
-        return this.handler(keyword, param);
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$2 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    StylesheetDestinationSub.prototype.appendText = function (text) {
-        if (this.name == null) {
-            this.name = text;
-        }
-        else {
-            this.name += text;
-        }
-    };
-    StylesheetDestinationSub.prototype.apply = function () {
-        this._stylesheet.addSub({
-            index: this.index,
-            name: this.name,
-        });
-        delete this._stylesheet;
-    };
-    StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
-        return function (keyword, param) {
-            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
-            return false;
-        };
-    };
-    return StylesheetDestinationSub;
-}(DestinationBase));
-var StylesheetDestination = /** @class */ (function (_super) {
-    __extends(StylesheetDestination, _super);
-    function StylesheetDestination(parser, inst) {
-        var _this = _super.call(this, "stylesheet") || this;
-        _this._stylesheets = [];
-        _this.inst = inst;
-        return _this;
-    }
-    StylesheetDestination.prototype.sub = function () {
-        return new StylesheetDestinationSub(this);
-    };
-    StylesheetDestination.prototype.apply = function () {
-        Helper.log("[stylesheet] apply()");
-        for (var idx in this._stylesheets) {
-            Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
-        }
-        this.inst._stylesheets = this._stylesheets;
-        delete this._stylesheets;
-    };
-    StylesheetDestination.prototype.addSub = function (sub) {
-        // Some documents will redefine stylesheets
-        // if (this._stylesheets[sub.index] != null)
-        //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
-        this._stylesheets[sub.index] = sub;
-    };
-    return StylesheetDestination;
-}(DestinationBase));
-var FieldDestination = /** @class */ (function (_super) {
-    __extends(FieldDestination, _super);
-    function FieldDestination() {
-        var _this = _super.call(this, "field") || this;
-        _this._haveInst = false;
-        _this._parsedInst = null; // FieldBase
-        _this._result = null;
-        return _this;
-    }
-    FieldDestination.prototype.apply = function () {
-        if (!this._haveInst) {
-            throw new RTFJSError("IField has no fldinst destination");
-        }
-        // A fldrslt destination should be included but is not required
-        // if (this._result == null)
-        //     throw new RTFJSError("IField has no fldrslt destination");
-    };
-    FieldDestination.prototype.setInst = function (inst) {
-        var _this = this;
-        this._haveInst = true;
-        if (this._parsedInst != null) {
-            throw new RTFJSError("IField cannot have multiple fldinst destinations");
-        }
-        if (inst instanceof Promise) {
-            inst.then(function (parsedInst) {
-                _this._parsedInst = parsedInst;
-            }).catch(function (error) {
-                _this._parsedInst = null;
-                throw new RTFJSError(error.message);
-            });
-        }
-        else {
-            this._parsedInst = inst;
-        }
-    };
-    FieldDestination.prototype.getInst = function () {
-        return this._parsedInst;
-    };
-    FieldDestination.prototype.setResult = function (inst) {
-        if (this._result != null) {
-            throw new RTFJSError("IField cannot have multiple fldrslt destinations");
-        }
-        this._result = inst;
-    };
-    return FieldDestination;
-}(DestinationBase));
-var FieldBase = /** @class */ (function () {
-    function FieldBase(fldinst) {
-        this._fldinst = fldinst;
-    }
-    FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
-        if (records > 0) {
-            rtf.addIns(function () {
-                this.popContainer();
-            });
-        }
-    };
-    return FieldBase;
-}());
-var FieldHyperlink = /** @class */ (function (_super) {
-    __extends(FieldHyperlink, _super);
-    function FieldHyperlink(fldinst, data) {
-        var _this = _super.call(this, fldinst) || this;
-        _this._url = data;
-        return _this;
-    }
-    FieldHyperlink.prototype.url = function () {
-        return this._url;
-    };
-    FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
-        var self = this;
-        if (records > 0) {
-            rtf.addIns(function () {
-                var inst = this._doc;
-                var renderer = this;
-                var create = function () {
-                    return renderer.buildHyperlinkElement(self._url);
-                };
-                var container;
-                if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(inst, create, { url: function () { return self.url(); } });
-                }
-                else {
-                    var elem = create();
-                    container = {
-                        element: elem,
-                        content: elem,
-                    };
-                }
-                this.pushContainer(container);
-            });
-            return true;
-        }
-        return false;
-    };
-    return FieldHyperlink;
-}(FieldBase));
-var FldinstDestination = /** @class */ (function (_super) {
-    __extends(FldinstDestination, _super);
-    function FldinstDestination(parser, inst) {
-        var _this = _super.call(this, "fldinst") || this;
-        _this.parser = parser;
-        _this.inst = inst;
-        return _this;
-    }
-    FldinstDestination.prototype.apply = function () {
-        var field = findParentDestination(this.parser, "field");
-        if (field == null) {
-            throw new RTFJSError("fldinst destination must be child of field destination");
-        }
-        field.setInst(this.parseType());
-    };
-    FldinstDestination.prototype.parseType = function () {
-        var _this = this;
-        var sep = this.text.indexOf(" ");
-        if (sep > 0) {
-            var data_1 = this.text.substr(sep + 1);
-            if (data_1.length >= 2 && data_1[0] === "\"") {
-                var end = data_1.indexOf("\"", 1);
-                if (end >= 1) {
-                    data_1 = data_1.substring(1, end);
-                }
-            }
-            var fieldType = this.text.substr(0, sep).toUpperCase();
-            switch (fieldType) {
-                case "HYPERLINK":
-                    return new FieldHyperlink(this, data_1);
-                case "IMPORT":
-                    if (typeof this.inst._settings.onImport === "function") {
-                        var pict_1;
-                        this.inst.addIns(function () {
-                            var inst = this._doc;
-                            // backup
-                            var hook = inst._settings.onPicture;
-                            inst._settings.onPicture = null;
-                            // tslint:disable-next-line:prefer-const
-                            var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
-                            // restore
-                            inst._settings.onPicture = hook;
-                            if (typeof hook === "function") {
-                                element = hook(isLegacy, function () { return element; });
-                            }
-                            if (element != null) {
-                                this.appendElement(element);
-                            }
-                        });
-                        var promise = new Promise(function (resolve, reject) {
-                            try {
-                                var cb = function (_a) {
-                                    var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
-                                    if (!error && typeof keyword === "string" && keyword && blob) {
-                                        var dims = {
-                                            w: Helper._pxToTwips(width || window.document.body.clientWidth
-                                                || window.innerWidth),
-                                            h: Helper._pxToTwips(height || 300),
-                                        };
-                                        pict_1 = new PictDestination(_this.parser, _this.inst);
-                                        pict_1.handleBlob(blob);
-                                        pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
-                                        pict_1._displaysize.width = dims.w;
-                                        pict_1._displaysize.height = dims.h;
-                                        pict_1._size.width = dims.w;
-                                        pict_1._size.height = dims.h;
-                                        var _parsedInst = {
-                                            renderFieldBegin: function () { return true; },
-                                            renderFieldEnd: function () { return null; },
-                                        };
-                                        resolve(_parsedInst);
-                                    }
-                                    else {
-                                        Helper.log("[fldinst]: failed to IMPORT image file: " + data_1);
-                                        if (error) {
-                                            error = (error instanceof Error) ? error : new Error(error);
-                                            reject(error);
-                                        }
-                                        else {
-                                            resolve(null);
-                                        }
-                                    }
-                                };
-                                _this.inst._settings.onImport.call(_this.inst, data_1, cb);
-                            }
-                            catch (error) {
-                                reject(error);
-                            }
-                        });
-                        this.parser._asyncTasks.push(promise);
-                        return promise;
-                    }
-                default:
-                    Helper.log("[fldinst]: unknown field type: " + fieldType);
-                    break;
-            }
-        }
-    };
-    return FldinstDestination;
-}(DestinationTextBase));
-var FldrsltDestination = /** @class */ (function (_super) {
-    __extends(FldrsltDestination, _super);
-    function FldrsltDestination(parser, inst) {
-        return _super.call(this, parser, "fldrslt") || this;
-    }
-    FldrsltDestination.prototype.apply = function () {
-        var field = findParentDestination(this.parser, "field");
-        if (field != null) {
-            field.setResult(this);
-        }
-        _super.prototype.apply.call(this);
-    };
-    FldrsltDestination.prototype.renderBegin = function (rtf, records) {
-        var field = findParentDestination(this.parser, "field");
-        if (field != null) {
-            var inst = field.getInst();
-            if (inst != null) {
-                return inst.renderFieldBegin(field, rtf, records);
-            }
-        }
-        return false;
-    };
-    FldrsltDestination.prototype.renderEnd = function (rtf, records) {
-        var field = findParentDestination(this.parser, "field");
-        if (field != null) {
-            var inst = field.getInst();
-            if (inst != null) {
-                inst.renderFieldEnd(field, rtf, records);
-            }
-        }
-    };
-    return FldrsltDestination;
-}(DestinationFormattedTextBase));
+})();
 var PictGroupDestinationFactory = /** @class */ (function (_super) {
-    __extends(PictGroupDestinationFactory, _super);
+    __extends$2(PictGroupDestinationFactory, _super);
     function PictGroupDestinationFactory(legacy) {
         var _this = _super.call(this) || this;
         _this.class = /** @class */ (function (_super) {
-            __extends(class_5, _super);
-            function class_5() {
+            __extends$2(class_1, _super);
+            function class_1() {
                 var _this = _super.call(this, "pict-group") || this;
                 _this._legacy = legacy;
                 return _this;
             }
-            class_5.prototype.isLegacy = function () {
+            class_1.prototype.isLegacy = function () {
                 return this._legacy;
             };
-            return class_5;
+            return class_1;
         }(DestinationTextBase));
         return _this;
     }
     return PictGroupDestinationFactory;
 }(DestinationFactory));
 var PictDestination = /** @class */ (function (_super) {
-    __extends(PictDestination, _super);
+    __extends$2(PictDestination, _super);
     function PictDestination(parser, inst) {
         var _this = _super.call(this, "pict") || this;
         _this._pictHandlers = {
@@ -9013,22 +8220,1098 @@ var PictDestination = /** @class */ (function (_super) {
     };
     return PictDestination;
 }(DestinationTextBase));
-var RequiredDestinationFactory = /** @class */ (function (_super) {
-    __extends(RequiredDestinationFactory, _super);
-    function RequiredDestinationFactory(name) {
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$3 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var FieldDestination = /** @class */ (function (_super) {
+    __extends$3(FieldDestination, _super);
+    function FieldDestination() {
+        var _this = _super.call(this, "field") || this;
+        _this._haveInst = false;
+        _this._parsedInst = null; // FieldBase
+        _this._result = null;
+        return _this;
+    }
+    FieldDestination.prototype.apply = function () {
+        if (!this._haveInst) {
+            throw new RTFJSError("IField has no fldinst destination");
+        }
+        // A fldrslt destination should be included but is not required
+        // if (this._result == null)
+        //     throw new RTFJSError("IField has no fldrslt destination");
+    };
+    FieldDestination.prototype.setInst = function (inst) {
+        var _this = this;
+        this._haveInst = true;
+        if (this._parsedInst != null) {
+            throw new RTFJSError("IField cannot have multiple fldinst destinations");
+        }
+        if (inst instanceof Promise) {
+            inst.then(function (parsedInst) {
+                _this._parsedInst = parsedInst;
+            }).catch(function (error) {
+                _this._parsedInst = null;
+                throw new RTFJSError(error.message);
+            });
+        }
+        else {
+            this._parsedInst = inst;
+        }
+    };
+    FieldDestination.prototype.getInst = function () {
+        return this._parsedInst;
+    };
+    FieldDestination.prototype.setResult = function (inst) {
+        if (this._result != null) {
+            throw new RTFJSError("IField cannot have multiple fldrslt destinations");
+        }
+        this._result = inst;
+    };
+    return FieldDestination;
+}(DestinationBase));
+var FieldBase = /** @class */ (function () {
+    function FieldBase(fldinst) {
+        this._fldinst = fldinst;
+    }
+    FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
+        if (records > 0) {
+            rtf.addIns(function () {
+                this.popContainer();
+            });
+        }
+    };
+    return FieldBase;
+}());
+var FieldHyperlink = /** @class */ (function (_super) {
+    __extends$3(FieldHyperlink, _super);
+    function FieldHyperlink(fldinst, data) {
+        var _this = _super.call(this, fldinst) || this;
+        _this._url = data;
+        return _this;
+    }
+    FieldHyperlink.prototype.url = function () {
+        return this._url;
+    };
+    FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
+        var self = this;
+        if (records > 0) {
+            rtf.addIns(function () {
+                var inst = this._doc;
+                var renderer = this;
+                var create = function () {
+                    return renderer.buildHyperlinkElement(self._url);
+                };
+                var container;
+                if (inst._settings.onHyperlink != null) {
+                    container = inst._settings.onHyperlink.call(inst, create, {
+                        url: function () {
+                            return self.url();
+                        },
+                    });
+                }
+                else {
+                    var elem = create();
+                    container = {
+                        element: elem,
+                        content: elem,
+                    };
+                }
+                this.pushContainer(container);
+            });
+            return true;
+        }
+        return false;
+    };
+    return FieldHyperlink;
+}(FieldBase));
+var FldinstDestination = /** @class */ (function (_super) {
+    __extends$3(FldinstDestination, _super);
+    function FldinstDestination(parser, inst) {
+        var _this = _super.call(this, "fldinst") || this;
+        _this.parser = parser;
+        _this.inst = inst;
+        return _this;
+    }
+    FldinstDestination.prototype.apply = function () {
+        var field = findParentDestination(this.parser, "field");
+        if (field == null) {
+            throw new RTFJSError("fldinst destination must be child of field destination");
+        }
+        field.setInst(this.parseType());
+    };
+    FldinstDestination.prototype.parseType = function () {
+        var _this = this;
+        var sep = this.text.indexOf(" ");
+        if (sep > 0) {
+            var data_1 = this.text.substr(sep + 1);
+            if (data_1.length >= 2 && data_1[0] === "\"") {
+                var end = data_1.indexOf("\"", 1);
+                if (end >= 1) {
+                    data_1 = data_1.substring(1, end);
+                }
+            }
+            var fieldType = this.text.substr(0, sep).toUpperCase();
+            switch (fieldType) {
+                case "HYPERLINK":
+                    return new FieldHyperlink(this, data_1);
+                case "IMPORT":
+                    if (typeof this.inst._settings.onImport === "function") {
+                        var pict_1;
+                        this.inst.addIns(function () {
+                            var inst = this._doc;
+                            // backup
+                            var hook = inst._settings.onPicture;
+                            inst._settings.onPicture = null;
+                            // tslint:disable-next-line:prefer-const
+                            var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
+                            // restore
+                            inst._settings.onPicture = hook;
+                            if (typeof hook === "function") {
+                                element = hook(isLegacy, function () { return element; });
+                            }
+                            if (element != null) {
+                                this.appendElement(element);
+                            }
+                        });
+                        var promise = new Promise(function (resolve, reject) {
+                            try {
+                                var cb = function (_a) {
+                                    var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
+                                    if (!error && typeof keyword === "string" && keyword && blob) {
+                                        var dims = {
+                                            w: Helper._pxToTwips(width || window.document.body.clientWidth
+                                                || window.innerWidth),
+                                            h: Helper._pxToTwips(height || 300),
+                                        };
+                                        pict_1 = new PictDestination(_this.parser, _this.inst);
+                                        pict_1.handleBlob(blob);
+                                        pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
+                                        pict_1._displaysize.width = dims.w;
+                                        pict_1._displaysize.height = dims.h;
+                                        pict_1._size.width = dims.w;
+                                        pict_1._size.height = dims.h;
+                                        var _parsedInst = {
+                                            renderFieldBegin: function () { return true; },
+                                            renderFieldEnd: function () { return null; },
+                                        };
+                                        resolve(_parsedInst);
+                                    }
+                                    else {
+                                        Helper.log("[fldinst]: failed to IMPORT image file: " + data_1);
+                                        if (error) {
+                                            error = (error instanceof Error) ? error : new Error(error);
+                                            reject(error);
+                                        }
+                                        else {
+                                            resolve(null);
+                                        }
+                                    }
+                                };
+                                _this.inst._settings.onImport.call(_this.inst, data_1, cb);
+                            }
+                            catch (error) {
+                                reject(error);
+                            }
+                        });
+                        this.parser._asyncTasks.push(promise);
+                        return promise;
+                    }
+                default:
+                    Helper.log("[fldinst]: unknown field type: " + fieldType);
+                    break;
+            }
+        }
+    };
+    return FldinstDestination;
+}(DestinationTextBase));
+var FldrsltDestination = /** @class */ (function (_super) {
+    __extends$3(FldrsltDestination, _super);
+    function FldrsltDestination(parser, inst) {
+        return _super.call(this, parser, "fldrslt") || this;
+    }
+    FldrsltDestination.prototype.apply = function () {
+        var field = findParentDestination(this.parser, "field");
+        if (field != null) {
+            field.setResult(this);
+        }
+        _super.prototype.apply.call(this);
+    };
+    FldrsltDestination.prototype.renderBegin = function (rtf, records) {
+        var field = findParentDestination(this.parser, "field");
+        if (field != null) {
+            var inst = field.getInst();
+            if (inst != null) {
+                return inst.renderFieldBegin(field, rtf, records);
+            }
+        }
+        return false;
+    };
+    FldrsltDestination.prototype.renderEnd = function (rtf, records) {
+        var field = findParentDestination(this.parser, "field");
+        if (field != null) {
+            var inst = field.getInst();
+            if (inst != null) {
+                inst.renderFieldEnd(field, rtf, records);
+            }
+        }
+    };
+    return FldrsltDestination;
+}(DestinationFormattedTextBase));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$4 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var FonttblDestinationSub = /** @class */ (function (_super) {
+    __extends$4(FonttblDestinationSub, _super);
+    function FonttblDestinationSub(fonttbl) {
+        var _this = _super.call(this, "fonttbl:sub") || this;
+        _this._fonttbl = fonttbl;
+        _this.index = null;
+        _this.fontname = null;
+        _this.altfontname = null;
+        _this.family = null;
+        _this.pitch = Helper.FONTPITCH.DEFAULT;
+        _this.bias = 0;
+        _this.charset = null;
+        return _this;
+    }
+    FonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
+        switch (keyword) {
+            case "f":
+                this.index = param;
+                return true;
+            case "fnil":
+                return true;
+            case "froman":
+            case "fswiss":
+            case "fmodern":
+            case "fscript":
+            case "fdecor":
+            case "ftech":
+            case "fbidi":
+            case "flomajor":
+            case "fhimajor":
+            case "fdbmajor":
+            case "fbimajor":
+            case "flominor":
+            case "fhiminor":
+            case "fdbminor":
+            case "fbiminor":
+                this.family = keyword.slice(1);
+                return true;
+            case "fprq":
+                switch (param) {
+                    case 0:
+                        this.pitch = Helper.FONTPITCH.DEFAULT;
+                        break;
+                    case 1:
+                        this.pitch = Helper.FONTPITCH.FIXED;
+                        break;
+                    case 2:
+                        this.pitch = Helper.FONTPITCH.VARIABLE;
+                        break;
+                }
+                return true;
+            case "fbias":
+                if (param != null) {
+                    this.bias = param;
+                }
+                return true;
+            case "fcharset":
+                if (param != null) {
+                    this.charset = Helper._mapCharset(param);
+                    if (this.charset == null) {
+                        Helper.log("Unknown font charset: " + param);
+                    }
+                }
+                return true;
+            case "cpg":
+                if (param != null) {
+                    this.charset = param;
+                }
+                return true;
+        }
+        return false;
+    };
+    FonttblDestinationSub.prototype.appendText = function (text) {
+        if (this.fontname == null) {
+            this.fontname = text;
+        }
+        else {
+            this.fontname += text;
+        }
+    };
+    FonttblDestinationSub.prototype.apply = function () {
+        if (this.index == null) {
+            throw new RTFJSError("No font index provided");
+        }
+        if (this.fontname == null) {
+            throw new RTFJSError("No font name provided");
+        }
+        this._fonttbl.addSub(this);
+        delete this._fonttbl;
+    };
+    FonttblDestinationSub.prototype.setAltFontName = function (name) {
+        this.altfontname = name;
+    };
+    return FonttblDestinationSub;
+}(DestinationBase));
+var FonttblDestination = /** @class */ (function (_super) {
+    __extends$4(FonttblDestination, _super);
+    function FonttblDestination(parser, inst) {
+        var _this = _super.call(this, "fonttbl") || this;
+        _this._fonts = [];
+        _this._sub = null;
+        _this.inst = inst;
+        return _this;
+    }
+    FonttblDestination.prototype.sub = function () {
+        return new FonttblDestinationSub(this);
+    };
+    FonttblDestination.prototype.apply = function () {
+        Helper.log("[fonttbl] apply()");
+        for (var idx in this._fonts) {
+            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
+                + " alternative: " + this._fonts[idx].altfontname);
+        }
+        this.inst._fonts = this._fonts;
+        delete this._fonts;
+    };
+    FonttblDestination.prototype.appendText = function (text) {
+        this._sub.appendText(text);
+        this._sub.apply();
+    };
+    FonttblDestination.prototype.handleKeyword = function (keyword, param) {
+        if (keyword === "f") {
+            this._sub = this.sub();
+        }
+        this._sub.handleKeyword(keyword, param);
+    };
+    FonttblDestination.prototype.addSub = function (sub) {
+        this._fonts[sub.index] = sub;
+    };
+    return FonttblDestination;
+}(DestinationBase));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$5 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var InfoDestination = /** @class */ (function (_super) {
+    __extends$5(InfoDestination, _super);
+    function InfoDestination(parser, inst, name) {
+        var _this = _super.call(this, name) || this;
+        _this._metadata = {};
+        _this.inst = inst;
+        return _this;
+    }
+    InfoDestination.prototype.apply = function () {
+        for (var prop in this._metadata) {
+            this.inst._meta[prop] = this._metadata[prop];
+        }
+        delete this._metadata;
+    };
+    InfoDestination.prototype.setMetadata = function (prop, val) {
+        this._metadata[prop] = val;
+    };
+    return InfoDestination;
+}(DestinationBase));
+var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends$5(MetaPropertyDestinationFactory, _super);
+    function MetaPropertyDestinationFactory(metaprop) {
         var _this = _super.call(this) || this;
         _this.class = /** @class */ (function (_super) {
-            __extends(class_6, _super);
-            function class_6() {
-                return _super.call(this, name) || this;
+            __extends$5(class_1, _super);
+            function class_1(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this.parser = parser;
+                return _this;
             }
-            return class_6;
+            class_1.prototype.apply = function () {
+                var info = findParentDestination(this.parser, "info");
+                if (info == null) {
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
+                }
+                info.setMetadata(metaprop, this.text);
+            };
+            return class_1;
+        }(DestinationTextBase));
+        return _this;
+    }
+    return MetaPropertyDestinationFactory;
+}(DestinationFactory));
+var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
+    __extends$5(MetaPropertyTimeDestinationFactory, _super);
+    function MetaPropertyTimeDestinationFactory(metaprop) {
+        var _this = _super.call(this) || this;
+        _this.class = /** @class */ (function (_super) {
+            __extends$5(class_2, _super);
+            function class_2(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this._yr = null;
+                _this._mo = null;
+                _this._dy = null;
+                _this._hr = null;
+                _this._min = null;
+                _this._sec = null;
+                _this.parser = parser;
+                return _this;
+            }
+            class_2.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "yr":
+                        this._yr = param;
+                        break;
+                    case "mo":
+                        this._mo = param;
+                        break;
+                    case "dy":
+                        this._dy = param;
+                        break;
+                    case "hr":
+                        this._hr = param;
+                        break;
+                    case "min":
+                        this._min = param;
+                        break;
+                    case "sec":
+                        this._sec = param;
+                        break;
+                    default:
+                        return false;
+                }
+                if (param == null) {
+                    throw new RTFJSError("No param found for keyword " + keyword);
+                }
+                return true;
+            };
+            class_2.prototype.apply = function () {
+                var info = findParentDestination(this.parser, "info");
+                if (info == null) {
+                    throw new RTFJSError("IDestination " + this._name + " must be within info destination");
+                }
+                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
+                info.setMetadata(metaprop, date);
+            };
+            return class_2;
         }(DestinationBase));
         return _this;
     }
-    return RequiredDestinationFactory;
+    return MetaPropertyTimeDestinationFactory;
 }(DestinationFactory));
-var destinations = {
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderChp = /** @class */ (function () {
+    function RenderChp(chp) {
+        this._chp = chp;
+    }
+    RenderChp.prototype.apply = function (doc, el) {
+        if (this._chp.bold) {
+            el.css("font-weight", "bold");
+        }
+        if (this._chp.italic) {
+            el.css("font-style", "italic");
+        }
+        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
+            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol") {
+                el.css("font-family", fontFamily);
+            }
+        }
+        var deco = [];
+        if (this._chp.underline !== Helper.UNDERLINE.NONE) {
+            deco.push("underline");
+        }
+        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
+            deco.push("line-through");
+        }
+        if (deco.length > 0) {
+            el.css("text-decoration", deco.join(" "));
+        }
+        if (this._chp.colorindex !== 0) {
+            var color = doc._lookupColor(this._chp.colorindex);
+            if (color != null) {
+                el.css("color", Helper._colorToStr(color));
+            }
+        }
+        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
+    };
+    return RenderChp;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var RenderPap = /** @class */ (function () {
+    function RenderPap(pap) {
+        this._pap = pap;
+    }
+    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        if (ismaindiv) {
+            if (this._pap.spacebefore !== 0) {
+                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
+            }
+            else {
+                el.css("margin-top", "");
+            }
+            if (this._pap.spaceafter !== 0) {
+                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
+            }
+            else {
+                el.css("margin-bottom", "");
+            }
+            if (rchp != null) {
+                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+            }
+        }
+        else {
+            switch (this._pap.justification) {
+                case Helper.JUSTIFICATION.LEFT:
+                    el.css("text-align", "left");
+                    break;
+                case Helper.JUSTIFICATION.RIGHT:
+                    el.css("text-align", "right");
+                    break;
+                case Helper.JUSTIFICATION.CENTER:
+                    el.css("text-align", "center");
+                    break;
+                case Helper.JUSTIFICATION.JUSTIFY:
+                    el.css("text-align", "justify");
+                    break;
+            }
+        }
+    };
+    return RenderPap;
+}());
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$6 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var RtfDestination = /** @class */ (function (_super) {
+    __extends$6(RtfDestination, _super);
+    function RtfDestination(parser, inst, name, param) {
+        var _this = _super.call(this, name) || this;
+        _this._charFormatHandlers = {
+            ansicpg: function (param) {
+                // if the value is 0, use the default charset as 0 is not valid
+                if (param > 0) {
+                    Helper.log("[rtf] using charset: " + param);
+                    _this.parser.codepage = param;
+                }
+            },
+            sectd: function () {
+                Helper.log("[rtf] reset to section defaults");
+                _this.parser.state.sep = new Sep(null);
+            },
+            plain: function () {
+                Helper.log("[rtf] reset to character defaults");
+                _this.parser.state.chp = new Chp(null);
+            },
+            pard: function () {
+                Helper.log("[rtf] reset to paragraph defaults");
+                _this.parser.state.pap = new Pap(null);
+            },
+            b: _this._genericFormatOnOff("chp", "bold"),
+            i: _this._genericFormatOnOff("chp", "italic"),
+            cf: _this._genericFormatSetValRequired("chp", "colorindex"),
+            fs: _this._genericFormatSetValRequired("chp", "fontsize"),
+            f: _this._genericFormatSetValRequired("chp", "fontfamily"),
+            loch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),
+            hich: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.HIGHANSI),
+            dbch: _this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.DOUBLE),
+            strike: _this._genericFormatOnOff("chp", "strikethrough"),
+            striked: _this._genericFormatOnOff("chp", "dblstrikethrough"),
+            ul: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.CONTINUOUS, Helper.UNDERLINE.NONE),
+            uld: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOTTED, Helper.UNDERLINE.NONE),
+            uldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHED, Helper.UNDERLINE.NONE),
+            uldashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTTED, Helper.UNDERLINE.NONE),
+            uldashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DASHDOTDOTTED, Helper.UNDERLINE.NONE),
+            uldb: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLE, Helper.UNDERLINE.NONE),
+            ulhwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.HEAVYWAVE, Helper.UNDERLINE.NONE),
+            ulldash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.LONGDASHED, Helper.UNDERLINE.NONE),
+            ulnone: _this._genericFormatSetNoParam("chp", "underline", Helper.UNDERLINE.NONE),
+            ulth: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICK, Helper.UNDERLINE.NONE),
+            ulthd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDOTTED, Helper.UNDERLINE.NONE),
+            ulthdash: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHED, Helper.UNDERLINE.NONE),
+            ulthdashd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTTED, Helper.UNDERLINE.NONE),
+            ulthdashdd: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.THICKDASHDOTDOTTED, Helper.UNDERLINE.NONE),
+            ululdbwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.DOUBLEWAVE, Helper.UNDERLINE.NONE),
+            ulw: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WORD, Helper.UNDERLINE.NONE),
+            ulwave: _this._genericFormatOnOff("chp", "underline", Helper.UNDERLINE.WAVE, Helper.UNDERLINE.NONE),
+            li: _this._genericFormatSetMemberVal("pap", "indent", "left", 0),
+            ri: _this._genericFormatSetMemberVal("pap", "indent", "right", 0),
+            fi: _this._genericFormatSetMemberVal("pap", "indent", "firstline", 0),
+            sa: _this._genericFormatSetValRequired("pap", "spaceafter"),
+            sb: _this._genericFormatSetValRequired("pap", "spacebefore"),
+            cols: _this._genericFormatSetVal("sep", "columns", 0),
+            sbknone: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.NONE),
+            sbkcol: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.COL),
+            sbkeven: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.EVEN),
+            sbkodd: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.ODD),
+            sbkpage: _this._genericFormatSetNoParam("sep", "breaktype", Helper.BREAKTYPE.PAGE),
+            pgnx: _this._genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
+            pgny: _this._genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
+            pgndec: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.DECIMAL),
+            pgnucrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.UROM),
+            pgnlcrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LROM),
+            pgnucltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.ULTR),
+            pgnlcltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", Helper.PAGENUMBER.LLTR),
+            qc: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.CENTER),
+            ql: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.LEFT),
+            qr: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.RIGHT),
+            qj: _this._genericFormatSetNoParam("pap", "justification", Helper.JUSTIFICATION.JUSTIFY),
+            paperw: _this._genericFormatSetVal("dop", "width", 12240),
+            paperh: _this._genericFormatSetVal("dop", "height", 15480),
+            margl: _this._genericFormatSetMemberVal("dop", "margin", "left", 1800),
+            margr: _this._genericFormatSetMemberVal("dop", "margin", "right", 1800),
+            margt: _this._genericFormatSetMemberVal("dop", "margin", "top", 1440),
+            margb: _this._genericFormatSetMemberVal("dop", "margin", "bottom", 1440),
+            pgnstart: _this._genericFormatSetVal("dop", "pagenumberstart", 1),
+            facingp: _this._genericFormatSetNoParam("dop", "facingpages", true),
+            landscape: _this._genericFormatSetNoParam("dop", "landscape", true),
+            par: _this._addInsHandler(function () {
+                this.startPar();
+            }),
+            line: _this._addInsHandler(function () {
+                this.lineBreak();
+            }),
+        };
+        if (parser.version != null) {
+            throw new RTFJSError("Unexpected rtf destination");
+        }
+        // This parameter should be one, but older versions of the spec allow for omission of the version number
+        if (param && param !== 1) {
+            throw new RTFJSError("Unsupported rtf version");
+        }
+        parser.version = 1;
+        _this._metadata = {};
+        _this.parser = parser;
+        _this.inst = inst;
+        return _this;
+    }
+    RtfDestination.prototype.addIns = function (func) {
+        this.inst.addIns(func);
+    };
+    RtfDestination.prototype.appendText = function (text) {
+        Helper.log("[rtf] output: " + text);
+        this.inst.addIns(text);
+    };
+    RtfDestination.prototype.sub = function () {
+        Helper.log("[rtf].sub()");
+    };
+    RtfDestination.prototype.handleKeyword = function (keyword, param) {
+        var handler = this._charFormatHandlers[keyword];
+        if (handler != null) {
+            handler(param);
+            return true;
+        }
+        return false;
+    };
+    RtfDestination.prototype.apply = function () {
+        Helper.log("[rtf] apply()");
+        for (var prop in this._metadata) {
+            this.inst._meta[prop] = this._metadata[prop];
+        }
+        delete this._metadata;
+    };
+    RtfDestination.prototype.setMetadata = function (prop, val) {
+        this._metadata[prop] = val;
+    };
+    RtfDestination.prototype._addInsHandler = function (func) {
+        var _this = this;
+        return function (param) {
+            _this.inst.addIns(func);
+        };
+    };
+    RtfDestination.prototype._addFormatIns = function (ptype, props) {
+        switch (ptype) {
+            case "chp":
+                var rchp_1 = new RenderChp(new Chp(props));
+                this.inst.addIns(function () {
+                    this.setChp(rchp_1);
+                });
+                break;
+            case "pap":
+                var rpap_1 = new RenderPap(new Pap(props));
+                this.inst.addIns(function () {
+                    this.setPap(rpap_1);
+                });
+                break;
+        }
+    };
+    RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
+        var _this = this;
+        return function (param) {
+            var props = _this.parser.state[ptype];
+            props[prop] = val;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _this._addFormatIns(ptype, props);
+        };
+    };
+    RtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
+        var _this = this;
+        return function (param) {
+            var props = _this.parser.state[ptype];
+            props[prop] = (param == null || param !== 0)
+                ? (onval != null ? onval : true) : (offval != null ? offval : false);
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _this._addFormatIns(ptype, props);
+        };
+    };
+    RtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
+        var _this = this;
+        return function (param) {
+            var props = _this.parser.state[ptype];
+            props[prop] = (param == null) ? defaultval : param;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _this._addFormatIns(ptype, props);
+        };
+    };
+    RtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
+        var _this = this;
+        return function (param) {
+            if (param == null) {
+                throw new RTFJSError("Keyword without required param");
+            }
+            var props = _this.parser.state[ptype];
+            props[prop] = param;
+            Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _this._addFormatIns(ptype, props);
+        };
+    };
+    RtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
+        var _this = this;
+        return function (param) {
+            var props = _this.parser.state[ptype];
+            var members = props[prop];
+            members[member] = (param == null) ? defaultval : param;
+            Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+            _this._addFormatIns(ptype, props);
+        };
+    };
+    return RtfDestination;
+}(DestinationBase));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends$7 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var StylesheetDestinationSub = /** @class */ (function (_super) {
+    __extends$7(StylesheetDestinationSub, _super);
+    function StylesheetDestinationSub(stylesheet) {
+        var _this = _super.call(this, "stylesheet:sub") || this;
+        _this._stylesheet = stylesheet;
+        _this.index = 0;
+        _this.name = null;
+        _this.handler = _this._handleKeywordCommon("paragraph");
+        return _this;
+    }
+    StylesheetDestinationSub.prototype.handleKeyword = function (keyword, param) {
+        switch (keyword) {
+            case "s":
+                this.index = param;
+                return true;
+            case "cs":
+                delete this.paragraph;
+                this.handler = this._handleKeywordCommon("character");
+                this.index = param;
+                return true;
+            case "ds":
+                delete this.paragraph;
+                this.handler = this._handleKeywordCommon("section");
+                this.index = param;
+                return true;
+            case "ts":
+                delete this.paragraph;
+                this.handler = this._handleKeywordCommon("table");
+                this.index = param;
+                return true;
+        }
+        return this.handler(keyword, param);
+    };
+    StylesheetDestinationSub.prototype.appendText = function (text) {
+        if (this.name == null) {
+            this.name = text;
+        }
+        else {
+            this.name += text;
+        }
+    };
+    StylesheetDestinationSub.prototype.apply = function () {
+        this._stylesheet.addSub({
+            index: this.index,
+            name: this.name,
+        });
+        delete this._stylesheet;
+    };
+    StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
+        return function (keyword, param) {
+            Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+            return false;
+        };
+    };
+    return StylesheetDestinationSub;
+}(DestinationBase));
+var StylesheetDestination = /** @class */ (function (_super) {
+    __extends$7(StylesheetDestination, _super);
+    function StylesheetDestination(parser, inst) {
+        var _this = _super.call(this, "stylesheet") || this;
+        _this._stylesheets = [];
+        _this.inst = inst;
+        return _this;
+    }
+    StylesheetDestination.prototype.sub = function () {
+        return new StylesheetDestinationSub(this);
+    };
+    StylesheetDestination.prototype.apply = function () {
+        Helper.log("[stylesheet] apply()");
+        for (var idx in this._stylesheets) {
+            Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
+        }
+        this.inst._stylesheets = this._stylesheets;
+        delete this._stylesheets;
+    };
+    StylesheetDestination.prototype.addSub = function (sub) {
+        // Some documents will redefine stylesheets
+        // if (this._stylesheets[sub.index] != null)
+        //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);
+        this._stylesheets[sub.index] = sub;
+    };
+    return StylesheetDestination;
+}(DestinationBase));
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+// tslint:disable-next-line:variable-name
+var Destinations = {
     rtf: RtfDestination,
     info: InfoDestination,
     title: new MetaPropertyDestinationFactory("title"),
@@ -9209,7 +9492,7 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.changeDestination = function (name, param) {
         this.applyText();
-        var handler = destinations[name];
+        var handler = Destinations[name];
         if (handler != null) {
             this.applyDestination(false);
             if (handler instanceof DestinationFactory) {

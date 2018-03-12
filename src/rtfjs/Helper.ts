@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-import { IColor } from "./parser/Destinations";
+import { IColor } from "./parser/destinations/ColortblDestination";
 
 // tslint:disable-next-line:interface-name
 export interface RTFJSError {

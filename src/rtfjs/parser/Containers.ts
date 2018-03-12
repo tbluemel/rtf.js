@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Helper } from "../Helper";
 import { Renderer } from "../Renderer";
-import { IDestination } from "./Destinations";
+import { IDestination } from "./destinations/DestinationBase";
 
 export class Chp {
     public bold: boolean;

@@ -30,7 +30,8 @@ import { Helper, RTFJSError } from "../Helper";
 import { Renderer } from "../Renderer";
 import { SymbolTable } from "../Symboltable";
 import { GlobalState, State } from "./Containers";
-import { DestinationFactory, destinations } from "./Destinations";
+import { DestinationFactory } from "./destinations/DestinationBase";
+import { Destinations } from "./destinations/Destinations";
 import { RenderChp } from "./RenderChp";
 import { RenderPap } from "./RenderPap";
 
@@ -159,7 +160,7 @@ export class Parser {
 
     private changeDestination(name: string, param: number) {
         this.applyText();
-        const handler = destinations[name];
+        const handler = Destinations[name];
         if (handler != null) {
             this.applyDestination(false);
             if (handler instanceof DestinationFactory) {

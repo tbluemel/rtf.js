@@ -25,7 +25,8 @@ SOFTWARE.
 */
 
 import { RTFJSError } from "./Helper";
-import { FonttblDestinationSub, IColor } from "./parser/Destinations";
+import { IColor } from "./parser/destinations/ColortblDestination";
+import { FonttblDestinationSub } from "./parser/destinations/FonttblDestination";
 import { Renderer } from "./Renderer";
 
 export interface ISettings {
