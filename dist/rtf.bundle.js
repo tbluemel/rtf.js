@@ -8142,7 +8142,7 @@ var PictDestination = /** @class */ (function (_super) {
                     return function () {
                         var inst = this._doc;
                         var renderer = this;
-                        var elem = inst._settings.onPicture.call(inst, legacy, function () {
+                        var elem = inst._settings.onPicture(legacy, function () {
                             return doRender_1.call(renderer, true);
                         });
                         if (elem != null) {
@@ -8189,7 +8189,7 @@ var PictDestination = /** @class */ (function (_super) {
                     return function () {
                         var inst = this._doc;
                         var renderer = this;
-                        var elem = inst._settings.onPicture.call(inst, legacy, function () {
+                        var elem = inst._settings.onPicture(legacy, function () {
                             return doRender_2.call(renderer, true);
                         });
                         if (elem != null) {
@@ -8336,7 +8336,7 @@ var FieldHyperlink = /** @class */ (function (_super) {
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(inst, create, {
+                    container = inst._settings.onHyperlink(create, {
                         url: function () {
                             return self.url();
                         },
@@ -8440,7 +8440,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                                         }
                                     }
                                 };
-                                _this.inst._settings.onImport.call(_this.inst, data_1, cb);
+                                _this.inst._settings.onImport(data_1, cb);
                             }
                             catch (error) {
                                 reject(error);

@@ -33,7 +33,7 @@ import {
     DestinationTextBase,
     findParentDestination,
 } from "./DestinationBase";
-import { PictDestination } from "./PictDestination";
+import { PictDestination } from "./PictDestinations";
 import { RtfDestination } from "./RtfDestination";
 
 export interface IField {
@@ -131,7 +131,7 @@ export class FieldHyperlink extends FieldBase {
                 };
                 let container;
                 if (inst._settings.onHyperlink != null) {
-                    container = inst._settings.onHyperlink.call(inst, create,
+                    container = inst._settings.onHyperlink(create,
                         {
                             url() {
                                 return self.url();
@@ -245,7 +245,7 @@ export class FldinstDestination extends DestinationTextBase {
                                         }
                                     }
                                 };
-                                this.inst._settings.onImport.call(this.inst, data, cb);
+                                this.inst._settings.onImport(data, cb);
                             } catch (error) {
                                 reject(error);
                             }

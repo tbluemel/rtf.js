@@ -251,7 +251,7 @@ export class PictDestination extends DestinationTextBase {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, legacy, () => {
+                        const elem = inst._settings.onPicture(legacy, () => {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {
@@ -295,7 +295,7 @@ export class PictDestination extends DestinationTextBase {
                     return function(this: Renderer) {
                         const inst = this._doc;
                         const renderer = this;
-                        const elem = inst._settings.onPicture.call(inst, legacy, () => {
+                        const elem = inst._settings.onPicture(legacy, () => {
                             return doRender.call(renderer, true);
                         });
                         if (elem != null) {

@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Document } from "../../Document";
 import { GlobalState } from "../Containers";
-import { ColortblDestination } from "./ColortblDestination";
+import { ColortblDestination } from "./ColortblDestinations";
 import {
     DestinationFactory,
     GenericPropertyDestinationFactory,
@@ -34,11 +34,11 @@ import {
     RequiredDestinationFactory,
 } from "./DestinationBase";
 import { FieldDestination, FldinstDestination, FldrsltDestination } from "./FieldDestinations";
-import { FonttblDestination } from "./FonttblDestination";
+import { FonttblDestination } from "./FonttblDestinations";
 import { InfoDestination,
     MetaPropertyDestinationFactory,
     MetaPropertyTimeDestinationFactory } from "./MetaDestinations";
-import { PictDestination, PictGroupDestinationFactory } from "./PictDestination";
+import { PictDestination, PictGroupDestinationFactory } from "./PictDestinations";
 import { RtfDestination } from "./RtfDestination";
 import { StylesheetDestination } from "./StylesheetDestination";
 

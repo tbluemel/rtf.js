@@ -25,13 +25,13 @@ SOFTWARE.
 */
 
 import { RTFJSError } from "./Helper";
-import { IColor } from "./parser/destinations/ColortblDestination";
-import { FonttblDestinationSub } from "./parser/destinations/FonttblDestination";
-import { Renderer } from "./Renderer";
+import { IColor } from "./parser/destinations/ColortblDestinations";
+import { FonttblDestinationSub } from "./parser/destinations/FonttblDestinations";
+import { IContainerElement, Renderer } from "./Renderer";
 
 export interface ISettings {
-    onHyperlink?(create: () => void, hyperlink: {url: () => string}): void;
-    onPicture?(isLegacy: boolean, create: () => void): void;
+    onHyperlink?(create: () => void, hyperlink: {url: () => string}): IContainerElement;
+    onPicture?(isLegacy: boolean, create: () => void): JQuery;
     onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
         width?: number, height?: number}) => void): void;
 }
