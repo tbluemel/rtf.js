@@ -24,10 +24,10 @@ SOFTWARE.
 
 */
 
-import { Document } from "./Document";
-import { RTFJSError } from "./Helper";
-import { RenderChp } from "./parser/RenderChp";
-import { RenderPap } from "./parser/RenderPap";
+import { Document } from "../Document";
+import { RTFJSError } from "../Helper";
+import { RenderChp } from "./RenderChp";
+import { RenderPap } from "./RenderPap";
 
 export interface IContainerElement {
     element: JQuery;

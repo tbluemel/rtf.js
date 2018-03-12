@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Document } from "../Document";
 import { Helper } from "../Helper";
-import { Pap } from "./Containers";
+import { Pap } from "../parser/Containers";
 import { RenderChp } from "./RenderChp";
 
 export class RenderPap {

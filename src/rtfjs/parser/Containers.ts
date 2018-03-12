@@ -25,7 +25,7 @@ SOFTWARE.
 */
 
 import { Helper } from "../Helper";
-import { Renderer } from "../Renderer";
+import { Renderer } from "../renderer/Renderer";
 import { IDestination } from "./destinations/DestinationBase";
 
 export class Chp {

@@ -27,7 +27,7 @@ SOFTWARE.
 import { Document, ISettings } from "./Document";
 import { RTFJSError } from "./Helper";
 import { Parser } from "./parser/Parser";
-import { Renderer } from "./Renderer";
+import { Renderer } from "./renderer/Renderer";
 
 export class DocumentFacade {
     private _document: Document;

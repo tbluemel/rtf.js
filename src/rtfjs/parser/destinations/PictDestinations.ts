@@ -28,7 +28,7 @@ import * as EMFJS from "EMFJS";
 import * as WMFJS from "WMFJS";
 import { Document } from "../../Document";
 import { Helper, RTFJSError } from "../../Helper";
-import { Renderer } from "../../Renderer";
+import { Renderer } from "../../renderer/Renderer";
 import { GlobalState } from "../Containers";
 import { DestinationFactory, DestinationTextBase, findParentDestination, IDestination } from "./DestinationBase";
 

@@ -27,7 +27,7 @@ SOFTWARE.
 import { RTFJSError } from "./Helper";
 import { IColor } from "./parser/destinations/ColortblDestinations";
 import { FonttblDestinationSub } from "./parser/destinations/FonttblDestinations";
-import { IContainerElement, Renderer } from "./Renderer";
+import { IContainerElement, Renderer } from "./renderer/Renderer";
 
 export interface ISettings {
     onHyperlink?(create: () => void, hyperlink: {url: () => string}): IContainerElement;

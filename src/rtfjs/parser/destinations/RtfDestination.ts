@@ -26,10 +26,10 @@ SOFTWARE.
 
 import { Document } from "../../Document";
 import { Helper, RTFJSError } from "../../Helper";
-import { Renderer } from "../../Renderer";
+import { RenderChp } from "../../renderer/RenderChp";
+import { Renderer } from "../../renderer/Renderer";
+import { RenderPap } from "../../renderer/RenderPap";
 import { Chp, GlobalState, Pap, Sep } from "../Containers";
-import { RenderChp } from "../RenderChp";
-import { RenderPap } from "../RenderPap";
 import { DestinationBase } from "./DestinationBase";
 
 export class RtfDestination extends DestinationBase {

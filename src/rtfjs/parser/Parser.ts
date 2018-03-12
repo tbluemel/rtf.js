@@ -27,13 +27,13 @@ SOFTWARE.
 import cptable from "codepage";
 import { Document } from "../Document";
 import { Helper, RTFJSError } from "../Helper";
-import { Renderer } from "../Renderer";
+import { RenderChp } from "../renderer/RenderChp";
+import { Renderer } from "../renderer/Renderer";
+import { RenderPap } from "../renderer/RenderPap";
 import { SymbolTable } from "../Symboltable";
 import { GlobalState, State } from "./Containers";
 import { DestinationFactory } from "./destinations/DestinationBase";
 import { Destinations } from "./destinations/Destinations";
-import { RenderChp } from "./RenderChp";
-import { RenderPap } from "./RenderPap";
 
 export class Parser {
     private inst: Document;

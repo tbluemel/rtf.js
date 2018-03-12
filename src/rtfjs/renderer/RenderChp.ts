@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { Document } from "../Document";
 import { Helper } from "../Helper";
-import { Chp } from "./Containers";
+import { Chp } from "../parser/Containers";
 
 export class RenderChp {
     public _chp: Chp;
