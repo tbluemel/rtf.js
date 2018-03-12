@@ -6,7 +6,7 @@ GIT_STATUS=`git status --porcelain`
 printf "\n\n> git status --porcelain\n"
 printf "$GIT_STATUS"
 
-CHANGED_FILES=`echo \"$GIT_STATUS\" | wc -l`
+CHANGED_FILES=`printf \"$GIT_STATUS\" | wc -l`
 
 if [ "$CHANGED_FILES" -gt 0 ]; then
    printf "\n\nCommitted bundles don't include all changes\n"
