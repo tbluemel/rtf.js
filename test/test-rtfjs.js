@@ -41,6 +41,10 @@ describe("Test files", function() {
                         metadata: JSON.parse(meta)
                     };
                     done();
+                }, function (error) {
+                    var formattedError = new Error(error.message);
+                    formattedError.stack = error.stack;
+                    return done(formattedError);
                 });
             });
 

@@ -16,7 +16,7 @@ function indentHtml(rawHtml) {
         .replace("\n", "");
 }
 
-exports.runRtfjs = function(path, source, callback) {
+exports.runRtfjs = function(path, source, callback, errorCallback) {
     const virtualConsole = new jsdom.VirtualConsole();
     virtualConsole.sendTo(console);
 
@@ -71,14 +71,18 @@ exports.runRtfjs = function(path, source, callback) {
             }
         }
 
-        var doc = new RTFJS.Document(rtfFile, settings);
-
-        var meta = doc.metadata();
-        doc.render().then(function(htmlElements) {
-            var html = $("<div>").append(htmlElements).html();
-
-            window.done(meta, html);
-        }).catch(error => window.logger(error))
+        try {
+            var doc = new RTFJS.Document(rtfFile, settings);
+    
+            var meta = doc.metadata();
+            doc.render().then(function(htmlElements) {
+                var html = $("<div>").append(htmlElements).html();
+    
+                window.done(meta, html);
+            }).catch(error => window.onerror(error))
+        } catch (error){
+            window.onerror(error)
+        }
     </script>
     `, { resources: "usable",
         runScripts: "dangerously",
@@ -90,11 +94,12 @@ exports.runRtfjs = function(path, source, callback) {
             window.done = function(meta, html){
                 callback(JSON.stringify(meta, null, 4), indentHtml(html));
             };
-            window.logger = function (error) {
-                console.error(error);
+            window.onerror = function (error) {
+                errorCallback(error)
             };
-            window.alert = function (message) {
-                console.error(message);
+            // Catch exceptions from jquery.svg.min.js
+            window.alert = function (error) {
+                errorCallback(error)
             }
         }});
 }
