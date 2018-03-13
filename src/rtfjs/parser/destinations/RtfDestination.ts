@@ -185,7 +185,8 @@ export class RtfDestination extends DestinationBase {
         const handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             Helper.log("[rtf] handling keyword: " + keyword);
-            handler.call(this, param);
+            handler(param);
+            return true;
         }
         return false;
     }
