@@ -1,15 +1,15 @@
 {
-    "extends": "tslint:recommended",
-    "rules": {
-        "indent": [true, "spaces", 4],
-        "max-classes-per-file": false,
-        "no-bitwise": false,
-        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
-        "object-literal-sort-keys": false,
-        "prefer-for-of": false,
-
-        // to be enabled eventually
-        "forin": false
-    },
+//    "extends": "tslint:recommended",
+//    "rules": {
+//        "indent": [true, "spaces", 4],
+//        "max-classes-per-file": false,
+//        "no-bitwise": false,
+//        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+//        "object-literal-sort-keys": false,
+//        "prefer-for-of": false,
+//
+//        // to be enabled eventually
+//        "forin": false
+//    },
     "defaultSeverity": "error"
 }

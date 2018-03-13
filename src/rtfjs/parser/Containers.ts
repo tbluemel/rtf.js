@@ -60,12 +60,25 @@ export class Chp {
     }
 }
 
+export class Tbl {
+    public intbl: boolean;
+    constructor(parent?) {
+        if (parent != null) {
+            this.intbl = parent.intbl;
+        } else {
+            this.intbl = false;
+        }
+    }
+};
+
 export class Pap {
     public indent: {left: number, right: number, firstline: number};
     public justification: string;
     public spacebefore: number;
     public spaceafter: number;
     public charactertype: string;
+    public intable: boolean;
+    public isrow: boolean;
 
     constructor(parent: Pap) {
         if (parent != null) {
@@ -78,6 +91,8 @@ export class Pap {
             this.spacebefore = parent.spacebefore;
             this.spaceafter = parent.spaceafter;
             this.charactertype = parent.charactertype;
+            this.intable = parent.intable;
+            this.isrow = parent.isrow;
         } else {
             this.indent = {
                 left: 0,
@@ -87,6 +102,8 @@ export class Pap {
             this.justification = Helper.JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
+            this.intable = false;
+            this.isrow = false;
         }
     }
 }
@@ -184,6 +201,7 @@ export class State {
             this.skipunknowndestination = parent.skipunknowndestination;
             this.skipdestination = parent.skipdestination;
             this.ucn = parent.ucn;
+            this.table = parent.table;
         } else {
             this.chp = new Chp(null);
             this.pap = new Pap(null);
@@ -193,6 +211,7 @@ export class State {
             this.skipunknowndestination = false;
             this.skipdestination = false;
             this.ucn = 1;
+            this.table = null;
         }
     }
 }

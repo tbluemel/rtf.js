@@ -225,7 +225,7 @@ export class PictDestination extends DestinationTextBase {
                     if (typeof pictrender === "string") {
                         Helper.log("[pict] Could not load image: " + pictrender);
                         if (render) {
-                            return renderer.buildPicture(pictrender, null);
+                            return renderer.buildPicture(pictrender, null).getElement();
                         } else {
                             inst.addIns((rendererForPicture) => {
                                 rendererForPicture.picture(pictrender, null);
@@ -236,7 +236,7 @@ export class PictDestination extends DestinationTextBase {
                             throw new RTFJSError("Expected a picture render function");
                         }
                         if (render) {
-                            return renderer.buildRenderedPicture(pictrender());
+                            return renderer.buildRenderedPicture(pictrender()).getElement();
                         } else {
                             inst.addIns((rendererForPicture) => {
                                 rendererForPicture.renderedPicture(pictrender());
@@ -249,7 +249,7 @@ export class PictDestination extends DestinationTextBase {
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
                         const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true);
+                            return doRender(renderer, true).getElement();
                         });
                         if (elem != null) {
                             renderer.appendElement(elem);
@@ -289,7 +289,7 @@ export class PictDestination extends DestinationTextBase {
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
                         const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true);
+                            return doRender(renderer, true).getElement();
                         });
                         if (elem != null) {
                             renderer.appendElement(elem);

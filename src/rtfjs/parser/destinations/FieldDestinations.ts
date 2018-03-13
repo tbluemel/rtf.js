@@ -35,6 +35,7 @@ import {
 } from "./DestinationBase";
 import { PictDestination } from "./PictDestinations";
 import { RtfDestination } from "./RtfDestination";
+import {RenderContainer} from "../../renderer/RenderChp";
 
 export interface IField {
     renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number): boolean;
@@ -102,6 +103,7 @@ export class FieldBase {
     public renderFieldEnd(field: FieldDestination, rtf: RtfDestination, records: number) {
         if (records > 0) {
             rtf.addIns((renderer) => {
+                Helper.log("[rtf] Popping container");
                 renderer.popContainer();
             });
         }
@@ -143,7 +145,8 @@ export class FieldHyperlink extends FieldBase {
                         content: elem,
                     };
                 }
-                renderer.pushContainer(container);
+                Helper.log("[rtf] Pushing hyperlink container for url " + self._url);
+                renderer.pushContainer(new RenderContainer(renderer._doc, "hyperlink", container.element, container.content));
             });
             return true;
         }
