@@ -62,14 +62,14 @@ export class Chp {
 
 export class Tbl {
     public intbl: boolean;
-    constructor(parent?) {
+    constructor(parent?: Tbl) {
         if (parent != null) {
             this.intbl = parent.intbl;
         } else {
             this.intbl = false;
         }
     }
-};
+}
 
 export class Pap {
     public indent: {left: number, right: number, firstline: number};

@@ -29,7 +29,7 @@ import { Document } from "../Document";
 import { Helper, RTFJSError } from "../Helper";
 import { Renderer } from "../renderer/Renderer";
 import { SymbolTable } from "../Symboltable";
-import {Chp, GlobalState, Pap, State} from "./Containers";
+import { Chp, GlobalState, Pap, State } from "./Containers";
 import { DestinationFactory } from "./destinations/DestinationBase";
 import { Destinations } from "./destinations/Destinations";
 

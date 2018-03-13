@@ -26,16 +26,16 @@ SOFTWARE.
 
 import { Document } from "../../Document";
 import { Helper, RTFJSError } from "../../Helper";
+import { RenderTableContainer } from "../../renderer/RenderElements";
 import { Renderer } from "../../renderer/Renderer";
-import {Chp, GlobalState, Pap, Sep, Tbl} from "../Containers";
+import { Chp, GlobalState, Pap, Sep, Tbl } from "../Containers";
 import { DestinationBase } from "./DestinationBase";
-import {RenderTableContainer} from "../../renderer/RenderChp";
 
 export class RtfDestination extends DestinationBase {
     private _metadata: { [key: string]: any };
     private parser: GlobalState;
     private inst: Document;
-    private _propchanged;
+    private _propchanged: { chp: Chp, pap: Pap, sep: Sep, [key: string]: any };
     private _charFormatHandlers: { [key: string]: (param: number) => void } = {
         ansicpg: (param: number) => {
             // if the value is 0, use the default charset as 0 is not valid
@@ -119,10 +119,10 @@ export class RtfDestination extends DestinationBase {
         pgnstart: this._genericFormatSetVal("dop", "pagenumberstart", 1),
         facingp: this._genericFormatSetNoParam("dop", "facingpages", true),
         landscape: this._genericFormatSetNoParam("dop", "landscape", true),
-        par: this._addInsHandler(true,(renderer) => {
+        par: this._addInsHandler(true, (renderer) => {
             renderer.finishPar();
         }),
-        line: this._addInsHandler(true,(renderer) => {
+        line: this._addInsHandler(true, (renderer) => {
             renderer.lineBreak();
         }),
         trowd: this._setTableVal(),
@@ -149,7 +149,7 @@ export class RtfDestination extends DestinationBase {
         this._propchanged = {
             chp: null,
             pap: null,
-            sep: null
+            sep: null,
         };
         this.parser = parser;
         this.inst = inst;
@@ -163,8 +163,9 @@ export class RtfDestination extends DestinationBase {
         Helper.log("[rtf] appendText()");
         this.flushProps();
         if (this.parser.state.pap.intable) {
-            if (this.parser.state.table == null)
+            if (this.parser.state.table == null) {
                 throw new RTFJSError("intbl flag without table definition");
+            }
         } else {
             if (this.parser.state.table != null) {
                 Helper.log("[rtf] TABLE END");
@@ -202,10 +203,11 @@ export class RtfDestination extends DestinationBase {
         this._metadata[prop] = val;
     }
 
-    private _addInsHandler(flushprops, func: (renderer: Renderer) => void) {
+    private _addInsHandler(flushprops: boolean, func: (renderer: Renderer) => void) {
         return (param: number) => {
-            if (flushprops)
+            if (flushprops) {
                 this.flushProps();
+            }
             this.inst.addIns(func);
         };
     }
@@ -228,19 +230,20 @@ export class RtfDestination extends DestinationBase {
         }
     }
 
-    _updateFormatIns(ptype, props) {
-        var changed = this._propchanged[ptype];
-        if (changed == null)
+    private _updateFormatIns(ptype: string, props: any) {
+        let changed = this._propchanged[ptype];
+        if (changed == null) {
             this._propchanged[ptype] = changed = props;
-        if (changed != props) {
+        }
+        if (changed !== props) {
             this._propchanged[ptype] = props;
             this._addFormatIns(ptype, changed);
         }
-    };
+    }
 
-    flushProps(ptype?) {
+    private flushProps(ptype?: string) {
         if (ptype != null) {
-            var changed = this._propchanged[ptype];
+            const changed = this._propchanged[ptype];
             if (changed != null) {
                 this._propchanged[ptype] = null;
                 this._addFormatIns(ptype, changed);
@@ -250,21 +253,21 @@ export class RtfDestination extends DestinationBase {
             this.flushProps("pap");
             this.flushProps("sep");
         }
-    };
+    }
 
-    _finishTableRow() {
+    private _finishTableRow() {
         Helper.log("[rtf] finalize table row");
         this.inst.addIns((renderer) => {
             renderer.finishRow();
         });
-    };
+    }
 
-    _finishTableCell() {
+    private _finishTableCell() {
         Helper.log("[rtf] finalize table cell");
         this.inst.addIns((renderer) => {
             renderer.finishCell();
         });
-    };
+    }
 
     private _genericFormatSetNoParam(ptype: string, prop: string, val: any) {
         return (param: number) => {
@@ -306,32 +309,20 @@ export class RtfDestination extends DestinationBase {
         };
     }
 
-    private _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultValOrFunc) {
-        return (param) => {
-            var props = this.parser.state[ptype];
-            var members = props[prop];
-            var val;
-            if (typeof defaultValOrFunc === "function")
-                val = defaultValOrFunc.call(this, param);
-            else
-                val = (param == null) ? defaultValOrFunc : param;
-            members[member] = val;
+    private _genericFormatSetMemberVal(ptype: string, prop: string, member: string, defaultval: number) {
+        return (param: number) => {
+            const props = this.parser.state[ptype];
+            const members = props[prop];
+            members[member] = (param == null) ? defaultval : param;
             Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
             this._updateFormatIns(ptype, props);
         };
     }
 
-    _setTableVal(member?, defaultValOrFunc?) {
-        return (param) => {
+    private _setTableVal(member?: string, defaultval?: number) {
+        return (param: number) => {
             if (member != null) {
-                var val;
-                if (this.parser.state.table == null)
-                    throw new RTFJSError("Invalid table row definition");
-                if (typeof defaultValOrFunc === "function")
-                    val = defaultValOrFunc.call(this, param);
-                else
-                    val = (param == null) ? defaultValOrFunc : param;
-                this.parser.state.table[member] = val;
+                this.parser.state.table[member] = (param == null) ? defaultval : param;
                 Helper.log("[rtf] state.table." + member + " = " + this.parser.state.table[member].toString());
             } else {
                 if (this.parser.state.table != null) {
@@ -345,5 +336,5 @@ export class RtfDestination extends DestinationBase {
                 }
             }
         };
-    };
+    }
 }

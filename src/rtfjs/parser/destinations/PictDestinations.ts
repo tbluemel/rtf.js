@@ -249,7 +249,7 @@ export class PictDestination extends DestinationTextBase {
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
                         const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true).getElement();
+                            return doRender(renderer, true);
                         });
                         if (elem != null) {
                             renderer.appendElement(elem);
@@ -269,7 +269,7 @@ export class PictDestination extends DestinationTextBase {
                 const bin = blob != null ? Helper._blobToBinary(blob) : Helper._hexToBinary(text);
                 if (type !== "") {
                     if (render) {
-                        return renderer.buildPicture(type as string, bin);
+                        return renderer.buildPicture(type as string, bin).getElement();
                     } else {
                         renderer._doc.addIns((rendererForPicture) => {
                             rendererForPicture.picture(type as string, bin);
@@ -277,7 +277,7 @@ export class PictDestination extends DestinationTextBase {
                     }
                 } else {
                     if (render) {
-                        return renderer.buildPicture("Unsupported image format", null);
+                        return renderer.buildPicture("Unsupported image format", null).getElement();
                     } else {
                         renderer._doc.addIns((rendererForPicture) => {
                             rendererForPicture.picture("Unsupported image format", null);
@@ -289,7 +289,7 @@ export class PictDestination extends DestinationTextBase {
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
                         const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true).getElement();
+                            return doRender(renderer, true);
                         });
                         if (elem != null) {
                             renderer.appendElement(elem);

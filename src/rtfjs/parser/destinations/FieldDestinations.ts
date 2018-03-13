@@ -26,6 +26,7 @@ SOFTWARE.
 
 import { Document } from "../../Document";
 import { Helper, RTFJSError } from "../../Helper";
+import { RenderContainer } from "../../renderer/RenderElements";
 import { GlobalState } from "../Containers";
 import {
     DestinationBase,
@@ -35,7 +36,6 @@ import {
 } from "./DestinationBase";
 import { PictDestination } from "./PictDestinations";
 import { RtfDestination } from "./RtfDestination";
-import {RenderContainer} from "../../renderer/RenderChp";
 
 export interface IField {
     renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number): boolean;
@@ -146,7 +146,8 @@ export class FieldHyperlink extends FieldBase {
                     };
                 }
                 Helper.log("[rtf] Pushing hyperlink container for url " + self._url);
-                renderer.pushContainer(new RenderContainer(renderer._doc, "hyperlink", container.element, container.content));
+                renderer.pushContainer(new RenderContainer(renderer._doc, "hyperlink", container.element,
+                    container.content));
             });
             return true;
         }
