@@ -337,7 +337,7 @@ RTFJS.RenderContainer.prototype.finalize = function() {
 	var cont = this.getContent();
 	var len = this._sub.length;
 	for (var i = 0; i < len; i++) {
-		var element = this._finalizeSub(this._sub[i]);
+		var element = this._finalizeSub(this._sub[i], this._pap);
 		if (element != null)
 			cont.append(element);
 	}
@@ -403,10 +403,10 @@ RTFJS.RenderParagraphContainer.prototype.applyPap = function(el, pap, chp, ismai
 	}
 };
 
-RTFJS.RenderParagraphContainer.prototype._finalizeSub = function(sub) {
+RTFJS.RenderParagraphContainer.prototype._finalizeSub = function(sub, parentPap) {
 	var element = sub.container.finalize();
 	if (element)
-		this.applyPap(element, sub.pap, sub.chp);
+		this.applyPap(element, sub.pap ? sub.pap : parentPap, sub.chp);
 	return element;
 };
 
