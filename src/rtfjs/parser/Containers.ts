@@ -62,6 +62,8 @@ export class Chp {
 
 export class Tbl {
     public intbl: boolean;
+    [key: string]: any;
+
     constructor(parent?: Tbl) {
         if (parent != null) {
             this.intbl = parent.intbl;
@@ -181,6 +183,7 @@ export class State {
     public pap: Pap;
     public sep: Sep;
     public dop: Dop;
+    public table: Tbl;
     public destination: IDestination;
     public skipunknowndestination: boolean;
     public skipdestination: boolean;

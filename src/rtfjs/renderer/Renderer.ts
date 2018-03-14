@@ -52,15 +52,6 @@ export class Renderer {
     constructor(doc: Document) {
         this._doc = doc;
         this._dom = null;
-        this.initRender();
-    }
-
-    public initRender() {
-        this._chp = null;
-        this._pap = null;
-        this._curpar = [];
-        this._cursubparIdx = -1;
-        this._curcont = [];
     }
 
     public pushContainer(container: RenderContainer) {
@@ -240,7 +231,11 @@ export class Renderer {
 
         this._dom = [];
 
-        this.initRender();
+        this._chp = null;
+        this._pap = null;
+        this._curpar = [];
+        this._cursubparIdx = -1;
+        this._curcont = [];
 
         let len = this._doc._ins.length;
         for (let i = 0; i < len; i++) {

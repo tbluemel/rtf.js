@@ -128,7 +128,7 @@ export class RtfDestination extends DestinationBase {
         trowd: this._setTableVal(),
         intbl: this._genericFormatSetNoParam("pap", "intable", true),
         row: this._genericFormatSetNoParam("pap", "isrow", true),
-        cell: (param) => {
+        cell: () => {
             this._finishTableCell();
         },
     };
