@@ -249,6 +249,7 @@ export class Renderer {
 
         len = this._curpar.length;
         for (let i = 0; i < len; i++) {
+            // At this point all render elements have been wrapped in RenderParagraphContainer objects
             const element = this._curpar[i].finalize();
             if (element) {
                 this._dom.push(element);

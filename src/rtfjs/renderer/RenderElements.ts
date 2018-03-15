@@ -71,6 +71,8 @@ export class RenderTextElement extends RenderElement {
     public applyProps() {
         const chp = this._chp;
         const el = this.getElement();
+        Helper.log("[rtf] RenderTextElement: " + el.text());
+        Helper.log("[rtf] RenderTextElement applyProps: " + JSON.stringify(chp));
         if (chp.bold) {
             el.css("font-weight", "bold");
         }
@@ -191,37 +193,38 @@ export class RenderParagraphContainer extends RenderContainer {
         }
     }
 
-    public applyPap(el: JQuery, pap: Pap, chp: Chp, ismaindiv?: boolean) {
+    public applyPap(el: JQuery, pap: Pap, chp: Chp) {
+        Helper.log("[rtf] RenderParagraphContainer applyPap: chp=" + JSON.stringify(chp)
+            + " pap=" + JSON.stringify(pap));
         el = this.getElement();
-        if (ismaindiv) {
-            if (pap.spacebefore !== 0) {
-                el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
-            } else {
-                el.css("margin-top", "");
-            }
-            if (pap.spaceafter !== 0) {
-                el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
-            } else {
-                el.css("margin-bottom", "");
-            }
-            if (chp != null) {
-                el.css("min-height", Math.floor(chp.fontsize / 2) + "pt");
-            }
+
+        if (pap.spacebefore !== 0) {
+            el.css("margin-top", Helper._twipsToPt(pap.spacebefore) + "pt");
         } else {
-            switch (pap.justification) {
-                case Helper.JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
-                    break;
-                case Helper.JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
-                    break;
-                case Helper.JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
-                    break;
-                case Helper.JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
-                    break;
-            }
+            el.css("margin-top", "");
+        }
+        if (pap.spaceafter !== 0) {
+            el.css("margin-bottom", Helper._twipsToPt(pap.spaceafter) + "pt");
+        } else {
+            el.css("margin-bottom", "");
+        }
+        if (chp != null) {
+            el.css("min-height", Math.floor(chp.fontsize / 2) + "pt");
+        }
+
+        switch (pap.justification) {
+            case Helper.JUSTIFICATION.LEFT:
+                el.css("text-align", "left");
+                break;
+            case Helper.JUSTIFICATION.RIGHT:
+                el.css("text-align", "right");
+                break;
+            case Helper.JUSTIFICATION.CENTER:
+                el.css("text-align", "center");
+                break;
+            case Helper.JUSTIFICATION.JUSTIFY:
+                el.css("text-align", "justify");
+                break;
         }
     }
 

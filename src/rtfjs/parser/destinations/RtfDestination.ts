@@ -28,14 +28,14 @@ import { Document } from "../../Document";
 import { Helper, RTFJSError } from "../../Helper";
 import { RenderTableContainer } from "../../renderer/RenderElements";
 import { Renderer } from "../../renderer/Renderer";
-import { Chp, GlobalState, Pap, Sep, Tbl } from "../Containers";
+import {Chp, Dop, GlobalState, Pap, Sep, Tbl} from "../Containers";
 import { DestinationBase } from "./DestinationBase";
 
 export class RtfDestination extends DestinationBase {
     private _metadata: { [key: string]: any };
     private parser: GlobalState;
     private inst: Document;
-    private _propchanged: { chp: Chp, pap: Pap, sep: Sep, [key: string]: any };
+    private _propchanged: { chp: Chp, pap: Pap, sep: Sep, dop: Dop, [key: string]: any };
     private _charFormatHandlers: { [key: string]: (param: number) => void } = {
         ansicpg: (param: number) => {
             // if the value is 0, use the default charset as 0 is not valid
@@ -47,17 +47,14 @@ export class RtfDestination extends DestinationBase {
         sectd: () => {
             Helper.log("[rtf] reset to section defaults");
             this.parser.state.sep = new Sep(null);
-            this._updateFormatIns("sep", this.parser.state.sep);
         },
         plain: () => {
             Helper.log("[rtf] reset to character defaults");
             this.parser.state.chp = new Chp(null);
-            this._updateFormatIns("chp", this.parser.state.chp);
         },
         pard: () => {
             Helper.log("[rtf] reset to paragraph defaults");
             this.parser.state.pap = new Pap(null);
-            this._updateFormatIns("pap", this.parser.state.pap);
         },
         b: this._genericFormatOnOff("chp", "bold"),
         i: this._genericFormatOnOff("chp", "italic"),
@@ -119,10 +116,10 @@ export class RtfDestination extends DestinationBase {
         pgnstart: this._genericFormatSetVal("dop", "pagenumberstart", 1),
         facingp: this._genericFormatSetNoParam("dop", "facingpages", true),
         landscape: this._genericFormatSetNoParam("dop", "landscape", true),
-        par: this._addInsHandler(true, (renderer) => {
+        par: this._addInsHandler((renderer) => {
             renderer.finishPar();
         }),
-        line: this._addInsHandler(true, (renderer) => {
+        line: this._addInsHandler((renderer) => {
             renderer.lineBreak();
         }),
         trowd: this._setTableVal(),
@@ -150,6 +147,7 @@ export class RtfDestination extends DestinationBase {
             chp: null,
             pap: null,
             sep: null,
+            dop: null,
         };
         this.parser = parser;
         this.inst = inst;
@@ -160,8 +158,7 @@ export class RtfDestination extends DestinationBase {
     }
 
     public appendText(text: string) {
-        Helper.log("[rtf] appendText()");
-        this.flushProps();
+        // this.flushProps();
         if (this.parser.state.pap.intable) {
             if (this.parser.state.table == null) {
                 throw new RTFJSError("intbl flag without table definition");
@@ -184,7 +181,6 @@ export class RtfDestination extends DestinationBase {
     public handleKeyword(keyword: string, param: number) {
         const handler = this._charFormatHandlers[keyword];
         if (handler != null) {
-            Helper.log("[rtf] handling keyword: " + keyword);
             handler(param);
             return true;
         }
@@ -204,11 +200,8 @@ export class RtfDestination extends DestinationBase {
         this._metadata[prop] = val;
     }
 
-    private _addInsHandler(flushprops: boolean, func: (renderer: Renderer) => void) {
+    private _addInsHandler(func: (renderer: Renderer) => void) {
         return (param: number) => {
-            if (flushprops) {
-                this.flushProps();
-            }
             this.inst.addIns(func);
         };
     }
@@ -232,13 +225,14 @@ export class RtfDestination extends DestinationBase {
     }
 
     private _updateFormatIns(ptype: string, props: any) {
-        let changed = this._propchanged[ptype];
+        const changed = this._propchanged[ptype];
+        const classes: {[key: string]: any} = {chp: Chp, pap: Pap, sep: Sep, dop: Dop};
         if (changed == null) {
-            this._propchanged[ptype] = changed = props;
+            this._propchanged[ptype] = new classes[ptype](props);
         }
         if (changed !== props) {
-            this._propchanged[ptype] = props;
-            this._addFormatIns(ptype, changed);
+            this._propchanged[ptype] = new classes[ptype](props);
+            this._addFormatIns(ptype, props);
         }
     }
 
@@ -253,6 +247,7 @@ export class RtfDestination extends DestinationBase {
             this.flushProps("chp");
             this.flushProps("pap");
             this.flushProps("sep");
+            this.flushProps("dop");
         }
     }
 
