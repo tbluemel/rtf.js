@@ -90,7 +90,15 @@ function displayRtfFile(blob) {
             $("#opened_doc").show();
             $("#tools").show();
             console.log("All done!");
-        })
+        }).catch(e => {
+            if (e instanceof RTFJS.Error) {
+                $("#content").text("Error: " + e.message);
+                throw e;
+            }
+            else {
+                throw e;
+            }
+        });
     } catch(e) {
         if (e instanceof RTFJS.Error)
             $("#content").text("Error: " + e.message);

@@ -88,6 +88,14 @@ function displayRtfFile(blob, configs={}) {
 
         doc.render().then(html => {
             get_root_element().empty().append(html);
+        }).catch(e => {
+            if (e instanceof RTFJS.Error) {
+                $("#content").text("Error: " + e.message);
+                throw e;
+            }
+            else {
+                throw e;
+            }
         });
     } catch(e) {
         if (e instanceof RTFJS.Error)
