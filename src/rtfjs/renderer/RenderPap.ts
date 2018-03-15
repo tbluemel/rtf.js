@@ -38,7 +38,7 @@ export class RenderPap {
 
     public apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
         Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
-            + " pap=" + JSON.stringify(this._pap));
+            + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");

@@ -7278,7 +7278,7 @@ var RenderPap = /** @class */ (function () {
     }
     RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
         Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
-            + " pap=" + JSON.stringify(this._pap));
+            + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
