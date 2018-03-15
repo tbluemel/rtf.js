@@ -36,6 +36,8 @@ export class RenderChp {
     }
 
     public apply(doc: Document, el: JQuery) {
+        Helper.log("[rtf] RenderChp: " + el.text());
+        Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
             el.css("font-weight", "bold");
         }

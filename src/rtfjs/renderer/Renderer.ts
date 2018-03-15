@@ -194,11 +194,11 @@ export class Renderer {
         for (let i = 0; i < len; i++) {
             const ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                const span = $("<span>");
+                const span = $("<span>").text(ins);
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }
-                this._appendToPar(span.text(ins));
+                this._appendToPar(span);
             } else {
                 ins(this);
             }

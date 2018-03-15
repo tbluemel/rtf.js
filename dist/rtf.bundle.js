@@ -7212,6 +7212,8 @@ var RenderChp = /** @class */ (function () {
         this._chp = chp;
     }
     RenderChp.prototype.apply = function (doc, el) {
+        Helper.log("[rtf] RenderChp: " + el.text());
+        Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
             el.css("font-weight", "bold");
         }
@@ -7275,6 +7277,8 @@ var RenderPap = /** @class */ (function () {
         this._pap = pap;
     }
     RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
+            + " pap=" + JSON.stringify(this._pap));
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
                 el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
@@ -9092,6 +9096,7 @@ var RtfDestination = /** @class */ (function (_super) {
         };
     };
     RtfDestination.prototype._addFormatIns = function (ptype, props) {
+        Helper.log("[rtf] update " + ptype);
         switch (ptype) {
             case "chp":
                 var rchp_1 = new RenderChp(new Chp(props));
@@ -9922,11 +9927,11 @@ var Renderer = /** @class */ (function () {
         for (var i = 0; i < len; i++) {
             var ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                var span = $("<span>");
+                var span = $("<span>").text(ins);
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }
-                this._appendToPar(span.text(ins));
+                this._appendToPar(span);
             }
             else {
                 ins(this);

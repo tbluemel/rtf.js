@@ -182,6 +182,7 @@ export class RtfDestination extends DestinationBase {
     }
 
     private _addFormatIns(ptype: string, props: Chp | Pap) {
+        Helper.log("[rtf] update " + ptype);
         switch (ptype) {
             case "chp":
                 const rchp = new RenderChp(new Chp(props as Chp));
