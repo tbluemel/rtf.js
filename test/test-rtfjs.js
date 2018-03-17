@@ -4,6 +4,7 @@ var chai = require("chai");
 var expect = require("chai").expect;
 var chaiHtml  = require('chai-html');
 chai.use(chaiHtml);
+var typewiz = require('typewiz');
 
 var utils = require("./utils");
 
@@ -28,6 +29,7 @@ function getTestFiles() {
 var testFiles = getTestFiles();
 
 describe("Test files", function() {
+    var $_$twiz;
     testFiles.forEach(function(testFile) {
         describe(testFile.name, function() {
             this.timeout(0);
@@ -35,11 +37,12 @@ describe("Test files", function() {
             var result;
 
             before(function(done) {
-                utils.runRtfjs(testFile.dir, testFile.source, function (meta, html) {
+                utils.runRtfjs(testFile.dir, testFile.source, function (meta, html, twiz) {
                     result = {
                         html: html,
                         metadata: JSON.parse(meta)
                     };
+                    $_$twiz = twiz;
                     done();
                 }, function (error) {
                     var formattedError = new Error(error.message);
@@ -60,5 +63,10 @@ describe("Test files", function() {
                 expect(testFile.expectedMetadata).to.deep.equal(result.metadata);
             });
         });
+    });
+
+    after(function() {
+        // Apply captured types
+        typewiz.applyTypes($_$twiz.get());
     });
 });

@@ -1,5 +1,6 @@
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
+var $_$twiz = require('typewiz/dist/type-collector-snippet').$_$twiz;
 
 function stringToBinaryArray(string) {
     var buffer = new ArrayBuffer(string.length);
@@ -92,7 +93,7 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
             window.path = path;
             window.rtfFile = stringToBinaryArray(source);
             window.done = function(meta, html){
-                callback(JSON.stringify(meta, null, 4), indentHtml(html));
+                callback(JSON.stringify(meta, null, 4), indentHtml(html), $_$twiz);
             };
             window.onerror = function (error) {
                 errorCallback(error)
@@ -100,6 +101,7 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
             // Catch exceptions from jquery.svg.min.js
             window.alert = function (error) {
                 errorCallback(error)
-            }
+            };
+            window.$_$twiz = $_$twiz;
         }});
 }
