@@ -52,3 +52,17 @@ To regenerate the expected json and html for an existing test:
 ```
 $ npm run regenerate-testcase test-name
 ```
+
+## Code Coverage
+To generate code coverage metrics run:
+```
+$ npm run coverage
+```
+
+Afterwards you can generate a nice html report in the `coverage` directory:
+```
+$ npm run coverage-html
+```
+
+**Warning:** creating coverage reports instruments the bundles in the `dist` directory.
+Don't forget to build the project again before committing.

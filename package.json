@@ -12,7 +12,9 @@
         "build": "npm run clean && npm run compile && npm run bundle",
         "generate-testcase": "node test/generate-testcase.js",
         "regenerate-testcase": "node test/regenerate-testcase.js",
-        "test": "mocha test/test-rtfjs.js"
+        "test": "mocha test/test-rtfjs.js",
+        "coverage": "rimraf .nyc_output && cd dist && nyc instrument . . && cd .. && nyc mocha test/test-rtfjs.js && nyc report --report-dir=.nyc_output --reporter=json",
+        "coverage-html": "rimraf coverage && cd dist && remap-istanbul --input ../.nyc_output/coverage-final.json --output ../coverage --type html && cd .."
     },
     "repository": {
         "type": "git",
@@ -33,6 +35,8 @@
         "chai-html": "^1.1.5",
         "jsdom": "^11.6.2",
         "mocha": "^5.0.1",
+        "nyc": "^11.6.0",
+        "remap-istanbul": "^0.11.0",
         "rimraf": "^2.6.2",
         "rollup": "^0.56.2",
         "rollup-plugin-commonjs": "^8.3.0",
