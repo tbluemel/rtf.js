@@ -7,3 +7,7 @@ script:
   - bash travis-verify-build.sh
   - npm run lint
   - npm run test
+after_success:
+  - npm run coverage
+  - npm run coverage-coveralls
+

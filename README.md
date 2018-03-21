@@ -1,5 +1,6 @@
 # rtf.js
 [![Build Status](https://travis-ci.org/tbluemel/rtf.js.svg?branch=master)](https://travis-ci.org/tbluemel/rtf.js)
+[![Coverage Status](https://coveralls.io/repos/github/tbluemel/rtf.js/badge.svg?branch=master)](https://coveralls.io/github/tbluemel/rtf.js?branch=master)
 
 Render RTF documents in HTML.  This also includes rendering WMF and EMF images which are often contained in RTF documents.
 
