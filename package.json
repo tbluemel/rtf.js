@@ -7,11 +7,11 @@
         "lint": "tslint --project tsconfig.json",
         "fix": "tslint --project tsconfig.json --fix",
         "clean": "rimraf dist",
-        "build": "npm run clean && webpack --config webpack/development.config.js",
+        "build": "npm run clean && webpack --config webpack/development.config.js --progress",
         "generate-testcase": "node test/generate-testcase.js",
         "regenerate-testcase": "node test/regenerate-testcase.js",
         "test": "mocha test/test-rtfjs.js",
-        "coverage": "npm run clean && webpack --config webpack/coverage.config.js && nyc mocha test/test-rtfjs.js",
+        "coverage": "npm run clean && webpack --config webpack/coverage.config.js --progress && nyc mocha test/test-rtfjs.js",
         "coverage-html": "rimraf coverage && nyc report --reporter html",
         "coverage-coveralls": "nyc report --reporter text-lcov | coveralls",
         "typewiz": "npm run clean && node typewiz-instrument build src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts && npm run bundle && npm run test"

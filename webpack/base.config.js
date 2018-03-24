@@ -25,5 +25,8 @@ module.exports = {
     externals: {
         EMFJS: 'EMFJS',
         WMFJS: 'WMFJS'
+    },
+    stats: {
+        modules: false
     }
 };
