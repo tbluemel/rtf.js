@@ -14,7 +14,7 @@
         "coverage": "npm run clean && webpack --config webpack/coverage.config.js --progress && nyc mocha test/test-rtfjs.js",
         "coverage-html": "rimraf coverage && nyc report --reporter html",
         "coverage-coveralls": "nyc report --reporter text-lcov | coveralls",
-        "typewiz": "npm run clean && node typewiz-instrument build src/**/*.ts src/**/**/*.ts src/**/**/**/*.ts && npm run bundle && npm run test"
+        "typewiz": "npm run clean && webpack --config webpack/typewiz.config.js --progress && npm run test"
     },
     "repository": {
         "type": "git",
@@ -46,6 +46,7 @@
         "tslint": "^5.9.1",
         "typescript": "^2.7.2",
         "typewiz": "^0.6.0",
+        "typewiz-webpack": "^0.3.3",
         "webpack": "^4.2.0",
         "webpack-cli": "^2.0.13",
         "webpack-merge": "^4.1.2"
