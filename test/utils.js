@@ -27,9 +27,9 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
     <script src="../samples/.common/dep/jquery.svg.min.js"></script>
     <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
 
-    <script src="../dist/wmf.bundle.js"></script>
-    <script src="../dist/emf.bundle.js"></script>
-    <script src="../dist/rtf.bundle.js"></script>
+    <script src="../dist/WMFJS.bundle.js"></script>
+    <script src="../dist/EMFJS.bundle.js"></script>
+    <script src="../dist/RTFJS.bundle.js"></script>
 
     <script>
         RTFJS.loggingEnabled(false);

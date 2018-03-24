@@ -1,11 +1,5 @@
 {
     "compilerOptions": {
-        "outDir": "./build",
-        "baseUrl": ".",
-        "paths": {
-            "WMFJS": ["src/wmfjs"],
-            "EMFJS": ["src/emfjs"]
-        },
         "allowJs": false,
         "target": "es5",
         "lib": ["dom", "es5", "scripthost", "es2015.promise"],
@@ -17,8 +11,5 @@
         "strictPropertyInitialization": true,
         "noImplicitAny": true,
         "noImplicitThis": true
-    },
-    "include": [
-        "./src/**/*"
-    ]
+    }
 }

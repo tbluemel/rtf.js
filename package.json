@@ -6,10 +6,8 @@
     "scripts": {
         "lint": "tslint --project tsconfig.json",
         "fix": "tslint --project tsconfig.json --fix",
-        "clean": "rimraf build && rimraf dist",
-        "compile": "tsc",
-        "bundle": "rollup --config rollup.config.rtfjs.js && rollup --config rollup.config.wmfjs.js && rollup --config rollup.config.emfjs.js",
-        "build": "npm run clean && npm run compile && npm run bundle",
+        "clean": "rimraf dist",
+        "build": "npm run clean && webpack",
         "generate-testcase": "node test/generate-testcase.js",
         "regenerate-testcase": "node test/regenerate-testcase.js",
         "test": "mocha test/test-rtfjs.js",
@@ -43,13 +41,12 @@
         "nyc": "^11.6.0",
         "remap-istanbul": "^0.11.0",
         "rimraf": "^2.6.2",
-        "rollup": "^0.56.2",
-        "rollup-plugin-commonjs": "^8.3.0",
-        "rollup-plugin-node-resolve": "^3.0.3",
-        "rollup-plugin-sourcemaps": "^0.4.2",
+        "ts-loader": "^4.1.0",
         "tslint": "^5.9.1",
-        "typescript": "2.7.2",
-        "typewiz": "^0.6.0"
+        "typescript": "^2.7.2",
+        "typewiz": "^0.6.0",
+        "webpack": "^4.2.0",
+        "webpack-cli": "^2.0.13"
     },
     "dependencies": {
         "codepage": "^1.12.0"
