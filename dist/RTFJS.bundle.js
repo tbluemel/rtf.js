@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("EMFJS"), require("WMFJS"));
+		module.exports = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else if(typeof define === 'function' && define.amd)
-		define(["EMFJS", "WMFJS"], factory);
+		define(["./EMFJS.bundle.js", "./WMFJS.bundle.js"], factory);
 	else if(typeof exports === 'object')
-		exports["RTFJS"] = factory(require("EMFJS"), require("WMFJS"));
+		exports["RTFJS"] = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else
 		root["RTFJS"] = factory(root["EMFJS"], root["WMFJS"]);
-})(window, function(__WEBPACK_EXTERNAL_MODULE_EMFJS__, __WEBPACK_EXTERNAL_MODULE_WMFJS__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_EMFJS__, __WEBPACK_EXTERNAL_MODULE_WMFJS__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -10513,9 +10513,9 @@ var Renderer = /** @class */ (function () {
 /***/ }),
 
 /***/ "EMFJS":
-/*!************************!*\
-  !*** external "EMFJS" ***!
-  \************************/
+/*!**************************************************************************************************************************!*\
+  !*** external {"commonjs":"./EMFJS.bundle.js","commonjs2":"./EMFJS.bundle.js","amd":"./EMFJS.bundle.js","root":"EMFJS"} ***!
+  \**************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -10524,9 +10524,9 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_EMFJS__;
 /***/ }),
 
 /***/ "WMFJS":
-/*!************************!*\
-  !*** external "WMFJS" ***!
-  \************************/
+/*!**************************************************************************************************************************!*\
+  !*** external {"commonjs":"./WMFJS.bundle.js","commonjs2":"./WMFJS.bundle.js","amd":"./WMFJS.bundle.js","root":"WMFJS"} ***!
+  \**************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 

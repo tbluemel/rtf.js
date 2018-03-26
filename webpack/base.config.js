@@ -20,11 +20,22 @@ module.exports = {
         path: path.resolve(__dirname, '../dist'),
         filename: '[name].bundle.js',
         library: '[name]',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        globalObject: 'this'
     },
     externals: {
-        EMFJS: 'EMFJS',
-        WMFJS: 'WMFJS'
+        EMFJS: {
+            commonjs: './EMFJS.bundle.js',
+            commonjs2: './EMFJS.bundle.js',
+            amd: './EMFJS.bundle.js',
+            root: 'EMFJS'
+        },
+        WMFJS: {
+            commonjs: './WMFJS.bundle.js',
+            commonjs2: './WMFJS.bundle.js',
+            amd: './WMFJS.bundle.js',
+            root: 'WMFJS'
+        }
     },
     stats: {
         modules: false

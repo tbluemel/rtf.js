@@ -7,7 +7,7 @@
 		exports["EMFJS"] = factory();
 	else
 		root["EMFJS"] = factory();
-})(window, function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
