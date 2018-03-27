@@ -24,6 +24,7 @@ SOFTWARE.
 
 */
 
+import * as $ from "jquery";
 import { DIBitmap } from "./Bitmap";
 import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";

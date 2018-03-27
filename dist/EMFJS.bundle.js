@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("jquery"));
 	else if(typeof define === 'function' && define.amd)
-		define([], factory);
+		define(["jquery"], factory);
 	else if(typeof exports === 'object')
-		exports["EMFJS"] = factory();
+		exports["EMFJS"] = factory(require("jquery"));
 	else
-		root["EMFJS"] = factory();
-})(this, function() {
+		root["EMFJS"] = factory(root["$"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_jquery__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -2829,10 +2829,12 @@ var Scan = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EMF", function() { return EMF; });
-/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Blob */ "./src/emfjs/Blob.ts");
-/* harmony import */ var _EMFRecords__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EMFRecords */ "./src/emfjs/EMFRecords.ts");
-/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GDIContext */ "./src/emfjs/GDIContext.ts");
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Blob */ "./src/emfjs/Blob.ts");
+/* harmony import */ var _EMFRecords__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EMFRecords */ "./src/emfjs/EMFRecords.ts");
+/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GDIContext */ "./src/emfjs/GDIContext.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -2863,14 +2865,15 @@ SOFTWARE.
 
 
 
+
 var Renderer = /** @class */ (function () {
     function Renderer(blob) {
         this.parse(blob);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("EMFJS.Renderer instantiated");
+        _Helper__WEBPACK_IMPORTED_MODULE_4__["Helper"].log("EMFJS.Renderer instantiated");
     }
     Renderer.prototype.render = function (info) {
         var _this = this;
-        var img = $("<div>").svg({
+        var img = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>").svg({
             onLoad: function (svg) {
                 return _this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
             },
@@ -2879,33 +2882,33 @@ var Renderer = /** @class */ (function () {
                 preserveAspectRatio: "none",
             },
         });
-        var svgContainer = $(img[0]).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+        var svgContainer = jquery__WEBPACK_IMPORTED_MODULE_0__(img[0]).svg("get");
+        return jquery__WEBPACK_IMPORTED_MODULE_0__(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };
     Renderer.prototype.parse = function (blob) {
         this._img = null;
-        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_0__["Blob"](blob);
+        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_1__["Blob"](blob);
         var type = reader.readUint32();
         if (type !== 0x00000001) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__["EMFJSError"]("Not an EMF file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_4__["EMFJSError"]("Not an EMF file");
         }
         var size = reader.readUint32();
         if (size % 4 !== 0) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__["EMFJSError"]("Not an EMF file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_4__["EMFJSError"]("Not an EMF file");
         }
         this._img = new EMF(reader, size);
         if (this._img == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__["EMFJSError"]("Format not recognized");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_4__["EMFJSError"]("Format not recognized");
         }
     };
     Renderer.prototype._render = function (svg, mapMode, w, h, xExt, yExt) {
-        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_2__["GDIContext"](svg);
+        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_3__["GDIContext"](svg);
         gdi.setWindowExtEx(w, h);
         gdi.setViewportExtEx(xExt, yExt);
         gdi.setMapMode(mapMode);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[EMF] BEGIN RENDERING --->");
+        _Helper__WEBPACK_IMPORTED_MODULE_4__["Helper"].log("[EMF] BEGIN RENDERING --->");
         this._img.render(gdi);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[EMF] <--- DONE RENDERING");
+        _Helper__WEBPACK_IMPORTED_MODULE_4__["Helper"].log("[EMF] <--- DONE RENDERING");
     };
     return Renderer;
 }());
@@ -2913,7 +2916,7 @@ var Renderer = /** @class */ (function () {
 var EMF = /** @class */ (function () {
     function EMF(reader, hdrsize) {
         this._hdrsize = hdrsize;
-        this._records = new _EMFRecords__WEBPACK_IMPORTED_MODULE_1__["EMFRecords"](reader, this._hdrsize);
+        this._records = new _EMFRecords__WEBPACK_IMPORTED_MODULE_2__["EMFRecords"](reader, this._hdrsize);
     }
     EMF.prototype.render = function (gdi) {
         this._records.play(gdi);
@@ -3235,6 +3238,17 @@ SOFTWARE.
 
 
 
+
+/***/ }),
+
+/***/ "jquery":
+/*!*************************************************************************************!*\
+  !*** external {"commonjs":"jquery","commonjs2":"jquery","amd":"jquery","root":"$"} ***!
+  \*************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_jquery__;
 
 /***/ })
 

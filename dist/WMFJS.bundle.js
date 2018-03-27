@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("jquery"));
 	else if(typeof define === 'function' && define.amd)
-		define([], factory);
+		define(["jquery"], factory);
 	else if(typeof exports === 'object')
-		exports["WMFJS"] = factory();
+		exports["WMFJS"] = factory(require("jquery"));
 	else
-		root["WMFJS"] = factory();
-})(this, function() {
+		root["WMFJS"] = factory(root["$"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_jquery__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -514,10 +514,12 @@ var Blob = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContextState", function() { return GDIContextState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContext", function() { return GDIContext; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
-/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Region */ "./src/wmfjs/Region.ts");
-/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Style */ "./src/wmfjs/Style.ts");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
+/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Region */ "./src/wmfjs/Region.ts");
+/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Style */ "./src/wmfjs/Style.ts");
 /*
 
 The MIT License (MIT)
@@ -543,6 +545,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
 
 
 
@@ -581,13 +584,13 @@ var GDIContextState = /** @class */ (function () {
             this._svggroup = null;
             this._svgclipChanged = false;
             this._svgtextbkfilter = null;
-            this.mapmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MapMode.MM_ANISOTROPIC;
-            this.stretchmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.StretchMode.COLORONCOLOR;
+            this.mapmode = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.MapMode.MM_ANISOTROPIC;
+            this.stretchmode = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.StretchMode.COLORONCOLOR;
             this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
-            this.bkmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE;
-            this.textcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 0, 0, 0);
-            this.bkcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 255, 255, 255);
-            this.polyfillmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PolyFillMode.ALTERNATE;
+            this.bkmode = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.MixMode.OPAQUE;
+            this.textcolor = new _Style__WEBPACK_IMPORTED_MODULE_4__["ColorRef"](null, 0, 0, 0);
+            this.bkcolor = new _Style__WEBPACK_IMPORTED_MODULE_4__["ColorRef"](null, 255, 255, 255);
+            this.polyfillmode = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PolyFillMode.ALTERNATE;
             this.wx = 0;
             this.wy = 0;
             this.ww = 0;
@@ -617,9 +620,9 @@ var GDIContext = /** @class */ (function () {
         this._svgPatterns = {};
         this._svgClipPaths = {};
         this.defObjects = {
-            brush: new _Style__WEBPACK_IMPORTED_MODULE_3__["Brush"](null, null),
-            pen: new _Style__WEBPACK_IMPORTED_MODULE_3__["Pen"](null, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_SOLID, new _Primitives__WEBPACK_IMPORTED_MODULE_1__["PointS"](null, 1, 1), new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 0, 0, 0), 0, 0),
-            font: new _Style__WEBPACK_IMPORTED_MODULE_3__["Font"](null, null),
+            brush: new _Style__WEBPACK_IMPORTED_MODULE_4__["Brush"](null, null),
+            pen: new _Style__WEBPACK_IMPORTED_MODULE_4__["Pen"](null, _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_SOLID, new _Primitives__WEBPACK_IMPORTED_MODULE_2__["PointS"](null, 1, 1), new _Style__WEBPACK_IMPORTED_MODULE_4__["ColorRef"](null, 0, 0, 0), 0, 0),
+            font: new _Style__WEBPACK_IMPORTED_MODULE_4__["Font"](null, null),
             palette: null,
             region: null,
         };
@@ -628,79 +631,79 @@ var GDIContext = /** @class */ (function () {
         this.objects = {};
     }
     GDIContext.prototype.setMapMode = function (mode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setMapMode: mode=" + mode);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setMapMode: mode=" + mode);
         this.state.mapmode = mode;
         this.state._svggroup = null;
     };
     GDIContext.prototype.setWindowOrg = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setWindowOrg: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setWindowOrg: x=" + x + " y=" + y);
         this.state.wx = x;
         this.state.wy = y;
         this.state._svggroup = null;
     };
     GDIContext.prototype.setWindowExt = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setWindowExt: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setWindowExt: x=" + x + " y=" + y);
         this.state.ww = x;
         this.state.wh = y;
         this.state._svggroup = null;
     };
     GDIContext.prototype.offsetWindowOrg = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
         this.state.wx += offX;
         this.state.wy += offY;
         this.state._svggroup = null;
     };
     GDIContext.prototype.setViewportOrg = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setViewportOrg: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setViewportOrg: x=" + x + " y=" + y);
         this.state.vx = x;
         this.state.vy = y;
         this.state._svggroup = null;
     };
     GDIContext.prototype.setViewportExt = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setViewportExt: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setViewportExt: x=" + x + " y=" + y);
         this.state.vw = x;
         this.state.vh = y;
         this.state._svggroup = null;
     };
     GDIContext.prototype.offsetViewportOrg = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
         this.state.vx += offX;
         this.state.vy += offY;
         this.state._svggroup = null;
     };
     GDIContext.prototype.saveDC = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] saveDC");
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] saveDC");
         var prevstate = this.state;
         this.state = new GDIContextState(this.state);
         this.statestack.push(prevstate);
         this.state._svggroup = null;
     };
     GDIContext.prototype.restoreDC = function (saved) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] restoreDC: saved=" + saved);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] restoreDC: saved=" + saved);
         if (this.statestack.length > 1) {
             if (saved === -1) {
                 this.state = this.statestack.pop();
             }
             else if (saved < -1) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("restoreDC: relative restore not implemented");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]("restoreDC: relative restore not implemented");
             }
             else if (saved > 1) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("restoreDC: absolute restore not implemented");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]("restoreDC: absolute restore not implemented");
             }
         }
         else {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("No saved contexts");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]("No saved contexts");
         }
         this.state._svggroup = null;
     };
     GDIContext.prototype.escape = function (func, blob, offset, count) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
     };
     GDIContext.prototype.setStretchBltMode = function (stretchMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
     };
     GDIContext.prototype.stretchDib = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
             + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
             + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
@@ -711,14 +714,14 @@ var GDIContext = /** @class */ (function () {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
             + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
             + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
     GDIContext.prototype.stretchDibBits = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
             + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
             + " rasterOp=0x" + rasterOp.toString(16));
         srcX = this._todevX(srcX);
@@ -729,7 +732,7 @@ var GDIContext = /** @class */ (function () {
         dstY = this._todevY(dstY);
         dstW = this._todevW(dstW);
         dstH = this._todevH(dstH);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDibBits: TRANSLATED:"
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] stretchDibBits: TRANSLATED:"
             + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
             + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
             + " rasterOp=0x" + rasterOp.toString(16));
@@ -737,7 +740,7 @@ var GDIContext = /** @class */ (function () {
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
     GDIContext.prototype.rectangle = function (rect, rw, rh) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
             + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
@@ -745,62 +748,62 @@ var GDIContext = /** @class */ (function () {
         var left = this._todevX(rect.left);
         rw = this._todevH(rw);
         rh = this._todevH(rh);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
             + " left=" + left + " rh=" + rh + " rw=" + rw);
         this._pushGroup();
         var opts = this._applyOpts(null, true, true, false);
         this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
     };
     GDIContext.prototype.textOut = function (x, y, text) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
             + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
         this._pushGroup();
         var opts = this._applyOpts(null, false, false, true);
         if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
-                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("f");
+                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._makeUniqueId("f");
                 var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
                 this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
                 this._svg.filters.composite(filter, null, null, "SourceGraphic");
                 this.state._svgtextbkfilter = filter;
             }
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + jquery__WEBPACK_IMPORTED_MODULE_0__(this.state._svgtextbkfilter).attr("id") + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     };
     GDIContext.prototype.extTextOut = function (x, y, text, fwOpts, rect, dx) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
             + " with font " + this.state.selected.font.toString());
         x = this._todevX(x);
         y = this._todevY(y);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
         this._pushGroup();
         var opts = this._applyOpts(null, false, false, true);
         if (this.state.selected.font.escapement !== 0) {
             opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
             opts.style = "dominant-baseline: middle; text-anchor: start;";
         }
-        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE) {
+        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.MixMode.OPAQUE) {
             if (this.state._svgtextbkfilter == null) {
-                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("f");
+                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._makeUniqueId("f");
                 var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
                 this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
                 this._svg.filters.composite(filter, null, null, "SourceGraphic");
                 this.state._svgtextbkfilter = filter;
             }
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + jquery__WEBPACK_IMPORTED_MODULE_0__(this.state._svgtextbkfilter).attr("id") + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     };
     GDIContext.prototype.lineTo = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
         var toX = this._todevX(x);
         var toY = this._todevY(y);
         var fromX = this._todevX(this.state.x);
@@ -808,36 +811,36 @@ var GDIContext = /** @class */ (function () {
         // Update position
         this.state.x = x;
         this.state.y = y;
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
         this._pushGroup();
         var opts = this._applyOpts(null, true, false, false);
         this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
     };
     GDIContext.prototype.moveTo = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] moveTo: x=" + x + " y=" + y);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] moveTo: x=" + x + " y=" + y);
         this.state.x = x;
         this.state.y = y;
     };
     GDIContext.prototype.polygon = function (points, first) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
             + " and brush " + this.state.selected.brush.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
         }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polygon: TRANSLATED: pts=" + pts);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] polygon: TRANSLATED: pts=" + pts);
         if (first) {
             this._pushGroup();
         }
         var opts = {
-            "fill-rule": this.state.polyfillmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+            "fill-rule": this.state.polyfillmode === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
         };
         this._applyOpts(opts, true, true, false);
         this._svg.polygon(this.state._svggroup, pts, opts);
     };
     GDIContext.prototype.polyPolygon = function (polygons) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyPolygon: polygons.length=" + polygons.length
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] polyPolygon: polygons.length=" + polygons.length
             + " with pen " + this.state.selected.pen.toString()
             + " and brush " + this.state.selected.brush.toString());
         var cnt = polygons.length;
@@ -846,25 +849,25 @@ var GDIContext = /** @class */ (function () {
         }
     };
     GDIContext.prototype.polyline = function (points) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
         var pts = [];
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
         }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyline: TRANSLATED: pts=" + pts);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] polyline: TRANSLATED: pts=" + pts);
         this._pushGroup();
         var opts = this._applyOpts({ fill: "none" }, true, false, false);
         this._svg.polyline(this.state._svggroup, pts, opts);
     };
     GDIContext.prototype.ellipse = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
             + " and brush " + this.state.selected.brush.toString());
         var bottom = this._todevY(rect.bottom);
         var right = this._todevX(rect.right);
         var top = this._todevY(rect.top);
         var left = this._todevX(rect.left);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
         this._pushGroup();
         var width2 = (right - left) / 2;
         var height2 = (bottom - top) / 2;
@@ -872,77 +875,77 @@ var GDIContext = /** @class */ (function () {
         this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
     };
     GDIContext.prototype.excludeClipRect = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] excludeClipRect: rect=" + rect.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] excludeClipRect: rect=" + rect.toString());
         this._getClipRgn().subtract(rect);
     };
     GDIContext.prototype.intersectClipRect = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] intersectClipRect: rect=" + rect.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] intersectClipRect: rect=" + rect.toString());
         this._getClipRgn().intersect(rect);
     };
     GDIContext.prototype.offsetClipRgn = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
         this._getClipRgn().offset(offX, offY);
     };
     GDIContext.prototype.setTextAlign = function (textAlignmentMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
         this.state.textalign = textAlignmentMode;
     };
     GDIContext.prototype.setBkMode = function (bkMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
         this.state.bkmode = bkMode;
     };
     GDIContext.prototype.setTextColor = function (textColor) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setTextColor: textColor=" + textColor.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setTextColor: textColor=" + textColor.toString());
         this.state.textcolor = textColor;
     };
     GDIContext.prototype.setBkColor = function (bkColor) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setBkColor: bkColor=" + bkColor.toString());
         this.state.bkcolor = bkColor;
         this.state._svgtextbkfilter = null;
     };
     GDIContext.prototype.setPolyFillMode = function (polyFillMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
         this.state.polyfillmode = polyFillMode;
     };
     GDIContext.prototype.createBrush = function (brush) {
         var idx = this._storeObject(brush);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
     };
     GDIContext.prototype.createFont = function (font) {
         var idx = this._storeObject(font);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
     };
     GDIContext.prototype.createPen = function (pen) {
         var idx = this._storeObject(pen);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
     };
     GDIContext.prototype.createPalette = function (palette) {
         var idx = this._storeObject(palette);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
     };
     GDIContext.prototype.createRegion = function (region) {
         var idx = this._storeObject(region);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
     };
     GDIContext.prototype.createPatternBrush = function (patternBrush) {
         var idx = this._storeObject(patternBrush);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
     };
     GDIContext.prototype.selectObject = function (objIdx, checkType) {
         var obj = this._getObject(objIdx);
         if (obj != null && (checkType == null || obj.type === checkType)) {
             this._selectObject(obj);
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
+            _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
                 + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
         }
         else {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
+            _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
                 + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
         }
     };
     GDIContext.prototype.deleteObject = function (objIdx) {
         var ret = this._deleteObject(objIdx);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
     };
     GDIContext.prototype._pushGroup = function () {
         if (this.state._svggroup == null || this.state._svgclipChanged) {
@@ -953,12 +956,12 @@ var GDIContext = /** @class */ (function () {
                 preserveAspectRatio: "none",
             };
             if (this.state.clip != null) {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
                     + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
                 settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
             }
             else {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
                     + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
             }
             this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
@@ -970,7 +973,7 @@ var GDIContext = /** @class */ (function () {
             i++;
         }
         if (i > 65535) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] Too many objects!");
+            _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] Too many objects!");
             return -1;
         }
         this.objects[i.toString()] = obj;
@@ -979,7 +982,7 @@ var GDIContext = /** @class */ (function () {
     GDIContext.prototype._getObject = function (objIdx) {
         var obj = this.objects[objIdx.toString()];
         if (obj == null) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] No object with handle " + objIdx);
+            _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] No object with handle " + objIdx);
         }
         return obj;
     };
@@ -996,7 +999,7 @@ var GDIContext = /** @class */ (function () {
                 return existingId;
             }
         }
-        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("c");
+        var id = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._makeUniqueId("c");
         var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
         switch (region.complexity) {
             case 1:
@@ -1026,19 +1029,19 @@ var GDIContext = /** @class */ (function () {
         var height;
         var img;
         switch (brush.style) {
-            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_PATTERN:
+            case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN:
                 width = brush.pattern.getWidth();
                 height = brush.pattern.getHeight();
                 break;
-            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
+            case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
                 width = brush.dibpatternpt.getWidth();
                 height = brush.dibpatternpt.getHeight();
                 img = brush.dibpatternpt.base64ref();
                 break;
             default:
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Invalid brush style");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]("Invalid brush style");
         }
-        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("p");
+        var id = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._makeUniqueId("p");
         var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, { patternUnits: "userSpaceOnUse" });
         this._svg.image(spat, 0, 0, width, height, img);
         this._svgPatterns[id] = brush;
@@ -1062,7 +1065,7 @@ var GDIContext = /** @class */ (function () {
             delete this.objects[objIdx.toString()];
             return true;
         }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] Cannot delete object with invalid handle " + objIdx);
+        _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] Cannot delete object with invalid handle " + objIdx);
         return false;
     };
     GDIContext.prototype._getClipRgn = function () {
@@ -1076,7 +1079,7 @@ var GDIContext = /** @class */ (function () {
                 this.state.clip = this.state.selected.region.clone();
             }
             else {
-                this.state.clip = Object(_Region__WEBPACK_IMPORTED_MODULE_2__["CreateSimpleRegion"])(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+                this.state.clip = Object(_Region__WEBPACK_IMPORTED_MODULE_3__["CreateSimpleRegion"])(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
             }
         }
         this.state.ownclip = true;
@@ -1128,15 +1131,15 @@ var GDIContext = /** @class */ (function () {
         }
         if (usePen) {
             var pen = this.state.selected.pen;
-            if (pen.style !== _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_NULL) {
+            if (pen.style !== _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_NULL) {
                 opts.stroke = "#" + pen.color.toHex(), // TODO: pen style
                     opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
                 var dotWidth = void 0;
-                if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
+                if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
                     opts["stroke-linecap"] = "square";
                     dotWidth = 1;
                 }
-                else if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
+                else if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
                     opts["stroke-linecap"] = "butt";
                     dotWidth = opts.strokeWidth;
                 }
@@ -1144,10 +1147,10 @@ var GDIContext = /** @class */ (function () {
                     opts["stroke-linecap"] = "round";
                     dotWidth = 1;
                 }
-                if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
+                if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
                     opts["stroke-linejoin"] = "bevel";
                 }
-                else if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_JOIN_MITER) !== 0) {
+                else if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_JOIN_MITER) !== 0) {
                     opts["stroke-linejoin"] = "miter";
                 }
                 else {
@@ -1156,16 +1159,16 @@ var GDIContext = /** @class */ (function () {
                 var dashWidth = opts.strokeWidth * 4;
                 var dotSpacing = opts.strokeWidth * 2;
                 switch (pen.style) {
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASH:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_DASH:
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DOT:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_DOT:
                         opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASHDOT:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_DASHDOT:
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASHDOTDOT:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_DASHDOTDOT:
                         opts["stroke-dasharray"]
                             = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
                         break;
@@ -1175,18 +1178,18 @@ var GDIContext = /** @class */ (function () {
         if (useBrush) {
             var brush = this.state.selected.brush;
             switch (brush.style) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_SOLID:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_SOLID:
                     opts.fill = "#" + brush.color.toHex();
                     break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_PATTERN:
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
                     opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
                     break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_NULL:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_NULL:
                     opts.fill = "none";
                     break;
                 default:
-                    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] unsupported brush style: " + brush.style);
+                    _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("[gdi] unsupported brush style: " + brush.style);
                     opts.fill = "none";
                     break;
             }
@@ -2103,10 +2106,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFRect16", function() { return WMFRect16; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFPlacable", function() { return WMFPlacable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMF", function() { return WMF; });
-/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Blob */ "./src/wmfjs/Blob.ts");
-/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GDIContext */ "./src/wmfjs/GDIContext.ts");
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
-/* harmony import */ var _WMFRecords__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./WMFRecords */ "./src/wmfjs/WMFRecords.ts");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Blob */ "./src/wmfjs/Blob.ts");
+/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GDIContext */ "./src/wmfjs/GDIContext.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _WMFRecords__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./WMFRecords */ "./src/wmfjs/WMFRecords.ts");
 /*
 
 The MIT License (MIT)
@@ -2136,14 +2141,15 @@ SOFTWARE.
 
 
 
+
 var Renderer = /** @class */ (function () {
     function Renderer(blob) {
         this.parse(blob);
-        _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("WMFJS.Renderer instantiated");
+        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("WMFJS.Renderer instantiated");
     }
     Renderer.prototype.render = function (info) {
         var _this = this;
-        var img = $("<div>").svg({
+        var img = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>").svg({
             onLoad: function (svg) {
                 return _this._render(svg, info.mapMode, info.xExt, info.yExt);
             },
@@ -2152,12 +2158,12 @@ var Renderer = /** @class */ (function () {
                 preserveAspectRatio: "none",
             },
         });
-        var svgContainer = $(img[0]).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+        var svgContainer = jquery__WEBPACK_IMPORTED_MODULE_0__(img[0]).svg("get");
+        return jquery__WEBPACK_IMPORTED_MODULE_0__(svgContainer.root()).attr("width", info.width).attr("height", info.height);
     };
     Renderer.prototype.parse = function (blob) {
         this._img = null;
-        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_0__["Blob"](blob);
+        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_1__["Blob"](blob);
         var type;
         var size;
         var placable;
@@ -2175,13 +2181,13 @@ var Renderer = /** @class */ (function () {
             size = (key >>> 16) & 0xffff;
         }
         switch (type) {
-            case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.MetafileType.MEMORYMETAFILE:
-            case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.MetafileType.DISKMETAFILE:
-                if (size === _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.METAHEADER_SIZE / 2) {
+            case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileType.MEMORYMETAFILE:
+            case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileType.DISKMETAFILE:
+                if (size === _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.METAHEADER_SIZE / 2) {
                     var version = reader.readUint16();
                     switch (version) {
-                        case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.MetafileVersion.METAVERSION100:
-                        case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.MetafileVersion.METAVERSION300:
+                        case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileVersion.METAVERSION100:
+                        case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileVersion.METAVERSION300:
                             this._img = new WMF(reader, placable, version, headerstart + (size * 2));
                             break;
                     }
@@ -2189,17 +2195,17 @@ var Renderer = /** @class */ (function () {
                 break;
         }
         if (this._img == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["WMFJSError"]("Format not recognized");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__["WMFJSError"]("Format not recognized");
         }
     };
     Renderer.prototype._render = function (svg, mapMode, xExt, yExt) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
-        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_1__["GDIContext"](svg);
+        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_2__["GDIContext"](svg);
         gdi.setViewportExt(xExt, yExt);
         gdi.setMapMode(mapMode);
-        _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[WMF] BEGIN RENDERING --->");
+        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[WMF] BEGIN RENDERING --->");
         this._img.render(gdi);
-        _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[WMF] <--- DONE RENDERING");
+        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[WMF] <--- DONE RENDERING");
     };
     return Renderer;
 }());
@@ -2225,7 +2231,7 @@ var WMFPlacable = /** @class */ (function () {
         this.unitsPerInch = reader.readInt16();
         reader.skip(4);
         reader.skip(2); // TODO: checksum
-        _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
+        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
     }
     return WMFPlacable;
 }());
@@ -2235,7 +2241,7 @@ var WMF = /** @class */ (function () {
         this._version = version;
         this._hdrsize = hdrsize;
         this._placable = placable;
-        this._records = new _WMFRecords__WEBPACK_IMPORTED_MODULE_3__["WMFRecords"](reader, this._hdrsize);
+        this._records = new _WMFRecords__WEBPACK_IMPORTED_MODULE_4__["WMFRecords"](reader, this._hdrsize);
     }
     WMF.prototype.render = function (gdi) {
         this._records.play(gdi);
@@ -3145,6 +3151,17 @@ SOFTWARE.
 
 
 
+
+/***/ }),
+
+/***/ "jquery":
+/*!*************************************************************************************!*\
+  !*** external {"commonjs":"jquery","commonjs2":"jquery","amd":"jquery","root":"$"} ***!
+  \*************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_jquery__;
 
 /***/ })
 

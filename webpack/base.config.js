@@ -35,6 +35,12 @@ module.exports = {
             commonjs2: './WMFJS.bundle.js',
             amd: './WMFJS.bundle.js',
             root: 'WMFJS'
+        },
+        jquery: {
+            commonjs: 'jquery',
+            commonjs2: 'jquery',
+            amd: 'jquery',
+            root: '$'
         }
     },
     stats: {

@@ -24,6 +24,7 @@ SOFTWARE.
 
 */
 
+import * as $ from "jquery";
 import { Document } from "../Document";
 import { RTFJSError } from "../Helper";
 import { RenderChp } from "./RenderChp";

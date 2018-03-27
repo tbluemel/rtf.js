@@ -24,6 +24,7 @@ SOFTWARE.
 
 */
 
+import * as $ from "jquery";
 import { Blob } from "./Blob";
 import { GDIContext } from "./GDIContext";
 import { Helper, WMFJSError } from "./Helper";

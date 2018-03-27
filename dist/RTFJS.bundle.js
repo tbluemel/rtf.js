@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
+		module.exports = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"), require("jquery"));
 	else if(typeof define === 'function' && define.amd)
-		define(["./EMFJS.bundle.js", "./WMFJS.bundle.js"], factory);
+		define(["./EMFJS.bundle.js", "./WMFJS.bundle.js", "jquery"], factory);
 	else if(typeof exports === 'object')
-		exports["RTFJS"] = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
+		exports["RTFJS"] = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"), require("jquery"));
 	else
-		root["RTFJS"] = factory(root["EMFJS"], root["WMFJS"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_EMFJS__, __WEBPACK_EXTERNAL_MODULE_WMFJS__) {
+		root["RTFJS"] = factory(root["EMFJS"], root["WMFJS"], root["$"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_EMFJS__, __WEBPACK_EXTERNAL_MODULE_WMFJS__, __WEBPACK_EXTERNAL_MODULE_jquery__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -10328,7 +10328,9 @@ var RenderPap = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -10354,6 +10356,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
 
 var Renderer = /** @class */ (function () {
     function Renderer(doc) {
@@ -10386,22 +10389,22 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.popContainer = function () {
         var contel = this._curcont.pop();
         if (contel == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No container on rendering stack");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No container on rendering stack");
         }
     };
     Renderer.prototype.buildHyperlinkElement = function (url) {
-        return $("<a>").attr("href", url);
+        return jquery__WEBPACK_IMPORTED_MODULE_0__("<a>").attr("href", url);
     };
     Renderer.prototype._appendToPar = function (el, newsubpar) {
         if (this._curpar == null) {
             this.startPar();
         }
         if (newsubpar === true) {
-            var subpar = $("<div>");
+            var subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
             if (this._cursubpar == null) {
                 this._curpar.children().appendTo(subpar);
                 this._curpar.append(subpar);
-                subpar = $("<div>");
+                subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
             }
             if (el) {
                 subpar.append(el);
@@ -10426,7 +10429,7 @@ var Renderer = /** @class */ (function () {
         }
     };
     Renderer.prototype.startPar = function () {
-        this._curpar = $("<div>");
+        this._curpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
@@ -10457,7 +10460,7 @@ var Renderer = /** @class */ (function () {
     };
     Renderer.prototype.buildRenderedPicture = function (element) {
         if (element == null) {
-            element = $("<span>").text("[failed to render image]");
+            element = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[failed to render image]");
         }
         return element;
     };
@@ -10466,7 +10469,7 @@ var Renderer = /** @class */ (function () {
     };
     Renderer.prototype.buildPicture = function (mime, data) {
         if (data != null) {
-            return $("<img>", {
+            return jquery__WEBPACK_IMPORTED_MODULE_0__("<img>", {
                 src: "data:" + mime + ";base64," + btoa(data),
             });
         }
@@ -10475,7 +10478,7 @@ var Renderer = /** @class */ (function () {
             if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
-            return $("<span>").text("[" + err + "]");
+            return jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[" + err + "]");
         }
     };
     Renderer.prototype.picture = function (mime, data) {
@@ -10493,7 +10496,7 @@ var Renderer = /** @class */ (function () {
         for (var i = 0; i < len; i++) {
             var ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                var span = $("<span>").text(ins);
+                var span = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text(ins);
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }
@@ -10531,6 +10534,17 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_EMFJS__;
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE_WMFJS__;
+
+/***/ }),
+
+/***/ "jquery":
+/*!*************************************************************************************!*\
+  !*** external {"commonjs":"jquery","commonjs2":"jquery","amd":"jquery","root":"$"} ***!
+  \*************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_jquery__;
 
 /***/ })
 

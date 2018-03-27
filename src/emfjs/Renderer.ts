@@ -25,6 +25,7 @@ SOFTWARE.
 
 */
 
+import * as $ from "jquery";
 import { Blob } from "./Blob";
 import { EMFRecords } from "./EMFRecords";
 import { GDIContext } from "./GDIContext";
