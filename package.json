@@ -33,6 +33,7 @@
         "@types/jquery": "^3.3.0",
         "chai": "^4.1.2",
         "chai-html": "^1.1.5",
+        "copy-webpack-plugin": "^4.5.1",
         "coveralls": "^3.0.0",
         "istanbul-instrumenter-loader": "^3.0.0",
         "jsdom": "^11.6.2",

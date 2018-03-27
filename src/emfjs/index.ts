@@ -25,5 +25,7 @@ SOFTWARE.
 
 */
 
+import "jquery.svg";
+import "jquery.svgfilter";
 export * from "./Renderer";
 export { EMFJSError as Error, loggingEnabled } from "./Helper";

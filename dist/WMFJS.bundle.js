@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jquery"));
+		module.exports = factory(require("jquery"), require("./jquery.svg"), require("./jquery.svgfilter"));
 	else if(typeof define === 'function' && define.amd)
-		define(["jquery"], factory);
+		define(["jquery", "./jquery.svg", "./jquery.svgfilter"], factory);
 	else if(typeof exports === 'object')
-		exports["WMFJS"] = factory(require("jquery"));
+		exports["WMFJS"] = factory(require("jquery"), require("./jquery.svg"), require("./jquery.svgfilter"));
 	else
-		root["WMFJS"] = factory(root["$"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_jquery__) {
+		root["WMFJS"] = factory(root["$"], root["$"], root["$"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_jquery__, __WEBPACK_EXTERNAL_MODULE_jquery_svg__, __WEBPACK_EXTERNAL_MODULE_jquery_svgfilter__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -3109,19 +3109,23 @@ var WMFRecords = /** @class */ (function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Renderer */ "./src/wmfjs/Renderer.ts");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["Renderer"]; });
+/* harmony import */ var jquery_svg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery.svg */ "jquery.svg");
+/* harmony import */ var jquery_svg__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery_svg__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! jquery.svgfilter */ "jquery.svgfilter");
+/* harmony import */ var jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Renderer */ "./src/wmfjs/Renderer.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["Renderer"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFRect16", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["WMFRect16"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFRect16", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMFRect16"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFPlacable", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["WMFPlacable"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFPlacable", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMFPlacable"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMF", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["WMF"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMF", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMF"]; });
 
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]; });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_3__["WMFJSError"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["loggingEnabled"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_3__["loggingEnabled"]; });
 
 /*
 
@@ -3152,6 +3156,8 @@ SOFTWARE.
 
 
 
+
+
 /***/ }),
 
 /***/ "jquery":
@@ -3162,6 +3168,28 @@ SOFTWARE.
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE_jquery__;
+
+/***/ }),
+
+/***/ "jquery.svg":
+/*!*******************************************************************************************************!*\
+  !*** external {"commonjs":"./jquery.svg","commonjs2":"./jquery.svg","amd":"./jquery.svg","root":"$"} ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_jquery_svg__;
+
+/***/ }),
+
+/***/ "jquery.svgfilter":
+/*!*************************************************************************************************************************!*\
+  !*** external {"commonjs":"./jquery.svgfilter","commonjs2":"./jquery.svgfilter","amd":"./jquery.svgfilter","root":"$"} ***!
+  \*************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_jquery_svgfilter__;
 
 /***/ })
 

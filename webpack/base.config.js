@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -41,8 +42,23 @@ module.exports = {
             commonjs2: 'jquery',
             amd: 'jquery',
             root: '$'
+        },
+        "jquery.svg": {
+            commonjs: './jquery.svg',
+            commonjs2: './jquery.svg',
+            amd: './jquery.svg',
+            root: '$'
+        },
+        "jquery.svgfilter": {
+            commonjs: './jquery.svgfilter',
+            commonjs2: './jquery.svgfilter',
+            amd: './jquery.svgfilter',
+            root: '$'
         }
     },
+    plugins: [
+        new CopyWebpackPlugin([{ from: 'vendor/jquery-svg', context: path.join(__dirname, '..')}])
+    ],
     stats: {
         modules: false
     }
