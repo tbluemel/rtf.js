@@ -1,5 +1,9 @@
 # Change Log
 
+## [2.1] - 2018-03-28
+- support importing rtf.js as a module
+- rtf.js is now published on npm: https://www.npmjs.com/package/rtf.js
+
 ## [2.0] - 2018-02-24
 - rtf.js, wmf.js and emf.js are now in the `build` directory and named rtf.bundle.js, wmf.bundle.js and emf.bundle.js
 - wmf.bundle.js and emf.bundle.js have to be loaded before rtf.bundle.js
