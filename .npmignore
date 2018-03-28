@@ -5,3 +5,10 @@ samples/
 test/
 vendor/
 webpack/
+.editorconfig
+.gitignore
+.nojekyll
+.travis.yml
+travis-verify-build.sh
+.gitattributes
+tslint.json
