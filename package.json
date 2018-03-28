@@ -2,7 +2,7 @@
     "name": "rtf.js",
     "version": "2.0.0",
     "description": "Render RTF documents in HTML. This also includes rendering WMF and EMF images which are often contained in RTF documents.",
-    "main": "rtf.js",
+    "main": "index.js",
     "scripts": {
         "lint": "tslint --project tsconfig.json",
         "fix": "tslint --project tsconfig.json --fix",
