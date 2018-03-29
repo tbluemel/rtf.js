@@ -2508,7 +2508,7 @@ var Region = /** @class */ (function (_super) {
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[emf] Region " + this.toString() + " subtract " + rect.toString());
         if (this.bounds != null) {
             var isect = this.bounds.intersect(rect);
-            if (isect != null) {
+            if (isect != null) { // Only need to do anything if there is any chance of an overlap
                 if (this.scans == null) {
                     // We currently have a simple region and there is some kind of an overlap.
                     // We need to create scanlines now.  Simplest method is to fake one scan line
