@@ -24,8 +24,9 @@ SOFTWARE.
 
 */
 
-const RTFJS = require('./dist/RTFJS.bundle');
-const EMFJS = require('./dist/EMFJS.bundle');
-const WMFJS = require('./dist/WMFJS.bundle');
-
-module.exports = { RTFJS, EMFJS, WMFJS };
+import * as RTFJS from './dist/RTFJS.bundle';
+export { RTFJS };
+import * as EMFJS from './dist/EMFJS.bundle';
+export { EMFJS };
+import * as WMFJS from './dist/WMFJS.bundle';
+export { WMFJS };

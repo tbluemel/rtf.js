@@ -3104,7 +3104,7 @@ var WMFRecords = /** @class */ (function () {
 /*!****************************!*\
   !*** ./src/wmfjs/index.ts ***!
   \****************************/
-/*! exports provided: Error, loggingEnabled, Renderer, WMFRect16, WMFPlacable, WMF */
+/*! exports provided: Renderer, Error, loggingEnabled */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3115,12 +3115,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Renderer */ "./src/wmfjs/Renderer.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["Renderer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFRect16", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMFRect16"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMFPlacable", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMFPlacable"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "WMF", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["WMF"]; });
 
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_3__["WMFJSError"]; });

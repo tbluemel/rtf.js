@@ -6,6 +6,7 @@
         "moduleResolution": "node",
         "module": "es2015",
         "sourceMap": true,
+        "declaration": true,
         "alwaysStrict": true,
         "strictFunctionTypes": true,
         "strictPropertyInitialization": true,

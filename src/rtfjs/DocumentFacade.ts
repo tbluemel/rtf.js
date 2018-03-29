@@ -24,10 +24,17 @@ SOFTWARE.
 
 */
 
-import { Document, ISettings } from "./Document";
+import { Document } from "./Document";
 import { RTFJSError } from "./Helper";
 import { Parser } from "./parser/Parser";
-import { Renderer } from "./renderer/Renderer";
+import {IContainerElement, Renderer} from "./renderer/Renderer";
+
+export interface ISettings {
+    onHyperlink?(create: () => void, hyperlink: {url: () => string}): IContainerElement;
+    onPicture?(isLegacy: boolean, create: () => void): JQuery;
+    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
+        width?: number, height?: number}) => void): void;
+}
 
 export class DocumentFacade {
     private _document: Document;

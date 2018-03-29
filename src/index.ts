@@ -2,8 +2,7 @@
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Tom Zoehner
-Copyright (c) 2018 Thomas Bluemel
+Copyright (c) 2018 Tom Zoehner
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +24,11 @@ SOFTWARE.
 
 */
 
-import "jquery.svg";
-import "jquery.svgfilter";
-export { Renderer, IRendererSettings } from "./Renderer";
-export { EMFJSError as Error, loggingEnabled } from "./Helper";
+import * as RTFJS from './rtfjs/index';
+export { RTFJS };
+
+import * as EMFJS from './emfjs/index';
+export { EMFJS };
+
+import * as WMFJS from './wmfjs/index';
+export { WMFJS };

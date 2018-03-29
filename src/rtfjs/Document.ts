@@ -27,14 +27,9 @@ SOFTWARE.
 import { RTFJSError } from "./Helper";
 import { IColor } from "./parser/destinations/ColortblDestinations";
 import { FonttblDestinationSub } from "./parser/destinations/FonttblDestinations";
-import { IContainerElement, Renderer } from "./renderer/Renderer";
+import { Renderer } from "./renderer/Renderer";
+import { ISettings } from "./DocumentFacade";
 
-export interface ISettings {
-    onHyperlink?(create: () => void, hyperlink: {url: () => string}): IContainerElement;
-    onPicture?(isLegacy: boolean, create: () => void): JQuery;
-    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
-        width?: number, height?: number}) => void): void;
-}
 export class Document {
     public _settings: ISettings;
     public _meta: {[key: string]: any};

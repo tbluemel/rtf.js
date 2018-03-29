@@ -3,6 +3,7 @@
     "version": "2.1.0",
     "description": "Render RTF documents in HTML. This also includes rendering WMF and EMF images which are often contained in RTF documents.",
     "main": "index.js",
+    "types": "./dist/src",
     "scripts": {
         "lint": "tslint --project tsconfig.json",
         "fix": "tslint --project tsconfig.json --fix",
@@ -14,7 +15,8 @@
         "coverage": "npm run clean && webpack --config webpack/coverage.config.js --progress && nyc mocha test/test-rtfjs.js",
         "coverage-html": "rimraf coverage && nyc report --reporter html",
         "coverage-coveralls": "nyc report --reporter text-lcov | coveralls",
-        "typewiz": "npm run clean && webpack --config webpack/typewiz.config.js --progress && npm run test"
+        "typewiz": "npm run clean && webpack --config webpack/typewiz.config.js --progress && npm run test",
+        "prepublishOnly": "npm run build"
     },
     "repository": {
         "type": "git",

@@ -7,7 +7,7 @@ module.exports = {
     entry: {
         EMFJS: './src/emfjs/index.ts',
         RTFJS: './src/rtfjs/index.ts',
-        WMFJS: './src/wmfjs/index.ts'
+        WMFJS: './src/wmfjs/index.ts',
     },
     devtool: 'source-map',
     resolve: {
