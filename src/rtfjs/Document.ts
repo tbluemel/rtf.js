@@ -24,11 +24,11 @@ SOFTWARE.
 
 */
 
+import { ISettings } from "./DocumentFacade";
 import { RTFJSError } from "./Helper";
 import { IColor } from "./parser/destinations/ColortblDestinations";
 import { FonttblDestinationSub } from "./parser/destinations/FonttblDestinations";
 import { Renderer } from "./renderer/Renderer";
-import { ISettings } from "./DocumentFacade";
 
 export class Document {
     public _settings: ISettings;
