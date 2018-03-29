@@ -113,7 +113,7 @@ export class RenderTextElement extends RenderElement {
     }
 }
 
-interface ISub {
+export interface ISub {
     container: RenderElement;
     pap?: Pap;
     chp?: Chp;
@@ -250,12 +250,12 @@ export class RenderParagraphContainer extends RenderContainer {
     }
 }
 
-interface IRow {
+export interface IRow {
     element: JQuery;
     cells: ICell[];
 }
 
-interface ICell {
+export interface ICell {
     element: JQuery;
     sub: ISub[];
 }

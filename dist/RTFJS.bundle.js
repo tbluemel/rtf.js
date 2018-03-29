@@ -7,7 +7,7 @@
 		exports["RTFJS"] = factory(require("jquery"), require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else
 		root["RTFJS"] = factory(root["$"], root["EMFJS"], root["WMFJS"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__29__, __WEBPACK_EXTERNAL_MODULE__30__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__28__, __WEBPACK_EXTERNAL_MODULE__29__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -165,7 +165,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
 /* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
-/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(35);
+/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(34);
 /*
 
 The MIT License (MIT)
@@ -549,12 +549,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(18);
 /* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(codepage__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
-/* harmony import */ var _Symboltable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(23);
-/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(24);
-/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(25);
+/* harmony import */ var _Symboltable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
+/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
+/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -586,12 +584,10 @@ SOFTWARE.
 
 
 
-
-
 var Parser = /** @class */ (function () {
     function Parser(document, blob, renderer) {
         this.inst = document;
-        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_5__["GlobalState"](blob, renderer);
+        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_3__["GlobalState"](blob, renderer);
     }
     Parser.prototype.parse = function () {
         if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
@@ -660,7 +656,7 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.pushState = function (forceSkip) {
-        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_5__["State"](this.parser.state);
+        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_3__["State"](this.parser.state);
         if (forceSkip) {
             this.parser.state.skipdestination = true;
         }
@@ -687,20 +683,20 @@ var Parser = /** @class */ (function () {
         if (this.parser.state !== null) {
             var currentState_1 = this.parser.state;
             this.inst._ins.push(function (renderer) {
-                renderer.setChp(new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__["RenderChp"](currentState_1.chp));
+                renderer.setChp(new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](currentState_1.chp));
             });
             this.inst._ins.push(function (renderer) {
-                renderer.setPap(new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__["RenderPap"](currentState_1.pap));
+                renderer.setPap(new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](currentState_1.pap));
             });
         }
         return this.parser.state;
     };
     Parser.prototype.changeDestination = function (name, param) {
         this.applyText();
-        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_7__["Destinations"][name];
+        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_5__["Destinations"][name];
         if (handler != null) {
             this.applyDestination(false);
-            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_6__["DestinationFactory"]) {
+            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_4__["DestinationFactory"]) {
                 this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
             }
             else {
@@ -752,7 +748,7 @@ var Parser = /** @class */ (function () {
                     if (param < 0 || param > 65535) {
                         throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid unicode character encountered");
                     }
-                    var symbol = _Symboltable__WEBPACK_IMPORTED_MODULE_4__["SymbolTable"][param.toString(16).substring(2)];
+                    var symbol = _Symboltable__WEBPACK_IMPORTED_MODULE_2__["SymbolTable"][param.toString(16).substring(2)];
                     this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
@@ -7865,162 +7861,6 @@ if (typeof module !== 'undefined' && module.exports && typeof DO_NOT_EXPORT_CODE
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderChp", function() { return RenderChp; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-var RenderChp = /** @class */ (function () {
-    function RenderChp(chp) {
-        this._chp = chp;
-    }
-    RenderChp.prototype.apply = function (doc, el) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.text());
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
-        if (this._chp.bold) {
-            el.css("font-weight", "bold");
-        }
-        if (this._chp.italic) {
-            el.css("font-style", "italic");
-        }
-        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
-            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol") {
-                el.css("font-family", fontFamily);
-            }
-        }
-        var deco = [];
-        if (this._chp.underline !== _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE) {
-            deco.push("underline");
-        }
-        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
-            deco.push("line-through");
-        }
-        if (deco.length > 0) {
-            el.css("text-decoration", deco.join(" "));
-        }
-        if (this._chp.colorindex !== 0) {
-            var color = doc._lookupColor(this._chp.colorindex);
-            if (color != null) {
-                el.css("color", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color));
-            }
-        }
-        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
-    };
-    return RenderChp;
-}());
-
-
-
-/***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderPap", function() { return RenderPap; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-var RenderPap = /** @class */ (function () {
-    function RenderPap(pap) {
-        this._pap = pap;
-    }
-    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
-            + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
-        if (ismaindiv) {
-            if (this._pap.spacebefore !== 0) {
-                el.css("margin-top", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spacebefore) + "pt");
-            }
-            else {
-                el.css("margin-top", "");
-            }
-            if (this._pap.spaceafter !== 0) {
-                el.css("margin-bottom", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spaceafter) + "pt");
-            }
-            else {
-                el.css("margin-bottom", "");
-            }
-            if (rchp != null) {
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
-            }
-        }
-        else {
-            switch (this._pap.justification) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
-                    break;
-            }
-        }
-    };
-    return RenderPap;
-}());
-
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SymbolTable", function() { return SymbolTable; });
 // The MIT License (MIT)
 //
@@ -8239,12 +8079,13 @@ var SymbolTable = {
 
 
 /***/ }),
-/* 23 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Chp", function() { return Chp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tbl", function() { return Tbl; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Pap", function() { return Pap; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Sep", function() { return Sep; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Dop", function() { return Dop; });
@@ -8302,6 +8143,18 @@ var Chp = /** @class */ (function () {
     return Chp;
 }());
 
+var Tbl = /** @class */ (function () {
+    function Tbl(parent) {
+        if (parent != null) {
+            this.intbl = parent.intbl;
+        }
+        else {
+            this.intbl = false;
+        }
+    }
+    return Tbl;
+}());
+
 var Pap = /** @class */ (function () {
     function Pap(parent) {
         if (parent != null) {
@@ -8314,6 +8167,8 @@ var Pap = /** @class */ (function () {
             this.spacebefore = parent.spacebefore;
             this.spaceafter = parent.spaceafter;
             this.charactertype = parent.charactertype;
+            this.intable = parent.intable;
+            this.isrow = parent.isrow;
         }
         else {
             this.indent = {
@@ -8324,6 +8179,8 @@ var Pap = /** @class */ (function () {
             this.justification = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
+            this.intable = false;
+            this.isrow = false;
         }
     }
     return Pap;
@@ -8400,6 +8257,7 @@ var State = /** @class */ (function () {
             this.skipunknowndestination = parent.skipunknowndestination;
             this.skipdestination = parent.skipdestination;
             this.ucn = parent.ucn;
+            this.table = parent.table;
         }
         else {
             this.chp = new Chp(null);
@@ -8410,6 +8268,7 @@ var State = /** @class */ (function () {
             this.skipunknowndestination = false;
             this.skipdestination = false;
             this.ucn = 1;
+            this.table = null;
         }
     }
     return State;
@@ -8434,7 +8293,7 @@ var GlobalState = /** @class */ (function () {
 
 
 /***/ }),
-/* 24 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8645,20 +8504,20 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 25 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Destinations", function() { return Destinations; });
-/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
-/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(32);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(28);
-/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(33);
-/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(34);
+/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
+/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(27);
+/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(32);
+/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(33);
 /*
 
 The MIT License (MIT)
@@ -8742,14 +8601,14 @@ var Destinations = {
 
 
 /***/ }),
-/* 26 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ColortblDestination", function() { return ColortblDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -8892,7 +8751,7 @@ var ColortblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 27 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8903,8 +8762,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldinstDestination", function() { return FldinstDestination; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldrsltDestination", function() { return FldrsltDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(28);
+/* harmony import */ var _renderer_RenderElements__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(22);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(27);
 /*
 
 The MIT License (MIT)
@@ -8940,6 +8800,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+
 
 
 
@@ -8988,7 +8849,7 @@ var FieldDestination = /** @class */ (function (_super) {
         this._result = inst;
     };
     return FieldDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["DestinationBase"]));
 
 var FieldBase = /** @class */ (function () {
     function FieldBase(fldinst) {
@@ -8997,6 +8858,7 @@ var FieldBase = /** @class */ (function () {
     FieldBase.prototype.renderFieldEnd = function (field, rtf, records) {
         if (records > 0) {
             rtf.addIns(function (renderer) {
+                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Popping container");
                 renderer.popContainer();
             });
         }
@@ -9037,7 +8899,8 @@ var FieldHyperlink = /** @class */ (function (_super) {
                         content: elem,
                     };
                 }
-                renderer.pushContainer(container);
+                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Pushing hyperlink container for url " + self._url);
+                renderer.pushContainer(new _renderer_RenderElements__WEBPACK_IMPORTED_MODULE_1__["RenderContainer"](renderer._doc, "hyperlink", container.element, container.content));
             });
             return true;
         }
@@ -9055,7 +8918,7 @@ var FldinstDestination = /** @class */ (function (_super) {
         return _this;
     }
     FldinstDestination.prototype.apply = function () {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["findParentDestination"])(this.parser, "field");
         if (field == null) {
             throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("fldinst destination must be child of field destination");
         }
@@ -9105,7 +8968,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                                                 || window.innerWidth),
                                             h: _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._pxToTwips(height || 300),
                                         };
-                                        pict_1 = new _PictDestinations__WEBPACK_IMPORTED_MODULE_2__["PictDestination"](_this.parser, _this.inst);
+                                        pict_1 = new _PictDestinations__WEBPACK_IMPORTED_MODULE_3__["PictDestination"](_this.parser, _this.inst);
                                         pict_1.handleBlob(blob);
                                         pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
                                         pict_1._displaysize.width = dims.w;
@@ -9145,7 +9008,7 @@ var FldinstDestination = /** @class */ (function (_super) {
         }
     };
     return FldinstDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationTextBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["DestinationTextBase"]));
 
 var FldrsltDestination = /** @class */ (function (_super) {
     __extends(FldrsltDestination, _super);
@@ -9153,14 +9016,14 @@ var FldrsltDestination = /** @class */ (function (_super) {
         return _super.call(this, parser, "fldrslt") || this;
     }
     FldrsltDestination.prototype.apply = function () {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["findParentDestination"])(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
         _super.prototype.apply.call(this);
     };
     FldrsltDestination.prototype.renderBegin = function (rtf, records) {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["findParentDestination"])(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null) {
@@ -9170,7 +9033,7 @@ var FldrsltDestination = /** @class */ (function (_super) {
         return false;
     };
     FldrsltDestination.prototype.renderEnd = function (rtf, records) {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["findParentDestination"])(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null) {
@@ -9179,24 +9042,352 @@ var FldrsltDestination = /** @class */ (function (_super) {
         }
     };
     return FldrsltDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationFormattedTextBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_2__["DestinationFormattedTextBase"]));
 
 
 
 /***/ }),
-/* 28 */
+/* 26 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderElement", function() { return RenderElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderTextElement", function() { return RenderTextElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderContainer", function() { return RenderContainer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderParagraphContainer", function() { return RenderParagraphContainer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderTableContainer", function() { return RenderTableContainer; });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var RenderElement = /** @class */ (function () {
+    function RenderElement(doc, type, element) {
+        this._doc = doc;
+        this._type = type;
+        this._element = element;
+        this._pap = null;
+        this._chp = null;
+    }
+    RenderElement.prototype.getElement = function () {
+        return this._element;
+    };
+    RenderElement.prototype.getContent = function () {
+        return this._element;
+    };
+    RenderElement.prototype.updateProps = function (pap, chp) {
+        this._pap = pap;
+        this._chp = chp;
+    };
+    RenderElement.prototype.finalize = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalizing element of type " + this._type);
+        return this._element;
+    };
+    return RenderElement;
+}());
+
+var RenderTextElement = /** @class */ (function (_super) {
+    __extends(RenderTextElement, _super);
+    function RenderTextElement(doc, text, chp) {
+        var _this = _super.call(this, doc, "text", $("<span>").text(text)) || this;
+        _this._chp = chp;
+        return _this;
+    }
+    RenderTextElement.prototype.applyProps = function () {
+        var chp = this._chp;
+        var el = this.getElement();
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderTextElement: " + el.text());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderTextElement applyProps: " + JSON.stringify(chp));
+        if (chp.bold) {
+            el.css("font-weight", "bold");
+        }
+        if (chp.italic) {
+            el.css("font-style", "italic");
+        }
+        if (chp.hasOwnProperty("fontfamily") && this._doc._fonts[chp.fontfamily]) {
+            var fontFamily = this._doc._fonts[chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol") {
+                el.css("font-family", fontFamily);
+            }
+        }
+        var deco = [];
+        if (chp.underline !== _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE) {
+            deco.push("underline");
+        }
+        if (chp.strikethrough || chp.dblstrikethrough) {
+            deco.push("line-through");
+        }
+        if (deco.length > 0) {
+            el.css("text-decoration", deco.join(" "));
+        }
+        if (chp.colorindex !== 0) {
+            var color = this._doc._lookupColor(chp.colorindex);
+            if (color != null) {
+                el.css("color", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color));
+            }
+        }
+        el.css("font-size", Math.floor(chp.fontsize / 2) + "pt");
+    };
+    RenderTextElement.prototype.finalize = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalizing text element");
+        this.applyProps();
+        return _super.prototype.finalize.call(this);
+    };
+    return RenderTextElement;
+}(RenderElement));
+
+var RenderContainer = /** @class */ (function (_super) {
+    __extends(RenderContainer, _super);
+    function RenderContainer(doc, type, element, content) {
+        var _this = _super.call(this, doc, type, element) || this;
+        _this._content = content;
+        _this._sub = [];
+        return _this;
+    }
+    RenderContainer.prototype.getType = function () {
+        return this._type;
+    };
+    RenderContainer.prototype.getContent = function () {
+        return this._content;
+    };
+    RenderContainer.prototype.appendSub = function (container) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] appendSub for container " + this._type);
+        this._sub.push({
+            container: container,
+        });
+    };
+    RenderContainer.prototype._finalizeSub = function (sub, parentPap) {
+        return sub.container.finalize();
+    };
+    RenderContainer.prototype.finalize = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalizing container " + this._type);
+        if (this._sub == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Container already finalized");
+        }
+        var cont = this.getContent();
+        var len = this._sub.length;
+        for (var i = 0; i < len; i++) {
+            var element = this._finalizeSub(this._sub[i], this._pap);
+            if (element != null) {
+                cont.append(element);
+            }
+        }
+        delete this._sub;
+        return this._element;
+    };
+    return RenderContainer;
+}(RenderElement));
+
+var RenderParagraphContainer = /** @class */ (function (_super) {
+    __extends(RenderParagraphContainer, _super);
+    function RenderParagraphContainer(doc) {
+        var _this = this;
+        var par = $("<div>");
+        _this = _super.call(this, doc, "par", par, par) || this;
+        return _this;
+    }
+    RenderParagraphContainer.prototype.appendSub = function (container) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] appendSub for container " + this._type);
+        this._sub.push({
+            container: container,
+            pap: container._pap != null ? container._pap : this._pap,
+            chp: container._chp != null ? container._chp : this._chp,
+        });
+    };
+    RenderParagraphContainer.prototype.updateProps = function (pap, chp) {
+        this._pap = pap;
+        this._chp = chp;
+        if (this._sub.length > 0) {
+            var sub = this._sub[this._sub.length - 1];
+            sub.pap = pap;
+            sub.chp = chp;
+        }
+    };
+    RenderParagraphContainer.prototype.applyPap = function (el, pap, chp) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderParagraphContainer applyPap: chp=" + JSON.stringify(chp)
+            + " pap=" + JSON.stringify(pap));
+        el = this.getElement();
+        if (pap.spacebefore !== 0) {
+            el.css("margin-top", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(pap.spacebefore) + "pt");
+        }
+        else {
+            el.css("margin-top", "");
+        }
+        if (pap.spaceafter !== 0) {
+            el.css("margin-bottom", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(pap.spaceafter) + "pt");
+        }
+        else {
+            el.css("margin-bottom", "");
+        }
+        if (chp != null) {
+            el.css("min-height", Math.floor(chp.fontsize / 2) + "pt");
+        }
+        switch (pap.justification) {
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT:
+                el.css("text-align", "left");
+                break;
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.RIGHT:
+                el.css("text-align", "right");
+                break;
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.CENTER:
+                el.css("text-align", "center");
+                break;
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.JUSTIFY:
+                el.css("text-align", "justify");
+                break;
+        }
+    };
+    RenderParagraphContainer.prototype._finalizeSub = function (sub, parentPap) {
+        var element = sub.container.finalize();
+        if (element) {
+            this.applyPap(element, sub.pap ? sub.pap : parentPap, sub.chp);
+        }
+        return element;
+    };
+    RenderParagraphContainer.prototype.finalize = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalizing paragraph");
+        if (this._sub == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Paragraph already finalized");
+        }
+        if (this._sub.length > 0) {
+            return _super.prototype.finalize.call(this);
+        }
+        delete this._sub;
+        return null;
+    };
+    return RenderParagraphContainer;
+}(RenderContainer));
+
+var RenderTableContainer = /** @class */ (function (_super) {
+    __extends(RenderTableContainer, _super);
+    function RenderTableContainer(doc) {
+        var _this = _super.call(this, doc, "table", $("<table>"), null) || this;
+        _this._rows = [];
+        _this._row = null;
+        _this._cell = null;
+        return _this;
+    }
+    RenderTableContainer.prototype.appendCell = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table appending cell");
+        if (this._row == null) {
+            this.appendRow();
+        }
+        this._cell = {
+            element: $("<td>").appendTo(this._row.element),
+            sub: [],
+        };
+        this._row.cells.push(this._cell);
+    };
+    RenderTableContainer.prototype.appendRow = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table appending row");
+        this._row = {
+            element: $("<tr>").appendTo(this._element),
+            cells: [],
+        };
+        this._rows.push(this._row);
+        this.appendCell();
+    };
+    RenderTableContainer.prototype.finishRow = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finish row");
+        this.finishCell();
+        this._row = null;
+    };
+    RenderTableContainer.prototype.finishCell = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finish cell");
+        var len = this._sub.length;
+        if (len > 0) {
+            if (this._row == null) {
+                this.appendRow();
+            }
+            if (this._cell == null) {
+                this.appendCell();
+            }
+            for (var i = 0; i < len; i++) {
+                this._cell.sub.push(this._sub[i]);
+            }
+            this._sub = [];
+        }
+        this._cell = null;
+    };
+    RenderTableContainer.prototype.finalize = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finalize");
+        if (this._sub == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Table container already finalized");
+        }
+        var rlen = this._rows.length;
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finalize: #rows: " + rlen);
+        for (var r = 0; r < rlen; r++) {
+            var row = this._rows[r];
+            var clen = row.cells.length;
+            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finalize: row[" + r + "].#cells: " + clen);
+            for (var c = 0; c < clen; c++) {
+                var cell = row.cells[c];
+                var slen = cell.sub.length;
+                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] Table finalize: row[" + r + "].cell[" + c + "].#subs: " + slen);
+                for (var s = 0; s < slen; s++) {
+                    var sub = cell.sub[s];
+                    var element = sub.container.finalize();
+                    if (element != null) {
+                        cell.element.append(element);
+                    }
+                }
+            }
+        }
+        delete this._sub;
+        return this._element;
+    };
+    return RenderTableContainer;
+}(RenderContainer));
+
+
+
+/***/ }),
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictGroupDestinationFactory", function() { return PictGroupDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictDestination", function() { return PictDestination; });
-/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
+/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
 /* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
 /* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(WMFJS__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9422,7 +9613,7 @@ var PictDestination = /** @class */ (function (_super) {
                     if (typeof pictrender === "string") {
                         _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[pict] Could not load image: " + pictrender);
                         if (render) {
-                            return renderer.buildPicture(pictrender, null);
+                            return renderer.buildPicture(pictrender, null).getElement();
                         }
                         else {
                             inst.addIns(function (rendererForPicture) {
@@ -9435,7 +9626,7 @@ var PictDestination = /** @class */ (function (_super) {
                             throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Expected a picture render function");
                         }
                         if (render) {
-                            return renderer.buildRenderedPicture(pictrender());
+                            return renderer.buildRenderedPicture(pictrender()).getElement();
                         }
                         else {
                             inst.addIns(function (rendererForPicture) {
@@ -9469,7 +9660,7 @@ var PictDestination = /** @class */ (function (_super) {
                 var bin = blob_1 != null ? _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._blobToBinary(blob_1) : _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._hexToBinary(text_1);
                 if (type !== "") {
                     if (render) {
-                        return renderer.buildPicture(type, bin);
+                        return renderer.buildPicture(type, bin).getElement();
                     }
                     else {
                         renderer._doc.addIns(function (rendererForPicture) {
@@ -9479,7 +9670,7 @@ var PictDestination = /** @class */ (function (_super) {
                 }
                 else {
                     if (render) {
-                        return renderer.buildPicture("Unsupported image format", null);
+                        return renderer.buildPicture("Unsupported image format", null).getElement();
                     }
                     else {
                         renderer._doc.addIns(function (rendererForPicture) {
@@ -9524,6 +9715,12 @@ var PictDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
+/* 28 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__28__;
+
+/***/ }),
 /* 29 */
 /***/ (function(module, exports) {
 
@@ -9531,12 +9728,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__29__;
 
 /***/ }),
 /* 30 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__30__;
-
-/***/ }),
-/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9544,7 +9735,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestinationSub", function() { return FonttblDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestination", function() { return FonttblDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9718,7 +9909,7 @@ var FonttblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9727,7 +9918,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyDestinationFactory", function() { return MetaPropertyDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyTimeDestinationFactory", function() { return MetaPropertyTimeDestinationFactory; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9873,17 +10064,16 @@ var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RtfDestination", function() { return RtfDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(24);
+/* harmony import */ var _renderer_RenderElements__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9923,7 +10113,6 @@ var __extends = (undefined && undefined.__extends) || (function () {
 
 
 
-
 var RtfDestination = /** @class */ (function (_super) {
     __extends(RtfDestination, _super);
     function RtfDestination(parser, inst, name, param) {
@@ -9938,15 +10127,15 @@ var RtfDestination = /** @class */ (function (_super) {
             },
             sectd: function () {
                 _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to section defaults");
-                _this.parser.state.sep = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Sep"](null);
+                _this.parser.state.sep = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Sep"](null);
             },
             plain: function () {
                 _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to character defaults");
-                _this.parser.state.chp = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](null);
+                _this.parser.state.chp = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Chp"](null);
             },
             pard: function () {
                 _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to paragraph defaults");
-                _this.parser.state.pap = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](null);
+                _this.parser.state.pap = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Pap"](null);
             },
             b: _this._genericFormatOnOff("chp", "bold"),
             i: _this._genericFormatOnOff("chp", "italic"),
@@ -10007,11 +10196,17 @@ var RtfDestination = /** @class */ (function (_super) {
             facingp: _this._genericFormatSetNoParam("dop", "facingpages", true),
             landscape: _this._genericFormatSetNoParam("dop", "landscape", true),
             par: _this._addInsHandler(function (renderer) {
-                renderer.startPar();
+                renderer.finishPar();
             }),
             line: _this._addInsHandler(function (renderer) {
                 renderer.lineBreak();
             }),
+            trowd: _this._setTableVal(),
+            intbl: _this._genericFormatSetNoParam("pap", "intable", true),
+            row: _this._genericFormatSetNoParam("pap", "isrow", true),
+            cell: function () {
+                _this._finishTableCell();
+            },
         };
         if (parser.version != null) {
             throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Unexpected rtf destination");
@@ -10022,6 +10217,12 @@ var RtfDestination = /** @class */ (function (_super) {
         }
         parser.version = 1;
         _this._metadata = {};
+        _this._propchanged = {
+            chp: null,
+            pap: null,
+            sep: null,
+            dop: null,
+        };
         _this.parser = parser;
         _this.inst = inst;
         return _this;
@@ -10030,6 +10231,18 @@ var RtfDestination = /** @class */ (function (_super) {
         this.inst.addIns(func);
     };
     RtfDestination.prototype.appendText = function (text) {
+        // this.flushProps();
+        if (this.parser.state.pap.intable) {
+            if (this.parser.state.table == null) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("intbl flag without table definition");
+            }
+        }
+        else {
+            if (this.parser.state.table != null) {
+                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] TABLE END");
+                this.parser.state.table = null;
+            }
+        }
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] output: " + text);
         this.inst.addIns(text);
     };
@@ -10046,6 +10259,7 @@ var RtfDestination = /** @class */ (function (_super) {
     };
     RtfDestination.prototype.apply = function () {
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] apply()");
+        this.flushProps();
         for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
@@ -10064,18 +10278,56 @@ var RtfDestination = /** @class */ (function (_super) {
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] update " + ptype);
         switch (ptype) {
             case "chp":
-                var rchp_1 = new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__["RenderChp"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](props));
+                var chp_1 = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Chp"](props);
                 this.inst.addIns(function (renderer) {
-                    renderer.setChp(rchp_1);
+                    renderer.setChp(chp_1);
                 });
                 break;
             case "pap":
-                var rpap_1 = new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__["RenderPap"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](props));
+                var pap_1 = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Pap"](props);
                 this.inst.addIns(function (renderer) {
-                    renderer.setPap(rpap_1);
+                    renderer.setPap(pap_1);
                 });
                 break;
         }
+    };
+    RtfDestination.prototype._updateFormatIns = function (ptype, props) {
+        var changed = this._propchanged[ptype];
+        var classes = { chp: _Containers__WEBPACK_IMPORTED_MODULE_2__["Chp"], pap: _Containers__WEBPACK_IMPORTED_MODULE_2__["Pap"], sep: _Containers__WEBPACK_IMPORTED_MODULE_2__["Sep"], dop: _Containers__WEBPACK_IMPORTED_MODULE_2__["Dop"] };
+        if (changed == null) {
+            this._propchanged[ptype] = new classes[ptype](props);
+        }
+        if (changed !== props) {
+            this._propchanged[ptype] = new classes[ptype](props);
+            this._addFormatIns(ptype, props);
+        }
+    };
+    RtfDestination.prototype.flushProps = function (ptype) {
+        if (ptype != null) {
+            var changed = this._propchanged[ptype];
+            if (changed != null) {
+                this._propchanged[ptype] = null;
+                this._addFormatIns(ptype, changed);
+            }
+        }
+        else {
+            this.flushProps("chp");
+            this.flushProps("pap");
+            this.flushProps("sep");
+            this.flushProps("dop");
+        }
+    };
+    RtfDestination.prototype._finishTableRow = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalize table row");
+        this.inst.addIns(function (renderer) {
+            renderer.finishRow();
+        });
+    };
+    RtfDestination.prototype._finishTableCell = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] finalize table cell");
+        this.inst.addIns(function (renderer) {
+            renderer.finishCell();
+        });
     };
     RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
         var _this = this;
@@ -10083,7 +10335,7 @@ var RtfDestination = /** @class */ (function (_super) {
             var props = _this.parser.state[ptype];
             props[prop] = val;
             _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
+            _this._updateFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatOnOff = function (ptype, prop, onval, offval) {
@@ -10093,7 +10345,7 @@ var RtfDestination = /** @class */ (function (_super) {
             props[prop] = (param == null || param !== 0)
                 ? (onval != null ? onval : true) : (offval != null ? offval : false);
             _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
+            _this._updateFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetVal = function (ptype, prop, defaultval) {
@@ -10102,7 +10354,7 @@ var RtfDestination = /** @class */ (function (_super) {
             var props = _this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
             _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
+            _this._updateFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetValRequired = function (ptype, prop) {
@@ -10114,7 +10366,7 @@ var RtfDestination = /** @class */ (function (_super) {
             var props = _this.parser.state[ptype];
             props[prop] = param;
             _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
-            _this._addFormatIns(ptype, props);
+            _this._updateFormatIns(ptype, props);
         };
     };
     RtfDestination.prototype._genericFormatSetMemberVal = function (ptype, prop, member, defaultval) {
@@ -10124,16 +10376,37 @@ var RtfDestination = /** @class */ (function (_super) {
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
             _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
-            _this._addFormatIns(ptype, props);
+            _this._updateFormatIns(ptype, props);
+        };
+    };
+    RtfDestination.prototype._setTableVal = function (member, defaultval) {
+        var _this = this;
+        return function (param) {
+            if (member != null) {
+                _this.parser.state.table[member] = (param == null) ? defaultval : param;
+                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state.table." + member + " = " + _this.parser.state.table[member].toString());
+            }
+            else {
+                if (_this.parser.state.table != null) {
+                    _this._finishTableRow();
+                }
+                else {
+                    _this.parser.state.table = new _Containers__WEBPACK_IMPORTED_MODULE_2__["Tbl"]();
+                    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state.pap.table initialized");
+                    _this.inst.addIns(function (renderer) {
+                        renderer.pushContainer(new _renderer_RenderElements__WEBPACK_IMPORTED_MODULE_1__["RenderTableContainer"](renderer._doc));
+                    });
+                }
+            }
         };
     };
     return RtfDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_4__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__["DestinationBase"]));
 
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -10141,7 +10414,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestinationSub", function() { return StylesheetDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestination", function() { return StylesheetDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -10267,7 +10540,7 @@ var StylesheetDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -10276,6 +10549,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
+/* harmony import */ var _RenderElements__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
 /*
 
 The MIT License (MIT)
@@ -10303,118 +10577,155 @@ SOFTWARE.
 */
 
 
+
 var Renderer = /** @class */ (function () {
     function Renderer(doc) {
         this._doc = doc;
         this._dom = null;
-        this._curRChp = null;
-        this._curRPap = null;
-        this._curpar = null;
-        this._cursubpar = null;
-        this._curcont = [];
     }
-    Renderer.prototype.pushContainer = function (contel) {
-        if (this._curpar == null) {
-            this.startPar();
-        }
-        var len = this._curcont.push(contel);
+    Renderer.prototype.pushContainer = function (container) {
+        var len = this._curcont.push(container);
         if (len > 1) {
             var prevcontel = this._curcont[len - 1];
-            prevcontel.content.append(contel.element);
+            prevcontel.appendSub(container);
         }
         else {
-            if (this._cursubpar != null) {
-                this._cursubpar.append(contel.element);
+            if (this._cursubparIdx >= 0) {
+                var par = this._curpar[this._cursubparIdx];
+                par.appendSub(container);
             }
             else {
-                this._curpar.append(contel.element);
+                this._curpar.push(container);
             }
         }
     };
-    Renderer.prototype.popContainer = function () {
-        var contel = this._curcont.pop();
-        if (contel == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No container on rendering stack");
+    Renderer.prototype.currentContainer = function (type) {
+        var len = this._curcont.length;
+        if (len === 0) {
+            return null;
         }
+        if (type != null) {
+            for (var i = len - 1; i >= 0; i--) {
+                var cont = this._curcont[i];
+                if (cont.getType() === type) {
+                    return cont;
+                }
+            }
+            return null;
+        }
+        return this._curcont[len - 1];
+    };
+    Renderer.prototype.popContainer = function (type) {
+        var cont;
+        if (type != null) {
+            var popped = false;
+            while (this._curcont.length > 0) {
+                cont = this._curcont.pop();
+                if (cont.getType() === type) {
+                    popped = true;
+                    break;
+                }
+            }
+            if (!popped) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No container of type " + type + " on rendering stack");
+            }
+        }
+        else {
+            cont = this._curcont.pop();
+            if (cont == null) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No container on rendering stack");
+            }
+        }
+        return cont;
     };
     Renderer.prototype.buildHyperlinkElement = function (url) {
         return jquery__WEBPACK_IMPORTED_MODULE_0__("<a>").attr("href", url);
     };
-    Renderer.prototype._appendToPar = function (el, newsubpar) {
-        if (this._curpar == null) {
-            this.startPar();
-        }
+    Renderer.prototype._appendToPar = function (content, newsubpar) {
         if (newsubpar === true) {
-            var subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
-            if (this._cursubpar == null) {
-                this._curpar.children().appendTo(subpar);
-                this._curpar.append(subpar);
-                subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
+            // Move everything in _curpar since the last sub-paragraph into a new one
+            var par = new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderParagraphContainer"](this._doc);
+            var len = this._curpar.length;
+            for (var i = this._cursubparIdx + 1; i < len; i++) {
+                par.appendSub(this._curpar[i]);
             }
-            if (el) {
-                subpar.append(el);
+            this._curpar.splice(this._cursubparIdx + 1, len - this._cursubparIdx - 1);
+            par.updateProps(this._pap, this._chp);
+            this._curpar.push(par);
+            // Add a new sub-paragraph
+            par = new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderParagraphContainer"](this._doc);
+            this._cursubparIdx = this._curpar.push(par) - 1;
+            par.updateProps(this._pap, this._chp);
+            if (content != null) {
+                this._curpar.push(content);
             }
-            if (this._curRPap != null) {
-                this._curRPap.apply(this._doc, subpar, this._curRChp, false);
-            }
-            this._cursubpar = subpar;
-            this._curpar.append(subpar);
         }
-        else if (el) {
+        else if (content != null) {
+            if (this._curcont.length > 0 && this._curcont[this._curcont.length - 1] instanceof _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderTableContainer"]
+                && this._pap.intable === false) {
+                this._curcont.pop();
+            }
             var contelCnt = this._curcont.length;
             if (contelCnt > 0) {
-                this._curcont[contelCnt - 1].content.append(el);
+                this._curcont[contelCnt - 1].appendSub(content);
             }
-            else if (this._cursubpar != null) {
-                this._cursubpar.append(el);
+            else if (this._cursubparIdx >= 0) {
+                this._curpar[this._cursubparIdx].appendSub(content);
             }
             else {
-                this._curpar.append(el);
+                this._curpar.push(content);
             }
         }
     };
-    Renderer.prototype.startPar = function () {
-        this._curpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
-        if (this._curRPap != null) {
-            this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
-            this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
-        }
-        this._cursubpar = null;
-        this._curcont = [];
-        this._dom.push(this._curpar);
+    Renderer.prototype.finishPar = function () {
+        this._appendToPar(null, true);
+        // if (this._pap != null && this._pap.intable) {
+        //     Helper.log("[rtf] finishPar: finishing table row");
+        //     this.finishRow();
+        // }
     };
     Renderer.prototype.lineBreak = function () {
         this._appendToPar(null, true);
     };
-    Renderer.prototype.setChp = function (rchp) {
-        this._curRChp = rchp;
-    };
-    Renderer.prototype.setPap = function (rpap) {
-        this._curRPap = rpap;
-        if (this._cursubpar != null) {
-            this._curRPap.apply(this._doc, this._cursubpar, null, false);
+    Renderer.prototype.finishRow = function () {
+        var table = this.currentContainer("table");
+        if (table == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No table on rendering stack");
         }
-        else if (this._curpar != null) {
-            // Don't have a sub-paragraph at all, apply everything
-            this._curRPap.apply(this._doc, this._curpar, null, true);
-            this._curRPap.apply(this._doc, this._curpar, null, false);
+        table.finishRow();
+    };
+    Renderer.prototype.finishCell = function () {
+        var table = this.currentContainer("table");
+        if (table == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No table on rendering stack");
+        }
+        table.finishCell();
+    };
+    Renderer.prototype.setChp = function (chp) {
+        this._chp = chp;
+    };
+    Renderer.prototype.setPap = function (pap) {
+        this._pap = pap;
+        if (this._cursubparIdx >= 0) {
+            this._curpar[this._cursubparIdx - 1].updateProps(this._pap, this._chp);
         }
     };
     Renderer.prototype.appendElement = function (element) {
-        this._appendToPar(element);
+        this._appendToPar(new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderElement"](this._doc, "element", element));
     };
     Renderer.prototype.buildRenderedPicture = function (element) {
         if (element == null) {
             element = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[failed to render image]");
         }
-        return element;
+        return new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderElement"](this._doc, "picture", element);
     };
     Renderer.prototype.renderedPicture = function (element) {
         this._appendToPar(this.buildRenderedPicture(element));
     };
     Renderer.prototype.buildPicture = function (mime, data) {
+        var element;
         if (data != null) {
-            return jquery__WEBPACK_IMPORTED_MODULE_0__("<img>", {
+            element = jquery__WEBPACK_IMPORTED_MODULE_0__("<img>", {
                 src: "data:" + mime + ";base64," + btoa(data),
             });
         }
@@ -10423,8 +10734,9 @@ var Renderer = /** @class */ (function () {
             if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
-            return jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[" + err + "]");
+            element = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[" + err + "]");
         }
+        return new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderElement"](this._doc, "picture", element);
     };
     Renderer.prototype.picture = function (mime, data) {
         this._appendToPar(this.buildPicture(mime, data));
@@ -10434,21 +10746,27 @@ var Renderer = /** @class */ (function () {
             return this._dom;
         }
         this._dom = [];
-        this._curRChp = null;
-        this._curRPap = null;
-        this._curpar = null;
+        this._chp = null;
+        this._pap = null;
+        this._curpar = [];
+        this._cursubparIdx = -1;
+        this._curcont = [];
         var len = this._doc._ins.length;
         for (var i = 0; i < len; i++) {
             var ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                var span = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text(ins);
-                if (this._curRChp != null) {
-                    this._curRChp.apply(this._doc, span);
-                }
-                this._appendToPar(span);
+                this._appendToPar(new _RenderElements__WEBPACK_IMPORTED_MODULE_2__["RenderTextElement"](this._doc, ins, this._chp));
             }
             else {
                 ins(this);
+            }
+        }
+        len = this._curpar.length;
+        for (var i = 0; i < len; i++) {
+            // At this point all render elements have been wrapped in RenderParagraphContainer objects
+            var element = this._curpar[i].finalize();
+            if (element) {
+                this._dom.push(element);
             }
         }
         return this._dom;

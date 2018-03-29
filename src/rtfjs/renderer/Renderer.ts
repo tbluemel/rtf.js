@@ -25,7 +25,6 @@ SOFTWARE.
 */
 
 import * as $ from "jquery";
-import {RTFJSError} from "../Helper";
 import { Document } from "../Document";
 import { RTFJSError } from "../Helper";
 import { Chp, Pap } from "../parser/Containers";
