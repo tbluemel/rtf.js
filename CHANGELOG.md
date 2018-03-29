@@ -1,9 +1,12 @@
 # Change Log
 
-## [2.2] - 2018-03-29
+## [2.2.1] - 2018-03-29
+- Added getting started guide
+
+## [2.2.0] - 2018-03-29
 - Publish typings with npm package
 
-## [2.1] - 2018-03-28
+## [2.1.0] - 2018-03-28
 - support importing rtf.js as a module
 - rtf.js is now published on npm: https://www.npmjs.com/package/rtf.js
 
