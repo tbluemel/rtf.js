@@ -2,7 +2,7 @@ var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
 var $_$twiz = require('typewiz/dist/type-collector-snippet').$_$twiz;
 
-function stringToBinaryArray(string) {
+function stringToArrayBuffer(string) {
     var buffer = new ArrayBuffer(string.length);
     var bufferView = new Uint8Array(buffer);
     for (var i=0; i<string.length; i++) {
@@ -91,7 +91,7 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
         virtualConsole,
         beforeParse(window) {
             window.path = path;
-            window.rtfFile = stringToBinaryArray(source);
+            window.rtfFile = stringToArrayBuffer(source);
             window.done = function(meta, html){
                 callback(JSON.stringify(meta, null, 4), indentHtml(html), $_$twiz);
             };
@@ -104,4 +104,114 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
             };
             window.$_$twiz = $_$twiz;
         }});
-}
+};
+
+exports.runEmfjs = function(source, callback, errorCallback) {
+    const virtualConsole = new jsdom.VirtualConsole();
+    virtualConsole.sendTo(console);
+
+    var dom = new JSDOM(`
+    <script src="../samples/.common/dep/jquery.min.js"></script>
+
+    <script src="../samples/.common/dep/jquery.svg.min.js"></script>
+    <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
+
+    <script src="../dist/EMFJS.bundle.js"></script>
+
+    <script>
+        EMFJS.loggingEnabled(false);
+
+        try {
+            var width = 600;
+            var height = 400;
+            var settings = {
+                width: width + "px",
+                height: height + "px",
+                wExt: width,
+                hExt: height,
+                xExt: width,
+                yExt: height,
+                mapMode: 8 // preserve aspect ratio
+            };
+            
+            var renderer = new EMFJS.Renderer(emfFile);
+            var svg = renderer.render(settings).html();
+            
+            window.done(svg);
+        } catch (error){
+            window.onerror(error)
+        }
+    </script>
+    `, { resources: "usable",
+        runScripts: "dangerously",
+        url: "file://" + __dirname + "/",
+        virtualConsole,
+        beforeParse(window) {
+            window.emfFile = source;
+            window.done = function(svg){
+                callback(indentHtml(svg), $_$twiz);
+            };
+            window.onerror = function (error) {
+                errorCallback(error)
+            };
+            // Catch exceptions from jquery.svg.min.js
+            window.alert = function (error) {
+                errorCallback(error)
+            };
+            window.$_$twiz = $_$twiz;
+        }});
+};
+
+exports.runWmfjs = function(source, callback, errorCallback) {
+    const virtualConsole = new jsdom.VirtualConsole();
+    virtualConsole.sendTo(console);
+
+    var dom = new JSDOM(`
+    <script src="../samples/.common/dep/jquery.min.js"></script>
+
+    <script src="../samples/.common/dep/jquery.svg.min.js"></script>
+    <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
+
+    <script src="../dist/WMFJS.bundle.js"></script>
+
+    <script>
+        WMFJS.loggingEnabled(false);
+
+        try {
+            var width = 600;
+            var height = 400;
+            var settings = {
+                width: width + "px",
+                height: height + "px",
+                xExt: width,
+                yExt: height,
+                mapMode: 8 // preserve aspect ratio
+            };
+            
+            var renderer = new WMFJS.Renderer(wmfFile);
+            var svg = renderer.render(settings).html();
+            
+            window.done(svg);
+        } catch (error){
+            window.onerror(error)
+        }
+    </script>
+    `, { resources: "usable",
+        runScripts: "dangerously",
+        url: "file://" + __dirname + "/",
+        virtualConsole,
+        beforeParse(window) {
+            window.wmfFile = source;
+            window.done = function(svg){
+                callback(indentHtml(svg), $_$twiz);
+            };
+            window.onerror = function (error) {
+                errorCallback(error)
+            };
+            // Catch exceptions from jquery.svg.min.js
+            window.alert = function (error) {
+                errorCallback(error)
+            };
+            window.$_$twiz = $_$twiz;
+        }});
+};

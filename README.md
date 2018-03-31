@@ -50,14 +50,14 @@ To run the test suite run:
 $ npm run test
 ```
 
-To create a new test:
+To create a new test (type is `rtf`, `emf` or `wmf`):
 ```
-$ npm run generate-testcase test-name /path/to/test.rtf
+$ npm run generate-testcase type test-name /path/to/test.rtf
 ```
 
-To regenerate the expected json and html for an existing test:
+To regenerate the expected result for an existing test:
 ```
-$ npm run regenerate-testcase test-name
+$ npm run regenerate-testcase type test-name
 ```
 
 ## Code Coverage
