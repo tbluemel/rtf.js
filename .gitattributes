@@ -1,4 +1,7 @@
 samples/.common/css/* linguist-vendored
 samples/.common/dep/* linguist-vendored
+vendor/* linguist-vendored
 dist/* linguist-generated=true
-test/test-files/* linguist-generated=true
+test/emf-test-files/* linguist-generated=true
+test/rtf-test-files/* linguist-generated=true
+test/wmf-test-files/* linguist-generated=true
