@@ -4,7 +4,7 @@ var chai = require("chai");
 var expect = require("chai").expect;
 var chaiHtml  = require('chai-html');
 chai.use(chaiHtml);
-var typewiz = require('typewiz');
+var typewiz = require('typewiz-core');
 
 var utils = require("./utils");
 

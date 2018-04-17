@@ -7,7 +7,12 @@ module.exports = merge(baseConfig, {
         rules: [
             {
                 test: /\.ts?$/,
-                use: [ 'ts-loader', 'typewiz-webpack'],
+                use: [ {
+                    loader: 'ts-loader',
+                    options: {
+                        transpileOnly: true
+                    }
+                }, 'typewiz-webpack'],
                 include: [
                     path.resolve(__dirname, "../src"),
                     path.resolve(__dirname, "../node_modules/codepage")

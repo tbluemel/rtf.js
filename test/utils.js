@@ -1,6 +1,6 @@
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
-var $_$twiz = require('typewiz/dist/type-collector-snippet').$_$twiz;
+var $_$twiz = require('typewiz-core/dist/type-collector-snippet').$_$twiz;
 
 function stringToArrayBuffer(string) {
     var buffer = new ArrayBuffer(string.length);

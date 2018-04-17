@@ -1,0 +1,9 @@
+{
+    "common":{
+        "tsConfig":"tsconfig.json"
+    },
+    "instrument":{
+        "instrumentCallExpressions":true,
+        "instrumentImplicitThis":true
+    }
+}
