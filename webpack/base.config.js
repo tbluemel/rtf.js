@@ -2,7 +2,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-    mode: 'development',
+    mode: 'none',
     node: false,
     entry: {
         EMFJS: './src/emfjs/index.ts',
@@ -57,7 +57,7 @@ module.exports = {
         }
     },
     plugins: [
-        new CopyWebpackPlugin([{ from: 'vendor/jquery-svg', context: path.join(__dirname, '..')}])
+        new CopyWebpackPlugin([{ from: 'vendor/jquery-svg', context: path.join(__dirname, '..'), force: true}])
     ],
     stats: {
         modules: false

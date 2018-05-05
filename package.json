@@ -8,7 +8,7 @@
         "lint": "tslint --project tsconfig.json",
         "fix": "tslint --project tsconfig.json --fix",
         "clean": "rimraf dist",
-        "build": "npm run clean && webpack --config webpack/development.config.js --progress",
+        "build": "npm run clean && webpack --config webpack/development.config.js --progress && webpack --config webpack/production.config.js --progress",
         "generate-testcase": "node test/generate-testcase.js",
         "regenerate-testcase": "node test/regenerate-testcase.js",
         "test": "mocha test/test.js",

@@ -24,8 +24,8 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
     var dom = new JSDOM(`
     <script src="../samples/.common/dep/jquery.min.js"></script>
 
-    <script src="../samples/.common/dep/jquery.svg.min.js"></script>
-    <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
+    <script src="../dist/jquery.svg.min.js"></script>
+    <script src="../dist/jquery.svgfilter.min.js"></script>
 
     <script src="../dist/WMFJS.bundle.js"></script>
     <script src="../dist/EMFJS.bundle.js"></script>
@@ -113,8 +113,8 @@ exports.runEmfjs = function(source, callback, errorCallback) {
     var dom = new JSDOM(`
     <script src="../samples/.common/dep/jquery.min.js"></script>
 
-    <script src="../samples/.common/dep/jquery.svg.min.js"></script>
-    <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
+    <script src="../dist/jquery.svg.min.js"></script>
+    <script src="../dist/jquery.svgfilter.min.js"></script>
 
     <script src="../dist/EMFJS.bundle.js"></script>
 
@@ -169,8 +169,8 @@ exports.runWmfjs = function(source, callback, errorCallback) {
     var dom = new JSDOM(`
     <script src="../samples/.common/dep/jquery.min.js"></script>
 
-    <script src="../samples/.common/dep/jquery.svg.min.js"></script>
-    <script src="../samples/.common/dep/jquery.svgfilter.min.js"></script>
+    <script src="../dist/jquery.svg.min.js"></script>
+    <script src="../dist/jquery.svgfilter.min.js"></script>
 
     <script src="../dist/WMFJS.bundle.js"></script>
 

@@ -1,5 +1,8 @@
 # Change Log
 
+## [2.3.0] - 2018-05-05
+- Added minified bundles
+
 ## [2.2.1] - 2018-03-29
 - Added getting started guide
 
