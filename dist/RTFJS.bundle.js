@@ -9425,12 +9425,11 @@ var PictDestination = /** @class */ (function (_super) {
             };
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns(function (renderer) {
-                    var inst = _this._doc;
-                    var elem = inst._settings.onPicture(isLegacy, function () {
+                    var elem = _this.inst._settings.onPicture(isLegacy, function () {
                         return doRender_1(renderer, true);
                     });
                     if (elem != null) {
-                        _this.appendElement(elem);
+                        renderer.appendElement(elem);
                     }
                 });
             }
@@ -9469,12 +9468,11 @@ var PictDestination = /** @class */ (function (_super) {
             };
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns(function (renderer) {
-                    var inst = _this._doc;
-                    var elem = inst._settings.onPicture(isLegacy, function () {
+                    var elem = _this.inst._settings.onPicture(isLegacy, function () {
                         return doRender_2(renderer, true);
                     });
                     if (elem != null) {
-                        _this.appendElement(elem);
+                        renderer.appendElement(elem);
                     }
                 });
             }
