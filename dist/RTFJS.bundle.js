@@ -46,17 +46,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -1003,10 +1018,17 @@ var Parser = /** @class */ (function () {
   var cca = function cca(x) { return x.charCodeAt(0); };
 
   var has_buf = (typeof Buffer !== 'undefined');
+  var Buffer_from = function(){};
   if(has_buf) {
-    var mdl = 1024, mdb = new Buffer(mdl);
+    var nbfs = !Buffer.from;
+    if(!nbfs) try { Buffer.from("foo", "utf8"); } catch(e) { nbfs = true; }
+    Buffer_from = nbfs ? function(buf, enc) { return (enc) ? new Buffer(buf, enc) : new Buffer(buf); } : Buffer.from.bind(Buffer);
+    // $FlowIgnore
+    if(!Buffer.allocUnsafe) Buffer.allocUnsafe = function(n) { return new Buffer(n); };
+
+    var mdl = 1024, mdb = Buffer.allocUnsafe(mdl);
     var make_EE = function make_EE(E){
-      var EE = new Buffer(65536);
+      var EE = Buffer.allocUnsafe(65536);
       for(var i = 0; i < 65536;++i) EE[i] = 0;
       var keys = Object.keys(E), len = keys.length;
       for(var ee = 0, e = keys[ee]; ee < len; ++ee) {
@@ -1021,10 +1043,10 @@ var Parser = /** @class */ (function () {
         var len = data.length;
         var out, i=0, j=0, D=0, w=0;
         if(typeof data === 'string') {
-          out = new Buffer(len);
+          out = Buffer.allocUnsafe(len);
           for(i = 0; i < len; ++i) out[i] = EE[data.charCodeAt(i)];
         } else if(Buffer.isBuffer(data)) {
-          out = new Buffer(2*len);
+          out = Buffer.allocUnsafe(2*len);
           j = 0;
           for(i = 0; i < len; ++i) {
             D = data[i];
@@ -1039,7 +1061,7 @@ var Parser = /** @class */ (function () {
           }
           out = out.slice(0,j);
         } else {
-          out = new Buffer(len);
+          out = Buffer.allocUnsafe(len);
           for(i = 0; i < len; ++i) out[i] = EE[data[i].charCodeAt(0)];
         }
         if(!ofmt || ofmt === 'buf') return out;
@@ -1049,7 +1071,7 @@ var Parser = /** @class */ (function () {
     };
     var sbcs_decode = function make_sbcs_decode(cp) {
       var D = cpt[cp].dec;
-      var DD = new Buffer(131072), d=0, c="";
+      var DD = Buffer.allocUnsafe(131072), d=0, c="";
       for(d=0;d<D.length;++d) {
         if(!(c=D[d])) continue;
         var w = c.charCodeAt(0);
@@ -1057,7 +1079,7 @@ var Parser = /** @class */ (function () {
       }
       return function sbcs_d(data) {
         var len = data.length, i=0, j=0;
-        if(2 * len > mdl) { mdl = 2 * len; mdb = new Buffer(mdl); }
+        if(2 * len > mdl) { mdl = 2 * len; mdb = Buffer.allocUnsafe(mdl); }
         if(Buffer.isBuffer(data)) {
           for(i = 0; i < len; i++) {
             j = 2*data[i];
@@ -1079,7 +1101,7 @@ var Parser = /** @class */ (function () {
     };
     var dbcs_encode = function make_dbcs_encode(cp) {
       var E = cpt[cp].enc;
-      var EE = new Buffer(131072);
+      var EE = Buffer.allocUnsafe(131072);
       for(var i = 0; i < 131072; ++i) EE[i] = 0;
       var keys = Object.keys(E);
       for(var ee = 0, e = keys[ee]; ee < keys.length; ++ee) {
@@ -1088,7 +1110,7 @@ var Parser = /** @class */ (function () {
         EE[2*f] = E[e] & 255; EE[2*f+1] = E[e]>>8;
       }
       return function dbcs_e(data, ofmt) {
-        var len = data.length, out = new Buffer(2*len), i=0, j=0, jj=0, k=0, D=0;
+        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, jj=0, k=0, D=0;
         if(typeof data === 'string') {
           for(i = k = 0; i < len; ++i) {
             j = data.charCodeAt(i)*2;
@@ -1122,7 +1144,7 @@ var Parser = /** @class */ (function () {
     };
     var dbcs_decode = function make_dbcs_decode(cp) {
       var D = cpt[cp].dec;
-      var DD = new Buffer(131072), d=0, c, w=0, j=0, i=0;
+      var DD = Buffer.allocUnsafe(131072), d=0, c, w=0, j=0, i=0;
       for(i = 0; i < 65536; ++i) { DD[2*i] = 0xFF; DD[2*i+1] = 0xFD;}
       for(d = 0; d < D.length; ++d) {
         if(!(c=D[d])) continue;
@@ -1131,7 +1153,7 @@ var Parser = /** @class */ (function () {
         DD[j] = w&255; DD[j+1] = w>>8;
       }
       return function dbcs_d(data) {
-        var len = data.length, out = new Buffer(2*len), i=0, j=0, k=0;
+        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, k=0;
         if(Buffer.isBuffer(data)) {
           for(i = 0; i < len; i++) {
             j = 2*data[i];
@@ -1157,7 +1179,7 @@ var Parser = /** @class */ (function () {
     magic_decode[65001] = function utf8_d(data) {
       if(typeof data === "string") return utf8_d(data.split("").map(cca));
       var len = data.length, w = 0, ww = 0;
-      if(4 * len > mdl) { mdl = 4 * len; mdb = new Buffer(mdl); }
+      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
       var i = 0;
       if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
       for(var j = 1, k = 0, D = 0; i < len; i+=j) {
@@ -1182,7 +1204,7 @@ var Parser = /** @class */ (function () {
       }
       var len = data.length, w = 0, ww = 0, j = 0;
       var direct = typeof data === "string";
-      if(4 * len > mdl) { mdl = 4 * len; mdb = new Buffer(mdl); }
+      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
       for(var i = 0; i < len; ++i) {
         w = direct ? data.charCodeAt(i) : data[i].charCodeAt(0);
         if(w <= 0x007F) mdb[j++] = w;
@@ -1261,7 +1283,7 @@ var Parser = /** @class */ (function () {
     if(cpecache[cp]) { last_enc = cpecache[last_cp=cp]; return last_enc(data, ofmt); }
     if(has_buf && Buffer.isBuffer(data)) data = data.toString('utf8');
     var len = data.length;
-    var out = has_buf ? new Buffer(4*len) : [], w=0, i=0, j = 0, ww=0;
+    var out = has_buf ? Buffer.allocUnsafe(4*len) : [], w=0, i=0, j = 0, ww=0;
     var C = cpt[cp], E, M = "";
     var isstr = typeof data === 'string';
     if(C && (E=C.enc)) for(i = 0; i < len; ++i, ++j) {
@@ -1273,7 +1295,7 @@ var Parser = /** @class */ (function () {
     }
     else if((M=magic[cp])) switch(M) {
       case "utf8":
-        if(has_buf && isstr) { out = new Buffer(data, M); j = out.length; break; }
+        if(has_buf && isstr) { out = Buffer_from(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i, ++j) {
           w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w <= 0x007F) out[j] = w;
@@ -1295,7 +1317,7 @@ var Parser = /** @class */ (function () {
         }
         break;
       case "ascii":
-        if(has_buf && typeof data === "string") { out = new Buffer(data, M); j = out.length; break; }
+        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i, ++j) {
           w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           if(w <= 0x007F) out[j] = w;
@@ -1303,7 +1325,7 @@ var Parser = /** @class */ (function () {
         }
         break;
       case "utf16le":
-        if(has_buf && typeof data === "string") { out = new Buffer(data, M); j = out.length; break; }
+        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
         for(i = 0; i < len; ++i) {
           w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
           out[j++] = w&255;
@@ -1490,7 +1512,7 @@ var Parser = /** @class */ (function () {
 
 /* cptable.js (C) 2013-present SheetJS -- http://sheetjs.com */
 /*jshint -W100 */
-var cptable = {version:"1.12.0"};
+var cptable = {version:"1.14.0"};
 cptable[37] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ¢.<(+|&éêëèíîïìß!$*);¬-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®^£¥·©§¶¼½¾[]¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[437] = (function(){ var d = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
 cptable[500] = (function(){ var d = "\u0000\u0001\u0002\u0003\t\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\b\u0018\u0019\u001c\u001d\u001e\u001f\n\u0017\u001b\u0005\u0006\u0007\u0016\u0004\u0014\u0015\u001a  âäàáãåçñ[.<(+!&éêëèíîïìß]$*);^-/ÂÄÀÁÃÅÇÑ¦,%_>?øÉÊËÈÍÎÏÌ`:#@'=\"Øabcdefghi«»ðýþ±°jklmnopqrªºæ¸Æ¤µ~stuvwxyz¡¿ÐÝÞ®¢£¥·©§¶¼½¾¬|¯¨´×{ABCDEFGHI­ôöòóõ}JKLMNOPQR¹ûüùúÿ\\÷STUVWXYZ²ÔÖÒÓÕ0123456789³ÛÜÙÚ", D = [], e = {}; for(var i=0;i!=d.length;++i) { if(d.charCodeAt(i) !== 0xFFFD) e[d.charAt(i)] = i; D[i] = d.charAt(i); } return {"enc": e, "dec": D }; })();
