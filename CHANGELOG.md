@@ -1,5 +1,8 @@
 # Change Log
 
+## [2.3.1] - 2018-07-29
+- Fix picture rendering issues
+
 ## [2.3.0] - 2018-05-05
 - Added minified bundles
 
