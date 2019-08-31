@@ -596,7 +596,9 @@ var Parser = /** @class */ (function () {
     Parser.prototype.parse = function () {
         if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
             this.parseLoop(false, true);
-            return Promise.all(this.parser._asyncTasks).then(function () { return; });
+            return Promise.all(this.parser._asyncTasks).then(function () {
+                return;
+            });
         }
         if (this.parser.version == null) {
             throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Not a valid rtf document");
@@ -850,23 +852,28 @@ var Parser = /** @class */ (function () {
         if (!_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
             if (ch === "\'") {
                 var hex = this.readChar() + this.readChar();
-                this.readChar();
-                this.readChar();
-                var followingHex = this.readChar() + this.readChar();
                 if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE) {
                     // Character is defined as double width
+                    this.readChar();
+                    this.readChar();
+                    var followingHex = this.readChar() + this.readChar();
                     hex += followingHex;
                 }
                 else if (this.parser.state.pap.charactertype == null
                     && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex) >= 128
-                    && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(followingHex) < 128) {
-                    // Character type is undefined, inferred as double width
-                    hex += followingHex;
-                }
-                else {
-                    // Character is single width, unread characters
-                    for (var i = 0; i < 4; i++) {
-                        this.unreadChar();
+                    && this.parser.pos + 4 < this.parser.data.length) {
+                    // Character type is undefined, leading byte is in the correct range, might be double width
+                    var start = this.readChar() + this.readChar();
+                    if (start === "\\'") {
+                        // This character is followed by another character, assuming double width
+                        var followingHex = this.readChar() + this.readChar();
+                        hex += followingHex;
+                    }
+                    else {
+                        // Character is single width, unread characters
+                        for (var i = 0; i < 2; i++) {
+                            this.unreadChar();
+                        }
                     }
                 }
                 param = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex);

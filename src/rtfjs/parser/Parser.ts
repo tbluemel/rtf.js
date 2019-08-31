@@ -25,15 +25,15 @@ SOFTWARE.
 */
 
 import cptable from "codepage";
-import { Document } from "../Document";
-import { Helper, RTFJSError } from "../Helper";
-import { RenderChp } from "../renderer/RenderChp";
-import { Renderer } from "../renderer/Renderer";
-import { RenderPap } from "../renderer/RenderPap";
-import { SymbolTable } from "../Symboltable";
-import { GlobalState, State } from "./Containers";
-import { DestinationFactory } from "./destinations/DestinationBase";
-import { Destinations } from "./destinations/Destinations";
+import {Document} from "../Document";
+import {Helper, RTFJSError} from "../Helper";
+import {RenderChp} from "../renderer/RenderChp";
+import {Renderer} from "../renderer/Renderer";
+import {RenderPap} from "../renderer/RenderPap";
+import {SymbolTable} from "../Symboltable";
+import {GlobalState, State} from "./Containers";
+import {DestinationFactory} from "./destinations/DestinationBase";
+import {Destinations} from "./destinations/Destinations";
 
 export class Parser {
     private inst: Document;
@@ -47,7 +47,9 @@ export class Parser {
     public parse(): Promise<void> {
         if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
             this.parseLoop(false, true);
-            return Promise.all(this.parser._asyncTasks).then(() => { return; });
+            return Promise.all(this.parser._asyncTasks).then(() => {
+                return;
+            });
         }
         if (this.parser.version == null) {
             throw new RTFJSError("Not a valid rtf document");
@@ -324,22 +326,27 @@ export class Parser {
         if (!Helper._isalpha(ch)) {
             if (ch === "\'") {
                 let hex = this.readChar() + this.readChar();
-                this.readChar();
-                this.readChar();
-                const followingHex = this.readChar() + this.readChar();
 
                 if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
                     // Character is defined as double width
+                    this.readChar();
+                    this.readChar();
+                    const followingHex = this.readChar() + this.readChar();
                     hex += followingHex;
                 } else if (this.parser.state.pap.charactertype == null
                     && Helper._parseHex(hex) >= 128
-                    && Helper._parseHex(followingHex) < 128) {
-                    // Character type is undefined, inferred as double width
-                    hex += followingHex;
-                } else {
-                    // Character is single width, unread characters
-                    for (let i = 0; i < 4; i++) {
-                        this.unreadChar();
+                    && this.parser.pos + 4 < this.parser.data.length) {
+                    // Character type is undefined, leading byte is in the correct range, might be double width
+                    const start = this.readChar() + this.readChar();
+                    if (start === "\\'") {
+                        // This character is followed by another character, assuming double width
+                        const followingHex = this.readChar() + this.readChar();
+                        hex += followingHex;
+                    } else {
+                        // Character is single width, unread characters
+                        for (let i = 0; i < 2; i++) {
+                            this.unreadChar();
+                        }
                     }
                 }
 
@@ -438,7 +445,7 @@ export class Parser {
                                 break main_loop;
                             } else if (this.popState() === initialState) {
                                 break main_loop;
-                                 }
+                            }
                             break;
                         case "\\":
                             this.parseKeyword(!skip ? process : null);
