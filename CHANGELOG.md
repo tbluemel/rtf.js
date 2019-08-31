@@ -1,5 +1,8 @@
 # Change Log
 
+## [2.3.2] - 2019-08-31
+- Improve support for double width characters
+
 ## [2.3.1] - 2018-07-29
 - Fix picture rendering issues
 
