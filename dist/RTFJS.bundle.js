@@ -850,10 +850,24 @@ var Parser = /** @class */ (function () {
         if (!_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
             if (ch === "\'") {
                 var hex = this.readChar() + this.readChar();
+                this.readChar();
+                this.readChar();
+                var followingHex = this.readChar() + this.readChar();
                 if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE) {
-                    this.readChar();
-                    this.readChar();
-                    hex += this.readChar() + this.readChar();
+                    // Character is defined as double width
+                    hex += followingHex;
+                }
+                else if (this.parser.state.pap.charactertype == null
+                    && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex) >= 128
+                    && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(followingHex) < 128) {
+                    // Character type is undefined, inferred as double width
+                    hex += followingHex;
+                }
+                else {
+                    // Character is single width, unread characters
+                    for (var i = 0; i < 4; i++) {
+                        this.unreadChar();
+                    }
                 }
                 param = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex);
                 if (isNaN(param)) {
@@ -8324,6 +8338,7 @@ var Pap = /** @class */ (function () {
             this.justification = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
+            this.charactertype = null;
         }
     }
     return Pap;

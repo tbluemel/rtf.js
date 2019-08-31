@@ -324,11 +324,25 @@ export class Parser {
         if (!Helper._isalpha(ch)) {
             if (ch === "\'") {
                 let hex = this.readChar() + this.readChar();
+                this.readChar();
+                this.readChar();
+                const followingHex = this.readChar() + this.readChar();
+
                 if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
-                    this.readChar();
-                    this.readChar();
-                    hex += this.readChar() + this.readChar();
+                    // Character is defined as double width
+                    hex += followingHex;
+                } else if (this.parser.state.pap.charactertype == null
+                    && Helper._parseHex(hex) >= 128
+                    && Helper._parseHex(followingHex) < 128) {
+                    // Character type is undefined, inferred as double width
+                    hex += followingHex;
+                } else {
+                    // Character is single width, unread characters
+                    for (let i = 0; i < 4; i++) {
+                        this.unreadChar();
+                    }
                 }
+
                 param = Helper._parseHex(hex);
                 if (isNaN(param)) {
                     throw new RTFJSError("Could not parse hexadecimal number");

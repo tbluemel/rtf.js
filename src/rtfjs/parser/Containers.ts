@@ -65,7 +65,7 @@ export class Pap {
     public justification: string;
     public spacebefore: number;
     public spaceafter: number;
-    public charactertype: string;
+    public charactertype: string | null;
 
     constructor(parent: Pap) {
         if (parent != null) {
@@ -87,6 +87,7 @@ export class Pap {
             this.justification = Helper.JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
+            this.charactertype = null;
         }
     }
 }
