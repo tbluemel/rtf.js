@@ -25,15 +25,14 @@ SOFTWARE.
 */
 
 import cptable from "codepage";
-import {Document} from "../Document";
-import {Helper, RTFJSError} from "../Helper";
-import {RenderChp} from "../renderer/RenderChp";
-import {Renderer} from "../renderer/Renderer";
-import {RenderPap} from "../renderer/RenderPap";
-import {SymbolTable} from "../Symboltable";
-import {GlobalState, State} from "./Containers";
-import {DestinationFactory} from "./destinations/DestinationBase";
-import {Destinations} from "./destinations/Destinations";
+import { Document } from "../Document";
+import { Helper, RTFJSError } from "../Helper";
+import { RenderChp } from "../renderer/RenderChp";
+import { Renderer } from "../renderer/Renderer";
+import { RenderPap } from "../renderer/RenderPap";
+import { GlobalState, State } from "./Containers";
+import { DestinationFactory } from "./destinations/DestinationBase";
+import { Destinations } from "./destinations/Destinations";
 
 export class Parser {
     private inst: Document;
@@ -112,7 +111,7 @@ export class Parser {
             if (dest == null) {
                 throw new RTFJSError("Cannot route text to destination");
             }
-            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination) {
+            if (dest.appendText != null && !this.parser.state.skipdestination) {
                 dest.appendText(this.parser.text);
             }
             this.parser.text = "";
@@ -175,7 +174,7 @@ export class Parser {
         return false;
     }
 
-    private processKeyword(keyword: string, param: number) {
+    private processKeyword(keyword: string, param: number | null) {
         const first = this.parser.state.first;
         if (first) {
             if (keyword === "*") {
@@ -222,8 +221,16 @@ export class Parser {
                         throw new RTFJSError("Invalid unicode character encountered");
                     }
 
-                    const symbol = SymbolTable[param.toString(16).substring(2)];
-                    this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
+                    const idx = this.parser.state.chp.fontfamily;
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
+                    if (idx && this.inst._fonts
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(String.fromCharCode(param - 0xf000));
+                    } else {
+                        this.appendText(String.fromCharCode(param));
+                    }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
                 return;
@@ -310,7 +317,7 @@ export class Parser {
             if (dest == null) {
                 throw new RTFJSError("Cannot route binary to destination");
             }
-            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination) {
+            if (dest.handleBlob != null && !this.parser.state.skipdestination) {
                 dest.handleBlob(blob);
             }
         }
@@ -324,6 +331,7 @@ export class Parser {
         let param: number;
         let ch = this.readChar();
         if (!Helper._isalpha(ch)) {
+            // 8 bit character encoded as hexadecimal
             if (ch === "\'") {
                 let hex = this.readChar() + this.readChar();
 
@@ -360,8 +368,9 @@ export class Parser {
                     let codepage = this.parser.codepage;
                     if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
                         const idx = this.parser.state.chp.fontfamily;
+                        // Code page 42 isn't a real code page and shouldn't appear here
                         if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
-                            && this.inst._fonts[idx].charset !== undefined && this.inst._fonts[idx].charset != null) {
+                            && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
                             codepage = this.inst._fonts[idx].charset;
                         }
                     }
@@ -369,7 +378,7 @@ export class Parser {
                     this.appendText(cptable[codepage].dec[param]);
                 }
             } else if (process) {
-                const text = this.processKeyword(ch, param);
+                const text = this.processKeyword(ch, null);
                 if (text != null) {
                     this.appendText(text);
                 }

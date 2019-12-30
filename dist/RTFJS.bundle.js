@@ -7,7 +7,7 @@
 		exports["RTFJS"] = factory(require("jquery"), require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else
 		root["RTFJS"] = factory(root["$"], root["EMFJS"], root["WMFJS"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__29__, __WEBPACK_EXTERNAL_MODULE__30__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__28__, __WEBPACK_EXTERNAL_MODULE__29__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -165,7 +165,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
 /* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
-/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(35);
+/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(34);
 /*
 
 The MIT License (MIT)
@@ -486,6 +486,7 @@ var Helper = /** @class */ (function () {
     Helper._9 = "9".charCodeAt(0);
     Helper._charsetMap = {
         0: 1252,
+        2: 42,
         77: 10000,
         78: 10001,
         79: 10003,
@@ -551,10 +552,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
 /* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
 /* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
-/* harmony import */ var _Symboltable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(23);
-/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(24);
-/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(25);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
+/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(23);
+/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(24);
 /*
 
 The MIT License (MIT)
@@ -587,11 +587,10 @@ SOFTWARE.
 
 
 
-
 var Parser = /** @class */ (function () {
     function Parser(document, blob, renderer) {
         this.inst = document;
-        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_5__["GlobalState"](blob, renderer);
+        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_4__["GlobalState"](blob, renderer);
     }
     Parser.prototype.parse = function () {
         if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
@@ -650,19 +649,20 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.applyText = function () {
+        // TODO: summarize text
         if (this.parser.text.length > 0) {
             var dest = this.parser.state.destination;
             if (dest == null) {
                 throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot route text to destination");
             }
-            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination) {
+            if (dest.appendText != null && !this.parser.state.skipdestination) {
                 dest.appendText(this.parser.text);
             }
             this.parser.text = "";
         }
     };
     Parser.prototype.pushState = function (forceSkip) {
-        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_5__["State"](this.parser.state);
+        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_4__["State"](this.parser.state);
         if (forceSkip) {
             this.parser.state.skipdestination = true;
         }
@@ -699,10 +699,10 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.changeDestination = function (name, param) {
         this.applyText();
-        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_7__["Destinations"][name];
+        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__["Destinations"][name];
         if (handler != null) {
             this.applyDestination(false);
-            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_6__["DestinationFactory"]) {
+            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__["DestinationFactory"]) {
                 this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
             }
             else {
@@ -754,8 +754,17 @@ var Parser = /** @class */ (function () {
                     if (param < 0 || param > 65535) {
                         throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid unicode character encountered");
                     }
-                    var symbol = _Symboltable__WEBPACK_IMPORTED_MODULE_4__["SymbolTable"][param.toString(16).substring(2)];
-                    this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
+                    var idx = this.parser.state.chp.fontfamily;
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
+                    if (idx && this.inst._fonts
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(String.fromCharCode(param - 0xf000));
+                    }
+                    else {
+                        this.appendText(String.fromCharCode(param));
+                    }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
                 return;
@@ -808,6 +817,7 @@ var Parser = /** @class */ (function () {
         this.parser.state.skipdestination = false;
     };
     Parser.prototype.appendText = function (text) {
+        // TODO: get raw text
         // Handle characters not found in codepage
         text = text ? text : "";
         this.parser.state.first = false;
@@ -838,7 +848,7 @@ var Parser = /** @class */ (function () {
             if (dest == null) {
                 throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot route binary to destination");
             }
-            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination) {
+            if (dest.handleBlob != null && !this.parser.state.skipdestination) {
                 dest.handleBlob(blob);
             }
         }
@@ -850,6 +860,7 @@ var Parser = /** @class */ (function () {
         var param;
         var ch = this.readChar();
         if (!_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
+            // 8 bit character encoded as hexadecimal
             if (ch === "\'") {
                 var hex = this.readChar() + this.readChar();
                 if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE) {
@@ -885,8 +896,9 @@ var Parser = /** @class */ (function () {
                     var codepage = this.parser.codepage;
                     if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
                         var idx = this.parser.state.chp.fontfamily;
+                        // Code page 42 isn't a real code page and shouldn't appear here
                         if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
-                            && this.inst._fonts[idx].charset !== undefined && this.inst._fonts[idx].charset != null) {
+                            && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
                             codepage = this.inst._fonts[idx].charset;
                         }
                     }
@@ -894,7 +906,7 @@ var Parser = /** @class */ (function () {
                 }
             }
             else if (process) {
-                var text = this.processKeyword(ch, param);
+                var text = this.processKeyword(ch, null);
                 if (text != null) {
                     this.appendText(text);
                 }
@@ -8042,229 +8054,6 @@ var RenderPap = /** @class */ (function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SymbolTable", function() { return SymbolTable; });
-// The MIT License (MIT)
-//
-// Copyright (c) 2016 Tom Zöhner
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-// Based on the mapping documented at http://unicode.org/Public/MAPPINGS/VENDORS/ADOBE/symbol.txt
-// tslint:disable-next-line:variable-name
-var SymbolTable = {
-    "20": "\u0020",
-    "21": "\u0021",
-    "22": "\u2200",
-    "23": "\u0023",
-    "24": "\u2203",
-    "25": "\u0025",
-    "26": "\u0026",
-    "27": "\u220b",
-    "28": "\u0028",
-    "29": "\u0029",
-    "2a": "\u2217",
-    "2b": "\u002b",
-    "2c": "\u002c",
-    "2d": "\u2212",
-    "2e": "\u002e",
-    "2f": "\u002f",
-    "30": "\u0030",
-    "31": "\u0031",
-    "32": "\u0032",
-    "33": "\u0033",
-    "34": "\u0034",
-    "35": "\u0035",
-    "36": "\u0036",
-    "37": "\u0037",
-    "38": "\u0038",
-    "39": "\u0039",
-    "3a": "\u003a",
-    "3b": "\u003b",
-    "3c": "\u003c",
-    "3d": "\u003d",
-    "3e": "\u003e",
-    "3f": "\u003f",
-    "40": "\u2245",
-    "41": "\u0391",
-    "42": "\u0392",
-    "43": "\u03a7",
-    "44": "\u0394",
-    "45": "\u0395",
-    "46": "\u03a6",
-    "47": "\u0393",
-    "48": "\u0397",
-    "49": "\u0399",
-    "4a": "\u03d1",
-    "4b": "\u039a",
-    "4c": "\u039b",
-    "4d": "\u039c",
-    "4e": "\u039d",
-    "4f": "\u039f",
-    "50": "\u03a0",
-    "51": "\u0398",
-    "52": "\u03a1",
-    "53": "\u03a3",
-    "54": "\u03a4",
-    "55": "\u03a5",
-    "56": "\u03c2",
-    "57": "\u03a9",
-    "58": "\u039e",
-    "59": "\u03a8",
-    "5a": "\u0396",
-    "5b": "\u005b",
-    "5c": "\u2234",
-    "5d": "\u005d",
-    "5e": "\u22a5",
-    "5f": "\u005f",
-    "60": "\uf8e5",
-    "61": "\u03b1",
-    "62": "\u03b2",
-    "63": "\u03c7",
-    "64": "\u03b4",
-    "65": "\u03b5",
-    "66": "\u03c6",
-    "67": "\u03b3",
-    "68": "\u03b7",
-    "69": "\u03b9",
-    "6a": "\u03d5",
-    "6b": "\u03ba",
-    "6c": "\u03bb",
-    "6d": "\u00b5",
-    "6e": "\u03bd",
-    "6f": "\u03bf",
-    "70": "\u03c0",
-    "71": "\u03b8",
-    "72": "\u03c1",
-    "73": "\u03c3",
-    "74": "\u03c4",
-    "75": "\u03c5",
-    "76": "\u03d6",
-    "77": "\u03c9",
-    "78": "\u03be",
-    "79": "\u03c8",
-    "7a": "\u03b6",
-    "7b": "\u007b",
-    "7c": "\u007c",
-    "7d": "\u007d",
-    "7e": "\u223c",
-    "a0": "\u20ac",
-    "a1": "\u03d2",
-    "a2": "\u2032",
-    "a3": "\u2264",
-    "a4": "\u2044",
-    "a5": "\u221e",
-    "a6": "\u0192",
-    "a7": "\u2663",
-    "a8": "\u2666",
-    "a9": "\u2665",
-    "aa": "\u2660",
-    "ab": "\u2194",
-    "ac": "\u2190",
-    "ad": "\u2191",
-    "ae": "\u2192",
-    "af": "\u2193",
-    "b0": "\u00b0",
-    "b1": "\u00b1",
-    "b2": "\u2033",
-    "b3": "\u2265",
-    "b4": "\u00d7",
-    "b5": "\u221d",
-    "b6": "\u2202",
-    "b7": "\u2022",
-    "b8": "\u00f7",
-    "b9": "\u2260",
-    "ba": "\u2261",
-    "bb": "\u2248",
-    "bc": "\u2026",
-    "bd": "\uf8e6",
-    "be": "\uf8e7",
-    "bf": "\u21b5",
-    "c0": "\u2135",
-    "c1": "\u2111",
-    "c2": "\u211c",
-    "c3": "\u2118",
-    "c4": "\u2297",
-    "c5": "\u2295",
-    "c6": "\u2205",
-    "c7": "\u2229",
-    "c8": "\u222a",
-    "c9": "\u2283",
-    "ca": "\u2287",
-    "cb": "\u2284",
-    "cc": "\u2282",
-    "cd": "\u2286",
-    "ce": "\u2208",
-    "cf": "\u2209",
-    "d0": "\u2220",
-    "d1": "\u2207",
-    "d2": "\uf6da",
-    "d3": "\uf6d9",
-    "d4": "\uf6db",
-    "d5": "\u220f",
-    "d6": "\u221a",
-    "d7": "\u22c5",
-    "d8": "\u00ac",
-    "d9": "\u2227",
-    "da": "\u2228",
-    "db": "\u21d4",
-    "dc": "\u21d0",
-    "dd": "\u21d1",
-    "de": "\u21d2",
-    "df": "\u21d3",
-    "e0": "\u25ca",
-    "e1": "\u2329",
-    "e2": "\uf8e8",
-    "e3": "\uf8e9",
-    "e4": "\uf8ea",
-    "e5": "\u2211",
-    "e6": "\uf8eb",
-    "e7": "\uf8ec",
-    "e8": "\uf8ed",
-    "e9": "\uf8ee",
-    "ea": "\uf8ef",
-    "eb": "\uf8f0",
-    "ec": "\uf8f1",
-    "ed": "\uf8f2",
-    "ee": "\uf8f3",
-    "ef": "\uf8f4",
-    "f1": "\u232a",
-    "f2": "\u222b",
-    "f3": "\u2320",
-    "f4": "\uf8f5",
-    "f5": "\u2321",
-    "f6": "\uf8f6",
-    "f7": "\uf8f7",
-    "f8": "\uf8f8",
-    "f9": "\uf8f9",
-    "fa": "\uf8fa",
-    "fb": "\uf8fb",
-    "fc": "\uf8fc",
-    "fd": "\uf8fd",
-    "fe": "\uf8fe",
-};
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Chp", function() { return Chp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Pap", function() { return Pap; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Sep", function() { return Sep; });
@@ -8456,7 +8245,7 @@ var GlobalState = /** @class */ (function () {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8670,20 +8459,20 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Destinations", function() { return Destinations; });
-/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
-/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(32);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(28);
-/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(33);
-/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(34);
+/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
+/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(27);
+/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(32);
+/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(33);
 /*
 
 The MIT License (MIT)
@@ -8767,14 +8556,14 @@ var Destinations = {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ColortblDestination", function() { return ColortblDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -8920,7 +8709,7 @@ var ColortblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8931,8 +8720,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldinstDestination", function() { return FldinstDestination; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldrsltDestination", function() { return FldrsltDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(28);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
 /*
 
 The MIT License (MIT)
@@ -9215,19 +9004,19 @@ var FldrsltDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictGroupDestinationFactory", function() { return PictGroupDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictDestination", function() { return PictDestination; });
-/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
+/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
 /* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
 /* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(WMFJS__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -9558,6 +9347,12 @@ var PictDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
+/* 28 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__28__;
+
+/***/ }),
 /* 29 */
 /***/ (function(module, exports) {
 
@@ -9565,12 +9360,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__29__;
 
 /***/ }),
 /* 30 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__30__;
-
-/***/ }),
-/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9578,7 +9367,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestinationSub", function() { return FonttblDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestination", function() { return FonttblDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -9755,7 +9544,7 @@ var FonttblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9764,7 +9553,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyDestinationFactory", function() { return MetaPropertyDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyTimeDestinationFactory", function() { return MetaPropertyTimeDestinationFactory; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -9913,7 +9702,7 @@ var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9922,8 +9711,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
 /* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
 /* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(24);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -10176,7 +9965,7 @@ var RtfDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -10184,7 +9973,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestinationSub", function() { return StylesheetDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestination", function() { return StylesheetDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -10313,7 +10102,7 @@ var StylesheetDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
