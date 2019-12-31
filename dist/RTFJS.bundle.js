@@ -650,16 +650,65 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.applyText = function () {
         // TODO: summarize text
+        // if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
+        //     // Character is defined as double width
+        //     this.readChar();
+        //     this.readChar();
+        //     const followingHex = this.readChar() + this.readChar();
+        //     hex += followingHex;
+        // } else if (this.parser.state.pap.charactertype == null
+        //     && Helper._parseHex(hex) >= 128
+        //     && this.parser.pos + 4 < this.parser.data.length) {
+        //     // Character type is undefined, leading byte is in the correct range, might be double width
+        //     const start = this.readChar() + this.readChar();
+        //     if (start === "\\'") {
+        //         // This character is followed by another character, assuming double width
+        //         const followingHex = this.readChar() + this.readChar();
+        //         hex += followingHex;
+        //     } else {
+        //         // Character is single width, unread characters
+        //         for (let i = 0; i < 2; i++) {
+        //             this.unreadChar();
+        //         }
+        //     }
+        // }
         if (this.parser.text.length > 0) {
             var dest = this.parser.state.destination;
             if (dest == null) {
                 throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot route text to destination");
             }
             if (dest.appendText != null && !this.parser.state.skipdestination) {
-                dest.appendText(this.parser.text);
+                var summarizedText = this.summarizeText(this.parser.text);
+                dest.appendText(summarizedText);
             }
-            this.parser.text = "";
+            this.parser.text = [];
         }
+    };
+    Parser.prototype.summarizeText = function (text) {
+        var _this = this;
+        var result = "";
+        text.forEach(function (value) {
+            if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
+                result += value.text;
+            }
+            else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["UnicodeText"]) {
+                result += String.fromCharCode(value.unicode);
+            }
+            else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
+                // Looking for current fonttbl charset
+                var codepage = _this.parser.codepage;
+                if (value.chp.hasOwnProperty("fontfamily")) {
+                    var idx = value.chp.fontfamily;
+                    // Code page 42 isn't a real code page and shouldn't appear here
+                    if (_this.inst._fonts !== undefined && _this.inst._fonts[idx] != null
+                        && _this.inst._fonts[idx].charset && _this.inst._fonts[idx].charset !== 42) {
+                        codepage = _this.inst._fonts[idx].charset;
+                    }
+                }
+                result += codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[value.hex];
+            }
+        });
+        return result;
     };
     Parser.prototype.pushState = function (forceSkip) {
         this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_4__["State"](this.parser.state);
@@ -755,15 +804,19 @@ var Parser = /** @class */ (function () {
                         throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid unicode character encountered");
                     }
                     var idx = this.parser.state.chp.fontfamily;
-                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
-                    // are mapped to the range between 0xf020 and 0xf0ff
+                    // Code page 42 indicates a symbol
                     if (idx && this.inst._fonts
-                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
-                        && param >= 0xf020 && param <= 0xf0ff) {
-                        this.appendText(String.fromCharCode(param - 0xf000));
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42) {
+                        // Symbols between 0x0020 and 0x00ff are mapped to the range between 0xf020 and 0xf0ff
+                        if (param >= 0xf020 && param <= 0xf0ff) {
+                            this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param - 0xf000)));
+                        }
+                        else {
+                            this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param)));
+                        }
                     }
                     else {
-                        this.appendText(String.fromCharCode(param));
+                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["UnicodeText"](param));
                     }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
@@ -816,24 +869,32 @@ var Parser = /** @class */ (function () {
         }
         this.parser.state.skipdestination = false;
     };
-    Parser.prototype.appendText = function (text) {
-        // TODO: get raw text
-        // Handle characters not found in codepage
-        text = text ? text : "";
+    Parser.prototype.appendText = function (textData) {
         this.parser.state.first = false;
         if (this.parser.state.skipchars > 0) {
-            var len = text.length;
-            if (this.parser.state.skipchars >= len) {
-                this.parser.state.skipchars -= len;
-                return;
+            if (textData instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
+                var len = textData.text.length;
+                if (this.parser.state.skipchars >= len) {
+                    this.parser.state.skipchars -= len;
+                    return;
+                }
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](textData.text.slice(this.parser.state.skipchars)));
+                }
             }
-            if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-                this.parser.text += text.slice(this.parser.state.skipchars);
+            else {
+                if (this.parser.state.skipchars >= 1) {
+                    this.parser.state.skipchars -= 1;
+                    return;
+                }
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(textData);
+                }
             }
             this.parser.state.skipchars = 0;
         }
         else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-            this.parser.text += text;
+            this.parser.text.push(textData);
         }
     };
     Parser.prototype.applyBlob = function (blob) {
@@ -863,52 +924,18 @@ var Parser = /** @class */ (function () {
             // 8 bit character encoded as hexadecimal
             if (ch === "\'") {
                 var hex = this.readChar() + this.readChar();
-                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE) {
-                    // Character is defined as double width
-                    this.readChar();
-                    this.readChar();
-                    var followingHex = this.readChar() + this.readChar();
-                    hex += followingHex;
-                }
-                else if (this.parser.state.pap.charactertype == null
-                    && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex) >= 128
-                    && this.parser.pos + 4 < this.parser.data.length) {
-                    // Character type is undefined, leading byte is in the correct range, might be double width
-                    var start = this.readChar() + this.readChar();
-                    if (start === "\\'") {
-                        // This character is followed by another character, assuming double width
-                        var followingHex = this.readChar() + this.readChar();
-                        hex += followingHex;
-                    }
-                    else {
-                        // Character is single width, unread characters
-                        for (var i = 0; i < 2; i++) {
-                            this.unreadChar();
-                        }
-                    }
-                }
                 param = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex);
                 if (isNaN(param)) {
                     throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Could not parse hexadecimal number");
                 }
                 if (process) {
-                    // Looking for current fonttbl charset
-                    var codepage = this.parser.codepage;
-                    if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
-                        var idx = this.parser.state.chp.fontfamily;
-                        // Code page 42 isn't a real code page and shouldn't appear here
-                        if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
-                            && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
-                            codepage = this.inst._fonts[idx].charset;
-                        }
-                    }
-                    this.appendText(codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[param]);
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"](param, this.parser.state.chp));
                 }
             }
             else if (process) {
                 var text = this.processKeyword(ch, null);
                 if (text != null) {
-                    this.appendText(text);
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](text));
                 }
             }
         }
@@ -946,7 +973,7 @@ var Parser = /** @class */ (function () {
             if (process) {
                 var text = this.processKeyword(keyword, param);
                 if (text != null) {
-                    this.appendText(text);
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](text));
                 }
             }
         }
@@ -986,7 +1013,7 @@ var Parser = /** @class */ (function () {
                             break;
                         default:
                             if (!skip) {
-                                this.appendText(ch);
+                                this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](ch));
                             }
                             break;
                     }
@@ -8060,6 +8087,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Dop", function() { return Dop; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GlobalState", function() { return GlobalState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainText", function() { return PlainText; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UnicodeText", function() { return UnicodeText; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HexText", function() { return HexText; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
 /*
 
@@ -8234,12 +8264,34 @@ var GlobalState = /** @class */ (function () {
         this.column = 0;
         this.state = null;
         this.version = null;
-        this.text = "";
+        this.text = [];
         this.codepage = 1252;
         this._asyncTasks = [];
         this.renderer = renderer;
     }
     return GlobalState;
+}());
+
+var PlainText = /** @class */ (function () {
+    function PlainText(text) {
+        this.text = text;
+    }
+    return PlainText;
+}());
+
+var UnicodeText = /** @class */ (function () {
+    function UnicodeText(unicode) {
+        this.unicode = unicode;
+    }
+    return UnicodeText;
+}());
+
+var HexText = /** @class */ (function () {
+    function HexText(hex, chp) {
+        this.hex = hex;
+        this.chp = chp;
+    }
+    return HexText;
 }());
 
 
