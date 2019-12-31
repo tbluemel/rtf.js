@@ -668,9 +668,6 @@ var Parser = /** @class */ (function () {
             if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
                 result += value.text;
             }
-            else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["UnicodeText"]) {
-                result += String.fromCharCode(value.unicode);
-            }
             else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
                 var hex = value.hex;
                 if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE
@@ -793,19 +790,15 @@ var Parser = /** @class */ (function () {
                         throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid unicode character encountered");
                     }
                     var idx = this.parser.state.chp.fontfamily;
-                    // Code page 42 indicates a symbol
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
                     if (idx && this.inst._fonts
-                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42) {
-                        // Symbols between 0x0020 and 0x00ff are mapped to the range between 0xf020 and 0xf0ff
-                        if (param >= 0xf020 && param <= 0xf0ff) {
-                            this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param - 0xf000)));
-                        }
-                        else {
-                            this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param)));
-                        }
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param - 0xf000)));
                     }
                     else {
-                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["UnicodeText"](param));
+                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param)));
                     }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
@@ -8077,7 +8070,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GlobalState", function() { return GlobalState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainText", function() { return PlainText; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UnicodeText", function() { return UnicodeText; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HexText", function() { return HexText; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
 /*
@@ -8266,13 +8258,6 @@ var PlainText = /** @class */ (function () {
         this.text = text;
     }
     return PlainText;
-}());
-
-var UnicodeText = /** @class */ (function () {
-    function UnicodeText(unicode) {
-        this.unicode = unicode;
-    }
-    return UnicodeText;
 }());
 
 var HexText = /** @class */ (function () {

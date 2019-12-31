@@ -206,7 +206,7 @@ export class GlobalState {
     public column: number;
     public state: State;
     public version: number;
-    public text: Array<PlainText | UnicodeText | HexText>;
+    public text: Array<PlainText | HexText>;
     public codepage: number;
     public _asyncTasks: Array<Promise<any>>;
     public renderer: Renderer;
@@ -227,11 +227,6 @@ export class GlobalState {
 
 export class PlainText {
     constructor(public text: string) {
-    }
-}
-
-export class UnicodeText {
-    constructor(public unicode: number) {
     }
 }
 

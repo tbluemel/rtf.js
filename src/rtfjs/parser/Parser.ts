@@ -30,7 +30,7 @@ import { Helper, RTFJSError } from "../Helper";
 import { RenderChp } from "../renderer/RenderChp";
 import { Renderer } from "../renderer/Renderer";
 import { RenderPap } from "../renderer/RenderPap";
-import { GlobalState, HexText, PlainText, State, UnicodeText } from "./Containers";
+import { GlobalState, HexText, PlainText, State } from "./Containers";
 import { DestinationFactory } from "./destinations/DestinationBase";
 import { Destinations } from "./destinations/Destinations";
 
@@ -119,14 +119,12 @@ export class Parser {
         }
     }
 
-    private summarizeText(text: Array<PlainText | UnicodeText | HexText>) {
+    private summarizeText(text: Array<PlainText | HexText>) {
         let result = "";
         for (let i = 0; i < text.length; i++) {
             const value = text[i];
             if (value instanceof PlainText) {
                 result += value.text;
-            } else if (value instanceof UnicodeText) {
-                result += String.fromCharCode(value.unicode);
             } else if (value instanceof HexText) {
                 let hex = value.hex;
                 if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE
@@ -263,17 +261,14 @@ export class Parser {
                     }
 
                     const idx = this.parser.state.chp.fontfamily;
-                    // Code page 42 indicates a symbol
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
                     if (idx && this.inst._fonts
-                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42) {
-                        // Symbols between 0x0020 and 0x00ff are mapped to the range between 0xf020 and 0xf0ff
-                        if (param >= 0xf020 && param <= 0xf0ff) {
-                            this.appendText(new PlainText(String.fromCharCode(param - 0xf000)));
-                        } else {
-                            this.appendText(new PlainText(String.fromCharCode(param)));
-                        }
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(new PlainText(String.fromCharCode(param - 0xf000)));
                     } else {
-                        this.appendText(new UnicodeText(param));
+                        this.appendText(new PlainText(String.fromCharCode(param)));
                     }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
@@ -329,7 +324,7 @@ export class Parser {
         this.parser.state.skipdestination = false;
     }
 
-    private appendText(textData: PlainText | UnicodeText | HexText) {
+    private appendText(textData: PlainText | HexText) {
         this.parser.state.first = false;
         if (this.parser.state.skipchars > 0) {
             if (textData instanceof PlainText) {
