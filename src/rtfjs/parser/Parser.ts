@@ -121,12 +121,26 @@ export class Parser {
 
     private summarizeText(text: Array<PlainText | UnicodeText | HexText>) {
         let result = "";
-        text.forEach((value) => {
+        for (let i = 0; i < text.length; i++) {
+            const value = text[i];
             if (value instanceof PlainText) {
                 result += value.text;
             } else if (value instanceof UnicodeText) {
                 result += String.fromCharCode(value.unicode);
             } else if (value instanceof HexText) {
+                let hex = value.hex;
+                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof HexText && (text[i + 1] as HexText).chp === value.chp) {
+                        hex = hex * 0x100 + (text[i + 1] as HexText).hex;
+                        // Don't process the following hex character twice
+                        i++;
+                    }
+                }
+
                 // Looking for current fonttbl charset
                 let codepage = this.parser.codepage;
                 if (value.chp.hasOwnProperty("fontfamily")) {
@@ -138,9 +152,9 @@ export class Parser {
                     }
                 }
 
-                result += cptable[codepage].dec[value.hex];
+                result += cptable[codepage].dec[hex];
             }
-        });
+        }
 
         return result;
     }

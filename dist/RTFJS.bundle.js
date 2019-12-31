@@ -649,29 +649,6 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.applyText = function () {
-        // TODO: summarize text
-        // if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
-        //     // Character is defined as double width
-        //     this.readChar();
-        //     this.readChar();
-        //     const followingHex = this.readChar() + this.readChar();
-        //     hex += followingHex;
-        // } else if (this.parser.state.pap.charactertype == null
-        //     && Helper._parseHex(hex) >= 128
-        //     && this.parser.pos + 4 < this.parser.data.length) {
-        //     // Character type is undefined, leading byte is in the correct range, might be double width
-        //     const start = this.readChar() + this.readChar();
-        //     if (start === "\\'") {
-        //         // This character is followed by another character, assuming double width
-        //         const followingHex = this.readChar() + this.readChar();
-        //         hex += followingHex;
-        //     } else {
-        //         // Character is single width, unread characters
-        //         for (let i = 0; i < 2; i++) {
-        //             this.unreadChar();
-        //         }
-        //     }
-        // }
         if (this.parser.text.length > 0) {
             var dest = this.parser.state.destination;
             if (dest == null) {
@@ -685,9 +662,9 @@ var Parser = /** @class */ (function () {
         }
     };
     Parser.prototype.summarizeText = function (text) {
-        var _this = this;
         var result = "";
-        text.forEach(function (value) {
+        for (var i = 0; i < text.length; i++) {
+            var value = text[i];
             if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
                 result += value.text;
             }
@@ -695,19 +672,31 @@ var Parser = /** @class */ (function () {
                 result += String.fromCharCode(value.unicode);
             }
             else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
+                var hex = value.hex;
+                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"] && text[i + 1].chp === value.chp) {
+                        hex = hex * 0x100 + text[i + 1].hex;
+                        // Don't process the following hex character twice
+                        i++;
+                    }
+                }
                 // Looking for current fonttbl charset
-                var codepage = _this.parser.codepage;
+                var codepage = this.parser.codepage;
                 if (value.chp.hasOwnProperty("fontfamily")) {
                     var idx = value.chp.fontfamily;
                     // Code page 42 isn't a real code page and shouldn't appear here
-                    if (_this.inst._fonts !== undefined && _this.inst._fonts[idx] != null
-                        && _this.inst._fonts[idx].charset && _this.inst._fonts[idx].charset !== 42) {
-                        codepage = _this.inst._fonts[idx].charset;
+                    if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
+                        codepage = this.inst._fonts[idx].charset;
                     }
                 }
-                result += codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[value.hex];
+                result += codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[hex];
             }
-        });
+        }
         return result;
     };
     Parser.prototype.pushState = function (forceSkip) {
