@@ -126,19 +126,6 @@ export class Parser {
             if (value instanceof PlainText) {
                 result += value.text;
             } else if (value instanceof HexText) {
-                let hex = value.hex;
-                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE
-                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
-                    // A reference check is sufficient for the chp instances,
-                    // as they have to be the same if they belong to one character
-                    if (i + 1 < text.length
-                        && text[i + 1] instanceof HexText && (text[i + 1] as HexText).chp === value.chp) {
-                        hex = hex * 0x100 + (text[i + 1] as HexText).hex;
-                        // Don't process the following hex character twice
-                        i++;
-                    }
-                }
-
                 // Looking for current fonttbl charset
                 let codepage = this.parser.codepage;
                 if (value.chp.hasOwnProperty("fontfamily")) {
@@ -147,6 +134,23 @@ export class Parser {
                     if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
                         && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
                         codepage = this.inst._fonts[idx].charset;
+                    }
+                }
+
+                let hex = value.hex;
+                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof HexText && (text[i + 1] as HexText).chp === value.chp) {
+                        const doubleByteCharacterHex = hex * 0x100 + (text[i + 1] as HexText).hex;
+                        // Verify the double byte character is valid for this code page
+                        if (cptable[codepage].dec[doubleByteCharacterHex] !== undefined) {
+                            hex = doubleByteCharacterHex;
+                            // Don't process the following hex character twice
+                            i++;
+                        }
                     }
                 }
 

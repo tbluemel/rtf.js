@@ -669,18 +669,6 @@ var Parser = /** @class */ (function () {
                 result += value.text;
             }
             else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
-                var hex = value.hex;
-                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE
-                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
-                    // A reference check is sufficient for the chp instances,
-                    // as they have to be the same if they belong to one character
-                    if (i + 1 < text.length
-                        && text[i + 1] instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"] && text[i + 1].chp === value.chp) {
-                        hex = hex * 0x100 + text[i + 1].hex;
-                        // Don't process the following hex character twice
-                        i++;
-                    }
-                }
                 // Looking for current fonttbl charset
                 var codepage = this.parser.codepage;
                 if (value.chp.hasOwnProperty("fontfamily")) {
@@ -689,6 +677,22 @@ var Parser = /** @class */ (function () {
                     if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
                         && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
                         codepage = this.inst._fonts[idx].charset;
+                    }
+                }
+                var hex = value.hex;
+                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"] && text[i + 1].chp === value.chp) {
+                        var doubleByteCharacterHex = hex * 0x100 + text[i + 1].hex;
+                        // Verify the double byte character is valid for this code page
+                        if (codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[doubleByteCharacterHex] !== undefined) {
+                            hex = doubleByteCharacterHex;
+                            // Don't process the following hex character twice
+                            i++;
+                        }
                     }
                 }
                 result += codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[hex];
