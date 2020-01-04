@@ -9,12 +9,12 @@ module.exports = merge(baseConfig, {
                 test: /\.ts?$/,
                 use: [
                     {
-                        loader: 'istanbul-instrumenter-loader',
+                        loader: "coverage-istanbul-loader",
                         options: {
                             esModules: true
                         }
                     },
-                    'ts-loader'
+                    "ts-loader"
                 ],
                 include: [
                     path.resolve(__dirname, "../src"),

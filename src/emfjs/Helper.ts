@@ -37,7 +37,7 @@ export const EMFJSError = function(this: EMFJSError, message: string) {
     this.name = "EMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
-} as any as { new (message: string): EMFJSError; };
+} as any as new (message: string) => EMFJSError;
 EMFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;

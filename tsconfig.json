@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "outDir": "./dist/src",
         "allowJs": false,
         "target": "es5",
         "lib": ["dom", "es5", "scripthost", "es2015.promise"],

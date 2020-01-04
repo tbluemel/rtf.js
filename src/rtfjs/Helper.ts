@@ -38,7 +38,7 @@ export const RTFJSError = function(this: RTFJSError, message: string) {
     this.name = "RTFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
-} as any as { new (message: string): RTFJSError; };
+} as any as new (message: string) => RTFJSError;
 RTFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
