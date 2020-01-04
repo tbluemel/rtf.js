@@ -1,6 +1,7 @@
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
 var $_$twiz = require('typewiz-core/dist/type-collector-snippet').$_$twiz;
+global.__coverage__ = {};
 
 function stringToArrayBuffer(string) {
     var buffer = new ArrayBuffer(string.length);
@@ -74,11 +75,11 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
 
         try {
             var doc = new RTFJS.Document(rtfFile, settings);
-    
+
             var meta = doc.metadata();
             doc.render().then(function(htmlElements) {
                 var html = $("<div>").append(htmlElements).html();
-    
+
                 window.done(meta, html);
             }).catch(error => window.onerror(error))
         } catch (error){
@@ -103,6 +104,7 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
                 errorCallback(error)
             };
             window.$_$twiz = $_$twiz;
+            window.__coverage__ = global.__coverage__;
         }});
 };
 
@@ -133,10 +135,10 @@ exports.runEmfjs = function(source, callback, errorCallback) {
                 yExt: height,
                 mapMode: 8 // preserve aspect ratio
             };
-            
+
             var renderer = new EMFJS.Renderer(emfFile);
             var svg = renderer.render(settings).html();
-            
+
             window.done(svg);
         } catch (error){
             window.onerror(error)
@@ -159,6 +161,7 @@ exports.runEmfjs = function(source, callback, errorCallback) {
                 errorCallback(error)
             };
             window.$_$twiz = $_$twiz;
+            window.__coverage__ = global.__coverage__;
         }});
 };
 
@@ -187,10 +190,10 @@ exports.runWmfjs = function(source, callback, errorCallback) {
                 yExt: height,
                 mapMode: 8 // preserve aspect ratio
             };
-            
+
             var renderer = new WMFJS.Renderer(wmfFile);
             var svg = renderer.render(settings).html();
-            
+
             window.done(svg);
         } catch (error){
             window.onerror(error)
@@ -213,5 +216,6 @@ exports.runWmfjs = function(source, callback, errorCallback) {
                 errorCallback(error)
             };
             window.$_$twiz = $_$twiz;
+            window.__coverage__ = global.__coverage__;
         }});
 };

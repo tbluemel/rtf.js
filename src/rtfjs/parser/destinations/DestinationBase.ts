@@ -30,7 +30,7 @@ import { GlobalState } from "../Containers";
 import { RtfDestination } from "./RtfDestination";
 
 export abstract class DestinationFactory<T extends IDestination> {
-    public class: { new (parser: GlobalState, inst: Document, name: string, param: number): T; };
+    public class: new (parser: GlobalState, inst: Document, name: string, param: number) => T;
 
     public newDestination(parser: GlobalState, inst: Document, name: string, param: number): T {
         return new this.class(parser, inst, name, param);

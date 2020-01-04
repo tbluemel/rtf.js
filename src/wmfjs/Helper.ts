@@ -36,7 +36,7 @@ export const WMFJSError = function(this: WMFJSError, message: string) {
     this.name = "WMFJSError";
     this.message = message;
     this.stack = (new Error()).stack;
-} as any as { new (message: string): WMFJSError; };
+} as any as new (message: string) => WMFJSError;
 WMFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
