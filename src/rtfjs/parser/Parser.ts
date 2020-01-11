@@ -25,15 +25,14 @@ SOFTWARE.
 */
 
 import cptable from "codepage";
-import {Document} from "../Document";
-import {Helper, RTFJSError} from "../Helper";
-import {RenderChp} from "../renderer/RenderChp";
-import {Renderer} from "../renderer/Renderer";
-import {RenderPap} from "../renderer/RenderPap";
-import {SymbolTable} from "../Symboltable";
-import {GlobalState, State} from "./Containers";
-import {DestinationFactory} from "./destinations/DestinationBase";
-import {Destinations} from "./destinations/Destinations";
+import { Document } from "../Document";
+import { Helper, RTFJSError } from "../Helper";
+import { RenderChp } from "../renderer/RenderChp";
+import { Renderer } from "../renderer/Renderer";
+import { RenderPap } from "../renderer/RenderPap";
+import { GlobalState, HexText, PlainText, State } from "./Containers";
+import { DestinationFactory } from "./destinations/DestinationBase";
+import { Destinations } from "./destinations/Destinations";
 
 export class Parser {
     private inst: Document;
@@ -112,11 +111,54 @@ export class Parser {
             if (dest == null) {
                 throw new RTFJSError("Cannot route text to destination");
             }
-            if (dest != null && dest.appendText != null && !this.parser.state.skipdestination) {
-                dest.appendText(this.parser.text);
+            if (dest.appendText != null && !this.parser.state.skipdestination) {
+                const summarizedText = this.summarizeText(this.parser.text);
+                dest.appendText(summarizedText);
             }
-            this.parser.text = "";
+            this.parser.text = [];
         }
+    }
+
+    private summarizeText(text: Array<PlainText | HexText>) {
+        let result = "";
+        for (let i = 0; i < text.length; i++) {
+            const value = text[i];
+            if (value instanceof PlainText) {
+                result += value.text;
+            } else if (value instanceof HexText) {
+                // Looking for current fonttbl charset
+                let codepage = this.parser.codepage;
+                if (value.chp.hasOwnProperty("fontfamily")) {
+                    const idx = value.chp.fontfamily;
+                    // Code page 42 isn't a real code page and shouldn't appear here
+                    if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
+                        codepage = this.inst._fonts[idx].charset;
+                    }
+                }
+
+                let hex = value.hex;
+                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof HexText && (text[i + 1] as HexText).chp === value.chp) {
+                        const doubleByteCharacterHex = hex * 0x100 + (text[i + 1] as HexText).hex;
+                        // Verify the double byte character is valid for this code page
+                        if (cptable[codepage].dec[doubleByteCharacterHex] !== undefined) {
+                            hex = doubleByteCharacterHex;
+                            // Don't process the following hex character twice
+                            i++;
+                        }
+                    }
+                }
+
+                result += cptable[codepage].dec[hex];
+            }
+        }
+
+        return result;
     }
 
     private pushState(forceSkip: boolean) {
@@ -175,7 +217,7 @@ export class Parser {
         return false;
     }
 
-    private processKeyword(keyword: string, param: number) {
+    private processKeyword(keyword: string, param: number | null) {
         const first = this.parser.state.first;
         if (first) {
             if (keyword === "*") {
@@ -222,8 +264,16 @@ export class Parser {
                         throw new RTFJSError("Invalid unicode character encountered");
                     }
 
-                    const symbol = SymbolTable[param.toString(16).substring(2)];
-                    this.appendText(symbol !== undefined ? symbol : String.fromCharCode(param));
+                    const idx = this.parser.state.chp.fontfamily;
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
+                    if (idx && this.inst._fonts
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(new PlainText(String.fromCharCode(param - 0xf000)));
+                    } else {
+                        this.appendText(new PlainText(String.fromCharCode(param)));
+                    }
                     this.parser.state.skipchars = this.parser.state.ucn;
                 }
                 return;
@@ -278,24 +328,32 @@ export class Parser {
         this.parser.state.skipdestination = false;
     }
 
-    private appendText(text: string) {
-        // Handle characters not found in codepage
-        text = text ? text : "";
-
+    private appendText(textData: PlainText | HexText) {
         this.parser.state.first = false;
         if (this.parser.state.skipchars > 0) {
-            const len = text.length;
-            if (this.parser.state.skipchars >= len) {
-                this.parser.state.skipchars -= len;
-                return;
-            }
+            if (textData instanceof PlainText) {
+                const len = textData.text.length;
+                if (this.parser.state.skipchars >= len) {
+                    this.parser.state.skipchars -= len;
+                    return;
+                }
 
-            if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-                this.parser.text += text.slice(this.parser.state.skipchars);
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(new PlainText(textData.text.slice(this.parser.state.skipchars)));
+                }
+            } else {
+                if (this.parser.state.skipchars >= 1) {
+                    this.parser.state.skipchars -= 1;
+                    return;
+                }
+
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(textData);
+                }
             }
             this.parser.state.skipchars = 0;
         } else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-            this.parser.text += text;
+            this.parser.text.push(textData);
         }
     }
 
@@ -310,7 +368,7 @@ export class Parser {
             if (dest == null) {
                 throw new RTFJSError("Cannot route binary to destination");
             }
-            if (dest != null && dest.handleBlob != null && !this.parser.state.skipdestination) {
+            if (dest.handleBlob != null && !this.parser.state.skipdestination) {
                 dest.handleBlob(blob);
             }
         }
@@ -324,31 +382,9 @@ export class Parser {
         let param: number;
         let ch = this.readChar();
         if (!Helper._isalpha(ch)) {
+            // 8 bit character encoded as hexadecimal
             if (ch === "\'") {
-                let hex = this.readChar() + this.readChar();
-
-                if (this.parser.state.pap.charactertype === Helper.CHARACTER_TYPE.DOUBLE) {
-                    // Character is defined as double width
-                    this.readChar();
-                    this.readChar();
-                    const followingHex = this.readChar() + this.readChar();
-                    hex += followingHex;
-                } else if (this.parser.state.pap.charactertype == null
-                    && Helper._parseHex(hex) >= 128
-                    && this.parser.pos + 4 < this.parser.data.length) {
-                    // Character type is undefined, leading byte is in the correct range, might be double width
-                    const start = this.readChar() + this.readChar();
-                    if (start === "\\'") {
-                        // This character is followed by another character, assuming double width
-                        const followingHex = this.readChar() + this.readChar();
-                        hex += followingHex;
-                    } else {
-                        // Character is single width, unread characters
-                        for (let i = 0; i < 2; i++) {
-                            this.unreadChar();
-                        }
-                    }
-                }
+                const hex = this.readChar() + this.readChar();
 
                 param = Helper._parseHex(hex);
                 if (isNaN(param)) {
@@ -356,22 +392,12 @@ export class Parser {
                 }
 
                 if (process) {
-                    // Looking for current fonttbl charset
-                    let codepage = this.parser.codepage;
-                    if (this.parser.state.chp.hasOwnProperty("fontfamily")) {
-                        const idx = this.parser.state.chp.fontfamily;
-                        if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
-                            && this.inst._fonts[idx].charset !== undefined && this.inst._fonts[idx].charset != null) {
-                            codepage = this.inst._fonts[idx].charset;
-                        }
-                    }
-
-                    this.appendText(cptable[codepage].dec[param]);
+                    this.appendText(new HexText(param, this.parser.state.chp));
                 }
             } else if (process) {
-                const text = this.processKeyword(ch, param);
+                const text = this.processKeyword(ch, null);
                 if (text != null) {
-                    this.appendText(text);
+                    this.appendText(new PlainText(text));
                 }
             }
         } else {
@@ -413,7 +439,7 @@ export class Parser {
             if (process) {
                 const text = this.processKeyword(keyword, param);
                 if (text != null) {
-                    this.appendText(text);
+                    this.appendText(new PlainText(text));
                 }
             }
         }
@@ -452,7 +478,7 @@ export class Parser {
                             break;
                         default:
                             if (!skip) {
-                                this.appendText(ch);
+                                this.appendText(new PlainText(ch));
                             }
                             break;
                     }

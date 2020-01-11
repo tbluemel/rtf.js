@@ -216,7 +216,8 @@ export class Helper {
     private static _9 = "9".charCodeAt(0);
 
     private static _charsetMap: {[key: string]: number} = {
-        0:   1252, // ANSI_CHARSET
+        0:   1252,  // ANSI_CHARSET
+        2:   42,    // Symbol (this is not a real charset, CP_SYMBOL maps unicode characters into a different range)
         77:  10000, // Mac Roman
         78:  10001, // Mac Shift Jis
         79:  10003, // Mac Hangul
@@ -229,22 +230,22 @@ export class Helper {
         87:  10021, // Mac Thai
         88:  10029, // Mac East Europe
         89:  10007, // Mac Russian
-        128: 932,  // SHIFTJIS_CHARSET
-        129: 949,  // HANGEUL_CHARSET
-        130: 1361, // JOHAB_CHARSET
-        134: 936,  // GB2313_CHARSET
-        136: 950,  // CHINESEBIG5_CHARSET
-        161: 1253, // GREEK_CHARSET
-        162: 1254, // TURKISH_CHARSET
-        163: 1258, // VIETNAMESE_CHARSET
-        177: 1255, // HEBREW_CHARSET
-        178: 1256, // ARABIC_CHARSET
-        186: 1257, // BALTIC_CHARSET
-        204: 1251, // RUSSIAN_CHARSET
-        222: 874,  // THAI_CHARSET
-        238: 1250, // EE_CHARSET (Eastern European)
-        254: 437,  // PC 437
-        255: 850,  // OEM
+        128: 932,   // SHIFTJIS_CHARSET
+        129: 949,   // HANGEUL_CHARSET
+        130: 1361,  // JOHAB_CHARSET
+        134: 936,   // GB2313_CHARSET
+        136: 950,   // CHINESEBIG5_CHARSET
+        161: 1253,  // GREEK_CHARSET
+        162: 1254,  // TURKISH_CHARSET
+        163: 1258,  // VIETNAMESE_CHARSET
+        177: 1255,  // HEBREW_CHARSET
+        178: 1256,  // ARABIC_CHARSET
+        186: 1257,  // BALTIC_CHARSET
+        204: 1251,  // RUSSIAN_CHARSET
+        222: 874,   // THAI_CHARSET
+        238: 1250,  // EE_CHARSET (Eastern European)
+        254: 437,   // PC 437
+        255: 850,   // OEM
     };
 
     private static _colorThemeMap: {[key: string]: null} = {
