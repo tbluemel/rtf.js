@@ -1,5 +1,10 @@
 # Change Log
 
+## [2.3.3] - 2020-01-11
+- More double width character improvements
+- Support for unicode characters outsider the basic multilingual plane (as used by new emojis etc.)
+- Better symbol font handling
+
 ## [2.3.2] - 2019-08-31
 - Improve support for double width characters
 
