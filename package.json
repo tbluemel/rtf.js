@@ -52,7 +52,6 @@
         "webpack-merge": "^4.2.2"
     },
     "dependencies": {
-        "codepage": "^1.14.0",
-        "jquery": "^3.4.1"
+        "codepage": "^1.14.0"
     }
 }

@@ -24,11 +24,11 @@ SOFTWARE.
 
 */
 
-import * as $ from "jquery";
 import { Blob } from "./Blob";
 import { GDIContext } from "./GDIContext";
 import { Helper, WMFJSError } from "./Helper";
 import { WMFRecords } from "./WMFRecords";
+import { SVG } from "./SVG";
 
 export interface IRendererSettings {
     width: string;
@@ -46,18 +46,18 @@ export class Renderer {
         Helper.log("WMFJS.Renderer instantiated");
     }
 
-    public render(info: IRendererSettings) {
-        const img = ($("<div>") as any).svg({
-            onLoad: (svg: any) => {
-                return this._render(svg, info.mapMode, info.xExt, info.yExt);
-            },
-            settings: {
+    public render(info: IRendererSettings): HTMLDivElement {
+        const divElement = document.createElement("div");
+        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', "svg");
+        divElement.appendChild(svgElement);
+        svgElement.onload = () => this._render(new SVG(svgElement), info.mapMode, info.xExt, info.yExt);
+        (svgElement as any)["settings"] = {
                 viewBox: [0, 0, info.xExt, info.yExt].join(" "),
                 preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-            },
-        });
-        const svgContainer = ($(img[0]) as any).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+            };
+        divElement.setAttribute("width", info.width);
+        divElement.setAttribute("height", info.height);
+        return divElement;
     }
 
     private parse(blob: ArrayBuffer) {
@@ -100,7 +100,7 @@ export class Renderer {
         }
     }
 
-    private _render(svg: any, mapMode: number, xExt: number, yExt: number) {
+    private _render(svg: SVG, mapMode: number, xExt: number, yExt: number) {
         // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
         const gdi = new GDIContext(svg);
         gdi.setViewportExt(xExt, yExt);

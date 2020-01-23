@@ -24,13 +24,13 @@ SOFTWARE.
 
 */
 
-import * as $ from "jquery";
 import { DIBitmap } from "./Bitmap";
 import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";
 import { Obj, PointS, Rect } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
 import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
+import { SVG } from "./SVG";
 
 export interface ISelectedStyle {
     brush?: Brush;
@@ -131,7 +131,7 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    private _svg: any;
+    private _svg: SVG;
     private _svgdefs: any;
     private _svgPatterns: {[key: string]: Brush};
     private _svgClipPaths: {[key: string]: Region};
@@ -140,7 +140,7 @@ export class GDIContext {
     private statestack: GDIContextState[];
     private objects: {[key: string]: Obj};
 
-    constructor(svg: any) {
+    constructor(svg: SVG) {
         this._svg = svg;
         this._svgdefs = null;
         this._svgPatterns = {};
