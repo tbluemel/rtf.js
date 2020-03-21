@@ -23,11 +23,6 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
     virtualConsole.sendTo(console);
 
     var dom = new JSDOM(`
-    <script src="../samples/.common/dep/jquery.min.js"></script>
-
-    <script src="../dist/jquery.svg.min.js"></script>
-    <script src="../dist/jquery.svgfilter.min.js"></script>
-
     <script src="../dist/WMFJS.bundle.js"></script>
     <script src="../dist/EMFJS.bundle.js"></script>
     <script src="../dist/RTFJS.bundle.js"></script>
@@ -78,7 +73,9 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
 
             var meta = doc.metadata();
             doc.render().then(function(htmlElements) {
-                var html = $("<div>").append(htmlElements).html();
+                var div = document.createElement("div");
+                div.append(...htmlElements);
+                var html = div.innerHTML;
 
                 window.done(meta, html);
             }).catch(error => window.onerror(error))
@@ -99,10 +96,6 @@ exports.runRtfjs = function(path, source, callback, errorCallback) {
             window.onerror = function (error) {
                 errorCallback(error)
             };
-            // Catch exceptions from jquery.svg.min.js
-            window.alert = function (error) {
-                errorCallback(error)
-            };
             window.$_$twiz = $_$twiz;
             window.__coverage__ = global.__coverage__;
         }});
@@ -113,11 +106,6 @@ exports.runEmfjs = function(source, callback, errorCallback) {
     virtualConsole.sendTo(console);
 
     var dom = new JSDOM(`
-    <script src="../samples/.common/dep/jquery.min.js"></script>
-
-    <script src="../dist/jquery.svg.min.js"></script>
-    <script src="../dist/jquery.svgfilter.min.js"></script>
-
     <script src="../dist/EMFJS.bundle.js"></script>
 
     <script>
@@ -137,7 +125,7 @@ exports.runEmfjs = function(source, callback, errorCallback) {
             };
 
             var renderer = new EMFJS.Renderer(emfFile);
-            var svg = renderer.render(settings).html();
+            var svg = renderer.render(settings).innerHTML;
 
             window.done(svg);
         } catch (error){
@@ -156,10 +144,6 @@ exports.runEmfjs = function(source, callback, errorCallback) {
             window.onerror = function (error) {
                 errorCallback(error)
             };
-            // Catch exceptions from jquery.svg.min.js
-            window.alert = function (error) {
-                errorCallback(error)
-            };
             window.$_$twiz = $_$twiz;
             window.__coverage__ = global.__coverage__;
         }});
@@ -170,11 +154,6 @@ exports.runWmfjs = function(source, callback, errorCallback) {
     virtualConsole.sendTo(console);
 
     var dom = new JSDOM(`
-    <script src="../samples/.common/dep/jquery.min.js"></script>
-
-    <script src="../dist/jquery.svg.min.js"></script>
-    <script src="../dist/jquery.svgfilter.min.js"></script>
-
     <script src="../dist/WMFJS.bundle.js"></script>
 
     <script>
@@ -192,7 +171,7 @@ exports.runWmfjs = function(source, callback, errorCallback) {
             };
 
             var renderer = new WMFJS.Renderer(wmfFile);
-            var svg = renderer.render(settings).html();
+            var svg = renderer.render(settings).innerHTML;
 
             window.done(svg);
         } catch (error){
@@ -209,10 +188,6 @@ exports.runWmfjs = function(source, callback, errorCallback) {
                 callback(indentHtml(svg), $_$twiz);
             };
             window.onerror = function (error) {
-                errorCallback(error)
-            };
-            // Catch exceptions from jquery.svg.min.js
-            window.alert = function (error) {
                 errorCallback(error)
             };
             window.$_$twiz = $_$twiz;

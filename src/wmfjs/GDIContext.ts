@@ -24,13 +24,13 @@ SOFTWARE.
 
 */
 
+import { SVG } from "../util/SVG";
 import { DIBitmap } from "./Bitmap";
 import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";
 import { Obj, PointS, Rect } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
 import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
-import { SVG } from "./SVG";
 
 export interface ISelectedStyle {
     brush?: Brush;
@@ -42,9 +42,9 @@ export interface ISelectedStyle {
 }
 
 export class GDIContextState {
-    public _svggroup: any;
+    public _svggroup: SVGElement;
     public _svgclipChanged: boolean;
-    public _svgtextbkfilter: any;
+    public _svgtextbkfilter: SVGFilterElement;
     public mapmode: number;
     public stretchmode: number;
     public textalign: number;
@@ -132,7 +132,7 @@ export class GDIContextState {
 
 export class GDIContext {
     private _svg: SVG;
-    private _svgdefs: any;
+    private _svgdefs: SVGDefsElement;
     private _svgPatterns: {[key: string]: Brush};
     private _svgClipPaths: {[key: string]: Region};
     private defObjects: ISelectedStyle;
@@ -322,7 +322,7 @@ export class GDIContext {
                 this.state._svgtextbkfilter = filter;
             }
 
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     }
@@ -349,7 +349,7 @@ export class GDIContext {
                 this.state._svgtextbkfilter = filter;
             }
 
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     }

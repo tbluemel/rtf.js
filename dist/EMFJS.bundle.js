@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("./jquery.svg"), require("./jquery.svgfilter"), require("jquery"));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["./jquery.svg", "./jquery.svgfilter", "jquery"], factory);
+		define([], factory);
 	else if(typeof exports === 'object')
-		exports["EMFJS"] = factory(require("./jquery.svg"), require("./jquery.svgfilter"), require("jquery"));
+		exports["EMFJS"] = factory();
 	else
-		root["EMFJS"] = factory(root["$"], root["$"], root["$"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE__1__, __WEBPACK_EXTERNAL_MODULE__2__, __WEBPACK_EXTERNAL_MODULE__4__) {
+		root["EMFJS"] = factory();
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -100,17 +100,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var jquery_svg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery_svg__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery_svg__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-/* harmony import */ var jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(jquery_svgfilter__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_2__["Renderer"]; });
+/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["Renderer"]; });
 
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_3__["EMFJSError"]; });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["EMFJSError"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_3__["loggingEnabled"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["loggingEnabled"]; });
 
 /*
 
@@ -142,34 +138,19 @@ SOFTWARE.
 
 
 
-
-
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__1__;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__2__;
-
-/***/ }),
-/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EMF", function() { return EMF; });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
-/* harmony import */ var _EMFRecords__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
-/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
+/* harmony import */ var _EMFRecords__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
+/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(11);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5);
 /*
 
 The MIT License (MIT)
@@ -207,18 +188,13 @@ var Renderer = /** @class */ (function () {
         _Helper__WEBPACK_IMPORTED_MODULE_4__["Helper"].log("EMFJS.Renderer instantiated");
     }
     Renderer.prototype.render = function (info) {
-        var _this = this;
-        var img = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>").svg({
-            onLoad: function (svg) {
-                return _this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-            },
-            settings: {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none",
-            },
-        });
-        var svgContainer = jquery__WEBPACK_IMPORTED_MODULE_0__(img[0]).svg("get");
-        return jquery__WEBPACK_IMPORTED_MODULE_0__(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+        var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this._render(new _util__WEBPACK_IMPORTED_MODULE_0__["SVG"](svgElement), info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
+        svgElement.setAttribute("viewBox", [0, 0, info.xExt, info.yExt].join(" "));
+        svgElement.setAttribute("preserveAspectRatio", "none"); // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+        svgElement.setAttribute("width", info.width);
+        svgElement.setAttribute("height", info.height);
+        return svgElement;
     };
     Renderer.prototype.parse = function (blob) {
         this._img = null;
@@ -262,19 +238,233 @@ var EMF = /** @class */ (function () {
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE__4__;
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _SVG__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SVG", function() { return _SVG__WEBPACK_IMPORTED_MODULE_0__["SVG"]; });
+
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2020 Tom Zoehner
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
 
 /***/ }),
-/* 5 */
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SVG", function() { return SVG; });
+var SVGFilters = /** @class */ (function () {
+    function SVGFilters() {
+    }
+    SVGFilters.prototype.flood = function (filter, resultId, color, opacity, _settings) {
+        var floodElement = document.createElementNS("http://www.w3.org/2000/svg", "feFlood");
+        if (resultId) {
+            floodElement.setAttribute("id", resultId);
+        }
+        floodElement.setAttribute("flood-color", color);
+        floodElement.setAttribute("flood-opacity", opacity.toString());
+        filter.appendChild(floodElement);
+    };
+    SVGFilters.prototype.composite = function (filter, resultId, in1, in2, k1, k2, k3, k4, _settings) {
+        var compositeElement = document.createElementNS("http://www.w3.org/2000/svg", "feComposite");
+        if (resultId) {
+            compositeElement.setAttribute("id", resultId);
+        }
+        compositeElement.setAttribute("in", in1);
+        compositeElement.setAttribute("in2", in2);
+        filter.appendChild(compositeElement);
+    };
+    return SVGFilters;
+}());
+var SVG = /** @class */ (function () {
+    function SVG(svg) {
+        this.filters = new SVGFilters();
+        this._defs = undefined;
+        this._svg = svg;
+    }
+    SVG.prototype.svg = function (parent, x, y, width, height, settings) {
+        var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgElement.setAttribute("x", x.toString());
+        svgElement.setAttribute("y", y.toString());
+        svgElement.setAttribute("width", width + "px");
+        svgElement.setAttribute("height", height + "px");
+        this._appendSettings(settings, svgElement);
+        if (parent != null) {
+            parent.appendChild(svgElement);
+        }
+        else {
+            this._svg.appendChild(svgElement);
+        }
+        return svgElement;
+    };
+    SVG.prototype.image = function (parent, x, y, width, height, url, settings) {
+        var imageElement = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        imageElement.setAttribute("x", x.toString());
+        imageElement.setAttribute("y", y.toString());
+        imageElement.setAttribute("width", width + "px");
+        imageElement.setAttribute("height", height + "px");
+        imageElement.setAttributeNS("http://www.w3.org/1999/xlink", "href", url);
+        this._appendSettings(settings, imageElement);
+        parent.appendChild(imageElement);
+        return imageElement;
+    };
+    SVG.prototype.rect = function (parent, x, y, width, height, rx, ry, settings) {
+        var rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rectElement.setAttribute("x", x.toString());
+        rectElement.setAttribute("y", y.toString());
+        rectElement.setAttribute("width", width + "px");
+        rectElement.setAttribute("height", height + "px");
+        if (rx !== undefined) {
+            if (rx instanceof Number) {
+                rectElement.setAttribute("rx", rx.toString());
+            }
+            else if (rx instanceof Object) {
+                this._appendSettings(rx, rectElement);
+            }
+        }
+        if (ry !== undefined) {
+            rectElement.setAttribute("ry", ry.toString());
+        }
+        this._appendSettings(settings, rectElement);
+        parent.appendChild(rectElement);
+        return rectElement;
+    };
+    SVG.prototype.line = function (parent, x1, y1, x2, y2, settings) {
+        var lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        lineElement.setAttribute("x1", x1.toString());
+        lineElement.setAttribute("y1", y1.toString());
+        lineElement.setAttribute("x2", x2.toString());
+        lineElement.setAttribute("y2", y2.toString());
+        this._appendSettings(settings, lineElement);
+        parent.appendChild(lineElement);
+        return lineElement;
+    };
+    SVG.prototype.polygon = function (parent, points, settings) {
+        var polygonElement = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        polygonElement.setAttribute("points", points.join(","));
+        this._appendSettings(settings, polygonElement);
+        parent.appendChild(polygonElement);
+        return polygonElement;
+    };
+    SVG.prototype.polyline = function (parent, points, settings) {
+        var polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polylineElement.setAttribute("points", points.join(","));
+        this._appendSettings(settings, polylineElement);
+        parent.appendChild(polylineElement);
+        return polylineElement;
+    };
+    SVG.prototype.ellipse = function (parent, cx, cy, rx, ry, settings) {
+        var ellipseElement = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+        ellipseElement.setAttribute("cx", cx.toString());
+        ellipseElement.setAttribute("cy", cy.toString());
+        ellipseElement.setAttribute("rx", rx.toString());
+        ellipseElement.setAttribute("ry", ry.toString());
+        this._appendSettings(settings, ellipseElement);
+        parent.appendChild(ellipseElement);
+        return ellipseElement;
+    };
+    SVG.prototype.text = function (parent, x, y, value, settings) {
+        var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        textElement.setAttribute("x", x.toString());
+        textElement.setAttribute("y", y.toString());
+        this._appendSettings(settings, textElement);
+        var textNode = document.createTextNode(value);
+        textElement.appendChild(textNode);
+        parent.appendChild(textElement);
+        return textElement;
+    };
+    SVG.prototype.filter = function (parent, id, x, y, width, height, settings) {
+        var filterElement = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+        filterElement.setAttribute("x", x.toString());
+        filterElement.setAttribute("y", y.toString());
+        filterElement.setAttribute("width", width + "px");
+        filterElement.setAttribute("height", height + "px");
+        this._appendSettings(settings, filterElement);
+        parent.appendChild(filterElement);
+        return filterElement;
+    };
+    SVG.prototype.pattern = function (parent, resultId, x, y, width, height, settings) {
+        var patternElement = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+        if (resultId) {
+            patternElement.setAttribute("id", resultId);
+        }
+        patternElement.setAttribute("x", x.toString());
+        patternElement.setAttribute("y", y.toString());
+        patternElement.setAttribute("width", width + "px");
+        patternElement.setAttribute("height", height + "px");
+        this._appendSettings(settings, patternElement);
+        parent.appendChild(patternElement);
+        return patternElement;
+    };
+    SVG.prototype.defs = function () {
+        if (this._defs === undefined) {
+            var defsElement = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            this._svg.appendChild(defsElement);
+            this._defs = defsElement;
+        }
+        return this._defs;
+    };
+    SVG.prototype.clipPath = function (parent, resultId, units, settings) {
+        var clipElement = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+        if (resultId) {
+            clipElement.setAttribute("id", resultId);
+        }
+        if (units === undefined) {
+            units = "userSpaceOnUse";
+        }
+        clipElement.setAttribute("clipPathUnits", units);
+        this._appendSettings(settings, clipElement);
+        parent.appendChild(clipElement);
+        return clipElement;
+    };
+    SVG.prototype._appendSettings = function (settings, element) {
+        if (settings !== undefined) {
+            Object.keys(settings).forEach(function (key) {
+                element.setAttribute(key, settings[key]);
+            });
+        }
+    };
+    return SVG;
+}());
+
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Blob", function() { return Blob; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /*
 
 The MIT License (MIT)
@@ -426,7 +616,7 @@ var Blob = /** @class */ (function () {
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -785,17 +975,17 @@ var Helper = /** @class */ (function () {
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EmfHeader", function() { return EmfHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EMFRecords", function() { return EMFRecords; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(10);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9);
 /*
 
 The MIT License (MIT)
@@ -1367,7 +1557,7 @@ var EMFRecords = /** @class */ (function () {
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1377,7 +1567,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RectL", function() { return RectL; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SizeL", function() { return SizeL; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Obj", function() { return Obj; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /*
 
 The MIT License (MIT)
@@ -1519,7 +1709,7 @@ var Obj = /** @class */ (function () {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1527,8 +1717,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Region", function() { return Region; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CreateSimpleRegion", function() { return CreateSimpleRegion; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Scan", function() { return Scan; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /*
 
 The MIT License (MIT)
@@ -1969,7 +2159,7 @@ var Scan = /** @class */ (function () {
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1978,9 +2168,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Font", function() { return Font; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Brush", function() { return Brush; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Pen", function() { return Pen; });
-/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7);
 /*
 
 The MIT License (MIT)
@@ -2229,7 +2419,7 @@ var Pen = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2239,7 +2429,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfoHeader", function() { return BitmapInfoHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfo", function() { return BitmapInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DIBitmap", function() { return DIBitmap; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /*
 
 The MIT License (MIT)
@@ -2441,7 +2631,7 @@ var DIBitmap = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2450,10 +2640,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_StockObjects", function() { return _StockObjects; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContextState", function() { return GDIContextState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContext", function() { return GDIContext; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
-/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9);
-/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(10);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
+/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8);
+/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9);
 /*
 
 The MIT License (MIT)
@@ -2510,7 +2700,7 @@ var Path = /** @class */ (function (_super) {
         return _this;
     }
     Path.prototype.clone = function () {
-        return new Path(null, this.svgPath);
+        return new Path(null, this);
     };
     Path.prototype.toString = function () {
         return "{[path]}";

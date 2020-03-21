@@ -24,11 +24,11 @@ SOFTWARE.
 
 */
 
+import { SVG } from "../util";
 import { Blob } from "./Blob";
 import { GDIContext } from "./GDIContext";
 import { Helper, WMFJSError } from "./Helper";
 import { WMFRecords } from "./WMFRecords";
-import { SVG } from "./SVG";
 
 export interface IRendererSettings {
     width: string;
@@ -46,18 +46,15 @@ export class Renderer {
         Helper.log("WMFJS.Renderer instantiated");
     }
 
-    public render(info: IRendererSettings): HTMLDivElement {
-        const divElement = document.createElement("div");
-        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', "svg");
-        divElement.appendChild(svgElement);
-        svgElement.onload = () => this._render(new SVG(svgElement), info.mapMode, info.xExt, info.yExt);
-        (svgElement as any)["settings"] = {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-            };
-        divElement.setAttribute("width", info.width);
-        divElement.setAttribute("height", info.height);
-        return divElement;
+    public render(info: IRendererSettings): SVGElement {
+        const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+        this._render(new SVG(svgElement), info.mapMode, info.xExt, info.yExt);
+        svgElement.setAttribute("viewBox", [0, 0, info.xExt, info.yExt].join(" "));
+        svgElement.setAttribute("preserveAspectRatio", "none"); // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+        svgElement.setAttribute("width", info.width);
+        svgElement.setAttribute("height", info.height);
+        return svgElement;
     }
 
     private parse(blob: ArrayBuffer) {

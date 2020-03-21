@@ -23,24 +23,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-export class SVGDefs {
-
-}
 
 export class SVGFilters {
 
-    public flood(filter: SVGFilterElement, resultId: string, color: string, opacity: number, _settings?:any): void {
-        const floodElement = document.createElementNS('http://www.w3.org/2000/svg', "feFlood");
+    public flood(filter: SVGFilterElement, resultId: string, color: string, opacity: number, _settings?: any): void {
+        const floodElement = document.createElementNS("http://www.w3.org/2000/svg", "feFlood");
         if (resultId) {
             floodElement.setAttribute("id", resultId);
         }
         floodElement.setAttribute("flood-color", color);
         floodElement.setAttribute("flood-opacity", opacity.toString());
-        filter.appendChild(floodElement);        
+        filter.appendChild(floodElement);
     }
 
-    public composite(filter: SVGFilterElement, resultId: string, in1: string, in2: string, k1?: number, k2?: number, k3?: number, k4?: number, _settings?: any): void {
-        const compositeElement = document.createElementNS('http://www.w3.org/2000/svg', "feComposite");
+    public composite(filter: SVGFilterElement,
+                     resultId: string,
+                     in1: string,
+                     in2: string,
+                     k1?: number,
+                     k2?: number,
+                     k3?: number,
+                     k4?: number,
+                     _settings?: any): void {
+        const compositeElement = document.createElementNS("http://www.w3.org/2000/svg", "feComposite");
         if (resultId) {
             compositeElement.setAttribute("id", resultId);
         }
@@ -51,27 +56,44 @@ export class SVGFilters {
 }
 
 export class SVG {
+    public filters = new SVGFilters();
     private _svg: SVGElement;
     private _defs: SVGDefsElement | undefined = undefined;
-    public filters = new SVGFilters();
 
     constructor(svg: SVGElement) {
         this._svg = svg;
     }
 
-    public svg(parent: Element, x: number, y: number, width: number, height: number, settings?: any): SVGElement {
-        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', "svg");
+    public svg(parent: Element,
+               x: number,
+               y: number,
+               width: number,
+               height: number,
+               settings?: any): SVGElement {
+        const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svgElement.setAttribute("x", x.toString());
         svgElement.setAttribute("y", y.toString());
         svgElement.setAttribute("width", `${width}px`);
         svgElement.setAttribute("height", `${height}px`);
         this._appendSettings(settings, svgElement);
-        parent.appendChild(svgElement);
+
+        if (parent != null) {
+            parent.appendChild(svgElement);
+        } else {
+            this._svg.appendChild(svgElement);
+        }
+
         return svgElement;
     }
 
-    public image(parent: Element, x: number, y: number, width: number, height: number, url: string, settings?: any): SVGImageElement {
-        const imageElement = document.createElementNS('http://www.w3.org/2000/svg', "image");
+    public image(parent: Element,
+                 x: number,
+                 y: number,
+                 width: number,
+                 height: number,
+                 url: string,
+                 settings?: any): SVGImageElement {
+        const imageElement = document.createElementNS("http://www.w3.org/2000/svg", "image");
         imageElement.setAttribute("x", x.toString());
         imageElement.setAttribute("y", y.toString());
         imageElement.setAttribute("width", `${width}px`);
@@ -82,10 +104,24 @@ export class SVG {
         return imageElement;
     }
 
-    public rect(parent: Element, x: number, y: number, width: number, height: number, rx?: number, ry?: number, settings?: any): SVGRectElement;
+    public rect(parent: Element,
+                x: number,
+                y: number,
+                width: number,
+                height: number,
+                rx?: number,
+                ry?: number,
+                settings?: any): SVGRectElement;
     public rect(parent: Element, x: number, y: number, width: number, height: number, settings?: any): SVGRectElement;
-    public rect(parent: Element, x: number, y: number, width: number, height: number, rx?: number | any, ry?: number, settings?: any): SVGRectElement {
-        const rectElement = document.createElementNS('http://www.w3.org/2000/svg', "rect");
+    public rect(parent: Element,
+                x: number,
+                y: number,
+                width: number,
+                height: number,
+                rx?: number | any,
+                ry?: number,
+                settings?: any): SVGRectElement {
+        const rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rectElement.setAttribute("x", x.toString());
         rectElement.setAttribute("y", y.toString());
         rectElement.setAttribute("width", `${width}px`);
@@ -106,7 +142,7 @@ export class SVG {
     }
 
     public line(parent: Element, x1: number, y1: number, x2: number, y2: number, settings?: any): SVGLineElement {
-        const lineElement = document.createElementNS('http://www.w3.org/2000/svg', "line");
+        const lineElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
         lineElement.setAttribute("x1", x1.toString());
         lineElement.setAttribute("y1", y1.toString());
         lineElement.setAttribute("x2", x2.toString());
@@ -117,7 +153,7 @@ export class SVG {
     }
 
     public polygon(parent: Element, points: number[][], settings?: any): SVGPolygonElement {
-        const polygonElement = document.createElementNS('http://www.w3.org/2000/svg', "polygon");
+        const polygonElement = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         polygonElement.setAttribute("points", points.join(","));
         this._appendSettings(settings, polygonElement);
         parent.appendChild(polygonElement);
@@ -125,7 +161,7 @@ export class SVG {
     }
 
     public polyline(parent: Element, points: number[][], settings?: any): SVGPolylineElement {
-        const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', "polyline");
+        const polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
         polylineElement.setAttribute("points", points.join(","));
         this._appendSettings(settings, polylineElement);
         parent.appendChild(polylineElement);
@@ -133,7 +169,7 @@ export class SVG {
     }
 
     public ellipse(parent: Element, cx: number, cy: number, rx: number, ry: number, settings?: any): SVGEllipseElement {
-        const ellipseElement = document.createElementNS('http://www.w3.org/2000/svg', "ellipse");
+        const ellipseElement = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
         ellipseElement.setAttribute("cx", cx.toString());
         ellipseElement.setAttribute("cy", cy.toString());
         ellipseElement.setAttribute("rx", rx.toString());
@@ -144,7 +180,7 @@ export class SVG {
     }
 
     public text(parent: Element, x: number, y: number, value: string, settings?: any): SVGTextElement {
-        const textElement = document.createElementNS('http://www.w3.org/2000/svg', "text");
+        const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textElement.setAttribute("x", x.toString());
         textElement.setAttribute("y", y.toString());
         this._appendSettings(settings, textElement);
@@ -154,8 +190,14 @@ export class SVG {
         return textElement;
     }
 
-    public filter(parent: Element, id: string, x: number, y: number, width: number, height: number, settings?: any): SVGFilterElement {
-        const filterElement = document.createElementNS('http://www.w3.org/2000/svg', "filter");
+    public filter(parent: Element,
+                  id: string,
+                  x: number,
+                  y: number,
+                  width: number,
+                  height: number,
+                  settings?: any): SVGFilterElement {
+        const filterElement = document.createElementNS("http://www.w3.org/2000/svg", "filter");
         filterElement.setAttribute("x", x.toString());
         filterElement.setAttribute("y", y.toString());
         filterElement.setAttribute("width", `${width}px`);
@@ -165,8 +207,14 @@ export class SVG {
         return filterElement;
     }
 
-    public pattern(parent: Element, resultId: string, x: number, y: number, width: number, height: number, settings?: any): SVGPatternElement {
-        const patternElement = document.createElementNS('http://www.w3.org/2000/svg', "pattern");
+    public pattern(parent: Element,
+                   resultId: string,
+                   x: number,
+                   y: number,
+                   width: number,
+                   height: number,
+                   settings?: any): SVGPatternElement {
+        const patternElement = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
         if (resultId) {
             patternElement.setAttribute("id", resultId);
         }
@@ -181,7 +229,7 @@ export class SVG {
 
     public defs(): SVGDefsElement {
         if (this._defs === undefined) {
-            const defsElement = document.createElementNS('http://www.w3.org/2000/svg', "defs");
+            const defsElement = document.createElementNS("http://www.w3.org/2000/svg", "defs");
             this._svg.appendChild(defsElement);
             this._defs = defsElement;
         }
@@ -189,7 +237,7 @@ export class SVG {
     }
 
     public clipPath(parent: Element, resultId: string, units?: string, settings?: any): SVGClipPathElement {
-        const clipElement = document.createElementNS('http://www.w3.org/2000/svg', "clipPath");
+        const clipElement = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
         if (resultId) {
             clipElement.setAttribute("id", resultId);
         }
@@ -204,9 +252,10 @@ export class SVG {
 
     private _appendSettings(settings: any | undefined, element: Element): void {
         if (settings !== undefined) {
-            Object.keys(settings).forEach(key => {
+            Object.keys(settings).forEach((key) => {
                 element.setAttribute(key, settings[key]);
             });
         }
     }
+
 }

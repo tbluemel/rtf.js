@@ -36,36 +36,36 @@ export class RenderPap {
         this._pap = pap;
     }
 
-    public apply(doc: Document, el: JQuery, rchp: RenderChp, ismaindiv: boolean) {
+    public apply(doc: Document, el: HTMLElement, rchp: RenderChp, ismaindiv: boolean) {
         Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
             + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
-                el.css("margin-top", Helper._twipsToPt(this._pap.spacebefore) + "pt");
+                el.style.marginTop = Helper._twipsToPt(this._pap.spacebefore) + "pt";
             } else {
-                el.css("margin-top", "");
+                el.style.marginTop = "";
             }
             if (this._pap.spaceafter !== 0) {
-                el.css("margin-bottom", Helper._twipsToPt(this._pap.spaceafter) + "pt");
+                el.style.marginBottom = Helper._twipsToPt(this._pap.spaceafter) + "pt";
             } else {
-                el.css("margin-bottom", "");
+                el.style.marginBottom = "";
             }
             if (rchp != null) {
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+                el.style.minHeight = Math.floor(rchp._chp.fontsize / 2) + "pt";
             }
         } else {
             switch (this._pap.justification) {
                 case Helper.JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
+                    el.style.textAlign = "left";
                     break;
                 case Helper.JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
+                    el.style.textAlign = "right";
                     break;
                 case Helper.JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
+                    el.style.textAlign = "center";
                     break;
                 case Helper.JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
+                    el.style.textAlign = "justify";
                     break;
             }
         }

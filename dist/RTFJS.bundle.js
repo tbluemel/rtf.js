@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jquery"), require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
+		module.exports = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else if(typeof define === 'function' && define.amd)
-		define(["jquery", "./EMFJS.bundle.js", "./WMFJS.bundle.js"], factory);
+		define(["./EMFJS.bundle.js", "./WMFJS.bundle.js"], factory);
 	else if(typeof exports === 'object')
-		exports["RTFJS"] = factory(require("jquery"), require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
+		exports["RTFJS"] = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else
-		root["RTFJS"] = factory(root["$"], root["EMFJS"], root["WMFJS"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__28__, __WEBPACK_EXTERNAL_MODULE__29__) {
+		root["RTFJS"] = factory(root["EMFJS"], root["WMFJS"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE__27__, __WEBPACK_EXTERNAL_MODULE__28__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -99,12 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */,
 /* 2 */,
 /* 3 */,
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__4__;
-
-/***/ }),
+/* 4 */,
 /* 5 */,
 /* 6 */,
 /* 7 */,
@@ -112,16 +107,15 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__4__;
 /* 9 */,
 /* 10 */,
 /* 11 */,
-/* 12 */,
-/* 13 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
+/* harmony import */ var _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Document", function() { return _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__["DocumentFacade"]; });
 
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["loggingEnabled"]; });
@@ -156,16 +150,16 @@ SOFTWARE.
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DocumentFacade", function() { return DocumentFacade; });
-/* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
-/* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
-/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(34);
+/* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
+/* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
+/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(33);
 /*
 
 The MIT License (MIT)
@@ -220,13 +214,13 @@ var DocumentFacade = /** @class */ (function () {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Document", function() { return Document; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -284,7 +278,7 @@ var Document = /** @class */ (function () {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -541,20 +535,20 @@ var Helper = /** @class */ (function () {
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Parser", function() { return Parser; });
-/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(18);
+/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(17);
 /* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(codepage__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
-/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(23);
-/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(24);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
+/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
+/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(20);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(21);
+/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(22);
+/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(23);
 /*
 
 The MIT License (MIT)
@@ -1019,7 +1013,7 @@ var Parser = /** @class */ (function () {
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* cputils.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -1031,7 +1025,7 @@ var Parser = /** @class */ (function () {
   "use strict";
   if(typeof cptable === "undefined") {
     if(true){
-      var cpt = __webpack_require__(19);
+      var cpt = __webpack_require__(18);
       if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);
       else root.cptable = factory(cpt);
     } else {}
@@ -1553,7 +1547,7 @@ var Parser = /** @class */ (function () {
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* cptable.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -7906,13 +7900,13 @@ if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') mo
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderChp", function() { return RenderChp; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -7944,18 +7938,18 @@ var RenderChp = /** @class */ (function () {
         this._chp = chp;
     }
     RenderChp.prototype.apply = function (doc, el) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.text());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.innerText);
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
-            el.css("font-weight", "bold");
+            el.style.fontWeight = "bold";
         }
         if (this._chp.italic) {
-            el.css("font-style", "italic");
+            el.style.fontStyle = "italic";
         }
         if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
             var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
             if (fontFamily !== "Symbol") {
-                el.css("font-family", fontFamily);
+                el.style.fontFamily = fontFamily;
             }
         }
         var deco = [];
@@ -7966,15 +7960,15 @@ var RenderChp = /** @class */ (function () {
             deco.push("line-through");
         }
         if (deco.length > 0) {
-            el.css("text-decoration", deco.join(" "));
+            el.style.textDecoration = deco.join(" ");
         }
         if (this._chp.colorindex !== 0) {
             var color = doc._lookupColor(this._chp.colorindex);
             if (color != null) {
-                el.css("color", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color));
+                el.style.color = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color);
             }
         }
-        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
+        el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
     };
     return RenderChp;
 }());
@@ -7982,13 +7976,13 @@ var RenderChp = /** @class */ (function () {
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderPap", function() { return RenderPap; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -8024,34 +8018,34 @@ var RenderPap = /** @class */ (function () {
             + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
         if (ismaindiv) {
             if (this._pap.spacebefore !== 0) {
-                el.css("margin-top", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spacebefore) + "pt");
+                el.style.marginTop = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spacebefore) + "pt";
             }
             else {
-                el.css("margin-top", "");
+                el.style.marginTop = "";
             }
             if (this._pap.spaceafter !== 0) {
-                el.css("margin-bottom", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spaceafter) + "pt");
+                el.style.marginBottom = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spaceafter) + "pt";
             }
             else {
-                el.css("margin-bottom", "");
+                el.style.marginBottom = "";
             }
             if (rchp != null) {
-                el.css("min-height", Math.floor(rchp._chp.fontsize / 2) + "pt");
+                el.style.minHeight = Math.floor(rchp._chp.fontsize / 2) + "pt";
             }
         }
         else {
             switch (this._pap.justification) {
                 case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT:
-                    el.css("text-align", "left");
+                    el.style.textAlign = "left";
                     break;
                 case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.RIGHT:
-                    el.css("text-align", "right");
+                    el.style.textAlign = "right";
                     break;
                 case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.CENTER:
-                    el.css("text-align", "center");
+                    el.style.textAlign = "center";
                     break;
                 case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.JUSTIFY:
-                    el.css("text-align", "justify");
+                    el.style.textAlign = "justify";
                     break;
             }
         }
@@ -8062,7 +8056,7 @@ var RenderPap = /** @class */ (function () {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8075,7 +8069,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GlobalState", function() { return GlobalState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainText", function() { return PlainText; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HexText", function() { return HexText; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -8275,7 +8269,7 @@ var HexText = /** @class */ (function () {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8288,7 +8282,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GenericPropertyDestinationFactory", function() { return GenericPropertyDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GenericSubTextPropertyDestinationFactory", function() { return GenericSubTextPropertyDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RequiredDestinationFactory", function() { return RequiredDestinationFactory; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -8489,20 +8483,20 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Destinations", function() { return Destinations; });
-/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
-/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
-/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
-/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(27);
-/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(32);
-/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(33);
+/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
+/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(29);
+/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(30);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(26);
+/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(31);
+/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(32);
 /*
 
 The MIT License (MIT)
@@ -8586,14 +8580,14 @@ var Destinations = {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ColortblDestination", function() { return ColortblDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -8739,7 +8733,7 @@ var ColortblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8749,9 +8743,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FieldHyperlink", function() { return FieldHyperlink; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldinstDestination", function() { return FldinstDestination; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldrsltDestination", function() { return FldrsltDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
 /*
 
 The MIT License (MIT)
@@ -9034,19 +9028,19 @@ var FldrsltDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictGroupDestinationFactory", function() { return PictGroupDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictDestination", function() { return PictDestination; });
-/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
 /* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
+/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
 /* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(WMFJS__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9377,6 +9371,12 @@ var PictDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__27__;
+
+/***/ }),
 /* 28 */
 /***/ (function(module, exports) {
 
@@ -9384,20 +9384,14 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__28__;
 
 /***/ }),
 /* 29 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__29__;
-
-/***/ }),
-/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestinationSub", function() { return FonttblDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestination", function() { return FonttblDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9574,7 +9568,7 @@ var FonttblDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9582,8 +9576,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InfoDestination", function() { return InfoDestination; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyDestinationFactory", function() { return MetaPropertyDestinationFactory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyTimeDestinationFactory", function() { return MetaPropertyTimeDestinationFactory; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9732,17 +9726,17 @@ var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RtfDestination", function() { return RtfDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(21);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(19);
+/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -9995,15 +9989,15 @@ var RtfDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestinationSub", function() { return StylesheetDestinationSub; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestination", function() { return StylesheetDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
 /*
 
 The MIT License (MIT)
@@ -10132,15 +10126,13 @@ var StylesheetDestination = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(16);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /*
 
 The MIT License (MIT)
@@ -10166,7 +10158,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
 
 var Renderer = /** @class */ (function () {
     function Renderer(doc) {
@@ -10199,22 +10190,24 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.popContainer = function () {
         var contel = this._curcont.pop();
         if (contel == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No container on rendering stack");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No container on rendering stack");
         }
     };
     Renderer.prototype.buildHyperlinkElement = function (url) {
-        return jquery__WEBPACK_IMPORTED_MODULE_0__("<a>").attr("href", url);
+        var link = document.createElement("a");
+        link.href = url;
+        return link;
     };
     Renderer.prototype._appendToPar = function (el, newsubpar) {
         if (this._curpar == null) {
             this.startPar();
         }
         if (newsubpar === true) {
-            var subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
+            var subpar = document.createElement("div");
             if (this._cursubpar == null) {
-                this._curpar.children().appendTo(subpar);
+                subpar.append.apply(subpar, Array.from(this._curpar.childNodes));
                 this._curpar.append(subpar);
-                subpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
+                subpar = document.createElement("div");
             }
             if (el) {
                 subpar.append(el);
@@ -10239,7 +10232,7 @@ var Renderer = /** @class */ (function () {
         }
     };
     Renderer.prototype.startPar = function () {
-        this._curpar = jquery__WEBPACK_IMPORTED_MODULE_0__("<div>");
+        this._curpar = document.createElement("div");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
@@ -10270,7 +10263,8 @@ var Renderer = /** @class */ (function () {
     };
     Renderer.prototype.buildRenderedPicture = function (element) {
         if (element == null) {
-            element = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[failed to render image]");
+            element = document.createElement("span");
+            element.innerText = "[failed to render image]";
         }
         return element;
     };
@@ -10279,16 +10273,18 @@ var Renderer = /** @class */ (function () {
     };
     Renderer.prototype.buildPicture = function (mime, data) {
         if (data != null) {
-            return jquery__WEBPACK_IMPORTED_MODULE_0__("<img>", {
-                src: "data:" + mime + ";base64," + btoa(data),
-            });
+            var image = document.createElement("img");
+            image.src = "data:" + mime + ";base64," + btoa(data);
+            return image;
         }
         else {
             var err = "image type not supported";
             if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
-            return jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text("[" + err + "]");
+            var span = document.createElement("span");
+            span.innerText = "[" + err + "]";
+            return span;
         }
     };
     Renderer.prototype.picture = function (mime, data) {
@@ -10306,7 +10302,8 @@ var Renderer = /** @class */ (function () {
         for (var i = 0; i < len; i++) {
             var ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                var span = jquery__WEBPACK_IMPORTED_MODULE_0__("<span>").text(ins);
+                var span = document.createElement("span");
+                span.innerText = ins;
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }
