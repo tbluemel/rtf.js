@@ -55,6 +55,28 @@ export class SVGFilters {
     }
 }
 
+export class PathBuilder {
+    public move(x: number, y: number): void {
+        // TODO
+    }
+
+    public path(): string {
+        // TODO
+    }
+
+    public line(pts: number[][]): void {
+        // TODO
+    }
+
+    public curveC(x: number, y: number, x2: number, y2: number, x3: number, y3: number): void {
+        // TODO
+    }
+
+    public close(): void {
+        // TODO
+    }
+}
+
 export class SVG {
     public filters = new SVGFilters();
     private _svg: SVGElement;
@@ -248,6 +270,14 @@ export class SVG {
         this._appendSettings(settings, clipElement);
         parent.appendChild(clipElement);
         return clipElement;
+    }
+
+    public createPath(): PathBuilder {
+        // TODO
+    }
+
+    public path(parent: SVGElement, svgPath: PathBuilder, settings?: any) {
+        // TODO
     }
 
     private _appendSettings(settings: any | undefined, element: Element): void {

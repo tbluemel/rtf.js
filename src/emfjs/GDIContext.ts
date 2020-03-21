@@ -26,6 +26,7 @@ SOFTWARE.
 */
 
 import { SVG } from "../util";
+import { PathBuilder } from "../util/SVG";
 import { EMFJSError, Helper } from "./Helper";
 import { Obj, PointL, PointS, RectL } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
@@ -41,9 +42,9 @@ export interface ISelectedStyle {
 }
 
 export class Path extends Obj {
-    public svgPath: any;
+    public svgPath: PathBuilder;
 
-    constructor(svgPath: any, copy?: Path) {
+    constructor(svgPath: PathBuilder, copy?: Path) {
         super("path");
         if (svgPath != null) {
             this.svgPath = svgPath;
@@ -214,7 +215,7 @@ export class GDIContext {
     private _svgdefs: SVGDefsElement;
     private _svgPatterns: { [key: string]: Brush };
     private _svgClipPaths: { [key: string]: Region };
-    private _svgPath: any;
+    private _svgPath: PathBuilder;
     private defObjects: ISelectedStyle;
     private state: GDIContextState;
     private statestack: GDIContextState[];
@@ -388,7 +389,7 @@ export class GDIContext {
     public polyline(isLineTo: boolean, points: PointS[], bounds: RectL) {
         Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points
             + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
-        const pts = [];
+        const pts: number[][] = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
