@@ -71,7 +71,7 @@ export class PictDestination extends DestinationTextBase {
     };
 
     private _pictTypeHandler: { [key: string]
-            : string | ((param?: number) => { load: () => any, render: (img: any) => HTMLElement }) } = {
+            : string | ((param?: number) => { load: () => any, render: (img: any) => Element }) } = {
         emfblip: (() => {
             if (typeof EMFJS !== "undefined") {
                 return () => {
@@ -96,7 +96,7 @@ export class PictDestination extends DestinationTextBase {
                                 xExt: this._size.width,
                                 yExt: this._size.height,
                                 mapMode: 8,
-                            }).get()[0] as HTMLElement;
+                            });
                         },
                     };
                 };

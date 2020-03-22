@@ -25,7 +25,7 @@ SOFTWARE.
 
 */
 
-import * as $ from "jquery";
+import { SVG } from "../util";
 import { Blob } from "./Blob";
 import { EMFRecords } from "./EMFRecords";
 import { GDIContext } from "./GDIContext";
@@ -49,18 +49,21 @@ export class Renderer {
         Helper.log("EMFJS.Renderer instantiated");
     }
 
-    public render(info: IRendererSettings) {
-        const img = ($("<div>") as any).svg({
-            onLoad: (svg: any) => {
-                return this._render(svg, info.mapMode, info.wExt, info.hExt, info.xExt, info.yExt);
-            },
-            settings: {
-                viewBox: [0, 0, info.xExt, info.yExt].join(" "),
-                preserveAspectRatio: "none", // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-            },
-        });
-        const svgContainer = ($(img[0]) as any).svg("get");
-        return $(svgContainer.root()).attr("width", info.width).attr("height", info.height);
+    public render(info: IRendererSettings): SVGElement {
+        const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+        this._render(
+            new SVG(svgElement),
+            info.mapMode,
+            info.wExt,
+            info.hExt,
+            info.xExt,
+            info.yExt);
+        svgElement.setAttribute("viewBox", [0, 0, info.xExt, info.yExt].join(" "));
+        svgElement.setAttribute("preserveAspectRatio", "none"); // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+        svgElement.setAttribute("width", info.width);
+        svgElement.setAttribute("height", info.height);
+        return svgElement;
     }
 
     private parse(blob: ArrayBuffer) {
@@ -84,7 +87,7 @@ export class Renderer {
         }
     }
 
-    private _render(svg: any, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
+    private _render(svg: SVG, mapMode: number, w: number, h: number, xExt: number, yExt: number) {
         const gdi = new GDIContext(svg);
         gdi.setWindowExtEx(w, h);
         gdi.setViewportExtEx(xExt, yExt);

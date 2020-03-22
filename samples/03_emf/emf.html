@@ -6,9 +6,6 @@
     <script src="../.common/dep/jquery.min.js"></script>
     <script src="../.common/dep/jquery.binarytransport.js"></script>
 
-    <script src="../../dist/jquery.svg.min.js"></script>
-    <script src="../../dist/jquery.svgfilter.min.js"></script>
-
     <script src="../../dist/EMFJS.bundle.min.js"></script>
 
     <script>
@@ -52,7 +49,7 @@ function displayEMF(blob) {
             mapMode: 8 // preserve aspect ratio checkbox
         };
         var renderer = new EMFJS.Renderer(blob);
-        var svg = setPictBorder(renderer.render(settings), $("#showpicborder").prop("checked"));
+        var svg = setPictBorder($(renderer.render(settings)), $("#showpicborder").prop("checked"));
         $("#content").empty().append(svg.attr("class", "emfpict"));
         $("#closebutton").show();
         $("#tools").show();

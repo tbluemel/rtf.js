@@ -20,7 +20,7 @@ function displayRtfFile(blob, configs={}) {
                 let allow_append = !isLegacy || legacyPictures
                 let elem
                 if (allow_append) {
-                    elem = create()
+                    elem = $(create())
                     elem.attr("class", "rtfpict")
                     setPictBorder(elem, showPicBorder)
                 }

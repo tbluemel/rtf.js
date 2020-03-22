@@ -5,9 +5,6 @@
 
     <script src="../.common/dep/jquery.min.js"></script>
 
-    <script src="../../dist/jquery.svg.min.js"></script>
-    <script src="../../dist/jquery.svgfilter.min.js"></script>
-
     <script src="../../dist/WMFJS.bundle.min.js"></script>
     <script src="../../dist/EMFJS.bundle.min.js"></script>
     <script src="../../dist/RTFJS.bundle.min.js"></script>
@@ -44,8 +41,8 @@ function displayRtfFile(blob) {
             onPicture: function(isLegacy, create) {
                 // isLegacy is null if it's the only available picture (e.g. legacy rtf)
                 if (isLegacy == null || isLegacy == legacyPictures) {
-                    var elem = create().attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
-                    return setPictBorder(elem, showPicBorder);
+                    var elem = $(create()).attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
+                    return setPictBorder(elem, showPicBorder)[0];
                 }
             },
             onHyperlink: function(create, hyperlink) {
@@ -63,7 +60,7 @@ function displayRtfFile(blob) {
                     });
                     return {
                         content: lnk,
-                        element: span
+                        element: span[0]
                     };
                 } else {
                     return {
