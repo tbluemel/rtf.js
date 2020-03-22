@@ -55,13 +55,13 @@ export class SVGFilters {
     }
 }
 
-export class PathBuilder {
+export class SVGPathBuilder {
     public move(x: number, y: number): void {
         // TODO
     }
 
     public path(): string {
-        // TODO
+        return "";
     }
 
     public line(pts: number[][]): void {
@@ -272,11 +272,11 @@ export class SVG {
         return clipElement;
     }
 
-    public createPath(): PathBuilder {
-        // TODO
+    public createPath(): SVGPathBuilder {
+        return new SVGPathBuilder();
     }
 
-    public path(parent: SVGElement, svgPath: PathBuilder, settings?: any) {
+    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any) {
         // TODO
     }
 

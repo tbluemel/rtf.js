@@ -26,7 +26,7 @@ SOFTWARE.
 */
 
 import { SVG } from "../util";
-import { PathBuilder } from "../util/SVG";
+import { SVGPathBuilder } from "../util/SVG";
 import { EMFJSError, Helper } from "./Helper";
 import { Obj, PointL, PointS, RectL } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
@@ -42,9 +42,9 @@ export interface ISelectedStyle {
 }
 
 export class Path extends Obj {
-    public svgPath: PathBuilder;
+    public svgPath: SVGPathBuilder;
 
-    constructor(svgPath: PathBuilder, copy?: Path) {
+    constructor(svgPath: SVGPathBuilder, copy?: Path) {
         super("path");
         if (svgPath != null) {
             this.svgPath = svgPath;
@@ -215,7 +215,7 @@ export class GDIContext {
     private _svgdefs: SVGDefsElement;
     private _svgPatterns: { [key: string]: Brush };
     private _svgClipPaths: { [key: string]: Region };
-    private _svgPath: PathBuilder;
+    private _svgPath: SVGPathBuilder;
     private defObjects: ISelectedStyle;
     private state: GDIContextState;
     private statestack: GDIContextState[];
