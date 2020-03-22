@@ -55,25 +55,29 @@ export class SVGFilters {
     }
 }
 
-export class PathBuilder {
+export class SVGPathBuilder {
+    private _path = "";
+
     public move(x: number, y: number): void {
-        // TODO
+        this._path += ` M ${x} ${y}`;
     }
 
     public path(): string {
-        // TODO
+        return this._path.substr(1);
     }
 
     public line(pts: number[][]): void {
-        // TODO
+        pts.forEach(point => {
+            this._path += ` L ${point[0]} ${point[1]}`;
+        });
     }
 
-    public curveC(x: number, y: number, x2: number, y2: number, x3: number, y3: number): void {
-        // TODO
+    public curveC(x1: number, y1: number, x2: number, y2: number, x: number, y: number): void {
+        this._path += ` C ${x1} ${y1} ${x2} ${y2} ${x} ${y}`;
     }
 
     public close(): void {
-        // TODO
+        this._path += ` Z`;
     }
 }
 
@@ -201,6 +205,14 @@ export class SVG {
         return ellipseElement;
     }
 
+    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any) {
+        const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathElement.setAttribute("d", builder.path());
+        this._appendSettings(settings, pathElement);
+        parent.appendChild(pathElement);
+        return pathElement;
+    }
+
     public text(parent: Element, x: number, y: number, value: string, settings?: any): SVGTextElement {
         const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textElement.setAttribute("x", x.toString());
@@ -272,12 +284,8 @@ export class SVG {
         return clipElement;
     }
 
-    public createPath(): PathBuilder {
-        // TODO
-    }
-
-    public path(parent: SVGElement, svgPath: PathBuilder, settings?: any) {
-        // TODO
+    public createPath(): SVGPathBuilder {
+        return new SVGPathBuilder();
     }
 
     private _appendSettings(settings: any | undefined, element: Element): void {
