@@ -67,13 +67,13 @@ export class SVGPathBuilder {
     }
 
     public line(pts: number[][]): void {
-        pts.forEach(point => {
+        pts.forEach((point) => {
             this._path += ` L ${point[0]} ${point[1]}`;
         });
     }
 
     public curveC(x1: number, y1: number, x2: number, y2: number, x: number, y: number): void {
-        this._path += ` C ${x1} ${y1} ${x2} ${y2} ${x} ${y}`;
+        this._path += ` C ${x1} ${y1}, ${x2} ${y2}, ${x} ${y}`;
     }
 
     public close(): void {
@@ -99,8 +99,8 @@ export class SVG {
         const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svgElement.setAttribute("x", x.toString());
         svgElement.setAttribute("y", y.toString());
-        svgElement.setAttribute("width", `${width}px`);
-        svgElement.setAttribute("height", `${height}px`);
+        svgElement.setAttribute("width", width.toString());
+        svgElement.setAttribute("height", height.toString());
         this._appendSettings(settings, svgElement);
 
         if (parent != null) {
@@ -122,8 +122,8 @@ export class SVG {
         const imageElement = document.createElementNS("http://www.w3.org/2000/svg", "image");
         imageElement.setAttribute("x", x.toString());
         imageElement.setAttribute("y", y.toString());
-        imageElement.setAttribute("width", `${width}px`);
-        imageElement.setAttribute("height", `${height}px`);
+        imageElement.setAttribute("width", width.toString());
+        imageElement.setAttribute("height", height.toString());
         imageElement.setAttributeNS("http://www.w3.org/1999/xlink", "href", url);
         this._appendSettings(settings, imageElement);
         parent.appendChild(imageElement);
@@ -150,8 +150,8 @@ export class SVG {
         const rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rectElement.setAttribute("x", x.toString());
         rectElement.setAttribute("y", y.toString());
-        rectElement.setAttribute("width", `${width}px`);
-        rectElement.setAttribute("height", `${height}px`);
+        rectElement.setAttribute("width", width.toString());
+        rectElement.setAttribute("height", height.toString());
         if (rx !== undefined) {
             if (rx instanceof Number) {
                 rectElement.setAttribute("rx", rx.toString());
@@ -180,7 +180,7 @@ export class SVG {
 
     public polygon(parent: Element, points: number[][], settings?: any): SVGPolygonElement {
         const polygonElement = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        polygonElement.setAttribute("points", points.join(","));
+        polygonElement.setAttribute("points", points.map((point) => point.join(",")).join(" "));
         this._appendSettings(settings, polygonElement);
         parent.appendChild(polygonElement);
         return polygonElement;
@@ -188,7 +188,7 @@ export class SVG {
 
     public polyline(parent: Element, points: number[][], settings?: any): SVGPolylineElement {
         const polylineElement = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-        polylineElement.setAttribute("points", points.join(","));
+        polylineElement.setAttribute("points", points.map((point) => point.join(",")).join(" "));
         this._appendSettings(settings, polylineElement);
         parent.appendChild(polylineElement);
         return polylineElement;
@@ -234,8 +234,8 @@ export class SVG {
         const filterElement = document.createElementNS("http://www.w3.org/2000/svg", "filter");
         filterElement.setAttribute("x", x.toString());
         filterElement.setAttribute("y", y.toString());
-        filterElement.setAttribute("width", `${width}px`);
-        filterElement.setAttribute("height", `${height}px`);
+        filterElement.setAttribute("width", width.toString());
+        filterElement.setAttribute("height", height.toString());
         this._appendSettings(settings, filterElement);
         parent.appendChild(filterElement);
         return filterElement;
@@ -254,8 +254,8 @@ export class SVG {
         }
         patternElement.setAttribute("x", x.toString());
         patternElement.setAttribute("y", y.toString());
-        patternElement.setAttribute("width", `${width}px`);
-        patternElement.setAttribute("height", `${height}px`);
+        patternElement.setAttribute("width", width.toString());
+        patternElement.setAttribute("height", height.toString());
         this._appendSettings(settings, patternElement);
         parent.appendChild(patternElement);
         return patternElement;

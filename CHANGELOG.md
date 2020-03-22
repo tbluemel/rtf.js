@@ -1,7 +1,7 @@
 # Change Log
 
 ## [3.0.0]
-- Dropped requirement for jquery and jquery filter
+- Dropped requirement for jQuery and jQuery-Filter. This means that all public API methods now return html element instead of jQuery objects and also require any parameters to be html elements instead of jQuery options.
 - Bundles are still transpiled to ES5 but will require polyfills for older browsers 
 
 ## [2.3.3] - 2020-01-11

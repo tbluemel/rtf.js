@@ -155,7 +155,7 @@ export class Renderer {
     public buildRenderedPicture(element: HTMLElement): HTMLElement {
         if (element == null) {
             element = document.createElement("span");
-            element.innerText = "[failed to render image]";
+            element.textContent = "[failed to render image]";
         }
         return element;
     }
@@ -175,7 +175,7 @@ export class Renderer {
                 err = mime;
             }
             const span: HTMLSpanElement = document.createElement("span");
-            span.innerText = "[" + err + "]";
+            span.textContent = "[" + err + "]";
             return span;
         }
     }
@@ -200,7 +200,7 @@ export class Renderer {
             const ins = this._doc._ins[i];
             if (typeof ins === "string") {
                 const span: HTMLSpanElement = document.createElement("span");
-                span.innerText = ins;
+                span.textContent = ins;
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }

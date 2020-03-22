@@ -695,7 +695,7 @@ export class GDIContext {
                     this._todevY(region.bounds.top),
                     this._todevW(region.bounds.right - region.bounds.left),
                     this._todevH(region.bounds.bottom - region.bounds.top),
-                    {fill: "black", strokeWidth: 0});
+                    {"fill": "black", "stroke-width": 0});
                 break;
             case 2:
                 for (let i = 0; i < region.scans.length; i++) {
@@ -704,7 +704,7 @@ export class GDIContext {
                         const scanline = scan.scanlines[j];
                         this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top),
                             this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top),
-                            {fill: "black", strokeWidth: 0});
+                            {"fill": "black", "stroke-width": 0});
                     }
                 }
                 break;
@@ -849,7 +849,7 @@ export class GDIContext {
             const pen = this.state.selected.pen;
             if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
-                opts.strokeWidth = pen.width;
+                opts["stroke-width"]  = pen.width;
 
                 opts["stroke-miterlimit"] = this.state.miterlimit;
 
@@ -859,8 +859,8 @@ export class GDIContext {
 
                 opts["stroke-linejoin"] = "round";
 
-                const dashWidth = opts.strokeWidth * 4;
-                const dotSpacing = opts.strokeWidth * 2;
+                const dashWidth = opts["stroke-width"]  * 4;
+                const dotSpacing = opts["stroke-width"]  * 2;
                 switch (pen.style) {
                     case Helper.GDI.PenStyle.PS_DASH:
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();

@@ -36,7 +36,7 @@ export class RenderChp {
     }
 
     public apply(doc: Document, el: HTMLElement) {
-        Helper.log("[rtf] RenderChp: " + el.innerText);
+        Helper.log("[rtf] RenderChp: " + el.textContent);
         Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
             el.style.fontWeight = "bold";

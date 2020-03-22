@@ -7938,7 +7938,7 @@ var RenderChp = /** @class */ (function () {
         this._chp = chp;
     }
     RenderChp.prototype.apply = function (doc, el) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.innerText);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.textContent);
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
             el.style.fontWeight = "bold";
@@ -10264,7 +10264,7 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.buildRenderedPicture = function (element) {
         if (element == null) {
             element = document.createElement("span");
-            element.innerText = "[failed to render image]";
+            element.textContent = "[failed to render image]";
         }
         return element;
     };
@@ -10283,7 +10283,7 @@ var Renderer = /** @class */ (function () {
                 err = mime;
             }
             var span = document.createElement("span");
-            span.innerText = "[" + err + "]";
+            span.textContent = "[" + err + "]";
             return span;
         }
     };
@@ -10303,7 +10303,7 @@ var Renderer = /** @class */ (function () {
             var ins = this._doc._ins[i];
             if (typeof ins === "string") {
                 var span = document.createElement("span");
-                span.innerText = ins;
+                span.textContent = ins;
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }
