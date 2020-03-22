@@ -201,6 +201,14 @@ export class SVG {
         return ellipseElement;
     }
 
+    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any) {
+        const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathElement.setAttribute("d", builder.path());
+        this._appendSettings(settings, pathElement);
+        parent.appendChild(pathElement);
+        return pathElement;
+    }
+
     public text(parent: Element, x: number, y: number, value: string, settings?: any): SVGTextElement {
         const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
         textElement.setAttribute("x", x.toString());
@@ -274,10 +282,6 @@ export class SVG {
 
     public createPath(): SVGPathBuilder {
         return new SVGPathBuilder();
-    }
-
-    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any) {
-        // TODO
     }
 
     private _appendSettings(settings: any | undefined, element: Element): void {
