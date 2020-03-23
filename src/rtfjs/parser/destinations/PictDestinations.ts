@@ -92,7 +92,7 @@ export class PictDestination extends DestinationTextBase {
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
                                 wExt: this._size.width,
-                                hExt: this._size.width,
+                                hExt: this._size.height,
                                 xExt: this._size.width,
                                 yExt: this._size.height,
                                 mapMode: 8,

@@ -40,7 +40,7 @@ function displayRtfFile(blob) {
         var settings = {
             onPicture: function(isLegacy, create) {
                 // isLegacy is null if it's the only available picture (e.g. legacy rtf)
-                if (isLegacy == null || isLegacy == legacyPictures) {
+                if (isLegacy === legacyPictures) {
                     var elem = $(create()).attr("class", "rtfpict"); // WHY does addClass not work on <svg>?!
                     return setPictBorder(elem, showPicBorder)[0];
                 }

@@ -9137,7 +9137,7 @@ var PictDestination = /** @class */ (function (_super) {
                                     width: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.width) + "pt",
                                     height: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.height) + "pt",
                                     wExt: _this._size.width,
-                                    hExt: _this._size.width,
+                                    hExt: _this._size.height,
                                     xExt: _this._size.width,
                                     yExt: _this._size.height,
                                     mapMode: 8,
