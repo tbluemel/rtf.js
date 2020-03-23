@@ -71,7 +71,7 @@ export class PictDestination extends DestinationTextBase {
     };
 
     private _pictTypeHandler: { [key: string]
-            : string | ((param?: number) => { load: () => any, render: (img: any) => JQuery }) } = {
+            : string | ((param?: number) => { load: () => any, render: (img: any) => Element }) } = {
         emfblip: (() => {
             if (typeof EMFJS !== "undefined") {
                 return () => {
@@ -92,7 +92,7 @@ export class PictDestination extends DestinationTextBase {
                                 width: Helper._twipsToPt(this._displaysize.width) + "pt",
                                 height: Helper._twipsToPt(this._displaysize.height) + "pt",
                                 wExt: this._size.width,
-                                hExt: this._size.width,
+                                hExt: this._size.height,
                                 xExt: this._size.width,
                                 yExt: this._size.height,
                                 mapMode: 8,

@@ -24,25 +24,24 @@ SOFTWARE.
 
 */
 
-import * as $ from "jquery";
 import { Document } from "../Document";
 import { RTFJSError } from "../Helper";
 import { RenderChp } from "./RenderChp";
 import { RenderPap } from "./RenderPap";
 
 export interface IContainerElement {
-    element: JQuery;
-    content: JQuery;
+    element: HTMLElement;
+    content: HTMLElement;
 }
 
 export class Renderer {
     public _doc: Document;
-    private _dom: JQuery[];
+    private _dom: HTMLElement[];
 
     private _curRChp: RenderChp;
     private _curRPap: RenderPap;
-    private _curpar: JQuery;
-    private _cursubpar: JQuery;
+    private _curpar: HTMLElement;
+    private _cursubpar: HTMLElement;
     private _curcont: IContainerElement[];
 
     constructor(doc: Document) {
@@ -81,20 +80,22 @@ export class Renderer {
         }
     }
 
-    public buildHyperlinkElement(url: string): JQuery {
-        return $("<a>").attr("href", url);
+    public buildHyperlinkElement(url: string): HTMLElement {
+        const link: HTMLAnchorElement = document.createElement("a");
+        link.href = url;
+        return link;
     }
 
-    public _appendToPar(el: JQuery, newsubpar?: boolean) {
+    public _appendToPar(el: HTMLElement, newsubpar?: boolean) {
         if (this._curpar == null) {
             this.startPar();
         }
         if (newsubpar === true) {
-            let subpar = $("<div>");
+            let subpar: HTMLDivElement = document.createElement("div");
             if (this._cursubpar == null) {
-                this._curpar.children().appendTo(subpar);
+                subpar.append(...Array.from(this._curpar.childNodes));
                 this._curpar.append(subpar);
-                subpar = $("<div>");
+                subpar = document.createElement("div");
             }
             if (el) {
                 subpar.append(el);
@@ -118,7 +119,7 @@ export class Renderer {
     }
 
     public startPar() {
-        this._curpar = $("<div>");
+        this._curpar = document.createElement("div");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, false);
@@ -147,32 +148,35 @@ export class Renderer {
         }
     }
 
-    public appendElement(element: JQuery) {
+    public appendElement(element: HTMLElement) {
         this._appendToPar(element);
     }
 
-    public buildRenderedPicture(element: JQuery): JQuery {
+    public buildRenderedPicture(element: HTMLElement): HTMLElement {
         if (element == null) {
-            element = $("<span>").text("[failed to render image]");
+            element = document.createElement("span");
+            element.textContent = "[failed to render image]";
         }
         return element;
     }
 
-    public renderedPicture(element: JQuery) {
+    public renderedPicture(element: HTMLElement) {
         this._appendToPar(this.buildRenderedPicture(element));
     }
 
-    public buildPicture(mime: string, data: string): JQuery {
+    public buildPicture(mime: string, data: string): HTMLElement {
         if (data != null) {
-            return $("<img>", {
-                src: "data:" + mime + ";base64," + btoa(data),
-            });
+            const image: HTMLImageElement = document.createElement("img");
+            image.src = "data:" + mime + ";base64," + btoa(data);
+            return image;
         } else {
             let err = "image type not supported";
             if (typeof mime === "string" && mime !== "") {
                 err = mime;
             }
-            return $("<span>").text("[" + err + "]");
+            const span: HTMLSpanElement = document.createElement("span");
+            span.textContent = "[" + err + "]";
+            return span;
         }
     }
 
@@ -180,7 +184,7 @@ export class Renderer {
         this._appendToPar(this.buildPicture(mime, data));
     }
 
-    public buildDom(): JQuery[] {
+    public buildDom(): HTMLElement[] {
         if (this._dom != null) {
             return this._dom;
         }
@@ -195,7 +199,8 @@ export class Renderer {
         for (let i = 0; i < len; i++) {
             const ins = this._doc._ins[i];
             if (typeof ins === "string") {
-                const span = $("<span>").text(ins);
+                const span: HTMLSpanElement = document.createElement("span");
+                span.textContent = ins;
                 if (this._curRChp != null) {
                     this._curRChp.apply(this._doc, span);
                 }

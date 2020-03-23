@@ -24,7 +24,5 @@ SOFTWARE.
 
 */
 
-import "jquery.svg";
-import "jquery.svgfilter";
 export { Renderer, IRendererSettings } from "./Renderer";
 export { WMFJSError as Error, loggingEnabled } from "./Helper";

@@ -25,6 +25,8 @@ SOFTWARE.
 
 */
 
+import { SVG } from "../util";
+import { SVGPathBuilder } from "../util/SVG";
 import { EMFJSError, Helper } from "./Helper";
 import { Obj, PointL, PointS, RectL } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
@@ -40,9 +42,9 @@ export interface ISelectedStyle {
 }
 
 export class Path extends Obj {
-    public svgPath: any;
+    public svgPath: SVGPathBuilder;
 
-    constructor(svgPath: any, copy?: Path) {
+    constructor(svgPath: SVGPathBuilder, copy?: Path) {
         super("path");
         if (svgPath != null) {
             this.svgPath = svgPath;
@@ -52,7 +54,7 @@ export class Path extends Obj {
     }
 
     public clone() {
-        return new Path(null, this.svgPath);
+        return new Path(null, this);
     }
 
     public toString() {
@@ -60,7 +62,7 @@ export class Path extends Obj {
     }
 }
 
-function createStockObjects(): {[key: string]: Obj} {
+function createStockObjects(): { [key: string]: Obj } {
     // Create global stock objects
     const createSolidBrush = (r: number, g: number, b: number) => {
         return new Brush(null, {
@@ -71,7 +73,7 @@ function createStockObjects(): {[key: string]: Obj} {
     const createSolidPen = (r: number, g: number, b: number) => {
         return new Pen(null, Helper.GDI.PenStyle.PS_SOLID, 1, new ColorRef(null, r, g, b), null);
     };
-    const stockObjs: {[key: string]: Obj} = {
+    const stockObjs: { [key: string]: Obj } = {
         WHITE_BRUSH: createSolidBrush(255, 255, 255),
         LTGRAY_BRUSH: createSolidBrush(212, 208, 200),
         GRAY_BRUSH: createSolidBrush(128, 128, 128),
@@ -93,9 +95,9 @@ function createStockObjects(): {[key: string]: Obj} {
         DEFAULT_GUI_FONT: null, // TODO
     };
 
-    const objs: {[key: string]: Obj} = {};
+    const objs: { [key: string]: Obj } = {};
     for (const t in stockObjs) {
-        const stockObjects: {[key: string]: number} = Helper.GDI.StockObject as {[key: string]: number};
+        const stockObjects: { [key: string]: number } = Helper.GDI.StockObject as { [key: string]: number };
         const idx = stockObjects[t] - 0x80000000;
         objs[idx.toString()] = stockObjs[t];
     }
@@ -105,9 +107,9 @@ function createStockObjects(): {[key: string]: Obj} {
 export const _StockObjects = createStockObjects();
 
 export class GDIContextState {
-    public _svggroup: any;
+    public _svggroup: SVGElement;
     public _svgclipChanged: boolean;
-    public _svgtextbkfilter: any;
+    public _svgtextbkfilter: SVGFilterElement;
     public mapmode: number;
     public stretchmode: number;
     public textalign: number;
@@ -209,17 +211,17 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    private _svg: any;
-    private _svgdefs: any;
-    private _svgPatterns: {[key: string]: Brush};
-    private _svgClipPaths: {[key: string]: Region};
-    private _svgPath: any;
+    private _svg: SVG;
+    private _svgdefs: SVGDefsElement;
+    private _svgPatterns: { [key: string]: Brush };
+    private _svgClipPaths: { [key: string]: Region };
+    private _svgPath: SVGPathBuilder;
     private defObjects: ISelectedStyle;
     private state: GDIContextState;
     private statestack: GDIContextState[];
-    private objects: {[key: string]: Obj};
+    private objects: { [key: string]: Obj };
 
-    constructor(svg: any) {
+    constructor(svg: SVG) {
         this._svg = svg;
         this._svgdefs = null;
         this._svgPatterns = {};
@@ -387,7 +389,7 @@ export class GDIContext {
     public polyline(isLineTo: boolean, points: PointS[], bounds: RectL) {
         Helper.log("[gdi] polyline: isLineTo=" + isLineTo.toString() + ", points=" + points
             + ", bounds=" + bounds.toString() + " with pen " + this.state.selected.pen.toString());
-        const pts = [];
+        const pts: number[][] = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
             pts.push([this._todevX(point.x), this._todevY(point.y)]);
@@ -427,7 +429,7 @@ export class GDIContext {
         const pts = [];
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
-            pts.push({ x: this._todevX(point.x), y: this._todevY(point.y)});
+            pts.push({x: this._todevX(point.x), y: this._todevY(point.y)});
         }
 
         if (this._svgPath != null) {
@@ -693,7 +695,7 @@ export class GDIContext {
                     this._todevY(region.bounds.top),
                     this._todevW(region.bounds.right - region.bounds.left),
                     this._todevH(region.bounds.bottom - region.bounds.top),
-                    { fill: "black", strokeWidth: 0 });
+                    {"fill": "black", "stroke-width": 0});
                 break;
             case 2:
                 for (let i = 0; i < region.scans.length; i++) {
@@ -702,7 +704,7 @@ export class GDIContext {
                         const scanline = scan.scanlines[j];
                         this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top),
                             this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top),
-                            { fill: "black", strokeWidth: 0 });
+                            {"fill": "black", "stroke-width": 0});
                     }
                 }
                 break;
@@ -846,8 +848,8 @@ export class GDIContext {
         if (usePen) {
             const pen = this.state.selected.pen;
             if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
-                opts.stroke =  "#" + pen.color.toHex(); // TODO: pen style
-                opts.strokeWidth = pen.width;
+                opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
+                opts["stroke-width"]  = pen.width;
 
                 opts["stroke-miterlimit"] = this.state.miterlimit;
 
@@ -857,8 +859,8 @@ export class GDIContext {
 
                 opts["stroke-linejoin"] = "round";
 
-                const dashWidth = opts.strokeWidth * 4;
-                const dotSpacing = opts.strokeWidth * 2;
+                const dashWidth = opts["stroke-width"]  * 4;
+                const dotSpacing = opts["stroke-width"]  * 2;
                 switch (pen.style) {
                     case Helper.GDI.PenStyle.PS_DASH:
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();

@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-import * as $ from "jquery";
+import { SVG } from "../util/SVG";
 import { DIBitmap } from "./Bitmap";
 import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";
@@ -42,9 +42,9 @@ export interface ISelectedStyle {
 }
 
 export class GDIContextState {
-    public _svggroup: any;
+    public _svggroup: SVGElement;
     public _svgclipChanged: boolean;
-    public _svgtextbkfilter: any;
+    public _svgtextbkfilter: SVGFilterElement;
     public mapmode: number;
     public stretchmode: number;
     public textalign: number;
@@ -131,8 +131,8 @@ export class GDIContextState {
 }
 
 export class GDIContext {
-    private _svg: any;
-    private _svgdefs: any;
+    private _svg: SVG;
+    private _svgdefs: SVGDefsElement;
     private _svgPatterns: {[key: string]: Brush};
     private _svgClipPaths: {[key: string]: Region};
     private defObjects: ISelectedStyle;
@@ -140,7 +140,7 @@ export class GDIContext {
     private statestack: GDIContextState[];
     private objects: {[key: string]: Obj};
 
-    constructor(svg: any) {
+    constructor(svg: SVG) {
         this._svg = svg;
         this._svgdefs = null;
         this._svgPatterns = {};
@@ -322,7 +322,7 @@ export class GDIContext {
                 this.state._svgtextbkfilter = filter;
             }
 
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     }
@@ -349,7 +349,7 @@ export class GDIContext {
                 this.state._svgtextbkfilter = filter;
             }
 
-            opts.filter = "url(#" + $(this.state._svgtextbkfilter).attr("id") + ")";
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
         }
         this._svg.text(this.state._svggroup, x, y, text, opts);
     }
@@ -590,7 +590,7 @@ export class GDIContext {
                 this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top),
                     this._todevW(region.bounds.right - region.bounds.left),
                     this._todevH(region.bounds.bottom - region.bounds.top),
-                    { fill: "black", strokeWidth: 0 });
+                    { "fill": "black", "stroke-width": 0 });
                 break;
             case 2:
                 for (let i = 0; i < region.scans.length; i++) {
@@ -599,7 +599,7 @@ export class GDIContext {
                         const scanline = scan.scanlines[j];
                         this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top),
                             this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top),
-                            { fill: "black", strokeWidth: 0 });
+                            { "fill": "black", "stroke-width": 0 });
                     }
                 }
                 break;
@@ -737,7 +737,7 @@ export class GDIContext {
             const pen = this.state.selected.pen;
             if (pen.style !== Helper.GDI.PenStyle.PS_NULL) {
                 opts.stroke =  "#" + pen.color.toHex(), // TODO: pen style
-                    opts.strokeWidth = this._todevW(pen.width.x); // TODO: is .y ever used?
+                    opts["stroke-width"] = this._todevW(pen.width.x); // TODO: is .y ever used?
 
                 let dotWidth;
                 if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
@@ -745,7 +745,7 @@ export class GDIContext {
                     dotWidth = 1;
                 } else if ((pen.linecap & Helper.GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
                     opts["stroke-linecap"] = "butt";
-                    dotWidth = opts.strokeWidth;
+                    dotWidth = opts["stroke-width"];
                 } else {
                     opts["stroke-linecap"] = "round";
                     dotWidth = 1;
@@ -759,8 +759,8 @@ export class GDIContext {
                     opts["stroke-linejoin"] = "round";
                 }
 
-                const dashWidth = opts.strokeWidth * 4;
-                const dotSpacing = opts.strokeWidth * 2;
+                const dashWidth = opts["stroke-width"] * 4;
+                const dotSpacing = opts["stroke-width"]  * 2;
                 switch (pen.style) {
                     case Helper.GDI.PenStyle.PS_DASH:
                         opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();

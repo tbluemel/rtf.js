@@ -17,14 +17,15 @@ function displayRtfFile(blob, configs={}) {
         var settings = {
             onPicture: function(isLegacy, create) {
                 // isLegacy is null if it's the only available picture (e.g. legacy rtf)
-                let allow_append = !isLegacy || legacyPictures
-                let elem
+                let allow_append = !isLegacy || legacyPictures;
+                let elem;
                 if (allow_append) {
-                    elem = create()
-                    elem.attr("class", "rtfpict")
-                    setPictBorder(elem, showPicBorder)
+                    elem = $(create());
+                    elem.attr("class", "rtfpict");
+                    setPictBorder(elem, showPicBorder);
+                    elem = elem[0];
                 }
-                return elem
+                return elem;
             },
             onHyperlink: function(create, hyperlink) {
                 var url = hyperlink.url();
@@ -41,7 +42,7 @@ function displayRtfFile(blob, configs={}) {
                     });
                     return {
                         content: lnk,
-                        element: span
+                        element: span[0]
                     };
                 } else {
                     return {

@@ -1,5 +1,9 @@
 # Change Log
 
+## [3.0.0]
+- Dropped requirement for jQuery and jQuery-Filter. This means that all public API methods now return html element instead of jQuery objects and also require any parameters to be html elements instead of jQuery options.
+- Bundles are still transpiled to ES5 but will require polyfills for older browsers 
+
 ## [2.3.3] - 2020-01-11
 - More double width character improvements
 - Support for unicode characters outsider the basic multilingual plane (as used by new emojis etc.)

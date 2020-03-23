@@ -30,8 +30,8 @@ import { Parser } from "./parser/Parser";
 import {IContainerElement, Renderer} from "./renderer/Renderer";
 
 export interface ISettings {
-    onHyperlink?(create: () => void, hyperlink: {url: () => string}): IContainerElement;
-    onPicture?(isLegacy: boolean, create: () => void): JQuery;
+    onHyperlink?(create: () => HTMLElement, hyperlink: {url: () => string}): IContainerElement;
+    onPicture?(isLegacy: boolean, create: () => HTMLElement): HTMLElement;
     onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
         width?: number, height?: number}) => void): void;
 }
@@ -52,7 +52,7 @@ export class DocumentFacade {
         return this._document._meta;
     }
 
-    public render(): Promise<JQuery[]> {
+    public render(): Promise<HTMLElement[]> {
         return this._parsed
             .then(() => {
                 return this._renderer.buildDom();

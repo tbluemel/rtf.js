@@ -2,17 +2,11 @@ This guide shows how to use the library to render a basic rtf file
 
 # Loading rtf.js as a script
 ## Prerequisites
-- Download the files in the `dist` directory and [jquery](https://jquery.com/)
 - Include a promise polyfill if you have to support older browsers
 
 ## Code
 Put the following code into a html file:
 ```html
-<script src="../vendor/jquery.min.js"></script>
-
-<script src="../vendor/jquery.svg.js"></script>
-<script src="../vendor/jquery.svgfilter.js"></script>
-
 <script src="../vendor/WMFJS.bundle.js"></script>
 <script src="../vendor/EMFJS.bundle.js"></script>
 <script src="../vendor/RTFJS.bundle.js"></script>
@@ -84,7 +78,6 @@ doc.render().then(function(htmlElements) {
 # Importing rtf.js as a module (Typescript)
 ## Prerequisites
 - Install rtf.js from npm (`npm install rtf.js`)
-- Install jquery types from npm (`npm install @types/jquery`)
 - Disable lib check in `tsconfig.json` (add `"skipLibCheck": true`)
 
 ## Code
@@ -120,7 +113,7 @@ doc.render().then(function(htmlElements) {
 
 # Node (using jsdom)
 ## Prerequisites
-- Install rtf.js, jQuery and jsdom from npm (`npm install rtf.js jquery jsdom`)
+- Install rtf.js and jsdom from npm (`npm install rtf.js jsdom`)
 
 ## Code
 This is a minimal example for wrapper around rtf.js and jsdom:
@@ -142,11 +135,6 @@ exports.runRtfjs = function(rtf, callback, errorCallback) {
     virtualConsole.sendTo(console);
 
     var dom = new JSDOM(`
-    <script src="./node_modules/jquery/dist/jquery.min.js"></script>
-
-    <script src="./node_modules/rtf.js/dist/jquery.svg.min.js"></script>
-    <script src="./node_modules/rtf.js/dist/jquery.svgfilter.min.js"></script>
-
     <script src="./node_modules/rtf.js/dist/WMFJS.bundle.js"></script>
     <script src="./node_modules/rtf.js/dist/EMFJS.bundle.js"></script>
     <script src="./node_modules/rtf.js/dist/RTFJS.bundle.js"></script>
@@ -179,10 +167,6 @@ exports.runRtfjs = function(rtf, callback, errorCallback) {
                 callback(meta, html);
             };
             window.onerror = function (error) {
-                errorCallback(error)
-            };
-            // Catch exceptions from jquery.svg.min.js
-            window.alert = function (error) {
                 errorCallback(error)
             };
         }});

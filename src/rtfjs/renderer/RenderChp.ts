@@ -35,19 +35,19 @@ export class RenderChp {
         this._chp = chp;
     }
 
-    public apply(doc: Document, el: JQuery) {
-        Helper.log("[rtf] RenderChp: " + el.text());
+    public apply(doc: Document, el: HTMLElement) {
+        Helper.log("[rtf] RenderChp: " + el.textContent);
         Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
-            el.css("font-weight", "bold");
+            el.style.fontWeight = "bold";
         }
         if (this._chp.italic) {
-            el.css("font-style", "italic");
+            el.style.fontStyle = "italic";
         }
         if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
             const fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
             if (fontFamily !== "Symbol") {
-                el.css("font-family", fontFamily);
+                el.style.fontFamily = fontFamily;
             }
         }
 
@@ -60,14 +60,14 @@ export class RenderChp {
         }
 
         if (deco.length > 0) {
-            el.css("text-decoration", deco.join(" "));
+            el.style.textDecoration = deco.join(" ");
         }
         if (this._chp.colorindex !== 0) {
             const color = doc._lookupColor(this._chp.colorindex);
             if (color != null) {
-                el.css("color", Helper._colorToStr(color));
+                el.style.color = Helper._colorToStr(color);
             }
         }
-        el.css("font-size", Math.floor(this._chp.fontsize / 2) + "pt");
+        el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
     }
 }
