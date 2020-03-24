@@ -12,3 +12,5 @@ webpack/
 travis-verify-build.sh
 .gitattributes
 tslint.json
+tsconfig.json
+typewiz.json
