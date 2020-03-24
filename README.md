@@ -32,6 +32,12 @@ See the [Getting Started Guide](GETTING_STARTED.md) for details.
 # Developing
 To develop first install the dependencies using `npm install`.
 
+## Build with watch mode
+For development purposes you can start a watch, which will build the project, serve the sample pages on `localhost:8080` and automatically recompile and reload the sample page if you make a code change. This can be started with:
+```
+$ npm run watch
+```
+
 ## Building
 To build the entire project and create the bundles run:
 ```
@@ -39,7 +45,7 @@ $ npm run build
 ```
 
 ## Tests
-Please run `npm run lint` first to make sure your code adheres to the style guide.
+Please run `npm run lint` first to make sure your code adheres to the style guide and `npm run build` to build the code to be tested
 
 To run the test suite run:
 ```
