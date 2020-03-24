@@ -145,30 +145,33 @@ exports.runRtfjs = function(rtf, callback, errorCallback) {
         EMFJS.loggingEnabled(false);
 
         try {
-            var doc = new RTFJS.Document(rtfFile);
-    
-            var meta = doc.metadata();
+            const doc = new RTFJS.Document(rtfFile);
+
+            const meta = doc.metadata();
             doc.render().then(function(htmlElements) {
-                var html = $("<div>").append(htmlElements).html();
-    
-                window.done(meta, html);
+                const div = document.createElement("div");
+                div.append(...htmlElements);
+
+                window.done(meta, div.innerHTML);
             }).catch(error => window.onerror(error))
         } catch (error){
             window.onerror(error)
         }
     </script>
-    `, { resources: "usable",
+    `, {
+        resources: "usable",
         runScripts: "dangerously",
         url: "file://" + __dirname + "/",
         virtualConsole,
         beforeParse(window) {
             window.rtfFile = stringToArrayBuffer(rtf);
-            window.done = function(meta, html){
+            window.done = function (meta, html) {
                 callback(meta, html);
             };
             window.onerror = function (error) {
                 errorCallback(error)
             };
-        }});
+        }
+    });
 }
 ```
