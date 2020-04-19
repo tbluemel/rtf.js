@@ -1,5 +1,9 @@
 # Change Log
 
+## [3.0.1]
+- Fix the parsing of WMF `META_CREATEPALETTE` records
+- Improve custom errors (RTFJSError, WMFJSError and EMFJSError) to get proper stack traces
+
 ## [3.0.0]
 - Dropped requirement for jQuery and jQuery-Filter. This means that all public API methods now return html element instead of jQuery objects and also require any parameters to be html elements instead of jQuery options.
 - Bundles are still transpiled to ES5 but will require polyfills for older browsers 
