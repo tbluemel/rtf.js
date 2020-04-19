@@ -713,13 +713,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-// tslint:disable-next-line:variable-name
-var EMFJSError = function (message) {
-    this.name = "EMFJSError";
-    this.message = message;
-    this.stack = (new Error()).stack;
-};
-EMFJSError.prototype = new Error();
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var EMFJSError = /** @class */ (function (_super) {
+    __extends(EMFJSError, _super);
+    function EMFJSError(message) {
+        var _newTarget = this.constructor;
+        var _this = _super.call(this, message) || this;
+        Object.setPrototypeOf(_this, _newTarget.prototype); // restore prototype chain
+        return _this;
+    }
+    return EMFJSError;
+}(Error));
+
 var isLoggingEnabled = true;
 function loggingEnabled(enabled) {
     isLoggingEnabled = enabled;

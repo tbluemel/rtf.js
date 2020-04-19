@@ -53,10 +53,13 @@ function displayWMF(blob) {
         $("#tools").show();
         console.log("All done!");
     } catch(e) {
-        if (e instanceof WMFJS.Error)
+        if (e instanceof WMFJS.Error) {
             $("#content").text("Error: " + e.message);
-        else
             throw e;
+        }
+        else {
+            throw e;
+        }
     }
 }
 function loadWmfFile(file) {

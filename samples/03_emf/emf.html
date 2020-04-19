@@ -55,10 +55,13 @@ function displayEMF(blob) {
         $("#tools").show();
         console.log("All done!");
     } catch(e) {
-        if (e instanceof EMFJS.Error)
+        if (e instanceof EMFJS.Error) {
             $("#content").text("Error: " + e.message);
-        else
             throw e;
+        }
+        else {
+            throw e;
+        }
     }
 }
 function loadEmfFile(file) {

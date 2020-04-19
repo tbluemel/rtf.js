@@ -24,20 +24,12 @@ SOFTWARE.
 
 */
 
-// tslint:disable-next-line:interface-name
-export interface WMFJSError {
-    name: string;
-    message: string;
-    stack: string;
+export class WMFJSError extends Error {
+    constructor(message: string) {
+        super(message); // 'Error' breaks prototype chain here
+        Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
+    }
 }
-
-// tslint:disable-next-line:variable-name
-export const WMFJSError = function(this: WMFJSError, message: string) {
-    this.name = "WMFJSError";
-    this.message = message;
-    this.stack = (new Error()).stack;
-} as any as new (message: string) => WMFJSError;
-WMFJSError.prototype = new Error();
 
 let isLoggingEnabled = true;
 export function loggingEnabled(enabled: boolean) {
