@@ -2628,6 +2628,7 @@ var Palette = /** @class */ (function (_super) {
             _this.entries = [];
             while (cnt > 0) {
                 _this.entries.push(new PaletteEntry(reader));
+                cnt--;
             }
         }
         else {
