@@ -300,10 +300,11 @@ export class Palette extends Obj {
         super("palette");
         if (reader != null) {
             this.start = reader.readUint16();
-            const cnt = reader.readUint16();
+            let cnt = reader.readUint16();
             this.entries = [];
             while (cnt > 0) {
                 this.entries.push(new PaletteEntry(reader));
+                cnt--;
             }
         } else {
             this.start = copy.start;
