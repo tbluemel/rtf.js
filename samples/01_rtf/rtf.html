@@ -95,10 +95,13 @@ function displayRtfFile(blob) {
             }
         });
     } catch(e) {
-        if (e instanceof RTFJS.Error)
+        if (e instanceof RTFJS.Error) {
             $("#content").text("Error: " + e.message);
-        else
             throw e;
+        }
+        else {
+            throw e;
+        }
     }
 }
 function stringToBinaryArray(string) {
