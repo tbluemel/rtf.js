@@ -292,7 +292,10 @@ export class Parser {
                 this.parseLoop(true, false); // skip the first sub destination (ansi)
                 // this will be followed by a \ud sub destination
                 return;
+
             case "ud":
+            case "ltrch":
+            case "rtlch":
                 return;
 
             default:

@@ -832,6 +832,8 @@ var Parser = /** @class */ (function () {
                 // this will be followed by a \ud sub destination
                 return;
             case "ud":
+            case "ltrch":
+            case "rtlch":
                 return;
             default:
                 if (!this.parser.state.skipdestination) {
@@ -8924,6 +8926,7 @@ var FldinstDestination = /** @class */ (function (_super) {
     };
     FldinstDestination.prototype.parseType = function () {
         var _this = this;
+        this.text = this.text.trim();
         var sep = this.text.indexOf(" ");
         if (sep > 0) {
             var data_1 = this.text.substr(sep + 1);

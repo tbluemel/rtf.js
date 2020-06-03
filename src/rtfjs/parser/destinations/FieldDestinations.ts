@@ -170,6 +170,7 @@ export class FldinstDestination extends DestinationTextBase {
     }
 
     private parseType() {
+        this.text = this.text.trim();
         const sep = this.text.indexOf(" ");
         if (sep > 0) {
             let data = this.text.substr(sep + 1);
