@@ -10,16 +10,19 @@ module.exports = {
     },
     devtool: 'source-map',
     resolve: {
-        extensions: [ '.ts', '.js' ],
+        extensions: ['.ts', '.js'],
         alias: {
-            EMFJS:  path.resolve(__dirname, '../src/emfjs/index.ts'),
-            WMFJS:  path.resolve(__dirname, '../src/wmfjs/index.ts'),
+            EMFJS: path.resolve(__dirname, '../src/emfjs/index.ts'),
+            WMFJS: path.resolve(__dirname, '../src/wmfjs/index.ts'),
         }
     },
     output: {
         path: path.resolve(__dirname, '../dist'),
         filename: '[name].bundle.js',
         library: '[name]',
+        // This is a workaround for https://github.com/webpack/webpack/issues/1194 because we
+        // use '[name]' for library and this breaks sourcemaps in firefox
+        devtoolNamespace: 'rtfjs',
         libraryTarget: 'umd',
         globalObject: 'this'
     },
