@@ -3,14 +3,14 @@
 coverage/
 samples/
 test/
-vendor/
 webpack/
 .editorconfig
+.eslintignore
+.eslintrc.js
 .gitignore
 .nojekyll
 .travis.yml
 travis-verify-build.sh
 .gitattributes
-tslint.json
 tsconfig.json
 typewiz.json

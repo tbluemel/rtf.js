@@ -141,20 +141,20 @@ export class RtfDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public addIns(func: (renderer: Renderer) => void) {
+    public addIns(func: (renderer: Renderer) => void): void {
         this.inst.addIns(func);
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     }
 
-    public sub() {
+    public sub(): void {
         Helper.log("[rtf].sub()");
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): boolean {
         const handler = this._charFormatHandlers[keyword];
         if (handler != null) {
             handler(param);
@@ -163,7 +163,7 @@ export class RtfDestination extends DestinationBase {
         return false;
     }
 
-    public apply() {
+    public apply(): void {
         Helper.log("[rtf] apply()");
         for (const prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
@@ -171,7 +171,7 @@ export class RtfDestination extends DestinationBase {
         delete this._metadata;
     }
 
-    public setMetadata(prop: string, val: any) {
+    public setMetadata(prop: string, val: any): void {
         this._metadata[prop] = val;
     }
 
@@ -184,18 +184,20 @@ export class RtfDestination extends DestinationBase {
     private _addFormatIns(ptype: string, props: Chp | Pap) {
         Helper.log("[rtf] update " + ptype);
         switch (ptype) {
-            case "chp":
+            case "chp": {
                 const rchp = new RenderChp(new Chp(props as Chp));
                 this.inst.addIns((renderer) => {
                     renderer.setChp(rchp);
                 });
                 break;
-            case "pap":
+            }
+            case "pap": {
                 const rpap = new RenderPap(new Pap(props as Pap));
                 this.inst.addIns((renderer) => {
                     renderer.setPap(rpap);
                 });
                 break;
+            }
         }
     }
 

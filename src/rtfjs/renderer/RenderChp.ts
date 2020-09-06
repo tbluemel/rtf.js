@@ -35,7 +35,7 @@ export class RenderChp {
         this._chp = chp;
     }
 
-    public apply(doc: Document, el: HTMLElement) {
+    public apply(doc: Document, el: HTMLElement): void {
         Helper.log("[rtf] RenderChp: " + el.textContent);
         Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
         if (this._chp.bold) {
@@ -44,7 +44,7 @@ export class RenderChp {
         if (this._chp.italic) {
             el.style.fontStyle = "italic";
         }
-        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
+        if (Object.prototype.hasOwnProperty.call(this._chp, "fontfamily") && doc._fonts[this._chp.fontfamily]) {
             const fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
             if (fontFamily !== "Symbol") {
                 el.style.fontFamily = fontFamily;

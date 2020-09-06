@@ -55,7 +55,7 @@ export class Renderer {
         this._curcont = [];
     }
 
-    public pushContainer(contel: IContainerElement) {
+    public pushContainer(contel: IContainerElement): void {
         if (this._curpar == null) {
             this.startPar();
         }
@@ -73,7 +73,7 @@ export class Renderer {
         }
     }
 
-    public popContainer() {
+    public popContainer(): void {
         const contel = this._curcont.pop();
         if (contel == null) {
             throw new RTFJSError("No container on rendering stack");
@@ -86,7 +86,7 @@ export class Renderer {
         return link;
     }
 
-    public _appendToPar(el: HTMLElement, newsubpar?: boolean) {
+    public _appendToPar(el: HTMLElement, newsubpar?: boolean): void {
         if (this._curpar == null) {
             this.startPar();
         }
@@ -118,7 +118,7 @@ export class Renderer {
         }
     }
 
-    public startPar() {
+    public startPar(): void {
         this._curpar = document.createElement("div");
         if (this._curRPap != null) {
             this._curRPap.apply(this._doc, this._curpar, this._curRChp, true);
@@ -129,15 +129,15 @@ export class Renderer {
         this._dom.push(this._curpar);
     }
 
-    public lineBreak() {
+    public lineBreak(): void {
         this._appendToPar(null, true);
     }
 
-    public setChp(rchp: RenderChp) {
+    public setChp(rchp: RenderChp): void {
         this._curRChp = rchp;
     }
 
-    public setPap(rpap: RenderPap) {
+    public setPap(rpap: RenderPap): void {
         this._curRPap = rpap;
         if (this._cursubpar != null) {
             this._curRPap.apply(this._doc, this._cursubpar, null, false);
@@ -148,7 +148,7 @@ export class Renderer {
         }
     }
 
-    public appendElement(element: HTMLElement) {
+    public appendElement(element: HTMLElement): void {
         this._appendToPar(element);
     }
 
@@ -160,7 +160,7 @@ export class Renderer {
         return element;
     }
 
-    public renderedPicture(element: HTMLElement) {
+    public renderedPicture(element: HTMLElement): void {
         this._appendToPar(this.buildRenderedPicture(element));
     }
 
@@ -180,7 +180,7 @@ export class Renderer {
         }
     }
 
-    public picture(mime: string, data: string) {
+    public picture(mime: string, data: string): void {
         this._appendToPar(this.buildPicture(mime, data));
     }
 

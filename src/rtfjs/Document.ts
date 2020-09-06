@@ -32,11 +32,11 @@ import { Renderer } from "./renderer/Renderer";
 
 export class Document {
     public _settings: ISettings;
-    public _meta: {[key: string]: any};
+    public _meta: { [key: string]: any };
     public _fonts: FonttblDestinationSub[];
     public _colors: IColor[];
     public _autoColor: number;
-    public _stylesheets: {index: number, name: string}[];
+    public _stylesheets: { index: number, name: string }[];
     public _ins: (string | ((renderer: Renderer) => void))[];
 
     constructor(settings: ISettings) {
@@ -49,7 +49,7 @@ export class Document {
         this._ins = [];
     }
 
-    public _lookupColor(idx: number) {
+    public _lookupColor(idx: number): null | IColor {
         if (idx === 0) {
             if (this._autoColor == null) {
                 return null;
@@ -62,7 +62,7 @@ export class Document {
         return this._colors[idx];
     }
 
-    public addIns(ins: string | ((renderer: Renderer) => void)) {
+    public addIns(ins: string | ((renderer: Renderer) => void)): void {
         this._ins.push(ins);
     }
 

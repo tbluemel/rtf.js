@@ -128,7 +128,7 @@ export class Parser {
             } else if (value instanceof HexText) {
                 // Looking for current fonttbl charset
                 let codepage = this.parser.codepage;
-                if (value.chp.hasOwnProperty("fontfamily")) {
+                if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
                     const idx = value.chp.fontfamily;
                     // Code page 42 isn't a real code page and shouldn't appear here
                     if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
@@ -386,7 +386,7 @@ export class Parser {
         let ch = this.readChar();
         if (!Helper._isalpha(ch)) {
             // 8 bit character encoded as hexadecimal
-            if (ch === "\'") {
+            if (ch === "'") {
                 const hex = this.readChar() + this.readChar();
 
                 param = Helper._parseHex(hex);

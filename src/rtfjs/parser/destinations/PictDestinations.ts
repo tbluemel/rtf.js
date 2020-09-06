@@ -61,6 +61,7 @@ export class PictDestination extends DestinationTextBase {
     private _blob: ArrayBuffer;
     private parser: GlobalState;
     private inst: Document;
+
     [key: string]: any;
 
     private _pictHandlers: { [key: string]: (param: number) => void } = {
@@ -70,8 +71,10 @@ export class PictDestination extends DestinationTextBase {
         pichgoal: this._setPropValueRequired("_displaysize", "height"),
     };
 
-    private _pictTypeHandler: { [key: string]
-            : string | ((param?: number) => { load: () => any, render: (img: any) => Element }) } = {
+    private _pictTypeHandler: {
+        [key: string]
+            : string | ((param?: number) => { load: () => any, render: (img: any) => Element })
+    } = {
         emfblip: (() => {
             if (typeof EMFJS !== "undefined") {
                 return () => {
@@ -161,7 +164,7 @@ export class PictDestination extends DestinationTextBase {
         this.inst = inst;
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): boolean {
         const handler = this._pictHandlers[keyword];
         if (handler != null) {
             handler(param);
@@ -194,11 +197,11 @@ export class PictDestination extends DestinationTextBase {
         return false;
     }
 
-    public handleBlob(blob: ArrayBuffer) {
+    public handleBlob(blob: ArrayBuffer): void {
         this._blob = blob;
     }
 
-    public apply(rendering = false) {
+    public apply(rendering = false): { isLegacy: boolean, element: HTMLElement } {
         if (this._type == null) {
             throw new RTFJSError("Picture type unknown or not specified");
         }
@@ -248,13 +251,13 @@ export class PictDestination extends DestinationTextBase {
 
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
-                        const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true);
-                        });
-                        if (elem != null) {
-                            renderer.appendElement(elem);
-                        }
+                    const elem = this.inst._settings.onPicture(isLegacy, () => {
+                        return doRender(renderer, true);
                     });
+                    if (elem != null) {
+                        renderer.appendElement(elem);
+                    }
+                });
             } else {
                 return {
                     isLegacy,
@@ -288,13 +291,13 @@ export class PictDestination extends DestinationTextBase {
 
             if (this.inst._settings.onPicture != null) {
                 this.inst.addIns((renderer) => {
-                        const elem = this.inst._settings.onPicture(isLegacy, () => {
-                            return doRender(renderer, true);
-                        });
-                        if (elem != null) {
-                            renderer.appendElement(elem);
-                        }
+                    const elem = this.inst._settings.onPicture(isLegacy, () => {
+                        return doRender(renderer, true);
                     });
+                    if (elem != null) {
+                        renderer.appendElement(elem);
+                    }
+                });
             } else {
                 return {
                     isLegacy,

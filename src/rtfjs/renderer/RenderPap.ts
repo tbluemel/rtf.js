@@ -36,7 +36,7 @@ export class RenderPap {
         this._pap = pap;
     }
 
-    public apply(doc: Document, el: HTMLElement, rchp: RenderChp, ismaindiv: boolean) {
+    public apply(doc: Document, el: HTMLElement, rchp: RenderChp, ismaindiv: boolean): void {
         Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
             + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
         if (ismaindiv) {

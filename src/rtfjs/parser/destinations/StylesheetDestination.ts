@@ -44,7 +44,7 @@ export class StylesheetDestinationSub extends DestinationBase {
         this.handler = this._handleKeywordCommon("paragraph");
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): boolean {
         switch (keyword) {
             case "s":
                 this.index = param;
@@ -69,7 +69,7 @@ export class StylesheetDestinationSub extends DestinationBase {
         return this.handler(keyword, param);
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         if (this.name == null) {
             this.name = text;
         } else {
@@ -77,7 +77,7 @@ export class StylesheetDestinationSub extends DestinationBase {
         }
     }
 
-    public apply() {
+    public apply(): void {
         this._stylesheet.addSub({
             index: this.index,
             name: this.name,
@@ -103,11 +103,11 @@ export class StylesheetDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public sub() {
+    public sub(): StylesheetDestinationSub {
         return new StylesheetDestinationSub(this);
     }
 
-    public apply() {
+    public apply(): void {
         Helper.log("[stylesheet] apply()");
         for (const idx in this._stylesheets) {
             Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
@@ -116,7 +116,7 @@ export class StylesheetDestination extends DestinationBase {
         delete this._stylesheets;
     }
 
-    public addSub(sub: { index: number, name: string }) {
+    public addSub(sub: { index: number, name: string }): void {
         // Some documents will redefine stylesheets
         // if (this._stylesheets[sub.index] != null)
         //     throw new RTFJSError("Cannot redefine stylesheet with index " + sub.index);

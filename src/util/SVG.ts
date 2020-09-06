@@ -205,7 +205,7 @@ export class SVG {
         return ellipseElement;
     }
 
-    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any) {
+    public path(parent: SVGElement, builder: SVGPathBuilder, settings?: any): SVGPathElement {
         const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
         pathElement.setAttribute("d", builder.path());
         this._appendSettings(settings, pathElement);

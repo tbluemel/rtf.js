@@ -42,11 +42,11 @@ export class PointS {
         }
     }
 
-    public clone() {
+    public clone(): PointS {
         return new PointS(null, this.x, this.y);
     }
 
-    public toString() {
+    public toString(): string {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
@@ -65,11 +65,11 @@ export class PointL {
         }
     }
 
-    public clone() {
+    public clone(): PointL {
         return new PointL(null, this.x, this.y);
     }
 
-    public toString() {
+    public toString(): string {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
@@ -94,20 +94,20 @@ export class RectL {
         }
     }
 
-    public clone() {
+    public clone(): RectL {
         return new RectL(null, this.left, this.top, this.right, this.bottom);
     }
 
-    public toString() {
+    public toString(): string {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
 
-    public empty() {
+    public empty(): boolean {
         return this.left >= this.right || this.top >= this.bottom;
     }
 
-    public intersect(rectL: RectL) {
+    public intersect(rectL: RectL): null | RectL {
         if (this.empty() || rectL.empty()) {
             return null;
         }
@@ -134,11 +134,11 @@ export class SizeL {
         }
     }
 
-    public clone() {
+    public clone(): SizeL {
         return new SizeL(null, this.cx, this.cy);
     }
 
-    public toString() {
+    public toString(): string {
         return "{cx: " + this.cx + ", cy: " + this.cy + "}";
     }
 }
@@ -154,7 +154,7 @@ export class Obj {
         throw new EMFJSError("clone not implemented");
     }
 
-    public toString() {
+    public toString(): string {
         throw new EMFJSError("toString not implemented");
     }
 }

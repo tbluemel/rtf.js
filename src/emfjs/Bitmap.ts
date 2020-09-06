@@ -29,14 +29,15 @@ import { Blob } from "./Blob";
 import { EMFJSError, Helper } from "./Helper";
 
 export class BitmapBase {
-    public getWidth() {
+    public getWidth(): number {
         throw new EMFJSError("getWidth not implemented");
     }
 
-    public getHeight() {
+    public getHeight(): number {
         throw new EMFJSError("getHeight not implemented");
     }
 }
+
 export class BitmapCoreHeader {
     public width: number;
     public height: number;
@@ -53,7 +54,7 @@ export class BitmapCoreHeader {
         this.bitcount = reader.readUint16();
     }
 
-    public colors() {
+    public colors(): number {
         return this.bitcount <= 8 ? 1 << this.bitcount : 0;
     }
 }
@@ -86,7 +87,7 @@ export class BitmapInfoHeader {
         this.clrimportant = reader.readUint32();
     }
 
-    public colors() {
+    public colors(): number {
         if (this.clrused !== 0) {
             return this.clrused < 256 ? this.clrused : 256;
         } else {
@@ -111,7 +112,7 @@ export class BitmapInfo extends BitmapBase {
         } else {
             this._header = new BitmapInfoHeader(reader, false);
             const masks = (this._header as BitmapInfoHeader).compression
-                === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            === Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
                 this._infosize = Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
@@ -119,19 +120,19 @@ export class BitmapInfo extends BitmapBase {
         }
     }
 
-    public getWidth() {
+    public getWidth(): number {
         return this._header.width;
     }
 
-    public getHeight() {
+    public getHeight(): number {
         return Math.abs(this._header.height);
     }
 
-    public infosize() {
+    public infosize(): number {
         return this._infosize;
     }
 
-    public header() {
+    public header(): BitmapCoreHeader | BitmapInfoHeader {
         return this._header;
     }
 }
@@ -150,11 +151,11 @@ export class DIBitmap extends BitmapBase {
         this._info = new BitmapInfo(reader, true);
     }
 
-    public getWidth() {
+    public getWidth(): number {
         return this._info.getWidth();
     }
 
-    public getHeight() {
+    public getHeight(): number {
         return this._info.getHeight();
     }
 
@@ -162,7 +163,7 @@ export class DIBitmap extends BitmapBase {
         return this._location.header.size + this._location.data.size;
     }
 
-    public makeBitmapFileHeader() {
+    public makeBitmapFileHeader(): string {
         const buf = new ArrayBuffer(14);
         const view = new Uint8Array(buf);
         view[0] = 0x42;
@@ -172,7 +173,7 @@ export class DIBitmap extends BitmapBase {
         return Helper._blobToBinary(view);
     }
 
-    public base64ref() {
+    public base64ref(): string {
         const prevpos = this._reader.pos;
         this._reader.seek(this._offset);
         let mime = "image/bmp";

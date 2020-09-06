@@ -73,18 +73,18 @@ export class Region extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Region {
         return new Region(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         const _complexity = ["null", "simple", "complex"];
         return "{complexity: " + _complexity[this.complexity]
             + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
             + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     }
 
-    public _updateComplexity() {
+    public _updateComplexity(): void {
         if (this.bounds == null) {
             this.complexity = 0;
             this.scans = null;
@@ -109,7 +109,7 @@ export class Region extends Obj {
         }
     }
 
-    public subtract(rect: Rect) {
+    public subtract(rect: Rect): void {
         Helper.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
 
         if (this.bounds != null) {
@@ -120,7 +120,7 @@ export class Region extends Obj {
                     // We need to create scanlines now.  Simplest method is to fake one scan line
                     // that equals the simple region and re-use the same logic as for complex regions
                     this.scans = [];
-                    this.scans.push( new Scan(null, null, this.bounds.top, this.bounds.bottom,
+                    this.scans.push(new Scan(null, null, this.bounds.top, this.bounds.bottom,
                         [{left: this.bounds.left, right: this.bounds.right}]));
                     this.complexity = 2;
                 }
@@ -236,7 +236,7 @@ export class Region extends Obj {
         Helper.log("[wmf] Region subtraction -> " + this.toString());
     }
 
-    public intersect(rect: Rect) {
+    public intersect(rect: Rect): void {
         Helper.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
         if (this.bounds != null) {
             this.bounds = this.bounds.intersect(rect);
@@ -296,7 +296,7 @@ export class Region extends Obj {
         Helper.log("[wmf] Region intersection -> " + this.toString());
     }
 
-    public offset(offX: number, offY: number) {
+    public offset(offX: number, offY: number): void {
         if (this.bounds != null) {
             this.bounds.left += offX;
             this.bounds.top += offY;
@@ -322,7 +322,7 @@ export class Region extends Obj {
     }
 }
 
-export function CreateSimpleRegion(left: number, top: number, right: number, bottom: number) {
+export function CreateSimpleRegion(left: number, top: number, right: number, bottom: number): Region {
     const rgn = new Region(null, null);
     rgn.bounds = new Rect(null, left, top, right, bottom);
     rgn._updateComplexity();
@@ -332,10 +332,10 @@ export function CreateSimpleRegion(left: number, top: number, right: number, bot
 export class Scan {
     public top: number;
     public bottom: number;
-    public scanlines: {left: number, right: number}[];
+    public scanlines: { left: number, right: number }[];
 
     constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number,
-                scanlines?: {left: number, right: number}[]) {
+                scanlines?: { left: number, right: number }[]) {
         if (reader != null) {
             const cnt = reader.readUint16();
             this.top = reader.readUint16();
@@ -362,11 +362,11 @@ export class Scan {
         }
     }
 
-    public clone() {
+    public clone(): Scan {
         return new Scan(null, this);
     }
 
-    public subtract(left: number, right: number) {
+    public subtract(left: number, right: number): boolean {
         let i;
 
         // Keep everything on the left side
@@ -411,7 +411,7 @@ export class Scan {
         return this.scanlines.length > 0;
     }
 
-    public intersect(left: number, right: number) {
+    public intersect(left: number, right: number): boolean {
         // Get rid of anything that falls entirely outside to the left
         for (let i = 0; i < this.scanlines.length; i++) {
             const scanline = this.scanlines[i];
@@ -450,7 +450,7 @@ export class Scan {
         return this.scanlines.length > 0;
     }
 
-    public toString() {
+    public toString(): string {
         return "{ #scanlines: " + this.scanlines.length + "}";
     }
 }

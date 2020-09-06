@@ -53,7 +53,7 @@ export class Region extends Obj {
             let scanLine;
             for (let i = 0; i < rectCnt; i++) {
                 const r = new RectL(reader);
-                if (scanLine == null || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
+                if (!!scanLine || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
                     scanLine = new Scan(r);
                     this.scans.push(scanLine);
                 } else {
@@ -79,18 +79,18 @@ export class Region extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Region {
         return new Region(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         const _complexity = ["null", "simple", "complex"];
         return "{complexity: " + _complexity[this.complexity]
             + " bounds: " + (this.bounds != null ? this.bounds.toString() : "[none]")
             + " #scans: " + (this.scans != null ? this.scans.length : "[none]") + "}";
     }
 
-    public _updateComplexity() {
+    public _updateComplexity(): void {
         if (this.bounds == null) {
             this.complexity = 0;
             this.scans = null;
@@ -115,7 +115,7 @@ export class Region extends Obj {
         }
     }
 
-    public subtract(rect: RectL) {
+    public subtract(rect: RectL): void {
         Helper.log("[emf] Region " + this.toString() + " subtract " + rect.toString());
 
         if (this.bounds != null) {
@@ -242,7 +242,7 @@ export class Region extends Obj {
         Helper.log("[emf] Region subtraction -> " + this.toString());
     }
 
-    public intersect(rect: RectL) {
+    public intersect(rect: RectL): void {
         Helper.log("[emf] Region " + this.toString() + " intersect with " + rect.toString());
         if (this.bounds != null) {
             this.bounds = this.bounds.intersect(rect);
@@ -302,7 +302,7 @@ export class Region extends Obj {
         Helper.log("[emf] Region intersection -> " + this.toString());
     }
 
-    public offset(offX: number, offY: number) {
+    public offset(offX: number, offY: number): void {
         if (this.bounds != null) {
             this.bounds.left += offX;
             this.bounds.top += offY;
@@ -328,7 +328,7 @@ export class Region extends Obj {
     }
 }
 
-export function CreateSimpleRegion(left: number, top: number, right: number, bottom: number) {
+export function CreateSimpleRegion(left: number, top: number, right: number, bottom: number): Region {
     const rgn = new Region(null, null);
     rgn.bounds = new RectL(null, left, top, right, bottom);
     rgn._updateComplexity();
@@ -338,7 +338,7 @@ export function CreateSimpleRegion(left: number, top: number, right: number, bot
 export class Scan {
     public top: number;
     public bottom: number;
-    public scanlines: {left: number, right: number}[];
+    public scanlines: { left: number, right: number }[];
 
     constructor(r: RectL, copy?: Scan) {
         if (r != null) {
@@ -356,15 +356,15 @@ export class Scan {
         }
     }
 
-    public clone() {
+    public clone(): Scan {
         return new Scan(null, this);
     }
 
-    public append(r: RectL) {
+    public append(r: RectL): void {
         this.scanlines.push({left: r.left, right: r.right});
     }
 
-    public subtract(left: number, right: number) {
+    public subtract(left: number, right: number): boolean {
         let i;
 
         // Keep everything on the left side
@@ -409,7 +409,7 @@ export class Scan {
         return this.scanlines.length > 0;
     }
 
-    public intersect(left: number, right: number) {
+    public intersect(left: number, right: number): boolean {
         // Get rid of anything that falls entirely outside to the left
         for (let i = 0; i < this.scanlines.length; i++) {
             const scanline = this.scanlines[i];

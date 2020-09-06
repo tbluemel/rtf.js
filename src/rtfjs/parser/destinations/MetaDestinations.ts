@@ -45,14 +45,14 @@ export class InfoDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public apply() {
+    public apply(): void {
         for (const prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
         delete this._metadata;
     }
 
-    public setMetadata(prop: string, val: any) {
+    public setMetadata(prop: string, val: any): void {
         this._metadata[prop] = val;
     }
 }

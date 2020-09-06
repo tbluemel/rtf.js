@@ -811,7 +811,6 @@ var Helper = /** @class */ (function () {
     }
     Helper.log = function (message) {
         if (isLoggingEnabled) {
-            // tslint:disable-next-line:no-console
             console.log(message);
         }
     };

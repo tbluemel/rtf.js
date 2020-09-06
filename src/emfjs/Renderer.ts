@@ -107,7 +107,7 @@ export class EMF {
         this._records = new EMFRecords(reader, this._hdrsize);
     }
 
-    public render(gdi: GDIContext) {
+    public render(gdi: GDIContext): void {
         this._records.play(gdi);
     }
 }
