@@ -1,8 +1,7 @@
 language: node_js
 node_js:
-  - "8"
+  - "12"
 install:
-  - npm i -g npm@5.8.0
   - npm ci
 script:
   - bash travis-verify-build.sh

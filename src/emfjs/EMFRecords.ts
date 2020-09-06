@@ -123,7 +123,7 @@ export class EmfHeader {
 }
 
 export class EMFRecords {
-    private _records: Array<(gdi: GDIContext) => void>;
+    private _records: ((gdi: GDIContext) => void)[];
     private _header: EmfHeader;
 
     constructor(reader: Blob, first: number) {

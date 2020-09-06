@@ -119,7 +119,7 @@ export class Parser {
         }
     }
 
-    private summarizeText(text: Array<PlainText | HexText>) {
+    private summarizeText(text: (PlainText | HexText)[]) {
         let result = "";
         for (let i = 0; i < text.length; i++) {
             const value = text[i];

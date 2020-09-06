@@ -338,7 +338,7 @@ export function CreateSimpleRegion(left: number, top: number, right: number, bot
 export class Scan {
     public top: number;
     public bottom: number;
-    public scanlines: Array<{left: number, right: number}>;
+    public scanlines: {left: number, right: number}[];
 
     constructor(r: RectL, copy?: Scan) {
         if (r != null) {

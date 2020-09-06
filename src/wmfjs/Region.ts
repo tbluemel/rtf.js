@@ -332,10 +332,10 @@ export function CreateSimpleRegion(left: number, top: number, right: number, bot
 export class Scan {
     public top: number;
     public bottom: number;
-    public scanlines: Array<{left: number, right: number}>;
+    public scanlines: {left: number, right: number}[];
 
     constructor(reader: Blob, copy?: Scan, top?: number, bottom?: number,
-                scanlines?: Array<{left: number, right: number}>) {
+                scanlines?: {left: number, right: number}[]) {
         if (reader != null) {
             const cnt = reader.readUint16();
             this.top = reader.readUint16();

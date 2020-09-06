@@ -36,8 +36,8 @@ export class Document {
     public _fonts: FonttblDestinationSub[];
     public _colors: IColor[];
     public _autoColor: number;
-    public _stylesheets: Array<{index: number, name: string}>;
-    public _ins: Array<string | ((renderer: Renderer) => void)>;
+    public _stylesheets: {index: number, name: string}[];
+    public _ins: (string | ((renderer: Renderer) => void))[];
 
     constructor(settings: ISettings) {
         this._settings = settings || {};

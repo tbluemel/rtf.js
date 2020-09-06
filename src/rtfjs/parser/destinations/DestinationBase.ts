@@ -87,7 +87,7 @@ export class DestinationTextBase implements IDestination {
 export abstract class DestinationFormattedTextBase implements IDestination {
     public _name: string;
     protected parser: GlobalState;
-    private _records: Array<(rtf: RtfDestination) => void>;
+    private _records: ((rtf: RtfDestination) => void)[];
 
     constructor(parser: GlobalState, name: string) {
         this.parser = parser;

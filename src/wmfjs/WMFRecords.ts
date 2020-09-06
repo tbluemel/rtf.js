@@ -33,7 +33,7 @@ import { Region } from "./Region";
 import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
 
 export class WMFRecords {
-    private _records: Array<(gdi: GDIContext) => void>;
+    private _records: ((gdi: GDIContext) => void)[];
 
     constructor(reader: Blob, first: number) {
         this._records = [];

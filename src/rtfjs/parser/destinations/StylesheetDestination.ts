@@ -94,7 +94,7 @@ export class StylesheetDestinationSub extends DestinationBase {
 }
 
 export class StylesheetDestination extends DestinationBase {
-    private _stylesheets: Array<{ index: number, name: string }>;
+    private _stylesheets: { index: number, name: string }[];
     private inst: Document;
 
     constructor(parser: GlobalState, inst: Document) {

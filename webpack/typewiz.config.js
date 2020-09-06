@@ -1,5 +1,5 @@
 const path = require('path');
-const merge = require('webpack-merge');
+const {merge} = require('webpack-merge');
 const baseConfig = require('./base.config.js');
 
 module.exports = merge(baseConfig, {
@@ -7,7 +7,7 @@ module.exports = merge(baseConfig, {
         rules: [
             {
                 test: /\.ts?$/,
-                use: [ {
+                use: [{
                     loader: 'ts-loader',
                     options: {
                         transpileOnly: true
