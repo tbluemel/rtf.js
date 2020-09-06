@@ -52,7 +52,7 @@ export class ColortblDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         const len = text.length;
         for (let i = 0; i < len; i++) {
             if (text[i] !== ";") {
@@ -74,7 +74,7 @@ export class ColortblDestination extends DestinationBase {
         }
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): boolean {
         if (this._current == null) {
             this._startNewColor();
         }
@@ -107,7 +107,7 @@ export class ColortblDestination extends DestinationBase {
         return false;
     }
 
-    public apply() {
+    public apply(): void {
         Helper.log("[colortbl] apply()");
         if (this._autoIndex == null) {
             this._autoIndex = 0;
@@ -137,7 +137,7 @@ export class ColortblDestination extends DestinationBase {
         return this._current;
     }
 
-    private _validateColorValueRange(keyword: string, param: number) {
+    private _validateColorValueRange(keyword: string, param: number): number {
         if (param == null) {
             throw new RTFJSError(keyword + " has no param");
         }

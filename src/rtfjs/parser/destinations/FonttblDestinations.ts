@@ -51,7 +51,7 @@ export class FonttblDestinationSub extends DestinationBase {
         this.charset = null;
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): boolean {
         switch (keyword) {
             case "f":
                 this.index = param;
@@ -110,7 +110,7 @@ export class FonttblDestinationSub extends DestinationBase {
         return false;
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         if (this.fontname == null) {
             this.fontname = text;
         } else {
@@ -118,7 +118,7 @@ export class FonttblDestinationSub extends DestinationBase {
         }
     }
 
-    public apply() {
+    public apply(): void {
         if (this.index == null) {
             throw new RTFJSError("No font index provided");
         }
@@ -129,7 +129,7 @@ export class FonttblDestinationSub extends DestinationBase {
         delete this._fonttbl;
     }
 
-    public setAltFontName(name: string) {
+    public setAltFontName(name: string): void {
         this.altfontname = name;
     }
 }
@@ -146,11 +146,11 @@ export class FonttblDestination extends DestinationBase {
         this.inst = inst;
     }
 
-    public sub() {
+    public sub(): FonttblDestinationSub {
         return new FonttblDestinationSub(this);
     }
 
-    public apply() {
+    public apply(): void {
         Helper.log("[fonttbl] apply()");
         for (const idx in this._fonts) {
             Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
@@ -160,19 +160,19 @@ export class FonttblDestination extends DestinationBase {
         delete this._fonts;
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         this._sub.appendText(text);
         this._sub.apply();
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): void {
         if (keyword === "f") {
             this._sub = this.sub();
         }
         this._sub.handleKeyword(keyword, param);
     }
 
-    public addSub(sub: FonttblDestinationSub) {
+    public addSub(sub: FonttblDestinationSub): void {
         this._fonts[sub.index] = sub;
     }
 }

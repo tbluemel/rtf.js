@@ -30,7 +30,7 @@ import { Blob } from "./Blob";
 import { Helper } from "./Helper";
 import { Obj, PointL } from "./Primitives";
 
-export  class ColorRef {
+export class ColorRef {
     public r: number;
     public g: number;
     public b: number;
@@ -48,16 +48,16 @@ export  class ColorRef {
         }
     }
 
-    public clone() {
+    public clone(): ColorRef {
         return new ColorRef(null, this.r, this.g, this.b);
     }
 
-    public toHex() {
+    public toHex(): string {
         const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
     }
 
-    public toString() {
+    public toString(): string {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
     }
 }
@@ -138,11 +138,11 @@ export class Font extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Font {
         return new Font(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         return JSON.stringify(this);
     }
 }
@@ -154,8 +154,10 @@ export class Brush extends Obj {
     public dibpatternpt: DIBitmap;
     public hatchstyle: number;
 
-    constructor(reader: Blob, copy?: {style?: number, color?: ColorRef, pattern?: DIBitmap,
-        dibpatternpt?: DIBitmap, hatchstyle?: number}) {
+    constructor(reader: Blob, copy?: {
+        style?: number, color?: ColorRef, pattern?: DIBitmap,
+        dibpatternpt?: DIBitmap, hatchstyle?: number
+    }) {
         super("brush");
         if (reader != null) {
             const start = reader.pos;
@@ -198,11 +200,11 @@ export class Brush extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Brush {
         return new Brush(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
@@ -217,19 +219,17 @@ export class Brush extends Obj {
 }
 
 export class Pen extends Obj {
-    public style: number | {header: {off: number, size: number}, data: {off: number, size: number}};
+    public style: number | { header: { off: number, size: number }, data: { off: number, size: number } };
     public width: number;
     public brush: Brush;
     public color: ColorRef;
 
-    constructor(reader: Blob, style?: number | {header: {off: number, size: number}, data: {off: number, size: number}},
+    constructor(reader: Blob, style?: number | { header: { off: number, size: number }, data: { off: number, size: number } },
                 width?: number, color?: ColorRef, brush?: Brush) {
         super("pen");
         if (reader != null) {
             if (style != null) {
                 // LogPenEx
-                const bitmapInfo = style;
-
                 this.style = reader.readUint32() & 0xFF;
                 this.width = reader.readUint32();
                 this.brush = new Brush(reader);
@@ -253,12 +253,12 @@ export class Pen extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Pen {
         return new Pen(null, this.style, this.width, this.color != null ? this.color.clone() : null,
             this.brush != null ? this.brush.clone() : null);
     }
 
-    public toString() {
+    public toString(): string {
         return "{style: " + this.style + ", width: " + this.width
             + ", color: " + (this.color != null ? this.color.toString() : "none") + "}";
     }

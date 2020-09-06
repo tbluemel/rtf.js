@@ -47,16 +47,16 @@ export class ColorRef {
         }
     }
 
-    public clone() {
+    public clone(): ColorRef {
         return new ColorRef(null, this.r, this.g, this.b);
     }
 
-    public toHex() {
+    public toHex(): string {
         const rgb = (this.r << 16) | (this.g << 8) | this.b;
         return (0x1000000 + rgb).toString(16).slice(1);
     }
 
-    public toString() {
+    public toString(): string {
         return "{r: " + this.r + ", g: " + this.g + ", b: " + this.b + "}";
     }
 }
@@ -137,11 +137,11 @@ export class Font extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Font {
         return new Font(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         return JSON.stringify(this);
     }
 }
@@ -211,11 +211,11 @@ export class Brush extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Brush {
         return new Brush(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         let ret = "{style: " + this.style;
         switch (this.style) {
             case Helper.GDI.BrushStyle.BS_SOLID:
@@ -257,11 +257,11 @@ export class Pen extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Pen {
         return new Pen(null, this.style, this.width.clone(), this.color.clone(), this.linecap, this.join);
     }
 
-    public toString() {
+    public toString(): string {
         return "{style: " + this.style + ", width: " + this.width.toString() + ", color: " + this.color.toString()
             + ", linecap: " + this.linecap + ", join: " + this.join + "}";
     }
@@ -287,7 +287,7 @@ export class PaletteEntry {
         }
     }
 
-    public clone() {
+    public clone(): PaletteEntry {
         return new PaletteEntry(null, this);
     }
 }
@@ -316,11 +316,11 @@ export class Palette extends Obj {
         }
     }
 
-    public clone() {
+    public clone(): Palette {
         return new Palette(null, this);
     }
 
-    public toString() {
+    public toString(): string {
         return "{ #entries: " + this.entries.length + "}"; // TODO
     }
 }

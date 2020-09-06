@@ -27,10 +27,10 @@ SOFTWARE.
 import { Document } from "./Document";
 import { RTFJSError } from "./Helper";
 import { Parser } from "./parser/Parser";
-import {IContainerElement, Renderer} from "./renderer/Renderer";
+import { IContainerElement, Renderer } from "./renderer/Renderer";
 
 export interface ISettings {
-    onHyperlink?(create: () => HTMLElement, hyperlink: {url: () => string}): IContainerElement;
+    onHyperlink?(create: () => HTMLElement, hyperlink: { url: () => string }): IContainerElement;
 
     /**
      * Callback which is called with information about the type of picture and a function to render it.
@@ -40,10 +40,12 @@ export interface ISettings {
      * @param create A function which returns the result of rendering the picture.
      * @return The {HTMLElement} you want to display
      */
-    onPicture?(isLegacy: null|boolean, create: () => HTMLElement): HTMLElement;
+    onPicture?(isLegacy: null | boolean, create: () => HTMLElement): HTMLElement;
 
-    onImport?(relUrls: string, callback: (data: {error?: Error, keyword?: string, blob?: ArrayBuffer,
-        width?: number, height?: number}) => void): void;
+    onImport?(relUrls: string, callback: (data: {
+        error?: Error, keyword?: string, blob?: ArrayBuffer,
+        width?: number, height?: number
+    }) => void): void;
 }
 
 export class DocumentFacade {
@@ -58,7 +60,7 @@ export class DocumentFacade {
         this._parsed = parser.parse();
     }
 
-    public metadata() {
+    public metadata(): { [key: string]: any } {
         return this._document._meta;
     }
 

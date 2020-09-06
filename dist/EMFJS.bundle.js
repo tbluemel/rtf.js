@@ -717,7 +717,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -746,7 +746,6 @@ var Helper = /** @class */ (function () {
     }
     Helper.log = function (message) {
         if (isLoggingEnabled) {
-            // tslint:disable-next-line:no-console
             console.log(message);
         }
     };
@@ -1829,7 +1828,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -1860,7 +1859,7 @@ var Region = /** @class */ (function (_super) {
             var scanLine = void 0;
             for (var i = 0; i < rectCnt; i++) {
                 var r = new _Primitives__WEBPACK_IMPORTED_MODULE_1__["RectL"](reader);
-                if (scanLine == null || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
+                if (!!scanLine || scanLine.top !== r.top || scanLine.bottom !== r.bottom) {
                     scanLine = new Scan(r);
                     _this.scans.push(scanLine);
                 }
@@ -2281,7 +2280,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -2460,7 +2459,6 @@ var Pen = /** @class */ (function (_super) {
         if (reader != null) {
             if (style != null) {
                 // LogPenEx
-                var bitmapInfo = style;
                 _this.style = reader.readUint32() & 0xFF;
                 _this.width = reader.readUint32();
                 _this.brush = new Brush(reader);
@@ -2540,7 +2538,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -2754,7 +2752,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -3453,9 +3451,8 @@ var GDIContext = /** @class */ (function () {
                 opts.stroke = "#" + pen.color.toHex(); // TODO: pen style
                 opts["stroke-width"] = pen.width;
                 opts["stroke-miterlimit"] = this.state.miterlimit;
-                var dotWidth = void 0;
                 opts["stroke-linecap"] = "round";
-                dotWidth = 1;
+                var dotWidth = 1;
                 opts["stroke-linejoin"] = "round";
                 var dashWidth = opts["stroke-width"] * 4;
                 var dotSpacing = opts["stroke-width"] * 2;

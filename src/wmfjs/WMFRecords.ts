@@ -33,7 +33,7 @@ import { Region } from "./Region";
 import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
 
 export class WMFRecords {
-    private _records: Array<(gdi: GDIContext) => void>;
+    private _records: ((gdi: GDIContext) => void)[];
 
     constructor(reader: Blob, first: number) {
         this._records = [];
@@ -502,7 +502,7 @@ export class WMFRecords {
         }
     }
 
-    public play(gdi: GDIContext) {
+    public play(gdi: GDIContext): void {
         const len = this._records.length;
         for (let i = 0; i < len; i++) {
             this._records[i](gdi);

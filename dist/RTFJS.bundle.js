@@ -315,7 +315,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -344,7 +344,6 @@ var Helper = /** @class */ (function () {
     }
     Helper.log = function (message) {
         if (isLoggingEnabled) {
-            // tslint:disable-next-line:no-console
             console.log(message);
         }
     };
@@ -682,7 +681,7 @@ var Parser = /** @class */ (function () {
             else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
                 // Looking for current fonttbl charset
                 var codepage = this.parser.codepage;
-                if (value.chp.hasOwnProperty("fontfamily")) {
+                if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
                     var idx = value.chp.fontfamily;
                     // Code page 42 isn't a real code page and shouldn't appear here
                     if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
@@ -921,7 +920,7 @@ var Parser = /** @class */ (function () {
         var ch = this.readChar();
         if (!_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
             // 8 bit character encoded as hexadecimal
-            if (ch === "\'") {
+            if (ch === "'") {
                 var hex = this.readChar() + this.readChar();
                 param = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex);
                 if (isNaN(param)) {
@@ -7965,7 +7964,7 @@ var RenderChp = /** @class */ (function () {
         if (this._chp.italic) {
             el.style.fontStyle = "italic";
         }
-        if (this._chp.hasOwnProperty("fontfamily") && doc._fonts[this._chp.fontfamily]) {
+        if (Object.prototype.hasOwnProperty.call(this._chp, "fontfamily") && doc._fonts[this._chp.fontfamily]) {
             var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
             if (fontFamily !== "Symbol") {
                 el.style.fontFamily = fontFamily;
@@ -8331,7 +8330,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -8549,7 +8548,6 @@ SOFTWARE.
 
 
 
-// tslint:disable-next-line:variable-name
 var Destinations = {
     rtf: _RtfDestination__WEBPACK_IMPORTED_MODULE_6__["RtfDestination"],
     info: _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["InfoDestination"],
@@ -8636,7 +8634,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -8794,7 +8792,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -8878,18 +8876,18 @@ var FieldHyperlink = /** @class */ (function (_super) {
         return this._url;
     };
     FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
-        var self = this;
+        var _this = this;
         if (records > 0) {
             rtf.addIns(function (renderer) {
                 var inst = renderer._doc;
                 var create = function () {
-                    return renderer.buildHyperlinkElement(self._url);
+                    return renderer.buildHyperlinkElement(_this._url);
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
                     container = inst._settings.onHyperlink(create, {
                         url: function () {
-                            return self.url();
+                            return this.url();
                         },
                     });
                 }
@@ -8948,7 +8946,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                             // backup
                             var hook = inst._settings.onPicture;
                             inst._settings.onPicture = null;
-                            // tslint:disable-next-line:prefer-const
+                            // eslint-disable-next-line prefer-const
                             var _a = pict_1.apply(true), isLegacy = _a.isLegacy, element = _a.element;
                             // restore
                             inst._settings.onPicture = hook;
@@ -9002,6 +9000,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                         this.parser._asyncTasks.push(promise);
                         return promise;
                     }
+                    break;
                 default:
                     _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[fldinst]: unknown field type: " + fieldType);
                     break;
@@ -9090,7 +9089,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -9441,7 +9440,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -9627,7 +9626,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -9786,7 +9785,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -9939,18 +9938,20 @@ var RtfDestination = /** @class */ (function (_super) {
     RtfDestination.prototype._addFormatIns = function (ptype, props) {
         _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] update " + ptype);
         switch (ptype) {
-            case "chp":
+            case "chp": {
                 var rchp_1 = new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__["RenderChp"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](props));
                 this.inst.addIns(function (renderer) {
                     renderer.setChp(rchp_1);
                 });
                 break;
-            case "pap":
+            }
+            case "pap": {
                 var rpap_1 = new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__["RenderPap"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](props));
                 this.inst.addIns(function (renderer) {
                     renderer.setPap(rpap_1);
                 });
                 break;
+            }
         }
     };
     RtfDestination.prototype._genericFormatSetNoParam = function (ptype, prop, val) {
@@ -10047,7 +10048,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {

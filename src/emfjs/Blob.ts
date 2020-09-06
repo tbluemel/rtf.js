@@ -44,18 +44,18 @@ export class Blob {
         }
     }
 
-    public eof() {
+    public eof(): boolean {
         return this.pos >= this.data.length;
     }
 
-    public seek(newpos: number) {
+    public seek(newpos: number): void {
         if (newpos < 0 || newpos > this.data.length) {
             throw new EMFJSError("Invalid seek position");
         }
         this.pos = newpos;
     }
 
-    public skip(cnt: number) {
+    public skip(cnt: number): void {
         const newPos = this.pos + cnt;
         if (newPos > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
@@ -63,7 +63,7 @@ export class Blob {
         this.pos = newPos;
     }
 
-    public readBinary(cnt: number) {
+    public readBinary(cnt: number): string {
         const end = this.pos + cnt;
         if (end > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
@@ -75,18 +75,18 @@ export class Blob {
         return ret;
     }
 
-    public readInt8() {
+    public readInt8(): number {
         if (this.pos + 1 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
         }
         return this.data[this.pos++];
     }
 
-    public readUint8() {
+    public readUint8(): number {
         return this.readInt8() >>> 0;
     }
 
-    public readInt32() {
+    public readInt32(): number {
         if (this.pos + 4 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
         }
@@ -97,11 +97,11 @@ export class Blob {
         return val;
     }
 
-    public readUint32() {
+    public readUint32(): number {
         return this.readInt32() >>> 0;
     }
 
-    public readUint16() {
+    public readUint16(): number {
         if (this.pos + 2 > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
         }
@@ -110,7 +110,7 @@ export class Blob {
         return val;
     }
 
-    public readInt16() {
+    public readInt16(): number {
         let val = this.readUint16();
         if (val > 32767) {
             val -= 65536;
@@ -118,7 +118,7 @@ export class Blob {
         return val;
     }
 
-    public readString(length: number) {
+    public readString(length: number): string {
         if (this.pos + length > this.data.length) {
             throw new EMFJSError("Unexpected end of file");
         }
@@ -129,7 +129,7 @@ export class Blob {
         return ret;
     }
 
-    public readNullTermString(maxSize: number) {
+    public readNullTermString(maxSize: number): string {
         let ret = "";
         if (maxSize > 0) {
             maxSize--;
@@ -147,7 +147,7 @@ export class Blob {
         return ret;
     }
 
-    public readFixedSizeUnicodeString(fixedSizeChars: number) {
+    public readFixedSizeUnicodeString(fixedSizeChars: number): string {
         let ret = "";
         for (let i = 0; i < fixedSizeChars; i++) {
             const charCode = this.readUint16();

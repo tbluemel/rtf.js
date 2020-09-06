@@ -41,11 +41,11 @@ export class PointS {
         }
     }
 
-    public clone() {
+    public clone(): PointS {
         return new PointS(null, this.x, this.y);
     }
 
-    public toString() {
+    public toString(): string {
         return "{x: " + this.x + ", y: " + this.y + "}";
     }
 }
@@ -70,20 +70,20 @@ export class Rect {
         }
     }
 
-    public clone() {
+    public clone(): Rect {
         return new Rect(null, this.left, this.top, this.right, this.bottom);
     }
 
-    public toString() {
+    public toString(): string {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
 
-    public empty() {
+    public empty(): boolean {
         return this.left >= this.right || this.top >= this.bottom;
     }
 
-    public intersect(rect: Rect) {
+    public intersect(rect: Rect): null | Rect {
         if (this.empty() || rect.empty()) {
             return null;
         }
@@ -107,7 +107,7 @@ export class Obj {
         throw new WMFJSError("clone not implemented");
     }
 
-    public toString() {
+    public toString(): string {
         throw new WMFJSError("toString not implemented");
     }
 }

@@ -121,7 +121,7 @@ export class WMFRect16 {
         this.bottom = reader.readInt16();
     }
 
-    public toString() {
+    public toString(): string {
         return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
             + ", bottom: " + this.bottom + "}";
     }
@@ -154,7 +154,7 @@ export class WMF {
         this._records = new WMFRecords(reader, this._hdrsize);
     }
 
-    public render(gdi: GDIContext) {
+    public render(gdi: GDIContext): void {
         this._records.play(gdi);
     }
 }

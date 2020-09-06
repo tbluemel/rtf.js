@@ -39,12 +39,19 @@ export abstract class DestinationFactory<T extends IDestination> {
 
 export interface IDestination {
     _name: string;
+
     setMetadata?(metaprop: string, metavalue: any): void;
+
     apply?(): void;
+
     appendText?(text: string): void;
+
     sub?(): IDestination;
+
     handleKeyword?(keyword: string, param: number): void | boolean;
+
     handleBlob?(blob: ArrayBuffer): void;
+
     [key: string]: any;
 }
 
@@ -79,7 +86,7 @@ export class DestinationTextBase implements IDestination {
         this.text = "";
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         this.text += text;
     }
 }
@@ -87,7 +94,7 @@ export class DestinationTextBase implements IDestination {
 export abstract class DestinationFormattedTextBase implements IDestination {
     public _name: string;
     protected parser: GlobalState;
-    private _records: Array<(rtf: RtfDestination) => void>;
+    private _records: ((rtf: RtfDestination) => void)[];
 
     constructor(parser: GlobalState, name: string) {
         this.parser = parser;
@@ -95,19 +102,19 @@ export abstract class DestinationFormattedTextBase implements IDestination {
         this._records = [];
     }
 
-    public appendText(text: string) {
+    public appendText(text: string): void {
         this._records.push((rtf: RtfDestination) => {
             rtf.appendText(text);
         });
     }
 
-    public handleKeyword(keyword: string, param: number) {
+    public handleKeyword(keyword: string, param: number): void {
         this._records.push((rtf: RtfDestination) => {
             return rtf.handleKeyword(keyword, param);
         });
     }
 
-    public apply() {
+    public apply(): void {
         const rtf = findParentDestination(this.parser, "rtf") as any as RtfDestination;
         if (rtf == null) {
             throw new RTFJSError("IDestination " + this._name + " is not child of rtf destination");
@@ -138,6 +145,7 @@ export abstract class DestinationFormattedTextBase implements IDestination {
 export interface IGenericPropertyDestination extends IDestination {
     apply(): void;
 }
+
 export class GenericPropertyDestinationFactory extends DestinationFactory<IGenericPropertyDestination> {
     constructor(parentdest: string, metaprop: string) {
         super();
@@ -167,6 +175,7 @@ export class GenericPropertyDestinationFactory extends DestinationFactory<IGener
 export interface IGenericSubTextPropertyDestination extends IDestination {
     apply(): void;
 }
+
 export class GenericSubTextPropertyDestinationFactory extends DestinationFactory<IGenericSubTextPropertyDestination> {
     constructor(name: string, parentDest: string, propOrFunc: string) {
         super();
@@ -197,13 +206,10 @@ export class GenericSubTextPropertyDestinationFactory extends DestinationFactory
     }
 }
 
-// tslint:disable-next-line:no-empty-interface
-export interface IRequiredDestination extends IDestination {
-}
-export class RequiredDestinationFactory extends DestinationFactory<IRequiredDestination> {
+export class RequiredDestinationFactory extends DestinationFactory<IDestination> {
     constructor(name: string) {
         super();
-        this.class = class extends DestinationBase implements IRequiredDestination {
+        this.class = class extends DestinationBase implements IDestination {
             constructor() {
                 super(name);
             }

@@ -28,11 +28,11 @@ import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";
 
 export class BitmapBase {
-    public getWidth() {
+    public getWidth(): number {
         throw new WMFJSError("getWidth not implemented");
     }
 
-    public getHeight() {
+    public getHeight(): number {
         throw new WMFJSError("getHeight not implemented");
     }
 }
@@ -53,7 +53,7 @@ export class BitmapCoreHeader {
         this.bitcount = reader.readUint16();
     }
 
-    public colors() {
+    public colors(): number {
         return this.bitcount <= 8 ? 1 << this.bitcount : 0;
     }
 }
@@ -86,7 +86,7 @@ export class BitmapInfoHeader {
         this.clrimportant = reader.readUint32();
     }
 
-    public colors() {
+    public colors(): number {
         if (this.clrused !== 0) {
             return this.clrused < 256 ? this.clrused : 256;
         } else {
@@ -123,19 +123,19 @@ export class BitmapInfo extends BitmapBase {
         }
     }
 
-    public getWidth() {
+    public getWidth(): number {
         return this._header.width;
     }
 
-    public getHeight() {
+    public getHeight(): number {
         return Math.abs(this._header.height);
     }
 
-    public infosize() {
+    public infosize(): number {
         return this._infosize;
     }
 
-    public header() {
+    public header(): BitmapCoreHeader | BitmapInfoHeader {
         return this._header;
     }
 }
@@ -154,21 +154,21 @@ export class DIBitmap extends BitmapBase {
         this._info = new BitmapInfo(reader, true);
     }
 
-    public getWidth() {
+    public getWidth(): number {
         return this._info.getWidth();
     }
 
-    public getHeight() {
+    public getHeight(): number {
         return this._info.getHeight();
     }
 
-    public base64ref() {
+    public base64ref(): string {
         const prevpos = this._reader.pos;
         this._reader.seek(this._offset);
         let mime = "image/bmp";
         const header = this._info.header();
         let data;
-        if (header instanceof  BitmapInfoHeader && header.compression != null) {
+        if (header instanceof BitmapInfoHeader && header.compression != null) {
             switch (header.compression) {
                 case Helper.GDI.BitmapCompression.BI_JPEG:
                     mime = "data:image/jpeg";
@@ -253,15 +253,15 @@ export class Bitmap16 extends BitmapBase {
         }
     }
 
-    public getWidth() {
+    public getWidth(): number {
         return this.width;
     }
 
-    public getHeight() {
+    public getHeight(): number {
         return this.height;
     }
 
-    public clone() {
+    public clone(): Bitmap16 {
         return new Bitmap16(null, this);
     }
 }

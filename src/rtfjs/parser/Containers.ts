@@ -206,9 +206,9 @@ export class GlobalState {
     public column: number;
     public state: State;
     public version: number;
-    public text: Array<PlainText | HexText>;
+    public text: (PlainText | HexText)[];
     public codepage: number;
-    public _asyncTasks: Array<Promise<any>>;
+    public _asyncTasks: Promise<any>[];
     public renderer: Renderer;
 
     constructor(blob: ArrayBuffer, renderer: Renderer) {
