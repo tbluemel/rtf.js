@@ -25,3 +25,11 @@ git push --tags
 ```
 npm publish
 ```
+
+6. Merge master into the `gh-pages` branch to update the live demo
+```
+git checkout gh-pages
+git pull
+git merge origin/master
+git push
+```
