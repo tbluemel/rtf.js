@@ -1,10 +1,14 @@
 # Change Log
 
-## [3.0.1]
+## [3.0.2] - 2020-11-19
+- Ignore unsupported right-to-left and left-to-right character hints to prevent them from breaking e.g. hyperlink parsing
+- Fix source maps in Firefox
+
+## [3.0.1] - 2020-04-19
 - Fix the parsing of WMF `META_CREATEPALETTE` records
 - Improve custom errors (RTFJSError, WMFJSError and EMFJSError) to get proper stack traces
 
-## [3.0.0]
+## [3.0.0] - 2020-03-24
 - Dropped requirement for jQuery and jQuery-Filter. This means that all public API methods now return html element instead of jQuery objects and also require any parameters to be html elements instead of jQuery options.
 - Bundles are still transpiled to ES5 but will require polyfills for older browsers 
 
