@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.3] - 2020-11-20
+- Fix url rendering when passing in a onHyperlink() callback
+
 ## [3.0.2] - 2020-11-19
 - Ignore unsupported right-to-left and left-to-right character hints to prevent them from breaking e.g. hyperlink parsing
 - Fix source maps in Firefox
