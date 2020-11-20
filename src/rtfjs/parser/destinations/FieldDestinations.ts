@@ -121,18 +121,20 @@ export class FieldHyperlink extends FieldBase {
     }
 
     public renderFieldBegin(field: FieldDestination, rtf: RtfDestination, records: number): boolean {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         if (records > 0) {
             rtf.addIns((renderer) => {
                 const inst = renderer._doc;
                 const create = () => {
-                    return renderer.buildHyperlinkElement(this._url);
+                    return renderer.buildHyperlinkElement(self._url);
                 };
                 let container;
                 if (inst._settings.onHyperlink != null) {
                     container = inst._settings.onHyperlink(create,
                         {
                             url() {
-                                return this.url();
+                                return self.url();
                             },
                         });
                 } else {

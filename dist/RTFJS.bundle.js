@@ -8876,18 +8876,19 @@ var FieldHyperlink = /** @class */ (function (_super) {
         return this._url;
     };
     FieldHyperlink.prototype.renderFieldBegin = function (field, rtf, records) {
-        var _this = this;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        var self = this;
         if (records > 0) {
             rtf.addIns(function (renderer) {
                 var inst = renderer._doc;
                 var create = function () {
-                    return renderer.buildHyperlinkElement(_this._url);
+                    return renderer.buildHyperlinkElement(self._url);
                 };
                 var container;
                 if (inst._settings.onHyperlink != null) {
                     container = inst._settings.onHyperlink(create, {
                         url: function () {
-                            return this.url();
+                            return self.url();
                         },
                     });
                 }
