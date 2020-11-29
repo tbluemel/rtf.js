@@ -782,10 +782,30 @@ var Parser = /** @class */ (function () {
                 return "\r";
             case "tab":
                 return "\t";
+            case "emdash":
+                return "—";
+            case "endash":
+                return "–";
+            case "emspace":
+                return " ";
+            case "enspace":
+                return " ";
+            case "qmspace":
+                return " ";
+            case "bullet":
+                return "•";
+            case "lquote":
+                return "‘";
+            case "rquote":
+                return "’";
             case "ldblquote":
                 return "“";
             case "rdblquote":
                 return "”";
+            case "~":
+                return " ";
+            case "_":
+                return "‑";
             case "{":
             case "}":
             case "\\":
