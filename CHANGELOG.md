@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.4] - 2020-11-29
+- Add support for additional rtf special characters (e.g. dash and single quote)
+
 ## [3.0.3] - 2020-11-20
 - Fix url rendering when passing in a onHyperlink() callback
 
