@@ -235,10 +235,6 @@ export class Parser {
         // Reset if we unexpectedly encounter a keyword
         this.parser.state.skipchars = 0;
         switch (keyword) {
-            case "\n":
-                return "\n";
-            case "\r":
-                return "\r";
             case "tab":
                 return "\t";
             case "emdash":
@@ -318,6 +314,16 @@ export class Parser {
             case "rtlch":
                 return;
 
+            case "\n":
+            case "\r": {
+                // Carriage return and line feed must be treated like a \par, so we rewrite the keyword
+                // here and then fall through to the default behavior
+                this.parser.line++;
+                this.parser.column = 0;
+
+                keyword = "par";
+            }
+            // eslint-disable-next-line no-fallthrough
             default:
                 if (!this.parser.state.skipdestination) {
                     if (first) {
