@@ -459,9 +459,6 @@ SOFTWARE.
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFRect16", function() { return WMFRect16; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFPlacable", function() { return WMFPlacable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMF", function() { return WMF; });
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(36);
 /* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(38);
@@ -573,7 +570,6 @@ var WMFRect16 = /** @class */ (function () {
     };
     return WMFRect16;
 }());
-
 var WMFPlacable = /** @class */ (function () {
     function WMFPlacable(reader) {
         reader.skip(2);
@@ -585,7 +581,6 @@ var WMFPlacable = /** @class */ (function () {
     }
     return WMFPlacable;
 }());
-
 var WMF = /** @class */ (function () {
     function WMF(reader, placable, version, hdrsize) {
         this._version = version;
@@ -598,7 +593,6 @@ var WMF = /** @class */ (function () {
     };
     return WMF;
 }());
-
 
 
 /***/ }),
@@ -1073,7 +1067,6 @@ var Helper = /** @class */ (function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContextState", function() { return GDIContextState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContext", function() { return GDIContext; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(39);
@@ -1170,7 +1163,6 @@ var GDIContextState = /** @class */ (function () {
     }
     return GDIContextState;
 }());
-
 var GDIContext = /** @class */ (function () {
     function GDIContext(svg) {
         this._svg = svg;
@@ -2657,9 +2649,6 @@ var Palette = /** @class */ (function (_super) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapBase", function() { return BitmapBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapCoreHeader", function() { return BitmapCoreHeader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfoHeader", function() { return BitmapInfoHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfo", function() { return BitmapInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DIBitmap", function() { return DIBitmap; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Bitmap16", function() { return Bitmap16; });
@@ -2704,18 +2693,6 @@ var __extends = (undefined && undefined.__extends) || (function () {
     };
 })();
 
-var BitmapBase = /** @class */ (function () {
-    function BitmapBase() {
-    }
-    BitmapBase.prototype.getWidth = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("getWidth not implemented");
-    };
-    BitmapBase.prototype.getHeight = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("getHeight not implemented");
-    };
-    return BitmapBase;
-}());
-
 var BitmapCoreHeader = /** @class */ (function () {
     function BitmapCoreHeader(reader, skipsize) {
         if (skipsize) {
@@ -2731,7 +2708,6 @@ var BitmapCoreHeader = /** @class */ (function () {
     };
     return BitmapCoreHeader;
 }());
-
 var BitmapInfoHeader = /** @class */ (function () {
     function BitmapInfoHeader(reader, skipsize) {
         if (skipsize) {
@@ -2758,29 +2734,25 @@ var BitmapInfoHeader = /** @class */ (function () {
     };
     return BitmapInfoHeader;
 }());
-
-var BitmapInfo = /** @class */ (function (_super) {
-    __extends(BitmapInfo, _super);
+var BitmapInfo = /** @class */ (function () {
     function BitmapInfo(reader, usergb) {
-        var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
-        _this._usergb = usergb;
+        this._reader = reader;
+        this._offset = reader.pos;
+        this._usergb = usergb;
         var hdrsize = reader.readUint32();
-        _this._infosize = hdrsize;
+        this._infosize = hdrsize;
         if (hdrsize === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPCOREHEADER_SIZE) {
-            _this._header = new BitmapCoreHeader(reader, false);
-            _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
+            this._header = new BitmapCoreHeader(reader, false);
+            this._infosize += this._header.colors() * (usergb ? 3 : 2);
         }
         else {
-            _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            this._header = new BitmapInfoHeader(reader, false);
+            var masks = this._header.compression === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
-                _this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+                this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
-            _this._infosize += _this._header.colors() * (usergb ? 4 : 2);
+            this._infosize += this._header.colors() * (usergb ? 4 : 2);
         }
-        return _this;
     }
     BitmapInfo.prototype.getWidth = function () {
         return this._header.width;
@@ -2795,17 +2767,14 @@ var BitmapInfo = /** @class */ (function (_super) {
         return this._header;
     };
     return BitmapInfo;
-}(BitmapBase));
+}());
 
-var DIBitmap = /** @class */ (function (_super) {
-    __extends(DIBitmap, _super);
+var DIBitmap = /** @class */ (function () {
     function DIBitmap(reader, size) {
-        var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
-        _this._size = size;
-        _this._info = new BitmapInfo(reader, true);
-        return _this;
+        this._reader = reader;
+        this._offset = reader.pos;
+        this._size = size;
+        this._info = new BitmapInfo(reader, true);
     }
     DIBitmap.prototype.getWidth = function () {
         return this._info.getWidth();
@@ -2855,44 +2824,41 @@ var DIBitmap = /** @class */ (function (_super) {
         return _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._blobToBinary(view);
     };
     return DIBitmap;
-}(BitmapBase));
+}());
 
-var Bitmap16 = /** @class */ (function (_super) {
-    __extends(Bitmap16, _super);
+var Bitmap16 = /** @class */ (function () {
     function Bitmap16(reader, size) {
-        var _this = _super.call(this) || this;
         if (reader != null) {
             size = size;
-            _this._reader = reader;
-            _this._offset = reader.pos;
-            _this._size = size;
-            _this.type = reader.readInt16();
-            _this.width = reader.readInt16();
-            _this.height = reader.readInt16();
-            _this.widthBytes = reader.readInt16();
-            _this.planes = reader.readUint8();
-            _this.bitsPixel = reader.readUint8();
-            _this.bitsOffset = reader.pos;
-            _this.bitsSize = (((_this.width * _this.bitsPixel + 15) >> 4) << 1) * _this.height;
-            if (_this.bitsSize > size - 10) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Bitmap should have " + _this.bitsSize + " bytes, but has " + (size - 10));
+            this._reader = reader;
+            this._offset = reader.pos;
+            this._size = size;
+            this.type = reader.readInt16();
+            this.width = reader.readInt16();
+            this.height = reader.readInt16();
+            this.widthBytes = reader.readInt16();
+            this.planes = reader.readUint8();
+            this.bitsPixel = reader.readUint8();
+            this.bitsOffset = reader.pos;
+            this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
+            if (this.bitsSize > size - 10) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
             }
         }
         else {
             var copy = size;
-            _this._reader = copy._reader;
-            _this._offset = copy._offset;
-            _this._size = copy._size;
-            _this.type = copy.type;
-            _this.width = copy.width;
-            _this.height = copy.height;
-            _this.widthBytes = copy.widthBytes;
-            _this.planes = copy.planes;
-            _this.bitsPixel = copy.bitsPixel;
-            _this.bitsOffset = copy.bitsOffset;
-            _this.bitsSize = copy.bitsSize;
+            this._reader = copy._reader;
+            this._offset = copy._offset;
+            this._size = copy._size;
+            this.type = copy.type;
+            this.width = copy.width;
+            this.height = copy.height;
+            this.widthBytes = copy.widthBytes;
+            this.planes = copy.planes;
+            this.bitsPixel = copy.bitsPixel;
+            this.bitsOffset = copy.bitsOffset;
+            this.bitsSize = copy.bitsSize;
         }
-        return _this;
     }
     Bitmap16.prototype.getWidth = function () {
         return this.width;
@@ -2904,7 +2870,7 @@ var Bitmap16 = /** @class */ (function (_super) {
         return new Bitmap16(null, this);
     };
     return Bitmap16;
-}(BitmapBase));
+}());
 
 var PatternBitmap16 = /** @class */ (function (_super) {
     __extends(PatternBitmap16, _super);

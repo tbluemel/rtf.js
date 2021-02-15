@@ -92,7 +92,7 @@ export class FieldDestination extends DestinationBase {
     }
 }
 
-export class FieldBase {
+class FieldBase {
     private _fldinst: FldinstDestination;
 
     constructor(fldinst: FldinstDestination) {
@@ -108,7 +108,7 @@ export class FieldBase {
     }
 }
 
-export class FieldHyperlink extends FieldBase {
+class FieldHyperlink extends FieldBase {
     private _url: string;
 
     constructor(fldinst: FldinstDestination, data: string) {

@@ -108,7 +108,7 @@ export class Renderer {
     }
 }
 
-export class WMFRect16 {
+class WMFRect16 {
     private left: number;
     private top: number;
     private right: number;
@@ -127,7 +127,7 @@ export class WMFRect16 {
     }
 }
 
-export class WMFPlacable {
+class WMFPlacable {
     private boundingBox: WMFRect16;
     private unitsPerInch: number;
 
@@ -141,7 +141,7 @@ export class WMFPlacable {
     }
 }
 
-export class WMF {
+class WMF {
     private _version: number;
     private _hdrsize: number;
     private _placable: WMFPlacable;

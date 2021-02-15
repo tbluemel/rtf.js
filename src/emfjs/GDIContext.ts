@@ -32,17 +32,17 @@ import { Obj, PointL, PointS, RectL } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
 import { Brush, ColorRef, Font, Pen } from "./Style";
 
-export interface ISelectedStyle {
+interface ISelectedStyle {
     brush?: Brush;
     pen?: Pen;
     font?: Font;
     region?: Region;
     path?: Path;
 
-    [key: string]: Obj;
+    [key: string]: Obj | undefined;
 }
 
-export class Path extends Obj {
+class Path extends Obj {
     public svgPath: SVGPathBuilder;
 
     constructor(svgPath: SVGPathBuilder, copy?: Path) {
@@ -105,9 +105,9 @@ function createStockObjects(): { [key: string]: Obj } {
     return objs;
 }
 
-export const _StockObjects = createStockObjects();
+const _StockObjects = createStockObjects();
 
-export class GDIContextState {
+class GDIContextState {
     public _svggroup: SVGElement;
     public _svgclipChanged: boolean;
     public _svgtextbkfilter: SVGFilterElement;

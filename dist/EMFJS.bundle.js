@@ -145,7 +145,6 @@ SOFTWARE.
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EMF", function() { return EMF; });
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
 /* harmony import */ var _EMFRecords__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
@@ -234,7 +233,6 @@ var EMF = /** @class */ (function () {
     };
     return EMF;
 }());
-
 
 
 /***/ }),
@@ -1059,7 +1057,6 @@ var Helper = /** @class */ (function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EmfHeader", function() { return EmfHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EMFRecords", function() { return EMFRecords; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -1164,7 +1161,6 @@ var EmfHeader = /** @class */ (function () {
     };
     return EmfHeader;
 }());
-
 var EMFRecords = /** @class */ (function () {
     function EMFRecords(reader, first) {
         this._records = [];
@@ -2502,9 +2498,6 @@ var Pen = /** @class */ (function (_super) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapBase", function() { return BitmapBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapCoreHeader", function() { return BitmapCoreHeader; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfoHeader", function() { return BitmapInfoHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfo", function() { return BitmapInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DIBitmap", function() { return DIBitmap; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
@@ -2534,31 +2527,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-var BitmapBase = /** @class */ (function () {
-    function BitmapBase() {
-    }
-    BitmapBase.prototype.getWidth = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["EMFJSError"]("getWidth not implemented");
-    };
-    BitmapBase.prototype.getHeight = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["EMFJSError"]("getHeight not implemented");
-    };
-    return BitmapBase;
-}());
 
 var BitmapCoreHeader = /** @class */ (function () {
     function BitmapCoreHeader(reader, skipsize) {
@@ -2575,7 +2543,6 @@ var BitmapCoreHeader = /** @class */ (function () {
     };
     return BitmapCoreHeader;
 }());
-
 var BitmapInfoHeader = /** @class */ (function () {
     function BitmapInfoHeader(reader, skipsize) {
         if (skipsize) {
@@ -2602,28 +2569,24 @@ var BitmapInfoHeader = /** @class */ (function () {
     };
     return BitmapInfoHeader;
 }());
-
-var BitmapInfo = /** @class */ (function (_super) {
-    __extends(BitmapInfo, _super);
+var BitmapInfo = /** @class */ (function () {
     function BitmapInfo(reader, usergb) {
-        var _this = _super.call(this) || this;
-        _this._usergb = usergb;
+        this._usergb = usergb;
         var hdrsize = reader.readUint32();
-        _this._infosize = hdrsize;
+        this._infosize = hdrsize;
         if (hdrsize === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPCOREHEADER_SIZE) {
-            _this._header = new BitmapCoreHeader(reader, false);
-            _this._infosize += _this._header.colors() * (usergb ? 3 : 2);
+            this._header = new BitmapCoreHeader(reader, false);
+            this._infosize += this._header.colors() * (usergb ? 3 : 2);
         }
         else {
-            _this._header = new BitmapInfoHeader(reader, false);
-            var masks = _this._header.compression
+            this._header = new BitmapInfoHeader(reader, false);
+            var masks = this._header.compression
                 === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
             if (hdrsize <= _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
-                _this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+                this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
             }
-            _this._infosize += _this._header.colors() * (usergb ? 4 : 2);
+            this._infosize += this._header.colors() * (usergb ? 4 : 2);
         }
-        return _this;
     }
     BitmapInfo.prototype.getWidth = function () {
         return this._header.width;
@@ -2638,17 +2601,14 @@ var BitmapInfo = /** @class */ (function (_super) {
         return this._header;
     };
     return BitmapInfo;
-}(BitmapBase));
+}());
 
-var DIBitmap = /** @class */ (function (_super) {
-    __extends(DIBitmap, _super);
+var DIBitmap = /** @class */ (function () {
     function DIBitmap(reader, bitmapInfo) {
-        var _this = _super.call(this) || this;
-        _this._reader = reader;
-        _this._offset = reader.pos;
-        _this._location = bitmapInfo;
-        _this._info = new BitmapInfo(reader, true);
-        return _this;
+        this._reader = reader;
+        this._offset = reader.pos;
+        this._location = bitmapInfo;
+        this._info = new BitmapInfo(reader, true);
     }
     DIBitmap.prototype.getWidth = function () {
         return this._info.getWidth();
@@ -2704,7 +2664,7 @@ var DIBitmap = /** @class */ (function (_super) {
         return ref;
     };
     return DIBitmap;
-}(BitmapBase));
+}());
 
 
 
@@ -2714,9 +2674,6 @@ var DIBitmap = /** @class */ (function (_super) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Path", function() { return Path; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "_StockObjects", function() { return _StockObjects; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContextState", function() { return GDIContextState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContext", function() { return GDIContext; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
@@ -2785,7 +2742,6 @@ var Path = /** @class */ (function (_super) {
     };
     return Path;
 }(_Primitives__WEBPACK_IMPORTED_MODULE_1__["Obj"]));
-
 function createStockObjects() {
     // Create global stock objects
     var createSolidBrush = function (r, g, b) {
@@ -2899,7 +2855,6 @@ var GDIContextState = /** @class */ (function () {
     }
     return GDIContextState;
 }());
-
 var GDIContext = /** @class */ (function () {
     function GDIContext(svg) {
         this._svg = svg;

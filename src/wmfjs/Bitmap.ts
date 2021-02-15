@@ -27,17 +27,13 @@ SOFTWARE.
 import { Blob } from "./Blob";
 import { Helper, WMFJSError } from "./Helper";
 
-export class BitmapBase {
-    public getWidth(): number {
-        throw new WMFJSError("getWidth not implemented");
-    }
+interface Bitmap {
+    getWidth(): number
 
-    public getHeight(): number {
-        throw new WMFJSError("getHeight not implemented");
-    }
+    getHeight(): number
 }
 
-export class BitmapCoreHeader {
+class BitmapCoreHeader {
     public width: number;
     public height: number;
     public planes: number;
@@ -58,7 +54,7 @@ export class BitmapCoreHeader {
     }
 }
 
-export class BitmapInfoHeader {
+class BitmapInfoHeader {
     public width: number;
     public height: number;
     public planes: number;
@@ -95,7 +91,7 @@ export class BitmapInfoHeader {
     }
 }
 
-export class BitmapInfo extends BitmapBase {
+export class BitmapInfo implements Bitmap {
     private _reader: Blob;
     private _offset: number;
     private _usergb: boolean;
@@ -103,7 +99,6 @@ export class BitmapInfo extends BitmapBase {
     private _header: BitmapCoreHeader | BitmapInfoHeader;
 
     constructor(reader: Blob, usergb: boolean) {
-        super();
         this._reader = reader;
         this._offset = reader.pos;
         this._usergb = usergb;
@@ -140,14 +135,13 @@ export class BitmapInfo extends BitmapBase {
     }
 }
 
-export class DIBitmap extends BitmapBase {
+export class DIBitmap implements Bitmap {
     private _reader: Blob;
     private _offset: number;
     private _size: number;
     private _info: BitmapInfo;
 
     constructor(reader: Blob, size: number) {
-        super();
         this._reader = reader;
         this._offset = reader.pos;
         this._size = size;
@@ -206,7 +200,7 @@ export class DIBitmap extends BitmapBase {
     }
 }
 
-export class Bitmap16 extends BitmapBase {
+export class Bitmap16 implements Bitmap {
     public type: number;
     public width: number;
     public height: number;
@@ -220,7 +214,6 @@ export class Bitmap16 extends BitmapBase {
     private _size: number;
 
     constructor(reader: Blob, size: number | Bitmap16) {
-        super();
         if (reader != null) {
             size = size as number;
             this._reader = reader;

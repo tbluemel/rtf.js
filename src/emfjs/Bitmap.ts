@@ -26,19 +26,15 @@ SOFTWARE.
 */
 
 import { Blob } from "./Blob";
-import { EMFJSError, Helper } from "./Helper";
+import { Helper } from "./Helper";
 
-export class BitmapBase {
-    public getWidth(): number {
-        throw new EMFJSError("getWidth not implemented");
-    }
+interface Bitmap {
+    getWidth(): number
 
-    public getHeight(): number {
-        throw new EMFJSError("getHeight not implemented");
-    }
+    getHeight(): number
 }
 
-export class BitmapCoreHeader {
+class BitmapCoreHeader {
     public width: number;
     public height: number;
     public planes: number;
@@ -59,7 +55,7 @@ export class BitmapCoreHeader {
     }
 }
 
-export class BitmapInfoHeader {
+class BitmapInfoHeader {
     public width: number;
     public height: number;
     public planes: number;
@@ -96,13 +92,12 @@ export class BitmapInfoHeader {
     }
 }
 
-export class BitmapInfo extends BitmapBase {
+export class BitmapInfo implements Bitmap {
     private _usergb: boolean;
     private _infosize: number;
     private _header: BitmapCoreHeader | BitmapInfoHeader;
 
     constructor(reader: Blob, usergb: boolean) {
-        super();
         this._usergb = usergb;
         const hdrsize = reader.readUint32();
         this._infosize = hdrsize;
@@ -137,14 +132,13 @@ export class BitmapInfo extends BitmapBase {
     }
 }
 
-export class DIBitmap extends BitmapBase {
+export class DIBitmap implements Bitmap {
     private _reader: Blob;
     private _offset: number;
     private _location: any;
     private _info: BitmapInfo;
 
     constructor(reader: Blob, bitmapInfo?: any) {
-        super();
         this._reader = reader;
         this._offset = reader.pos;
         this._location = bitmapInfo;
@@ -159,7 +153,7 @@ export class DIBitmap extends BitmapBase {
         return this._info.getHeight();
     }
 
-    public totalSize() {
+    public totalSize(): number {
         return this._location.header.size + this._location.data.size;
     }
 
