@@ -32,7 +32,7 @@ import { PointL, PointS, RectL, SizeL } from "./Primitives";
 import { Region } from "./Region";
 import { Brush, ColorRef, Pen } from "./Style";
 
-export class EmfHeader {
+class EmfHeader {
     private size: number;
     private bounds: RectL;
     private frame: RectL;

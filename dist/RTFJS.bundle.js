@@ -8781,8 +8781,6 @@ var ColortblDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FieldDestination", function() { return FieldDestination; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FieldBase", function() { return FieldBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FieldHyperlink", function() { return FieldHyperlink; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldinstDestination", function() { return FldinstDestination; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldrsltDestination", function() { return FldrsltDestination; });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
@@ -8889,7 +8887,6 @@ var FieldBase = /** @class */ (function () {
     };
     return FieldBase;
 }());
-
 var FieldHyperlink = /** @class */ (function (_super) {
     __extends(FieldHyperlink, _super);
     function FieldHyperlink(fldinst, data) {
@@ -8932,7 +8929,6 @@ var FieldHyperlink = /** @class */ (function (_super) {
     };
     return FieldHyperlink;
 }(FieldBase));
-
 var FldinstDestination = /** @class */ (function (_super) {
     __extends(FldinstDestination, _super);
     function FldinstDestination(parser, inst) {

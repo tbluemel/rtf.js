@@ -98,7 +98,7 @@ export class Renderer {
     }
 }
 
-export class EMF {
+class EMF {
     private _hdrsize: number;
     private _records: EMFRecords;
 

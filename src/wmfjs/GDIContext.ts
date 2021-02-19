@@ -32,17 +32,17 @@ import { Obj, PointS, Rect } from "./Primitives";
 import { CreateSimpleRegion, Region } from "./Region";
 import { Brush, ColorRef, Font, Palette, Pen } from "./Style";
 
-export interface ISelectedStyle {
+interface ISelectedStyle {
     brush?: Brush;
     pen?: Pen;
     font?: Font;
     palette?: Palette;
     region?: Region;
 
-    [key: string]: Obj;
+    [key: string]: Obj | undefined;
 }
 
-export class GDIContextState {
+class GDIContextState {
     public _svggroup: SVGElement;
     public _svgclipChanged: boolean;
     public _svgtextbkfilter: SVGFilterElement;
