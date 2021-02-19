@@ -1,6 +1,6 @@
 {
     "name": "rtf.js",
-    "version": "3.0.4",
+    "version": "3.0.5",
     "description": "Render RTF documents in HTML. This also includes rendering WMF and EMF images which are often contained in RTF documents.",
     "main": "index.js",
     "types": "./dist/src",
