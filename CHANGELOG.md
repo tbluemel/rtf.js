@@ -1,5 +1,9 @@
 # Change Log
 
+## [3.0.5] - 2021-02-19
+- Add support for implicitly defined par
+- Fix exported typings so they work for users with strict null checks enabled
+
 ## [3.0.4] - 2020-11-29
 - Add support for additional rtf special characters (e.g. dash and single quote)
 
