@@ -68,6 +68,12 @@ export class RenderChp {
                 el.style.color = Helper._colorToStr(color);
             }
         }
+        if (this._chp.highlightindex !== 0) {
+            const color = doc._lookupColor(this._chp.highlightindex);
+            if (color != null) {
+                el.style.backgroundColor = Helper._colorToStr(color);
+            }
+        }
         el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
     }
 }
