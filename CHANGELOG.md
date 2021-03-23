@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.6] - 2021-03-23
+- Add support for text highlighting
+
 ## [3.0.5] - 2021-02-19
 - Add support for implicitly defined par
 - Fix exported typings so they work for users with strict null checks enabled
