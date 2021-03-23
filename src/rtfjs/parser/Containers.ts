@@ -35,6 +35,7 @@ export class Chp {
     public strikethrough: boolean;
     public dblstrikethrough: boolean;
     public colorindex: number;
+    public highlightindex: number;
     public fontsize: number;
     public fontfamily: number;
 
@@ -46,6 +47,7 @@ export class Chp {
             this.strikethrough = parent.strikethrough;
             this.dblstrikethrough = parent.dblstrikethrough;
             this.colorindex = parent.colorindex;
+            this.highlightindex = parent.highlightindex;
             this.fontsize = parent.fontsize;
             this.fontfamily = parent.fontfamily;
         } else {
@@ -55,6 +57,7 @@ export class Chp {
             this.strikethrough = false;
             this.dblstrikethrough = false;
             this.colorindex = 0;
+            this.highlightindex = 0;
             this.fontsize = 24;
         }
     }

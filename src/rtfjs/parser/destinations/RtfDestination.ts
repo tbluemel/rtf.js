@@ -59,6 +59,7 @@ export class RtfDestination extends DestinationBase {
         b: this._genericFormatOnOff("chp", "bold"),
         i: this._genericFormatOnOff("chp", "italic"),
         cf: this._genericFormatSetValRequired("chp", "colorindex"),
+        highlight: this._genericFormatSetValRequired("chp", "highlightindex"),
         fs: this._genericFormatSetValRequired("chp", "fontsize"),
         f: this._genericFormatSetValRequired("chp", "fontfamily"),
         loch: this._genericFormatSetNoParam("pap", "charactertype", Helper.CHARACTER_TYPE.LOWANSI),

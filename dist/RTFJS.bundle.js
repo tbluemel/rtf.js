@@ -8011,6 +8011,12 @@ var RenderChp = /** @class */ (function () {
                 el.style.color = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color);
             }
         }
+        if (this._chp.highlightindex !== 0) {
+            var color = doc._lookupColor(this._chp.highlightindex);
+            if (color != null) {
+                el.style.backgroundColor = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color);
+            }
+        }
         el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
     };
     return RenderChp;
@@ -8148,6 +8154,7 @@ var Chp = /** @class */ (function () {
             this.strikethrough = parent.strikethrough;
             this.dblstrikethrough = parent.dblstrikethrough;
             this.colorindex = parent.colorindex;
+            this.highlightindex = parent.highlightindex;
             this.fontsize = parent.fontsize;
             this.fontfamily = parent.fontfamily;
         }
@@ -8158,6 +8165,7 @@ var Chp = /** @class */ (function () {
             this.strikethrough = false;
             this.dblstrikethrough = false;
             this.colorindex = 0;
+            this.highlightindex = 0;
             this.fontsize = 24;
         }
     }
@@ -9848,6 +9856,7 @@ var RtfDestination = /** @class */ (function (_super) {
             b: _this._genericFormatOnOff("chp", "bold"),
             i: _this._genericFormatOnOff("chp", "italic"),
             cf: _this._genericFormatSetValRequired("chp", "colorindex"),
+            highlight: _this._genericFormatSetValRequired("chp", "highlightindex"),
             fs: _this._genericFormatSetValRequired("chp", "fontsize"),
             f: _this._genericFormatSetValRequired("chp", "fontfamily"),
             loch: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].CHARACTER_TYPE.LOWANSI),
