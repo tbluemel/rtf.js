@@ -53,25 +53,23 @@ export class ColortblDestination extends DestinationBase {
     }
 
     public appendText(text: string): void {
-        const len = text.length;
-        for (let i = 0; i < len; i++) {
-            if (text[i] !== ";") {
-                throw new RTFJSError("Error parsing colortbl destination");
-            }
-            if (this._current == null) {
-                if (this._autoIndex != null) {
-                    throw new RTFJSError("colortbl cannot define more than one auto color");
-                }
-                this._autoIndex = this._colors.length;
-                this._startNewColor();
-            } else {
-                if (this._current.tint < 255 && this._current.shade < 255) {
-                    throw new RTFJSError("colortbl cannot define shade and tint at the same time");
-                }
-            }
-            this._colors.push(this._current);
-            this._current = null;
+        // We expect this method to be called after the color was fully defined.
+        if (text.trim() !== ";") {
+            throw new RTFJSError("Error parsing colortbl destination");
         }
+        if (this._current == null) {
+            if (this._autoIndex != null) {
+                throw new RTFJSError("colortbl cannot define more than one auto color");
+            }
+            this._autoIndex = this._colors.length;
+            this._startNewColor();
+        } else {
+            if (this._current.tint < 255 && this._current.shade < 255) {
+                throw new RTFJSError("colortbl cannot define shade and tint at the same time");
+            }
+        }
+        this._colors.push(this._current);
+        this._current = null;
     }
 
     public handleKeyword(keyword: string, param: number): boolean {
