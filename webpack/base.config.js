@@ -1,7 +1,6 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'none',
     node: false,
     entry: {
         EMFJS: './src/emfjs/index.ts',

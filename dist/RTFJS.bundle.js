@@ -7,1591 +7,15 @@
 		exports["RTFJS"] = factory(require("./EMFJS.bundle.js"), require("./WMFJS.bundle.js"));
 	else
 		root["RTFJS"] = factory(root["EMFJS"], root["WMFJS"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE__27__, __WEBPACK_EXTERNAL_MODULE__28__) {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */,
-/* 1 */,
-/* 2 */,
-/* 3 */,
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */,
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(13);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Document", function() { return _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__["DocumentFacade"]; });
-
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["loggingEnabled"]; });
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DocumentFacade", function() { return DocumentFacade; });
-/* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
-/* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(33);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-
-
-var DocumentFacade = /** @class */ (function () {
-    function DocumentFacade(blob, settings) {
-        this._document = new _Document__WEBPACK_IMPORTED_MODULE_0__["Document"](settings);
-        this._renderer = new _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__["Renderer"](this._document);
-        var parser = new _parser_Parser__WEBPACK_IMPORTED_MODULE_2__["Parser"](this._document, blob, this._renderer);
-        this._parsed = parser.parse();
-    }
-    DocumentFacade.prototype.metadata = function () {
-        return this._document._meta;
-    };
-    DocumentFacade.prototype.render = function () {
-        var _this = this;
-        return this._parsed
-            .then(function () {
-            return _this._renderer.buildDom();
-        }).catch(function (error) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"](error);
-        });
-    };
-    return DocumentFacade;
-}());
-
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Document", function() { return Document; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-var Document = /** @class */ (function () {
-    function Document(settings) {
-        this._settings = settings || {};
-        this._meta = {};
-        this._fonts = [];
-        this._colors = [];
-        this._autoColor = null;
-        this._stylesheets = [];
-        this._ins = [];
-    }
-    Document.prototype._lookupColor = function (idx) {
-        if (idx === 0) {
-            if (this._autoColor == null) {
-                return null;
-            }
-            return this._colors[this._autoColor];
-        }
-        if (idx < 0 || idx >= this._colors.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Invalid color index");
-        }
-        return this._colors[idx];
-    };
-    Document.prototype.addIns = function (ins) {
-        this._ins.push(ins);
-    };
-    return Document;
-}());
-
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RTFJSError", function() { return RTFJSError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return loggingEnabled; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Helper", function() { return Helper; });
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var RTFJSError = /** @class */ (function (_super) {
-    __extends(RTFJSError, _super);
-    function RTFJSError(message) {
-        var _newTarget = this.constructor;
-        var _this = _super.call(this, message) || this;
-        Object.setPrototypeOf(_this, _newTarget.prototype); // restore prototype chain
-        return _this;
-    }
-    return RTFJSError;
-}(Error));
-
-var isLoggingEnabled = true;
-function loggingEnabled(enabled) {
-    isLoggingEnabled = enabled;
-}
-var Helper = /** @class */ (function () {
-    function Helper() {
-    }
-    Helper.log = function (message) {
-        if (isLoggingEnabled) {
-            console.log(message);
-        }
-    };
-    Helper._isalpha = function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (!((ch >= this._A && ch <= this._Z) ||
-                (ch >= this._a && ch <= this._z))) {
-                return false;
-            }
-        }
-        return len > 0;
-    };
-    Helper._isdigit = function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (ch < this._0 || ch > this._9) {
-                return false;
-            }
-        }
-        return len > 0;
-    };
-    Helper._parseHex = function (str) {
-        var len = str.length;
-        for (var i = 0; i < len; i++) {
-            var ch = str.charCodeAt(i);
-            if (!((ch >= this._0 && ch <= this._9) ||
-                (ch >= this._a && ch <= this._f) ||
-                (ch >= this._A && ch <= this._F))) {
-                return NaN;
-            }
-        }
-        if (len > 0) {
-            return parseInt(str, 16);
-        }
-        return NaN;
-    };
-    Helper._blobToBinary = function (blob) {
-        var view = new Uint8Array(blob);
-        var ret = "";
-        var len = view.length;
-        for (var i = 0; i < len; i++) {
-            ret += String.fromCharCode(view[i]);
-        }
-        return ret;
-    };
-    Helper._hexToBlob = function (str) {
-        var len = str.length;
-        var buf = new ArrayBuffer(Math.floor(len-- / 2));
-        var view = new Uint8Array(buf);
-        var d = 0;
-        for (var i = 0; i < len; i += 2) {
-            var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val)) {
-                return null;
-            }
-            view[d++] = val;
-        }
-        return buf;
-    };
-    Helper._hexToBinary = function (str) {
-        var bin = "";
-        var len = str.length - 1;
-        for (var i = 0; i < len; i += 2) {
-            var val = this._parseHex(str.substr(i, 2));
-            if (isNaN(val)) {
-                return null;
-            }
-            bin += String.fromCharCode(val);
-        }
-        return bin;
-    };
-    Helper._mapCharset = function (idx) {
-        return this._charsetMap[idx.toString()];
-    };
-    Helper._mapColorTheme = function (name) {
-        return this._colorThemeMap[name];
-    };
-    Helper._colorToStr = function (color) {
-        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-    };
-    Helper._twipsToPt = function (twips) {
-        return Math.floor(twips / 20);
-    };
-    Helper._twipsToPx = function (twips) {
-        return Math.floor(twips / 20 * 96 / 72);
-    };
-    Helper._pxToTwips = function (px) {
-        return Math.floor(px * 20 * 72 / 96);
-    };
-    Helper.JUSTIFICATION = {
-        LEFT: "left",
-        CENTER: "center",
-        RIGHT: "right",
-        JUSTIFY: "justify",
-    };
-    Helper.BREAKTYPE = {
-        NONE: "none",
-        COL: "col",
-        EVEN: "even",
-        ODD: "odd",
-        PAGE: "page",
-    };
-    Helper.PAGENUMBER = {
-        DECIMAL: "decimal",
-        UROM: "urom",
-        LROM: "lrom",
-        ULTR: "ultr",
-        LLTR: "lltr",
-    };
-    Helper.UNDERLINE = {
-        NONE: "none",
-        CONTINUOUS: "continuous",
-        DOTTED: "dotted",
-        DASHED: "dashed",
-        DASHDOTTED: "dashdotted",
-        DASHDOTDOTTED: " dashdotdotted",
-        DOUBLE: "double",
-        HEAVYWAVE: "heavywave",
-        LONGDASHED: "longdashed",
-        THICK: "thick",
-        THICKDOTTED: "thickdotted",
-        THICKDASHED: "thickdashed",
-        THICKDASHDOTTED: "thickdashdotted",
-        THICKDASHDOTDOTTED: "thickdashdotdotted",
-        THICKLONGDASH: "thicklongdash",
-        DOUBLEWAVE: "doublewave",
-        WORD: "word",
-        WAVE: "wave",
-    };
-    Helper.FONTPITCH = {
-        DEFAULT: 0,
-        FIXED: 1,
-        VARIABLE: 2,
-    };
-    Helper.CHARACTER_TYPE = {
-        LOWANSI: "loch",
-        HIGHANSI: "hich",
-        DOUBLE: "dbch",
-    };
-    Helper._A = "A".charCodeAt(0);
-    Helper._a = "a".charCodeAt(0);
-    Helper._F = "F".charCodeAt(0);
-    Helper._f = "f".charCodeAt(0);
-    Helper._Z = "Z".charCodeAt(0);
-    Helper._z = "z".charCodeAt(0);
-    Helper._0 = "0".charCodeAt(0);
-    Helper._9 = "9".charCodeAt(0);
-    Helper._charsetMap = {
-        0: 1252,
-        2: 42,
-        77: 10000,
-        78: 10001,
-        79: 10003,
-        80: 10008,
-        81: 10002,
-        83: 10005,
-        84: 10004,
-        85: 10006,
-        86: 10081,
-        87: 10021,
-        88: 10029,
-        89: 10007,
-        128: 932,
-        129: 949,
-        130: 1361,
-        134: 936,
-        136: 950,
-        161: 1253,
-        162: 1254,
-        163: 1258,
-        177: 1255,
-        178: 1256,
-        186: 1257,
-        204: 1251,
-        222: 874,
-        238: 1250,
-        254: 437,
-        255: 850,
-    };
-    Helper._colorThemeMap = {
-        // TODO
-        maindarkone: null,
-        mainlightone: null,
-        maindarktwo: null,
-        mainlighttwo: null,
-        accentone: null,
-        accenttwo: null,
-        accentthree: null,
-        accentfour: null,
-        accentfive: null,
-        accentsix: null,
-        hyperlink: null,
-        followedhyperlink: null,
-        backgroundone: null,
-        textone: null,
-        backgroundtwo: null,
-        texttwo: null,
-    };
-    return Helper;
-}());
-
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Parser", function() { return Parser; });
-/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(17);
-/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(codepage__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(20);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(21);
-/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(22);
-/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(23);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-
-
-
-
-
-var Parser = /** @class */ (function () {
-    function Parser(document, blob, renderer) {
-        this.inst = document;
-        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_4__["GlobalState"](blob, renderer);
-    }
-    Parser.prototype.parse = function () {
-        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
-            this.parseLoop(false, true);
-            return Promise.all(this.parser._asyncTasks).then(function () {
-                return;
-            });
-        }
-        if (this.parser.version == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Not a valid rtf document");
-        }
-        if (this.parser.state != null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("File truncated");
-        }
-    };
-    Parser.prototype.eof = function () {
-        return this.parser.pos >= this.parser.data.length;
-    };
-    Parser.prototype.readChar = function () {
-        if (this.parser.pos < this.parser.data.length) {
-            this.parser.column++;
-            return String.fromCharCode(this.parser.data[this.parser.pos++]);
-        }
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Unexpected end of file");
-    };
-    Parser.prototype.unreadChar = function () {
-        if (this.parser.pos > 0) {
-            this.parser.column--;
-            this.parser.pos--;
-        }
-        else {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Already at beginning of file");
-        }
-    };
-    Parser.prototype.readBlob = function (cnt) {
-        if (this.parser.pos + cnt > this.parser.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot read binary data: too long");
-        }
-        var buf = new ArrayBuffer(cnt);
-        var view = new Uint8Array(buf);
-        for (var i = 0; i < cnt; i++) {
-            view[i] = this.parser.data[this.parser.pos + i];
-        }
-        return buf;
-    };
-    Parser.prototype.applyDestination = function (always) {
-        var dest = this.parser.state.destination;
-        if (dest != null) {
-            if (always || this.parser.state.parent == null
-                || this.parser.state.parent.destination !== this.parser.state.destination) {
-                if (dest.apply != null) {
-                    dest.apply();
-                }
-                this.parser.state.destination = null;
-            }
-        }
-    };
-    Parser.prototype.applyText = function () {
-        if (this.parser.text.length > 0) {
-            var dest = this.parser.state.destination;
-            if (dest == null) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot route text to destination");
-            }
-            if (dest.appendText != null && !this.parser.state.skipdestination) {
-                var summarizedText = this.summarizeText(this.parser.text);
-                dest.appendText(summarizedText);
-            }
-            this.parser.text = [];
-        }
-    };
-    Parser.prototype.summarizeText = function (text) {
-        var result = "";
-        for (var i = 0; i < text.length; i++) {
-            var value = text[i];
-            if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
-                result += value.text;
-            }
-            else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"]) {
-                // Looking for current fonttbl charset
-                var codepage = this.parser.codepage;
-                if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
-                    var idx = value.chp.fontfamily;
-                    // Code page 42 isn't a real code page and shouldn't appear here
-                    if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
-                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
-                        codepage = this.inst._fonts[idx].charset;
-                    }
-                }
-                var hex = value.hex;
-                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].CHARACTER_TYPE.DOUBLE
-                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
-                    // A reference check is sufficient for the chp instances,
-                    // as they have to be the same if they belong to one character
-                    if (i + 1 < text.length
-                        && text[i + 1] instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"] && text[i + 1].chp === value.chp) {
-                        var doubleByteCharacterHex = hex * 0x100 + text[i + 1].hex;
-                        // Verify the double byte character is valid for this code page
-                        if (codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[doubleByteCharacterHex] !== undefined) {
-                            hex = doubleByteCharacterHex;
-                            // Don't process the following hex character twice
-                            i++;
-                        }
-                    }
-                }
-                result += codepage__WEBPACK_IMPORTED_MODULE_0___default.a[codepage].dec[hex];
-            }
-        }
-        return result;
-    };
-    Parser.prototype.pushState = function (forceSkip) {
-        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_4__["State"](this.parser.state);
-        if (forceSkip) {
-            this.parser.state.skipdestination = true;
-        }
-        var dest = this.parser.state.destination;
-        if (dest != null && !this.parser.state.skipdestination) {
-            if (dest.sub != null) {
-                var sub = dest.sub();
-                if (sub != null) {
-                    this.parser.state.destination = sub;
-                }
-            }
-        }
-    };
-    Parser.prototype.popState = function () {
-        var state = this.parser.state;
-        if (state == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Unexpected end of state");
-        }
-        this.applyText();
-        if (state.parent == null || state.destination !== state.parent.destination) {
-            this.applyDestination(true);
-        }
-        this.parser.state = state.parent;
-        if (this.parser.state !== null) {
-            var currentState_1 = this.parser.state;
-            this.inst._ins.push(function (renderer) {
-                renderer.setChp(new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__["RenderChp"](currentState_1.chp));
-            });
-            this.inst._ins.push(function (renderer) {
-                renderer.setPap(new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__["RenderPap"](currentState_1.pap));
-            });
-        }
-        return this.parser.state;
-    };
-    Parser.prototype.changeDestination = function (name, param) {
-        this.applyText();
-        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__["Destinations"][name];
-        if (handler != null) {
-            this.applyDestination(false);
-            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__["DestinationFactory"]) {
-                this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
-            }
-            else {
-                this.parser.state.destination = new handler(this.parser, this.inst, name, param);
-            }
-            return true;
-        }
-        return false;
-    };
-    Parser.prototype.processKeyword = function (keyword, param) {
-        var first = this.parser.state.first;
-        if (first) {
-            if (keyword === "*") {
-                this.parser.state.skipunknowndestination = true;
-                return;
-            }
-            this.parser.state.first = false;
-        }
-        if (this.parser.state.bindata > 0) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Keyword encountered within binary data");
-        }
-        // Reset if we unexpectedly encounter a keyword
-        this.parser.state.skipchars = 0;
-        switch (keyword) {
-            case "tab":
-                return "\t";
-            case "emdash":
-                return "—";
-            case "endash":
-                return "–";
-            case "emspace":
-                return " ";
-            case "enspace":
-                return " ";
-            case "qmspace":
-                return " ";
-            case "bullet":
-                return "•";
-            case "lquote":
-                return "‘";
-            case "rquote":
-                return "’";
-            case "ldblquote":
-                return "“";
-            case "rdblquote":
-                return "”";
-            case "~":
-                return " ";
-            case "_":
-                return "‑";
-            case "{":
-            case "}":
-            case "\\":
-                return keyword;
-            case "uc":
-                if (param != null && param >= 0) {
-                    this.parser.state.ucn = param;
-                }
-                break;
-            case "u":
-                if (param != null) {
-                    if (param < 0) {
-                        param += 65536;
-                    }
-                    if (param < 0 || param > 65535) {
-                        throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid unicode character encountered");
-                    }
-                    var idx = this.parser.state.chp.fontfamily;
-                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
-                    // are mapped to the range between 0xf020 and 0xf0ff
-                    if (idx && this.inst._fonts
-                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
-                        && param >= 0xf020 && param <= 0xf0ff) {
-                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param - 0xf000)));
-                    }
-                    else {
-                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](String.fromCharCode(param)));
-                    }
-                    this.parser.state.skipchars = this.parser.state.ucn;
-                }
-                return;
-            case "bin":
-                if (param == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Binary data is missing length");
-                }
-                if (param < 0) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Binary data with invalid length");
-                }
-                this.parser.state.bindata = param;
-                return;
-            case "upr":
-                this.parseLoop(true, false); // skip the first sub destination (ansi)
-                // this will be followed by a \ud sub destination
-                return;
-            case "ud":
-            case "ltrch":
-            case "rtlch":
-                return;
-            case "\n":
-            case "\r": {
-                // Carriage return and line feed must be treated like a \par, so we rewrite the keyword
-                // here and then fall through to the default behavior
-                this.parser.line++;
-                this.parser.column = 0;
-                keyword = "par";
-            }
-            // eslint-disable-next-line no-fallthrough
-            default:
-                if (!this.parser.state.skipdestination) {
-                    if (first) {
-                        if (!this.changeDestination(keyword, param)) {
-                            var handled = false;
-                            var dest = this.parser.state.destination;
-                            if (dest != null) {
-                                if (dest.handleKeyword != null) {
-                                    handled = dest.handleKeyword(keyword, param) || false;
-                                }
-                            }
-                            if (!handled && this.parser.state.skipunknowndestination) {
-                                this.parser.state.skipdestination = true;
-                            }
-                        }
-                    }
-                    else {
-                        this.applyText();
-                        var dest = this.parser.state.destination;
-                        if (dest != null) {
-                            if (dest.handleKeyword != null) {
-                                dest.handleKeyword(keyword, param);
-                            }
-                        }
-                        else {
-                            _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].log("Unhandled keyword: " + keyword + " param: " + param);
-                        }
-                    }
-                }
-                return;
-        }
-        this.parser.state.skipdestination = false;
-    };
-    Parser.prototype.appendText = function (textData) {
-        this.parser.state.first = false;
-        if (this.parser.state.skipchars > 0) {
-            if (textData instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"]) {
-                var len = textData.text.length;
-                if (this.parser.state.skipchars >= len) {
-                    this.parser.state.skipchars -= len;
-                    return;
-                }
-                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-                    this.parser.text.push(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](textData.text.slice(this.parser.state.skipchars)));
-                }
-            }
-            else {
-                if (this.parser.state.skipchars >= 1) {
-                    this.parser.state.skipchars -= 1;
-                    return;
-                }
-                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-                    this.parser.text.push(textData);
-                }
-            }
-            this.parser.state.skipchars = 0;
-        }
-        else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
-            this.parser.text.push(textData);
-        }
-    };
-    Parser.prototype.applyBlob = function (blob) {
-        this.parser.state.first = false;
-        this.applyText();
-        if (this.parser.state.skipchars > 0) {
-            // \bin and all its data is considered one character for skipping purposes
-            this.parser.state.skipchars--;
-        }
-        else {
-            var dest = this.parser.state.destination;
-            if (dest == null) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Cannot route binary to destination");
-            }
-            if (dest.handleBlob != null && !this.parser.state.skipdestination) {
-                dest.handleBlob(blob);
-            }
-        }
-    };
-    Parser.prototype.parseKeyword = function (process) {
-        if (this.parser.state == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("No state");
-        }
-        var param;
-        var ch = this.readChar();
-        if (!_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
-            // 8 bit character encoded as hexadecimal
-            if (ch === "'") {
-                var hex = this.readChar() + this.readChar();
-                param = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._parseHex(hex);
-                if (isNaN(param)) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Could not parse hexadecimal number");
-                }
-                if (process) {
-                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["HexText"](param, this.parser.state.chp));
-                }
-            }
-            else if (process) {
-                var text = this.processKeyword(ch, null);
-                if (text != null) {
-                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](text));
-                }
-            }
-        }
-        else {
-            var keyword = ch;
-            ch = this.readChar();
-            while (keyword.length < 30 && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isalpha(ch)) {
-                keyword += ch;
-                ch = this.readChar();
-            }
-            var num = void 0;
-            if (ch === "-") {
-                num = "-";
-                ch = this.readChar();
-            }
-            else {
-                num = "";
-            }
-            if (_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isdigit(ch)) {
-                do {
-                    num += ch;
-                    ch = this.readChar();
-                } while (num.length < 20 && _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"]._isdigit(ch));
-                if (num.length >= 20) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Param for keyword " + keyword + " too long");
-                }
-                param = parseInt(num, 10);
-                if (isNaN(param)) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]("Invalid keyword " + keyword + " param");
-                }
-            }
-            if (ch !== " ") {
-                this.unreadChar();
-            }
-            if (process) {
-                var text = this.processKeyword(keyword, param);
-                if (text != null) {
-                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](text));
-                }
-            }
-        }
-    };
-    Parser.prototype.parseLoop = function (skip, process) {
-        try {
-            var initialState = this.parser.state;
-            main_loop: while (!this.eof()) {
-                if (this.parser.state != null && this.parser.state.bindata > 0) {
-                    var blob = this.readBlob(this.parser.state.bindata);
-                    this.parser.state.bindata = 0;
-                    this.applyBlob(blob);
-                }
-                else {
-                    var ch = this.readChar();
-                    switch (ch) {
-                        case "\r":
-                            continue;
-                        case "\n":
-                            this.parser.line++;
-                            this.parser.column = 0;
-                            continue;
-                        case "{":
-                            this.pushState(skip);
-                            break;
-                        case "}":
-                            if (initialState === this.parser.state) {
-                                this.unreadChar();
-                                break main_loop;
-                            }
-                            else if (this.popState() === initialState) {
-                                break main_loop;
-                            }
-                            break;
-                        case "\\":
-                            this.parseKeyword(!skip ? process : null);
-                            break;
-                        default:
-                            if (!skip) {
-                                this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__["PlainText"](ch));
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-        catch (error) {
-            if (error instanceof _Helper__WEBPACK_IMPORTED_MODULE_1__["RTFJSError"]) {
-                error.message += " (line: " + this.parser.line + "; column: " + this.parser.column + ")";
-            }
-            throw error;
-        }
-    };
-    return Parser;
-}());
-
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* cputils.js (C) 2013-present SheetJS -- http://sheetjs.com */
-/* vim: set ft=javascript: */
-/*jshint newcap: false */
-(function(root, factory) {
-  /*jshint ignore:start */
-  /*eslint-disable */
-  "use strict";
-  if(typeof cptable === "undefined") {
-    if(true){
-      var cpt = __webpack_require__(18);
-      if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);
-      else root.cptable = factory(cpt);
-    } else {}
-  } else cptable = factory(cptable);
-  /*eslint-enable */
-  /*jshint ignore:end */
-}(this, function(cpt){
-  "use strict";
-  /*global module, Buffer */
-  var magic = {
-    "1200":"utf16le",
-    "1201":"utf16be",
-    "12000":"utf32le",
-    "12001":"utf32be",
-    "16969":"utf64le",
-    "20127":"ascii",
-    "65000":"utf7",
-    "65001":"utf8"
-  };
-
-  var sbcs_cache = [874,1250,1251,1252,1253,1254,1255,1256,10000];
-  var dbcs_cache = [932,936,949,950];
-  var magic_cache = [65001];
-  var magic_decode = {};
-  var magic_encode = {};
-  var cpdcache = {};
-  var cpecache = {};
-
-  var sfcc = function sfcc(x) { return String.fromCharCode(x); };
-  var cca = function cca(x) { return x.charCodeAt(0); };
-
-  var has_buf = (typeof Buffer !== 'undefined');
-  var Buffer_from = function(){};
-  if(has_buf) {
-    var nbfs = !Buffer.from;
-    if(!nbfs) try { Buffer.from("foo", "utf8"); } catch(e) { nbfs = true; }
-    Buffer_from = nbfs ? function(buf, enc) { return (enc) ? new Buffer(buf, enc) : new Buffer(buf); } : Buffer.from.bind(Buffer);
-    // $FlowIgnore
-    if(!Buffer.allocUnsafe) Buffer.allocUnsafe = function(n) { return new Buffer(n); };
-
-    var mdl = 1024, mdb = Buffer.allocUnsafe(mdl);
-    var make_EE = function make_EE(E){
-      var EE = Buffer.allocUnsafe(65536);
-      for(var i = 0; i < 65536;++i) EE[i] = 0;
-      var keys = Object.keys(E), len = keys.length;
-      for(var ee = 0, e = keys[ee]; ee < len; ++ee) {
-        if(!(e = keys[ee])) continue;
-        EE[e.charCodeAt(0)] = E[e];
-      }
-      return EE;
-    };
-    var sbcs_encode = function make_sbcs_encode(cp) {
-      var EE = make_EE(cpt[cp].enc);
-      return function sbcs_e(data, ofmt) {
-        var len = data.length;
-        var out, i=0, j=0, D=0, w=0;
-        if(typeof data === 'string') {
-          out = Buffer.allocUnsafe(len);
-          for(i = 0; i < len; ++i) out[i] = EE[data.charCodeAt(i)];
-        } else if(Buffer.isBuffer(data)) {
-          out = Buffer.allocUnsafe(2*len);
-          j = 0;
-          for(i = 0; i < len; ++i) {
-            D = data[i];
-            if(D < 128) out[j++] = EE[D];
-            else if(D < 224) { out[j++] = EE[((D&31)<<6)+(data[i+1]&63)]; ++i; }
-            else if(D < 240) { out[j++] = EE[((D&15)<<12)+((data[i+1]&63)<<6)+(data[i+2]&63)]; i+=2; }
-            else {
-              w = ((D&7)<<18)+((data[i+1]&63)<<12)+((data[i+2]&63)<<6)+(data[i+3]&63); i+=3;
-              if(w < 65536) out[j++] = EE[w];
-              else { w -= 65536; out[j++] = EE[0xD800 + ((w>>10)&1023)]; out[j++] = EE[0xDC00 + (w&1023)]; }
-            }
-          }
-          out = out.slice(0,j);
-        } else {
-          out = Buffer.allocUnsafe(len);
-          for(i = 0; i < len; ++i) out[i] = EE[data[i].charCodeAt(0)];
-        }
-        if(!ofmt || ofmt === 'buf') return out;
-        if(ofmt !== 'arr') return out.toString('binary');
-        return [].slice.call(out);
-      };
-    };
-    var sbcs_decode = function make_sbcs_decode(cp) {
-      var D = cpt[cp].dec;
-      var DD = Buffer.allocUnsafe(131072), d=0, c="";
-      for(d=0;d<D.length;++d) {
-        if(!(c=D[d])) continue;
-        var w = c.charCodeAt(0);
-        DD[2*d] = w&255; DD[2*d+1] = w>>8;
-      }
-      return function sbcs_d(data) {
-        var len = data.length, i=0, j=0;
-        if(2 * len > mdl) { mdl = 2 * len; mdb = Buffer.allocUnsafe(mdl); }
-        if(Buffer.isBuffer(data)) {
-          for(i = 0; i < len; i++) {
-            j = 2*data[i];
-            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
-          }
-        } else if(typeof data === "string") {
-          for(i = 0; i < len; i++) {
-            j = 2*data.charCodeAt(i);
-            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
-          }
-        } else {
-          for(i = 0; i < len; i++) {
-            j = 2*data[i];
-            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
-          }
-        }
-        return mdb.slice(0, 2 * len).toString('ucs2');
-      };
-    };
-    var dbcs_encode = function make_dbcs_encode(cp) {
-      var E = cpt[cp].enc;
-      var EE = Buffer.allocUnsafe(131072);
-      for(var i = 0; i < 131072; ++i) EE[i] = 0;
-      var keys = Object.keys(E);
-      for(var ee = 0, e = keys[ee]; ee < keys.length; ++ee) {
-        if(!(e = keys[ee])) continue;
-        var f = e.charCodeAt(0);
-        EE[2*f] = E[e] & 255; EE[2*f+1] = E[e]>>8;
-      }
-      return function dbcs_e(data, ofmt) {
-        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, jj=0, k=0, D=0;
-        if(typeof data === 'string') {
-          for(i = k = 0; i < len; ++i) {
-            j = data.charCodeAt(i)*2;
-            out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
-          }
-          out = out.slice(0,k);
-        } else if(Buffer.isBuffer(data)) {
-          for(i = k = 0; i < len; ++i) {
-            D = data[i];
-            if(D < 128) j = D;
-            else if(D < 224) { j = ((D&31)<<6)+(data[i+1]&63); ++i; }
-            else if(D < 240) { j = ((D&15)<<12)+((data[i+1]&63)<<6)+(data[i+2]&63); i+=2; }
-            else { j = ((D&7)<<18)+((data[i+1]&63)<<12)+((data[i+2]&63)<<6)+(data[i+3]&63); i+=3; }
-            if(j<65536) { j*=2; out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j]; }
-            else { jj = j-65536;
-              j=2*(0xD800 + ((jj>>10)&1023)); out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
-              j=2*(0xDC00 + (jj&1023)); out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
-            }
-          }
-          out = out.slice(0,k);
-        } else {
-          for(i = k = 0; i < len; i++) {
-            j = data[i].charCodeAt(0)*2;
-            out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
-          }
-        }
-        if(!ofmt || ofmt === 'buf') return out;
-        if(ofmt !== 'arr') return out.toString('binary');
-        return [].slice.call(out);
-      };
-    };
-    var dbcs_decode = function make_dbcs_decode(cp) {
-      var D = cpt[cp].dec;
-      var DD = Buffer.allocUnsafe(131072), d=0, c, w=0, j=0, i=0;
-      for(i = 0; i < 65536; ++i) { DD[2*i] = 0xFF; DD[2*i+1] = 0xFD;}
-      for(d = 0; d < D.length; ++d) {
-        if(!(c=D[d])) continue;
-        w = c.charCodeAt(0);
-        j = 2*d;
-        DD[j] = w&255; DD[j+1] = w>>8;
-      }
-      return function dbcs_d(data) {
-        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, k=0;
-        if(Buffer.isBuffer(data)) {
-          for(i = 0; i < len; i++) {
-            j = 2*data[i];
-            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data[i]<<8)+data[i+1]); ++i; }
-            out[k++] = DD[j]; out[k++] = DD[j+1];
-          }
-        } else if(typeof data === "string") {
-          for(i = 0; i < len; i++) {
-            j = 2*data.charCodeAt(i);
-            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data.charCodeAt(i)<<8)+data.charCodeAt(i+1)); ++i; }
-            out[k++] = DD[j]; out[k++] = DD[j+1];
-          }
-        } else {
-          for(i = 0; i < len; i++) {
-            j = 2*data[i];
-            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data[i]<<8)+data[i+1]); ++i; }
-            out[k++] = DD[j]; out[k++] = DD[j+1];
-          }
-        }
-        return out.slice(0,k).toString('ucs2');
-      };
-    };
-    magic_decode[65001] = function utf8_d(data) {
-      if(typeof data === "string") return utf8_d(data.split("").map(cca));
-      var len = data.length, w = 0, ww = 0;
-      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
-      var i = 0;
-      if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
-      for(var j = 1, k = 0, D = 0; i < len; i+=j) {
-        j = 1; D = data[i];
-        if(D < 128) w = D;
-        else if(D < 224) { w=(D&31)*64+(data[i+1]&63); j=2; }
-        else if(D < 240) { w=((D&15)<<12)+(data[i+1]&63)*64+(data[i+2]&63); j=3; }
-        else { w=(D&7)*262144+((data[i+1]&63)<<12)+(data[i+2]&63)*64+(data[i+3]&63); j=4; }
-        if(w < 65536) { mdb[k++] = w&255; mdb[k++] = w>>8; }
-        else {
-          w -= 65536; ww = 0xD800 + ((w>>10)&1023); w = 0xDC00 + (w&1023);
-          mdb[k++] = ww&255; mdb[k++] = ww>>>8; mdb[k++] = w&255; mdb[k++] = (w>>>8)&255;
-        }
-      }
-      return mdb.slice(0,k).toString('ucs2');
-    };
-    magic_encode[65001] = function utf8_e(data, ofmt) {
-      if(has_buf && Buffer.isBuffer(data)) {
-        if(!ofmt || ofmt === 'buf') return data;
-        if(ofmt !== 'arr') return data.toString('binary');
-        return [].slice.call(data);
-      }
-      var len = data.length, w = 0, ww = 0, j = 0;
-      var direct = typeof data === "string";
-      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
-      for(var i = 0; i < len; ++i) {
-        w = direct ? data.charCodeAt(i) : data[i].charCodeAt(0);
-        if(w <= 0x007F) mdb[j++] = w;
-        else if(w <= 0x07FF) {
-          mdb[j++] = 192 + (w >> 6);
-          mdb[j++] = 128 + (w&63);
-        } else if(w >= 0xD800 && w <= 0xDFFF) {
-          w -= 0xD800; ++i;
-          ww = (direct ? data.charCodeAt(i) : data[i].charCodeAt(0)) - 0xDC00 + (w << 10);
-          mdb[j++] = 240 + ((ww>>>18) & 0x07);
-          mdb[j++] = 144 + ((ww>>>12) & 0x3F);
-          mdb[j++] = 128 + ((ww>>>6) & 0x3F);
-          mdb[j++] = 128 + (ww & 0x3F);
-        } else {
-          mdb[j++] = 224 + (w >> 12);
-          mdb[j++] = 128 + ((w >> 6)&63);
-          mdb[j++] = 128 + (w&63);
-        }
-      }
-      if(!ofmt || ofmt === 'buf') return mdb.slice(0,j);
-      if(ofmt !== 'arr') return mdb.slice(0,j).toString('binary');
-      return [].slice.call(mdb, 0, j);
-    };
-  }
-
-  var encache = function encache() {
-    if(has_buf) {
-      if(cpdcache[sbcs_cache[0]]) return;
-      var i=0, s=0;
-      for(i = 0; i < sbcs_cache.length; ++i) {
-        s = sbcs_cache[i];
-        if(cpt[s]) {
-          cpdcache[s] = sbcs_decode(s);
-          cpecache[s] = sbcs_encode(s);
-        }
-      }
-      for(i = 0; i < dbcs_cache.length; ++i) {
-        s = dbcs_cache[i];
-        if(cpt[s]) {
-          cpdcache[s] = dbcs_decode(s);
-          cpecache[s] = dbcs_encode(s);
-        }
-      }
-      for(i = 0; i < magic_cache.length; ++i) {
-        s = magic_cache[i];
-        if(magic_decode[s]) cpdcache[s] = magic_decode[s];
-        if(magic_encode[s]) cpecache[s] = magic_encode[s];
-      }
-    }
-  };
-  var null_enc = function(data, ofmt) { void ofmt; return ""; };
-  var cp_decache = function cp_decache(cp) { delete cpdcache[cp]; delete cpecache[cp]; };
-  var decache = function decache() {
-    if(has_buf) {
-      if(!cpdcache[sbcs_cache[0]]) return;
-      sbcs_cache.forEach(cp_decache);
-      dbcs_cache.forEach(cp_decache);
-      magic_cache.forEach(cp_decache);
-    }
-    last_enc = null_enc; last_cp = 0;
-  };
-  var cache = {
-    encache: encache,
-    decache: decache,
-    sbcs: sbcs_cache,
-    dbcs: dbcs_cache
-  };
-
-  encache();
-
-  var BM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  var SetD = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'(),-./:?";
-  var last_enc = null_enc, last_cp = 0;
-  var encode = function encode(cp, data, ofmt) {
-    if(cp === last_cp && last_enc) { return last_enc(data, ofmt); }
-    if(cpecache[cp]) { last_enc = cpecache[last_cp=cp]; return last_enc(data, ofmt); }
-    if(has_buf && Buffer.isBuffer(data)) data = data.toString('utf8');
-    var len = data.length;
-    var out = has_buf ? Buffer.allocUnsafe(4*len) : [], w=0, i=0, j = 0, ww=0;
-    var C = cpt[cp], E, M = "";
-    var isstr = typeof data === 'string';
-    if(C && (E=C.enc)) for(i = 0; i < len; ++i, ++j) {
-      w = E[isstr? data.charAt(i) : data[i]];
-      if(w > 255) {
-        out[j] = w>>8;
-        out[++j] = w&255;
-      } else out[j] = w&255;
-    }
-    else if((M=magic[cp])) switch(M) {
-      case "utf8":
-        if(has_buf && isstr) { out = Buffer_from(data, M); j = out.length; break; }
-        for(i = 0; i < len; ++i, ++j) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          if(w <= 0x007F) out[j] = w;
-          else if(w <= 0x07FF) {
-            out[j]   = 192 + (w >> 6);
-            out[++j] = 128 + (w&63);
-          } else if(w >= 0xD800 && w <= 0xDFFF) {
-            w -= 0xD800;
-            ww = (isstr ? data.charCodeAt(++i) : data[++i].charCodeAt(0)) - 0xDC00 + (w << 10);
-            out[j]   = 240 + ((ww>>>18) & 0x07);
-            out[++j] = 144 + ((ww>>>12) & 0x3F);
-            out[++j] = 128 + ((ww>>>6) & 0x3F);
-            out[++j] = 128 + (ww & 0x3F);
-          } else {
-            out[j]   = 224 + (w >> 12);
-            out[++j] = 128 + ((w >> 6)&63);
-            out[++j] = 128 + (w&63);
-          }
-        }
-        break;
-      case "ascii":
-        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
-        for(i = 0; i < len; ++i, ++j) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          if(w <= 0x007F) out[j] = w;
-          else throw new Error("bad ascii " + w);
-        }
-        break;
-      case "utf16le":
-        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
-        for(i = 0; i < len; ++i) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          out[j++] = w&255;
-          out[j++] = w>>8;
-        }
-        break;
-      case "utf16be":
-        for(i = 0; i < len; ++i) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          out[j++] = w>>8;
-          out[j++] = w&255;
-        }
-        break;
-      case "utf32le":
-        for(i = 0; i < len; ++i) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
-          out[j++] = w&255; w >>= 8;
-          out[j++] = w&255; w >>= 8;
-          out[j++] = w&255; w >>= 8;
-          out[j++] = w&255;
-        }
-        break;
-      case "utf32be":
-        for(i = 0; i < len; ++i) {
-          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
-          if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
-          out[j+3] = w&255; w >>= 8;
-          out[j+2] = w&255; w >>= 8;
-          out[j+1] = w&255; w >>= 8;
-          out[j] = w&255;
-          j+=4;
-        }
-        break;
-      case "utf7":
-        for(i = 0; i < len; i++) {
-          var c = isstr ? data.charAt(i) : data[i].charAt(0);
-          if(c === "+") { out[j++] = 0x2b; out[j++] = 0x2d; continue; }
-          if(SetD.indexOf(c) > -1) { out[j++] = c.charCodeAt(0); continue; }
-          var tt = encode(1201, c);
-          out[j++] = 0x2b;
-          out[j++] = BM.charCodeAt(tt[0]>>2);
-          out[j++] = BM.charCodeAt(((tt[0]&0x03)<<4) + ((tt[1]||0)>>4));
-          out[j++] = BM.charCodeAt(((tt[1]&0x0F)<<2) + ((tt[2]||0)>>6));
-          out[j++] = 0x2d;
-        }
-        break;
-      default: throw new Error("Unsupported magic: " + cp + " " + magic[cp]);
-    }
-    else throw new Error("Unrecognized CP: " + cp);
-    out = out.slice(0,j);
-    if(!has_buf) return (ofmt == 'str') ? (out).map(sfcc).join("") : out;
-    if(!ofmt || ofmt === 'buf') return out;
-    if(ofmt !== 'arr') return out.toString('binary');
-    return [].slice.call(out);
-  };
-  var decode = function decode(cp, data) {
-    var F; if((F=cpdcache[cp])) return F(data);
-    if(typeof data === "string") return decode(cp, data.split("").map(cca));
-    var len = data.length, out = new Array(len), s="", w=0, i=0, j=1, k=0, ww=0;
-    var C = cpt[cp], D, M="";
-    if(C && (D=C.dec)) {
-      for(i = 0; i < len; i+=j) {
-        j = 2;
-        s = D[(data[i]<<8)+ data[i+1]];
-        if(!s) {
-          j = 1;
-          s = D[data[i]];
-        }
-        if(!s) throw new Error('Unrecognized code: ' + data[i] + ' ' + data[i+j-1] + ' ' + i + ' ' + j + ' ' + D[data[i]]);
-        out[k++] = s;
-      }
-    }
-    else if((M=magic[cp])) switch(M) {
-      case "utf8":
-        if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
-        for(; i < len; i+=j) {
-          j = 1;
-          if(data[i] < 128) w = data[i];
-          else if(data[i] < 224) { w=(data[i]&31)*64+(data[i+1]&63); j=2; }
-          else if(data[i] < 240) { w=((data[i]&15)<<12)+(data[i+1]&63)*64+(data[i+2]&63); j=3; }
-          else { w=(data[i]&7)*262144+((data[i+1]&63)<<12)+(data[i+2]&63)*64+(data[i+3]&63); j=4; }
-          if(w < 65536) { out[k++] = String.fromCharCode(w); }
-          else {
-            w -= 65536; ww = 0xD800 + ((w>>10)&1023); w = 0xDC00 + (w&1023);
-            out[k++] = String.fromCharCode(ww); out[k++] = String.fromCharCode(w);
-          }
-        }
-        break;
-      case "ascii":
-        if(has_buf && Buffer.isBuffer(data)) return data.toString(M);
-        for(i = 0; i < len; i++) out[i] = String.fromCharCode(data[i]);
-        k = len; break;
-      case "utf16le":
-        if(len >= 2 && data[0] == 0xFF) if(data[1] == 0xFE) i = 2;
-        if(has_buf && Buffer.isBuffer(data)) return data.toString(M);
-        j = 2;
-        for(; i+1 < len; i+=j) {
-          out[k++] = String.fromCharCode((data[i+1]<<8) + data[i]);
-        }
-        break;
-      case "utf16be":
-        if(len >= 2 && data[0] == 0xFE) if(data[1] == 0xFF) i = 2;
-        j = 2;
-        for(; i+1 < len; i+=j) {
-          out[k++] = String.fromCharCode((data[i]<<8) + data[i+1]);
-        }
-        break;
-      case "utf32le":
-        if(len >= 4 && data[0] == 0xFF) if(data[1] == 0xFE && data[2] === 0 && data[3] === 0) i = 4;
-        j = 4;
-        for(; i < len; i+=j) {
-          w = (data[i+3]<<24) + (data[i+2]<<16) + (data[i+1]<<8) + (data[i]);
-          if(w > 0xFFFF) {
-            w -= 0x10000;
-            out[k++] = String.fromCharCode(0xD800 + ((w >> 10) & 0x3FF));
-            out[k++] = String.fromCharCode(0xDC00 + (w & 0x3FF));
-          }
-          else out[k++] = String.fromCharCode(w);
-        }
-        break;
-      case "utf32be":
-        if(len >= 4 && data[3] == 0xFF) if(data[2] == 0xFE && data[1] === 0 && data[0] === 0) i = 4;
-        j = 4;
-        for(; i < len; i+=j) {
-          w = (data[i]<<24) + (data[i+1]<<16) + (data[i+2]<<8) + (data[i+3]);
-          if(w > 0xFFFF) {
-            w -= 0x10000;
-            out[k++] = String.fromCharCode(0xD800 + ((w >> 10) & 0x3FF));
-            out[k++] = String.fromCharCode(0xDC00 + (w & 0x3FF));
-          }
-          else out[k++] = String.fromCharCode(w);
-        }
-        break;
-      case "utf7":
-        if(len >= 4 && data[0] == 0x2B && data[1] == 0x2F && data[2] == 0x76) {
-          if(len >= 5 && data[3] == 0x38 && data[4] == 0x2D) i = 5;
-          else if(data[3] == 0x38 || data[3] == 0x39 || data[3] == 0x2B || data[3] == 0x2F) i = 4;
-        }
-        for(; i < len; i+=j) {
-          if(data[i] !== 0x2b) { j=1; out[k++] = String.fromCharCode(data[i]); continue; }
-          j=1;
-          if(data[i+1] === 0x2d) { j = 2; out[k++] = "+"; continue; }
-          // eslint-disable-next-line no-useless-escape
-          while(String.fromCharCode(data[i+j]).match(/[A-Za-z0-9+\/]/)) j++;
-          var dash = 0;
-          if(data[i+j] === 0x2d) { ++j; dash=1; }
-          var tt = [];
-          var o64 = "";
-          var c1=0, c2=0, c3=0;
-          var e1=0, e2=0, e3=0, e4=0;
-          for(var l = 1; l < j - dash;) {
-            e1 = BM.indexOf(String.fromCharCode(data[i+l++]));
-            e2 = BM.indexOf(String.fromCharCode(data[i+l++]));
-            c1 = e1 << 2 | e2 >> 4;
-            tt.push(c1);
-            e3 = BM.indexOf(String.fromCharCode(data[i+l++]));
-            if(e3 === -1) break;
-            c2 = (e2 & 15) << 4 | e3 >> 2;
-            tt.push(c2);
-            e4 = BM.indexOf(String.fromCharCode(data[i+l++]));
-            if(e4 === -1) break;
-            c3 = (e3 & 3) << 6 | e4;
-            if(e4 < 64) tt.push(c3);
-          }
-          o64 = decode(1201, tt);
-          for(l = 0; l < o64.length; ++l) out[k++] = o64.charAt(l);
-        }
-        break;
-      default: throw new Error("Unsupported magic: " + cp + " " + magic[cp]);
-    }
-    else throw new Error("Unrecognized CP: " + cp);
-    return out.slice(0,k).join("");
-  };
-  var hascp = function hascp(cp) { return !!(cpt[cp] || magic[cp]); };
-  cpt.utils = { decode: decode, encode: encode, hascp: hascp, magic: magic, cache:cache };
-  return cpt;
-}));
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_EMFJS__, __WEBPACK_EXTERNAL_MODULE_WMFJS__) {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./node_modules/codepage/cptable.js":
+/*!******************************************!*\
+  !*** ./node_modules/codepage/cptable.js ***!
+  \******************************************/
+/***/ ((module) => {
 
 /* cptable.js (C) 2013-present SheetJS -- http://sheetjs.com */
 /*jshint -W100 */
@@ -7943,182 +6367,985 @@ if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') mo
 
 
 /***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderChp", function() { return RenderChp; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/*
+/***/ "./node_modules/codepage/cputils.js":
+/*!******************************************!*\
+  !*** ./node_modules/codepage/cputils.js ***!
+  \******************************************/
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
-The MIT License (MIT)
+/* cputils.js (C) 2013-present SheetJS -- http://sheetjs.com */
+/* vim: set ft=javascript: */
+/*jshint newcap: false */
+(function(root, factory) {
+  /*jshint ignore:start */
+  /*eslint-disable */
+  "use strict";
+  if(typeof cptable === "undefined") {
+    if(true){
+      var cpt = __webpack_require__(/*! ./cptable */ "./node_modules/codepage/cptable.js");
+      if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') module.exports = factory(cpt);
+      else root.cptable = factory(cpt);
+    } else {}
+  } else cptable = factory(cptable);
+  /*eslint-enable */
+  /*jshint ignore:end */
+}(this, function(cpt){
+  "use strict";
+  /*global module, Buffer */
+  var magic = {
+    "1200":"utf16le",
+    "1201":"utf16be",
+    "12000":"utf32le",
+    "12001":"utf32be",
+    "16969":"utf64le",
+    "20127":"ascii",
+    "65000":"utf7",
+    "65001":"utf8"
+  };
 
-Copyright (c) 2015 Thomas Bluemel
+  var sbcs_cache = [874,1250,1251,1252,1253,1254,1255,1256,10000];
+  var dbcs_cache = [932,936,949,950];
+  var magic_cache = [65001];
+  var magic_decode = {};
+  var magic_encode = {};
+  var cpdcache = {};
+  var cpecache = {};
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  var sfcc = function sfcc(x) { return String.fromCharCode(x); };
+  var cca = function cca(x) { return x.charCodeAt(0); };
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  var has_buf = (typeof Buffer !== 'undefined');
+  var Buffer_from = function(){};
+  if(has_buf) {
+    var nbfs = !Buffer.from;
+    if(!nbfs) try { Buffer.from("foo", "utf8"); } catch(e) { nbfs = true; }
+    Buffer_from = nbfs ? function(buf, enc) { return (enc) ? new Buffer(buf, enc) : new Buffer(buf); } : Buffer.from.bind(Buffer);
+    // $FlowIgnore
+    if(!Buffer.allocUnsafe) Buffer.allocUnsafe = function(n) { return new Buffer(n); };
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-var RenderChp = /** @class */ (function () {
-    function RenderChp(chp) {
-        this._chp = chp;
-    }
-    RenderChp.prototype.apply = function (doc, el) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp: " + el.textContent);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
-        if (this._chp.bold) {
-            el.style.fontWeight = "bold";
-        }
-        if (this._chp.italic) {
-            el.style.fontStyle = "italic";
-        }
-        if (Object.prototype.hasOwnProperty.call(this._chp, "fontfamily") && doc._fonts[this._chp.fontfamily]) {
-            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
-            if (fontFamily !== "Symbol") {
-                el.style.fontFamily = fontFamily;
-            }
-        }
-        var deco = [];
-        if (this._chp.underline !== _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE) {
-            deco.push("underline");
-        }
-        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
-            deco.push("line-through");
-        }
-        if (deco.length > 0) {
-            el.style.textDecoration = deco.join(" ");
-        }
-        if (this._chp.colorindex !== 0) {
-            var color = doc._lookupColor(this._chp.colorindex);
-            if (color != null) {
-                el.style.color = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color);
-            }
-        }
-        if (this._chp.highlightindex !== 0) {
-            var color = doc._lookupColor(this._chp.highlightindex);
-            if (color != null) {
-                el.style.backgroundColor = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._colorToStr(color);
-            }
-        }
-        el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
+    var mdl = 1024, mdb = Buffer.allocUnsafe(mdl);
+    var make_EE = function make_EE(E){
+      var EE = Buffer.allocUnsafe(65536);
+      for(var i = 0; i < 65536;++i) EE[i] = 0;
+      var keys = Object.keys(E), len = keys.length;
+      for(var ee = 0, e = keys[ee]; ee < len; ++ee) {
+        if(!(e = keys[ee])) continue;
+        EE[e.charCodeAt(0)] = E[e];
+      }
+      return EE;
     };
-    return RenderChp;
-}());
-
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderPap", function() { return RenderPap; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-var RenderPap = /** @class */ (function () {
-    function RenderPap(pap) {
-        this._pap = pap;
-    }
-    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
-            + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
-        if (ismaindiv) {
-            if (this._pap.spacebefore !== 0) {
-                el.style.marginTop = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spacebefore) + "pt";
-            }
+    var sbcs_encode = function make_sbcs_encode(cp) {
+      var EE = make_EE(cpt[cp].enc);
+      return function sbcs_e(data, ofmt) {
+        var len = data.length;
+        var out, i=0, j=0, D=0, w=0;
+        if(typeof data === 'string') {
+          out = Buffer.allocUnsafe(len);
+          for(i = 0; i < len; ++i) out[i] = EE[data.charCodeAt(i)];
+        } else if(Buffer.isBuffer(data)) {
+          out = Buffer.allocUnsafe(2*len);
+          j = 0;
+          for(i = 0; i < len; ++i) {
+            D = data[i];
+            if(D < 128) out[j++] = EE[D];
+            else if(D < 224) { out[j++] = EE[((D&31)<<6)+(data[i+1]&63)]; ++i; }
+            else if(D < 240) { out[j++] = EE[((D&15)<<12)+((data[i+1]&63)<<6)+(data[i+2]&63)]; i+=2; }
             else {
-                el.style.marginTop = "";
+              w = ((D&7)<<18)+((data[i+1]&63)<<12)+((data[i+2]&63)<<6)+(data[i+3]&63); i+=3;
+              if(w < 65536) out[j++] = EE[w];
+              else { w -= 65536; out[j++] = EE[0xD800 + ((w>>10)&1023)]; out[j++] = EE[0xDC00 + (w&1023)]; }
             }
-            if (this._pap.spaceafter !== 0) {
-                el.style.marginBottom = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._twipsToPt(this._pap.spaceafter) + "pt";
-            }
-            else {
-                el.style.marginBottom = "";
-            }
-            if (rchp != null) {
-                el.style.minHeight = Math.floor(rchp._chp.fontsize / 2) + "pt";
-            }
+          }
+          out = out.slice(0,j);
+        } else {
+          out = Buffer.allocUnsafe(len);
+          for(i = 0; i < len; ++i) out[i] = EE[data[i].charCodeAt(0)];
         }
+        if(!ofmt || ofmt === 'buf') return out;
+        if(ofmt !== 'arr') return out.toString('binary');
+        return [].slice.call(out);
+      };
+    };
+    var sbcs_decode = function make_sbcs_decode(cp) {
+      var D = cpt[cp].dec;
+      var DD = Buffer.allocUnsafe(131072), d=0, c="";
+      for(d=0;d<D.length;++d) {
+        if(!(c=D[d])) continue;
+        var w = c.charCodeAt(0);
+        DD[2*d] = w&255; DD[2*d+1] = w>>8;
+      }
+      return function sbcs_d(data) {
+        var len = data.length, i=0, j=0;
+        if(2 * len > mdl) { mdl = 2 * len; mdb = Buffer.allocUnsafe(mdl); }
+        if(Buffer.isBuffer(data)) {
+          for(i = 0; i < len; i++) {
+            j = 2*data[i];
+            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
+          }
+        } else if(typeof data === "string") {
+          for(i = 0; i < len; i++) {
+            j = 2*data.charCodeAt(i);
+            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
+          }
+        } else {
+          for(i = 0; i < len; i++) {
+            j = 2*data[i];
+            mdb[2*i] = DD[j]; mdb[2*i+1] = DD[j+1];
+          }
+        }
+        return mdb.slice(0, 2 * len).toString('ucs2');
+      };
+    };
+    var dbcs_encode = function make_dbcs_encode(cp) {
+      var E = cpt[cp].enc;
+      var EE = Buffer.allocUnsafe(131072);
+      for(var i = 0; i < 131072; ++i) EE[i] = 0;
+      var keys = Object.keys(E);
+      for(var ee = 0, e = keys[ee]; ee < keys.length; ++ee) {
+        if(!(e = keys[ee])) continue;
+        var f = e.charCodeAt(0);
+        EE[2*f] = E[e] & 255; EE[2*f+1] = E[e]>>8;
+      }
+      return function dbcs_e(data, ofmt) {
+        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, jj=0, k=0, D=0;
+        if(typeof data === 'string') {
+          for(i = k = 0; i < len; ++i) {
+            j = data.charCodeAt(i)*2;
+            out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
+          }
+          out = out.slice(0,k);
+        } else if(Buffer.isBuffer(data)) {
+          for(i = k = 0; i < len; ++i) {
+            D = data[i];
+            if(D < 128) j = D;
+            else if(D < 224) { j = ((D&31)<<6)+(data[i+1]&63); ++i; }
+            else if(D < 240) { j = ((D&15)<<12)+((data[i+1]&63)<<6)+(data[i+2]&63); i+=2; }
+            else { j = ((D&7)<<18)+((data[i+1]&63)<<12)+((data[i+2]&63)<<6)+(data[i+3]&63); i+=3; }
+            if(j<65536) { j*=2; out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j]; }
+            else { jj = j-65536;
+              j=2*(0xD800 + ((jj>>10)&1023)); out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
+              j=2*(0xDC00 + (jj&1023)); out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
+            }
+          }
+          out = out.slice(0,k);
+        } else {
+          for(i = k = 0; i < len; i++) {
+            j = data[i].charCodeAt(0)*2;
+            out[k++] = EE[j+1] || EE[j]; if(EE[j+1] > 0) out[k++] = EE[j];
+          }
+        }
+        if(!ofmt || ofmt === 'buf') return out;
+        if(ofmt !== 'arr') return out.toString('binary');
+        return [].slice.call(out);
+      };
+    };
+    var dbcs_decode = function make_dbcs_decode(cp) {
+      var D = cpt[cp].dec;
+      var DD = Buffer.allocUnsafe(131072), d=0, c, w=0, j=0, i=0;
+      for(i = 0; i < 65536; ++i) { DD[2*i] = 0xFF; DD[2*i+1] = 0xFD;}
+      for(d = 0; d < D.length; ++d) {
+        if(!(c=D[d])) continue;
+        w = c.charCodeAt(0);
+        j = 2*d;
+        DD[j] = w&255; DD[j+1] = w>>8;
+      }
+      return function dbcs_d(data) {
+        var len = data.length, out = Buffer.allocUnsafe(2*len), i=0, j=0, k=0;
+        if(Buffer.isBuffer(data)) {
+          for(i = 0; i < len; i++) {
+            j = 2*data[i];
+            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data[i]<<8)+data[i+1]); ++i; }
+            out[k++] = DD[j]; out[k++] = DD[j+1];
+          }
+        } else if(typeof data === "string") {
+          for(i = 0; i < len; i++) {
+            j = 2*data.charCodeAt(i);
+            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data.charCodeAt(i)<<8)+data.charCodeAt(i+1)); ++i; }
+            out[k++] = DD[j]; out[k++] = DD[j+1];
+          }
+        } else {
+          for(i = 0; i < len; i++) {
+            j = 2*data[i];
+            if(DD[j]===0xFF && DD[j+1]===0xFD) { j=2*((data[i]<<8)+data[i+1]); ++i; }
+            out[k++] = DD[j]; out[k++] = DD[j+1];
+          }
+        }
+        return out.slice(0,k).toString('ucs2');
+      };
+    };
+    magic_decode[65001] = function utf8_d(data) {
+      if(typeof data === "string") return utf8_d(data.split("").map(cca));
+      var len = data.length, w = 0, ww = 0;
+      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
+      var i = 0;
+      if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
+      for(var j = 1, k = 0, D = 0; i < len; i+=j) {
+        j = 1; D = data[i];
+        if(D < 128) w = D;
+        else if(D < 224) { w=(D&31)*64+(data[i+1]&63); j=2; }
+        else if(D < 240) { w=((D&15)<<12)+(data[i+1]&63)*64+(data[i+2]&63); j=3; }
+        else { w=(D&7)*262144+((data[i+1]&63)<<12)+(data[i+2]&63)*64+(data[i+3]&63); j=4; }
+        if(w < 65536) { mdb[k++] = w&255; mdb[k++] = w>>8; }
         else {
-            switch (this._pap.justification) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT:
-                    el.style.textAlign = "left";
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.RIGHT:
-                    el.style.textAlign = "right";
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.CENTER:
-                    el.style.textAlign = "center";
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.JUSTIFY:
-                    el.style.textAlign = "justify";
-                    break;
-            }
+          w -= 65536; ww = 0xD800 + ((w>>10)&1023); w = 0xDC00 + (w&1023);
+          mdb[k++] = ww&255; mdb[k++] = ww>>>8; mdb[k++] = w&255; mdb[k++] = (w>>>8)&255;
         }
+      }
+      return mdb.slice(0,k).toString('ucs2');
     };
-    return RenderPap;
+    magic_encode[65001] = function utf8_e(data, ofmt) {
+      if(has_buf && Buffer.isBuffer(data)) {
+        if(!ofmt || ofmt === 'buf') return data;
+        if(ofmt !== 'arr') return data.toString('binary');
+        return [].slice.call(data);
+      }
+      var len = data.length, w = 0, ww = 0, j = 0;
+      var direct = typeof data === "string";
+      if(4 * len > mdl) { mdl = 4 * len; mdb = Buffer.allocUnsafe(mdl); }
+      for(var i = 0; i < len; ++i) {
+        w = direct ? data.charCodeAt(i) : data[i].charCodeAt(0);
+        if(w <= 0x007F) mdb[j++] = w;
+        else if(w <= 0x07FF) {
+          mdb[j++] = 192 + (w >> 6);
+          mdb[j++] = 128 + (w&63);
+        } else if(w >= 0xD800 && w <= 0xDFFF) {
+          w -= 0xD800; ++i;
+          ww = (direct ? data.charCodeAt(i) : data[i].charCodeAt(0)) - 0xDC00 + (w << 10);
+          mdb[j++] = 240 + ((ww>>>18) & 0x07);
+          mdb[j++] = 144 + ((ww>>>12) & 0x3F);
+          mdb[j++] = 128 + ((ww>>>6) & 0x3F);
+          mdb[j++] = 128 + (ww & 0x3F);
+        } else {
+          mdb[j++] = 224 + (w >> 12);
+          mdb[j++] = 128 + ((w >> 6)&63);
+          mdb[j++] = 128 + (w&63);
+        }
+      }
+      if(!ofmt || ofmt === 'buf') return mdb.slice(0,j);
+      if(ofmt !== 'arr') return mdb.slice(0,j).toString('binary');
+      return [].slice.call(mdb, 0, j);
+    };
+  }
+
+  var encache = function encache() {
+    if(has_buf) {
+      if(cpdcache[sbcs_cache[0]]) return;
+      var i=0, s=0;
+      for(i = 0; i < sbcs_cache.length; ++i) {
+        s = sbcs_cache[i];
+        if(cpt[s]) {
+          cpdcache[s] = sbcs_decode(s);
+          cpecache[s] = sbcs_encode(s);
+        }
+      }
+      for(i = 0; i < dbcs_cache.length; ++i) {
+        s = dbcs_cache[i];
+        if(cpt[s]) {
+          cpdcache[s] = dbcs_decode(s);
+          cpecache[s] = dbcs_encode(s);
+        }
+      }
+      for(i = 0; i < magic_cache.length; ++i) {
+        s = magic_cache[i];
+        if(magic_decode[s]) cpdcache[s] = magic_decode[s];
+        if(magic_encode[s]) cpecache[s] = magic_encode[s];
+      }
+    }
+  };
+  var null_enc = function(data, ofmt) { void ofmt; return ""; };
+  var cp_decache = function cp_decache(cp) { delete cpdcache[cp]; delete cpecache[cp]; };
+  var decache = function decache() {
+    if(has_buf) {
+      if(!cpdcache[sbcs_cache[0]]) return;
+      sbcs_cache.forEach(cp_decache);
+      dbcs_cache.forEach(cp_decache);
+      magic_cache.forEach(cp_decache);
+    }
+    last_enc = null_enc; last_cp = 0;
+  };
+  var cache = {
+    encache: encache,
+    decache: decache,
+    sbcs: sbcs_cache,
+    dbcs: dbcs_cache
+  };
+
+  encache();
+
+  var BM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  var SetD = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'(),-./:?";
+  var last_enc = null_enc, last_cp = 0;
+  var encode = function encode(cp, data, ofmt) {
+    if(cp === last_cp && last_enc) { return last_enc(data, ofmt); }
+    if(cpecache[cp]) { last_enc = cpecache[last_cp=cp]; return last_enc(data, ofmt); }
+    if(has_buf && Buffer.isBuffer(data)) data = data.toString('utf8');
+    var len = data.length;
+    var out = has_buf ? Buffer.allocUnsafe(4*len) : [], w=0, i=0, j = 0, ww=0;
+    var C = cpt[cp], E, M = "";
+    var isstr = typeof data === 'string';
+    if(C && (E=C.enc)) for(i = 0; i < len; ++i, ++j) {
+      w = E[isstr? data.charAt(i) : data[i]];
+      if(w > 255) {
+        out[j] = w>>8;
+        out[++j] = w&255;
+      } else out[j] = w&255;
+    }
+    else if((M=magic[cp])) switch(M) {
+      case "utf8":
+        if(has_buf && isstr) { out = Buffer_from(data, M); j = out.length; break; }
+        for(i = 0; i < len; ++i, ++j) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          if(w <= 0x007F) out[j] = w;
+          else if(w <= 0x07FF) {
+            out[j]   = 192 + (w >> 6);
+            out[++j] = 128 + (w&63);
+          } else if(w >= 0xD800 && w <= 0xDFFF) {
+            w -= 0xD800;
+            ww = (isstr ? data.charCodeAt(++i) : data[++i].charCodeAt(0)) - 0xDC00 + (w << 10);
+            out[j]   = 240 + ((ww>>>18) & 0x07);
+            out[++j] = 144 + ((ww>>>12) & 0x3F);
+            out[++j] = 128 + ((ww>>>6) & 0x3F);
+            out[++j] = 128 + (ww & 0x3F);
+          } else {
+            out[j]   = 224 + (w >> 12);
+            out[++j] = 128 + ((w >> 6)&63);
+            out[++j] = 128 + (w&63);
+          }
+        }
+        break;
+      case "ascii":
+        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
+        for(i = 0; i < len; ++i, ++j) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          if(w <= 0x007F) out[j] = w;
+          else throw new Error("bad ascii " + w);
+        }
+        break;
+      case "utf16le":
+        if(has_buf && typeof data === "string") { out = Buffer_from(data, M); j = out.length; break; }
+        for(i = 0; i < len; ++i) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          out[j++] = w&255;
+          out[j++] = w>>8;
+        }
+        break;
+      case "utf16be":
+        for(i = 0; i < len; ++i) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          out[j++] = w>>8;
+          out[j++] = w&255;
+        }
+        break;
+      case "utf32le":
+        for(i = 0; i < len; ++i) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
+          out[j++] = w&255; w >>= 8;
+          out[j++] = w&255; w >>= 8;
+          out[j++] = w&255; w >>= 8;
+          out[j++] = w&255;
+        }
+        break;
+      case "utf32be":
+        for(i = 0; i < len; ++i) {
+          w = isstr ? data.charCodeAt(i) : data[i].charCodeAt(0);
+          if(w >= 0xD800 && w <= 0xDFFF) w = 0x10000 + ((w - 0xD800) << 10) + (data[++i].charCodeAt(0) - 0xDC00);
+          out[j+3] = w&255; w >>= 8;
+          out[j+2] = w&255; w >>= 8;
+          out[j+1] = w&255; w >>= 8;
+          out[j] = w&255;
+          j+=4;
+        }
+        break;
+      case "utf7":
+        for(i = 0; i < len; i++) {
+          var c = isstr ? data.charAt(i) : data[i].charAt(0);
+          if(c === "+") { out[j++] = 0x2b; out[j++] = 0x2d; continue; }
+          if(SetD.indexOf(c) > -1) { out[j++] = c.charCodeAt(0); continue; }
+          var tt = encode(1201, c);
+          out[j++] = 0x2b;
+          out[j++] = BM.charCodeAt(tt[0]>>2);
+          out[j++] = BM.charCodeAt(((tt[0]&0x03)<<4) + ((tt[1]||0)>>4));
+          out[j++] = BM.charCodeAt(((tt[1]&0x0F)<<2) + ((tt[2]||0)>>6));
+          out[j++] = 0x2d;
+        }
+        break;
+      default: throw new Error("Unsupported magic: " + cp + " " + magic[cp]);
+    }
+    else throw new Error("Unrecognized CP: " + cp);
+    out = out.slice(0,j);
+    if(!has_buf) return (ofmt == 'str') ? (out).map(sfcc).join("") : out;
+    if(!ofmt || ofmt === 'buf') return out;
+    if(ofmt !== 'arr') return out.toString('binary');
+    return [].slice.call(out);
+  };
+  var decode = function decode(cp, data) {
+    var F; if((F=cpdcache[cp])) return F(data);
+    if(typeof data === "string") return decode(cp, data.split("").map(cca));
+    var len = data.length, out = new Array(len), s="", w=0, i=0, j=1, k=0, ww=0;
+    var C = cpt[cp], D, M="";
+    if(C && (D=C.dec)) {
+      for(i = 0; i < len; i+=j) {
+        j = 2;
+        s = D[(data[i]<<8)+ data[i+1]];
+        if(!s) {
+          j = 1;
+          s = D[data[i]];
+        }
+        if(!s) throw new Error('Unrecognized code: ' + data[i] + ' ' + data[i+j-1] + ' ' + i + ' ' + j + ' ' + D[data[i]]);
+        out[k++] = s;
+      }
+    }
+    else if((M=magic[cp])) switch(M) {
+      case "utf8":
+        if(len >= 3 && data[0] == 0xEF) if(data[1] == 0xBB && data[2] == 0xBF) i = 3;
+        for(; i < len; i+=j) {
+          j = 1;
+          if(data[i] < 128) w = data[i];
+          else if(data[i] < 224) { w=(data[i]&31)*64+(data[i+1]&63); j=2; }
+          else if(data[i] < 240) { w=((data[i]&15)<<12)+(data[i+1]&63)*64+(data[i+2]&63); j=3; }
+          else { w=(data[i]&7)*262144+((data[i+1]&63)<<12)+(data[i+2]&63)*64+(data[i+3]&63); j=4; }
+          if(w < 65536) { out[k++] = String.fromCharCode(w); }
+          else {
+            w -= 65536; ww = 0xD800 + ((w>>10)&1023); w = 0xDC00 + (w&1023);
+            out[k++] = String.fromCharCode(ww); out[k++] = String.fromCharCode(w);
+          }
+        }
+        break;
+      case "ascii":
+        if(has_buf && Buffer.isBuffer(data)) return data.toString(M);
+        for(i = 0; i < len; i++) out[i] = String.fromCharCode(data[i]);
+        k = len; break;
+      case "utf16le":
+        if(len >= 2 && data[0] == 0xFF) if(data[1] == 0xFE) i = 2;
+        if(has_buf && Buffer.isBuffer(data)) return data.toString(M);
+        j = 2;
+        for(; i+1 < len; i+=j) {
+          out[k++] = String.fromCharCode((data[i+1]<<8) + data[i]);
+        }
+        break;
+      case "utf16be":
+        if(len >= 2 && data[0] == 0xFE) if(data[1] == 0xFF) i = 2;
+        j = 2;
+        for(; i+1 < len; i+=j) {
+          out[k++] = String.fromCharCode((data[i]<<8) + data[i+1]);
+        }
+        break;
+      case "utf32le":
+        if(len >= 4 && data[0] == 0xFF) if(data[1] == 0xFE && data[2] === 0 && data[3] === 0) i = 4;
+        j = 4;
+        for(; i < len; i+=j) {
+          w = (data[i+3]<<24) + (data[i+2]<<16) + (data[i+1]<<8) + (data[i]);
+          if(w > 0xFFFF) {
+            w -= 0x10000;
+            out[k++] = String.fromCharCode(0xD800 + ((w >> 10) & 0x3FF));
+            out[k++] = String.fromCharCode(0xDC00 + (w & 0x3FF));
+          }
+          else out[k++] = String.fromCharCode(w);
+        }
+        break;
+      case "utf32be":
+        if(len >= 4 && data[3] == 0xFF) if(data[2] == 0xFE && data[1] === 0 && data[0] === 0) i = 4;
+        j = 4;
+        for(; i < len; i+=j) {
+          w = (data[i]<<24) + (data[i+1]<<16) + (data[i+2]<<8) + (data[i+3]);
+          if(w > 0xFFFF) {
+            w -= 0x10000;
+            out[k++] = String.fromCharCode(0xD800 + ((w >> 10) & 0x3FF));
+            out[k++] = String.fromCharCode(0xDC00 + (w & 0x3FF));
+          }
+          else out[k++] = String.fromCharCode(w);
+        }
+        break;
+      case "utf7":
+        if(len >= 4 && data[0] == 0x2B && data[1] == 0x2F && data[2] == 0x76) {
+          if(len >= 5 && data[3] == 0x38 && data[4] == 0x2D) i = 5;
+          else if(data[3] == 0x38 || data[3] == 0x39 || data[3] == 0x2B || data[3] == 0x2F) i = 4;
+        }
+        for(; i < len; i+=j) {
+          if(data[i] !== 0x2b) { j=1; out[k++] = String.fromCharCode(data[i]); continue; }
+          j=1;
+          if(data[i+1] === 0x2d) { j = 2; out[k++] = "+"; continue; }
+          // eslint-disable-next-line no-useless-escape
+          while(String.fromCharCode(data[i+j]).match(/[A-Za-z0-9+\/]/)) j++;
+          var dash = 0;
+          if(data[i+j] === 0x2d) { ++j; dash=1; }
+          var tt = [];
+          var o64 = "";
+          var c1=0, c2=0, c3=0;
+          var e1=0, e2=0, e3=0, e4=0;
+          for(var l = 1; l < j - dash;) {
+            e1 = BM.indexOf(String.fromCharCode(data[i+l++]));
+            e2 = BM.indexOf(String.fromCharCode(data[i+l++]));
+            c1 = e1 << 2 | e2 >> 4;
+            tt.push(c1);
+            e3 = BM.indexOf(String.fromCharCode(data[i+l++]));
+            if(e3 === -1) break;
+            c2 = (e2 & 15) << 4 | e3 >> 2;
+            tt.push(c2);
+            e4 = BM.indexOf(String.fromCharCode(data[i+l++]));
+            if(e4 === -1) break;
+            c3 = (e3 & 3) << 6 | e4;
+            if(e4 < 64) tt.push(c3);
+          }
+          o64 = decode(1201, tt);
+          for(l = 0; l < o64.length; ++l) out[k++] = o64.charAt(l);
+        }
+        break;
+      default: throw new Error("Unsupported magic: " + cp + " " + magic[cp]);
+    }
+    else throw new Error("Unrecognized CP: " + cp);
+    return out.slice(0,k).join("");
+  };
+  var hascp = function hascp(cp) { return !!(cpt[cp] || magic[cp]); };
+  cpt.utils = { decode: decode, encode: encode, hascp: hascp, magic: magic, cache:cache };
+  return cpt;
+}));
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/Document.ts":
+/*!*******************************!*\
+  !*** ./src/rtfjs/Document.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Document": () => (/* binding */ Document)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+var Document = /** @class */ (function () {
+    function Document(settings) {
+        this._settings = settings || {};
+        this._meta = {};
+        this._fonts = [];
+        this._colors = [];
+        this._autoColor = null;
+        this._stylesheets = [];
+        this._ins = [];
+    }
+    Document.prototype._lookupColor = function (idx) {
+        if (idx === 0) {
+            if (this._autoColor == null) {
+                return null;
+            }
+            return this._colors[this._autoColor];
+        }
+        if (idx < 0 || idx >= this._colors.length) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Invalid color index");
+        }
+        return this._colors[idx];
+    };
+    Document.prototype.addIns = function (ins) {
+        this._ins.push(ins);
+    };
+    return Document;
 }());
 
 
 
 /***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/DocumentFacade.ts":
+/*!*************************************!*\
+  !*** ./src/rtfjs/DocumentFacade.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Chp", function() { return Chp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Pap", function() { return Pap; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Sep", function() { return Sep; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Dop", function() { return Dop; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GlobalState", function() { return GlobalState; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlainText", function() { return PlainText; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HexText", function() { return HexText; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DocumentFacade": () => (/* binding */ DocumentFacade)
+/* harmony export */ });
+/* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Document */ "./src/rtfjs/Document.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _parser_Parser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./parser/Parser */ "./src/rtfjs/parser/Parser.ts");
+/* harmony import */ var _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./renderer/Renderer */ "./src/rtfjs/renderer/Renderer.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+
+var DocumentFacade = /** @class */ (function () {
+    function DocumentFacade(blob, settings) {
+        this._document = new _Document__WEBPACK_IMPORTED_MODULE_0__.Document(settings);
+        this._renderer = new _renderer_Renderer__WEBPACK_IMPORTED_MODULE_3__.Renderer(this._document);
+        var parser = new _parser_Parser__WEBPACK_IMPORTED_MODULE_2__.Parser(this._document, blob, this._renderer);
+        this._parsed = parser.parse();
+    }
+    DocumentFacade.prototype.metadata = function () {
+        return this._document._meta;
+    };
+    DocumentFacade.prototype.render = function () {
+        var _this = this;
+        return this._parsed
+            .then(function () {
+            return _this._renderer.buildDom();
+        }).catch(function (error) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError(error);
+        });
+    };
+    return DocumentFacade;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/Helper.ts":
+/*!*****************************!*\
+  !*** ./src/rtfjs/Helper.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RTFJSError": () => (/* binding */ RTFJSError),
+/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled),
+/* harmony export */   "Helper": () => (/* binding */ Helper)
+/* harmony export */ });
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var RTFJSError = /** @class */ (function (_super) {
+    __extends(RTFJSError, _super);
+    function RTFJSError(message) {
+        var _newTarget = this.constructor;
+        var _this = _super.call(this, message) || this;
+        Object.setPrototypeOf(_this, _newTarget.prototype); // restore prototype chain
+        return _this;
+    }
+    return RTFJSError;
+}(Error));
+
+var isLoggingEnabled = true;
+function loggingEnabled(enabled) {
+    isLoggingEnabled = enabled;
+}
+var Helper = /** @class */ (function () {
+    function Helper() {
+    }
+    Helper.log = function (message) {
+        if (isLoggingEnabled) {
+            console.log(message);
+        }
+    };
+    Helper._isalpha = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._A && ch <= this._Z) ||
+                (ch >= this._a && ch <= this._z))) {
+                return false;
+            }
+        }
+        return len > 0;
+    };
+    Helper._isdigit = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (ch < this._0 || ch > this._9) {
+                return false;
+            }
+        }
+        return len > 0;
+    };
+    Helper._parseHex = function (str) {
+        var len = str.length;
+        for (var i = 0; i < len; i++) {
+            var ch = str.charCodeAt(i);
+            if (!((ch >= this._0 && ch <= this._9) ||
+                (ch >= this._a && ch <= this._f) ||
+                (ch >= this._A && ch <= this._F))) {
+                return NaN;
+            }
+        }
+        if (len > 0) {
+            return parseInt(str, 16);
+        }
+        return NaN;
+    };
+    Helper._blobToBinary = function (blob) {
+        var view = new Uint8Array(blob);
+        var ret = "";
+        var len = view.length;
+        for (var i = 0; i < len; i++) {
+            ret += String.fromCharCode(view[i]);
+        }
+        return ret;
+    };
+    Helper._hexToBlob = function (str) {
+        var len = str.length;
+        var buf = new ArrayBuffer(Math.floor(len-- / 2));
+        var view = new Uint8Array(buf);
+        var d = 0;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val)) {
+                return null;
+            }
+            view[d++] = val;
+        }
+        return buf;
+    };
+    Helper._hexToBinary = function (str) {
+        var bin = "";
+        var len = str.length - 1;
+        for (var i = 0; i < len; i += 2) {
+            var val = this._parseHex(str.substr(i, 2));
+            if (isNaN(val)) {
+                return null;
+            }
+            bin += String.fromCharCode(val);
+        }
+        return bin;
+    };
+    Helper._mapCharset = function (idx) {
+        return this._charsetMap[idx.toString()];
+    };
+    Helper._mapColorTheme = function (name) {
+        return this._colorThemeMap[name];
+    };
+    Helper._colorToStr = function (color) {
+        return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+    };
+    Helper._twipsToPt = function (twips) {
+        return Math.floor(twips / 20);
+    };
+    Helper._twipsToPx = function (twips) {
+        return Math.floor(twips / 20 * 96 / 72);
+    };
+    Helper._pxToTwips = function (px) {
+        return Math.floor(px * 20 * 72 / 96);
+    };
+    Helper.JUSTIFICATION = {
+        LEFT: "left",
+        CENTER: "center",
+        RIGHT: "right",
+        JUSTIFY: "justify",
+    };
+    Helper.BREAKTYPE = {
+        NONE: "none",
+        COL: "col",
+        EVEN: "even",
+        ODD: "odd",
+        PAGE: "page",
+    };
+    Helper.PAGENUMBER = {
+        DECIMAL: "decimal",
+        UROM: "urom",
+        LROM: "lrom",
+        ULTR: "ultr",
+        LLTR: "lltr", // TODO: ???
+    };
+    Helper.UNDERLINE = {
+        NONE: "none",
+        CONTINUOUS: "continuous",
+        DOTTED: "dotted",
+        DASHED: "dashed",
+        DASHDOTTED: "dashdotted",
+        DASHDOTDOTTED: " dashdotdotted",
+        DOUBLE: "double",
+        HEAVYWAVE: "heavywave",
+        LONGDASHED: "longdashed",
+        THICK: "thick",
+        THICKDOTTED: "thickdotted",
+        THICKDASHED: "thickdashed",
+        THICKDASHDOTTED: "thickdashdotted",
+        THICKDASHDOTDOTTED: "thickdashdotdotted",
+        THICKLONGDASH: "thicklongdash",
+        DOUBLEWAVE: "doublewave",
+        WORD: "word",
+        WAVE: "wave",
+    };
+    Helper.FONTPITCH = {
+        DEFAULT: 0,
+        FIXED: 1,
+        VARIABLE: 2,
+    };
+    Helper.CHARACTER_TYPE = {
+        LOWANSI: "loch",
+        HIGHANSI: "hich",
+        DOUBLE: "dbch",
+    };
+    Helper._A = "A".charCodeAt(0);
+    Helper._a = "a".charCodeAt(0);
+    Helper._F = "F".charCodeAt(0);
+    Helper._f = "f".charCodeAt(0);
+    Helper._Z = "Z".charCodeAt(0);
+    Helper._z = "z".charCodeAt(0);
+    Helper._0 = "0".charCodeAt(0);
+    Helper._9 = "9".charCodeAt(0);
+    Helper._charsetMap = {
+        0: 1252,
+        2: 42,
+        77: 10000,
+        78: 10001,
+        79: 10003,
+        80: 10008,
+        81: 10002,
+        83: 10005,
+        84: 10004,
+        85: 10006,
+        86: 10081,
+        87: 10021,
+        88: 10029,
+        89: 10007,
+        128: 932,
+        129: 949,
+        130: 1361,
+        134: 936,
+        136: 950,
+        161: 1253,
+        162: 1254,
+        163: 1258,
+        177: 1255,
+        178: 1256,
+        186: 1257,
+        204: 1251,
+        222: 874,
+        238: 1250,
+        254: 437,
+        255: 850, // OEM
+    };
+    Helper._colorThemeMap = {
+        // TODO
+        maindarkone: null,
+        mainlightone: null,
+        maindarktwo: null,
+        mainlighttwo: null,
+        accentone: null,
+        accenttwo: null,
+        accentthree: null,
+        accentfour: null,
+        accentfive: null,
+        accentsix: null,
+        hyperlink: null,
+        followedhyperlink: null,
+        backgroundone: null,
+        textone: null,
+        backgroundtwo: null,
+        texttwo: null,
+    };
+    return Helper;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/parser/Containers.ts":
+/*!****************************************!*\
+  !*** ./src/rtfjs/parser/Containers.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Chp": () => (/* binding */ Chp),
+/* harmony export */   "Pap": () => (/* binding */ Pap),
+/* harmony export */   "Sep": () => (/* binding */ Sep),
+/* harmony export */   "Dop": () => (/* binding */ Dop),
+/* harmony export */   "State": () => (/* binding */ State),
+/* harmony export */   "GlobalState": () => (/* binding */ GlobalState),
+/* harmony export */   "PlainText": () => (/* binding */ PlainText),
+/* harmony export */   "HexText": () => (/* binding */ HexText)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -8160,7 +7387,7 @@ var Chp = /** @class */ (function () {
         }
         else {
             this.bold = false;
-            this.underline = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE;
+            this.underline = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE;
             this.italic = false;
             this.strikethrough = false;
             this.dblstrikethrough = false;
@@ -8191,7 +7418,7 @@ var Pap = /** @class */ (function () {
                 right: 0,
                 firstline: 0,
             };
-            this.justification = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT;
+            this.justification = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.LEFT;
             this.spacebefore = 0;
             this.spaceafter = 0;
             this.charactertype = null;
@@ -8213,12 +7440,12 @@ var Sep = /** @class */ (function () {
         }
         else {
             this.columns = 0;
-            this.breaktype = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.NONE;
+            this.breaktype = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.NONE;
             this.pagenumber = {
                 x: 0,
                 y: 0,
             };
-            this.pagenumberformat = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.DECIMAL;
+            this.pagenumberformat = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.DECIMAL;
         }
     }
     return Sep;
@@ -8320,20 +7547,531 @@ var HexText = /** @class */ (function () {
 
 
 /***/ }),
-/* 22 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/parser/Parser.ts":
+/*!************************************!*\
+  !*** ./src/rtfjs/parser/Parser.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DestinationFactory", function() { return DestinationFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findParentDestination", function() { return findParentDestination; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DestinationBase", function() { return DestinationBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DestinationTextBase", function() { return DestinationTextBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DestinationFormattedTextBase", function() { return DestinationFormattedTextBase; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GenericPropertyDestinationFactory", function() { return GenericPropertyDestinationFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GenericSubTextPropertyDestinationFactory", function() { return GenericSubTextPropertyDestinationFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RequiredDestinationFactory", function() { return RequiredDestinationFactory; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Parser": () => (/* binding */ Parser)
+/* harmony export */ });
+/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! codepage */ "./node_modules/codepage/cputils.js");
+/* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(codepage__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../renderer/RenderChp */ "./src/rtfjs/renderer/RenderChp.ts");
+/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../renderer/RenderPap */ "./src/rtfjs/renderer/RenderPap.ts");
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Containers */ "./src/rtfjs/parser/Containers.ts");
+/* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./destinations/DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
+/* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./destinations/Destinations */ "./src/rtfjs/parser/destinations/Destinations.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+
+
+
+
+var Parser = /** @class */ (function () {
+    function Parser(document, blob, renderer) {
+        this.inst = document;
+        this.parser = new _Containers__WEBPACK_IMPORTED_MODULE_4__.GlobalState(blob, renderer);
+    }
+    Parser.prototype.parse = function () {
+        if (this.parser.data.length > 1 && String.fromCharCode(this.parser.data[0]) === "{") {
+            this.parseLoop(false, true);
+            return Promise.all(this.parser._asyncTasks).then(function () {
+                return;
+            });
+        }
+        if (this.parser.version == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Not a valid rtf document");
+        }
+        if (this.parser.state != null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("File truncated");
+        }
+    };
+    Parser.prototype.eof = function () {
+        return this.parser.pos >= this.parser.data.length;
+    };
+    Parser.prototype.readChar = function () {
+        if (this.parser.pos < this.parser.data.length) {
+            this.parser.column++;
+            return String.fromCharCode(this.parser.data[this.parser.pos++]);
+        }
+        throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Unexpected end of file");
+    };
+    Parser.prototype.unreadChar = function () {
+        if (this.parser.pos > 0) {
+            this.parser.column--;
+            this.parser.pos--;
+        }
+        else {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Already at beginning of file");
+        }
+    };
+    Parser.prototype.readBlob = function (cnt) {
+        if (this.parser.pos + cnt > this.parser.data.length) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Cannot read binary data: too long");
+        }
+        var buf = new ArrayBuffer(cnt);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < cnt; i++) {
+            view[i] = this.parser.data[this.parser.pos + i];
+        }
+        return buf;
+    };
+    Parser.prototype.applyDestination = function (always) {
+        var dest = this.parser.state.destination;
+        if (dest != null) {
+            if (always || this.parser.state.parent == null
+                || this.parser.state.parent.destination !== this.parser.state.destination) {
+                if (dest.apply != null) {
+                    dest.apply();
+                }
+                this.parser.state.destination = null;
+            }
+        }
+    };
+    Parser.prototype.applyText = function () {
+        if (this.parser.text.length > 0) {
+            var dest = this.parser.state.destination;
+            if (dest == null) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Cannot route text to destination");
+            }
+            if (dest.appendText != null && !this.parser.state.skipdestination) {
+                var summarizedText = this.summarizeText(this.parser.text);
+                dest.appendText(summarizedText);
+            }
+            this.parser.text = [];
+        }
+    };
+    Parser.prototype.summarizeText = function (text) {
+        var result = "";
+        for (var i = 0; i < text.length; i++) {
+            var value = text[i];
+            if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText) {
+                result += value.text;
+            }
+            else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__.HexText) {
+                // Looking for current fonttbl charset
+                var codepage = this.parser.codepage;
+                if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
+                    var idx = value.chp.fontfamily;
+                    // Code page 42 isn't a real code page and shouldn't appear here
+                    if (this.inst._fonts !== undefined && this.inst._fonts[idx] != null
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset !== 42) {
+                        codepage = this.inst._fonts[idx].charset;
+                    }
+                }
+                var hex = value.hex;
+                if (this.parser.state.pap.charactertype === _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.CHARACTER_TYPE.DOUBLE
+                    || (this.parser.state.pap.charactertype == null && hex >= 0x80)) {
+                    // A reference check is sufficient for the chp instances,
+                    // as they have to be the same if they belong to one character
+                    if (i + 1 < text.length
+                        && text[i + 1] instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__.HexText && text[i + 1].chp === value.chp) {
+                        var doubleByteCharacterHex = hex * 0x100 + text[i + 1].hex;
+                        // Verify the double byte character is valid for this code page
+                        if ((codepage__WEBPACK_IMPORTED_MODULE_0___default())[codepage].dec[doubleByteCharacterHex] !== undefined) {
+                            hex = doubleByteCharacterHex;
+                            // Don't process the following hex character twice
+                            i++;
+                        }
+                    }
+                }
+                result += (codepage__WEBPACK_IMPORTED_MODULE_0___default())[codepage].dec[hex];
+            }
+        }
+        return result;
+    };
+    Parser.prototype.pushState = function (forceSkip) {
+        this.parser.state = new _Containers__WEBPACK_IMPORTED_MODULE_4__.State(this.parser.state);
+        if (forceSkip) {
+            this.parser.state.skipdestination = true;
+        }
+        var dest = this.parser.state.destination;
+        if (dest != null && !this.parser.state.skipdestination) {
+            if (dest.sub != null) {
+                var sub = dest.sub();
+                if (sub != null) {
+                    this.parser.state.destination = sub;
+                }
+            }
+        }
+    };
+    Parser.prototype.popState = function () {
+        var state = this.parser.state;
+        if (state == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Unexpected end of state");
+        }
+        this.applyText();
+        if (state.parent == null || state.destination !== state.parent.destination) {
+            this.applyDestination(true);
+        }
+        this.parser.state = state.parent;
+        if (this.parser.state !== null) {
+            var currentState_1 = this.parser.state;
+            this.inst._ins.push(function (renderer) {
+                renderer.setChp(new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_2__.RenderChp(currentState_1.chp));
+            });
+            this.inst._ins.push(function (renderer) {
+                renderer.setPap(new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_3__.RenderPap(currentState_1.pap));
+            });
+        }
+        return this.parser.state;
+    };
+    Parser.prototype.changeDestination = function (name, param) {
+        this.applyText();
+        var handler = _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__.Destinations[name];
+        if (handler != null) {
+            this.applyDestination(false);
+            if (handler instanceof _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__.DestinationFactory) {
+                this.parser.state.destination = handler.newDestination(this.parser, this.inst, name, param);
+            }
+            else {
+                this.parser.state.destination = new handler(this.parser, this.inst, name, param);
+            }
+            return true;
+        }
+        return false;
+    };
+    Parser.prototype.processKeyword = function (keyword, param) {
+        var first = this.parser.state.first;
+        if (first) {
+            if (keyword === "*") {
+                this.parser.state.skipunknowndestination = true;
+                return;
+            }
+            this.parser.state.first = false;
+        }
+        if (this.parser.state.bindata > 0) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Keyword encountered within binary data");
+        }
+        // Reset if we unexpectedly encounter a keyword
+        this.parser.state.skipchars = 0;
+        switch (keyword) {
+            case "tab":
+                return "\t";
+            case "emdash":
+                return "—";
+            case "endash":
+                return "–";
+            case "emspace":
+                return " ";
+            case "enspace":
+                return " ";
+            case "qmspace":
+                return " ";
+            case "bullet":
+                return "•";
+            case "lquote":
+                return "‘";
+            case "rquote":
+                return "’";
+            case "ldblquote":
+                return "“";
+            case "rdblquote":
+                return "”";
+            case "~":
+                return " ";
+            case "_":
+                return "‑";
+            case "{":
+            case "}":
+            case "\\":
+                return keyword;
+            case "uc":
+                if (param != null && param >= 0) {
+                    this.parser.state.ucn = param;
+                }
+                break;
+            case "u":
+                if (param != null) {
+                    if (param < 0) {
+                        param += 65536;
+                    }
+                    if (param < 0 || param > 65535) {
+                        throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Invalid unicode character encountered");
+                    }
+                    var idx = this.parser.state.chp.fontfamily;
+                    // Code page 42 indicates a symbol, symbols between 0x0020 and 0x00ff
+                    // are mapped to the range between 0xf020 and 0xf0ff
+                    if (idx && this.inst._fonts
+                        && this.inst._fonts[idx].charset && this.inst._fonts[idx].charset === 42
+                        && param >= 0xf020 && param <= 0xf0ff) {
+                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(String.fromCharCode(param - 0xf000)));
+                    }
+                    else {
+                        this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(String.fromCharCode(param)));
+                    }
+                    this.parser.state.skipchars = this.parser.state.ucn;
+                }
+                return;
+            case "bin":
+                if (param == null) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Binary data is missing length");
+                }
+                if (param < 0) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Binary data with invalid length");
+                }
+                this.parser.state.bindata = param;
+                return;
+            case "upr":
+                this.parseLoop(true, false); // skip the first sub destination (ansi)
+                // this will be followed by a \ud sub destination
+                return;
+            case "ud":
+            case "ltrch":
+            case "rtlch":
+                return;
+            case "\n":
+            case "\r": {
+                // Carriage return and line feed must be treated like a \par, so we rewrite the keyword
+                // here and then fall through to the default behavior
+                this.parser.line++;
+                this.parser.column = 0;
+                keyword = "par";
+            }
+            // eslint-disable-next-line no-fallthrough
+            default:
+                if (!this.parser.state.skipdestination) {
+                    if (first) {
+                        if (!this.changeDestination(keyword, param)) {
+                            var handled = false;
+                            var dest = this.parser.state.destination;
+                            if (dest != null) {
+                                if (dest.handleKeyword != null) {
+                                    handled = dest.handleKeyword(keyword, param) || false;
+                                }
+                            }
+                            if (!handled && this.parser.state.skipunknowndestination) {
+                                this.parser.state.skipdestination = true;
+                            }
+                        }
+                    }
+                    else {
+                        this.applyText();
+                        var dest = this.parser.state.destination;
+                        if (dest != null) {
+                            if (dest.handleKeyword != null) {
+                                dest.handleKeyword(keyword, param);
+                            }
+                        }
+                        else {
+                            _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.log("Unhandled keyword: " + keyword + " param: " + param);
+                        }
+                    }
+                }
+                return;
+        }
+        this.parser.state.skipdestination = false;
+    };
+    Parser.prototype.appendText = function (textData) {
+        this.parser.state.first = false;
+        if (this.parser.state.skipchars > 0) {
+            if (textData instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText) {
+                var len = textData.text.length;
+                if (this.parser.state.skipchars >= len) {
+                    this.parser.state.skipchars -= len;
+                    return;
+                }
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(textData.text.slice(this.parser.state.skipchars)));
+                }
+            }
+            else {
+                if (this.parser.state.skipchars >= 1) {
+                    this.parser.state.skipchars -= 1;
+                    return;
+                }
+                if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+                    this.parser.text.push(textData);
+                }
+            }
+            this.parser.state.skipchars = 0;
+        }
+        else if (this.parser.state.destination == null || !this.parser.state.skipdestination) {
+            this.parser.text.push(textData);
+        }
+    };
+    Parser.prototype.applyBlob = function (blob) {
+        this.parser.state.first = false;
+        this.applyText();
+        if (this.parser.state.skipchars > 0) {
+            // \bin and all its data is considered one character for skipping purposes
+            this.parser.state.skipchars--;
+        }
+        else {
+            var dest = this.parser.state.destination;
+            if (dest == null) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Cannot route binary to destination");
+            }
+            if (dest.handleBlob != null && !this.parser.state.skipdestination) {
+                dest.handleBlob(blob);
+            }
+        }
+    };
+    Parser.prototype.parseKeyword = function (process) {
+        if (this.parser.state == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("No state");
+        }
+        var param;
+        var ch = this.readChar();
+        if (!_Helper__WEBPACK_IMPORTED_MODULE_1__.Helper._isalpha(ch)) {
+            // 8 bit character encoded as hexadecimal
+            if (ch === "'") {
+                var hex = this.readChar() + this.readChar();
+                param = _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper._parseHex(hex);
+                if (isNaN(param)) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Could not parse hexadecimal number");
+                }
+                if (process) {
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.HexText(param, this.parser.state.chp));
+                }
+            }
+            else if (process) {
+                var text = this.processKeyword(ch, null);
+                if (text != null) {
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(text));
+                }
+            }
+        }
+        else {
+            var keyword = ch;
+            ch = this.readChar();
+            while (keyword.length < 30 && _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper._isalpha(ch)) {
+                keyword += ch;
+                ch = this.readChar();
+            }
+            var num = void 0;
+            if (ch === "-") {
+                num = "-";
+                ch = this.readChar();
+            }
+            else {
+                num = "";
+            }
+            if (_Helper__WEBPACK_IMPORTED_MODULE_1__.Helper._isdigit(ch)) {
+                do {
+                    num += ch;
+                    ch = this.readChar();
+                } while (num.length < 20 && _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper._isdigit(ch));
+                if (num.length >= 20) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Param for keyword " + keyword + " too long");
+                }
+                param = parseInt(num, 10);
+                if (isNaN(param)) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Invalid keyword " + keyword + " param");
+                }
+            }
+            if (ch !== " ") {
+                this.unreadChar();
+            }
+            if (process) {
+                var text = this.processKeyword(keyword, param);
+                if (text != null) {
+                    this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(text));
+                }
+            }
+        }
+    };
+    Parser.prototype.parseLoop = function (skip, process) {
+        try {
+            var initialState = this.parser.state;
+            main_loop: while (!this.eof()) {
+                if (this.parser.state != null && this.parser.state.bindata > 0) {
+                    var blob = this.readBlob(this.parser.state.bindata);
+                    this.parser.state.bindata = 0;
+                    this.applyBlob(blob);
+                }
+                else {
+                    var ch = this.readChar();
+                    switch (ch) {
+                        case "\r":
+                            continue;
+                        case "\n":
+                            this.parser.line++;
+                            this.parser.column = 0;
+                            continue;
+                        case "{":
+                            this.pushState(skip);
+                            break;
+                        case "}":
+                            if (initialState === this.parser.state) {
+                                this.unreadChar();
+                                break main_loop;
+                            }
+                            else if (this.popState() === initialState) {
+                                break main_loop;
+                            }
+                            break;
+                        case "\\":
+                            this.parseKeyword(!skip ? process : null);
+                            break;
+                        default:
+                            if (!skip) {
+                                this.appendText(new _Containers__WEBPACK_IMPORTED_MODULE_4__.PlainText(ch));
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        catch (error) {
+            if (error instanceof _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError) {
+                error.message += " (line: " + this.parser.line + "; column: " + this.parser.column + ")";
+            }
+            throw error;
+        }
+    };
+    return Parser;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/parser/destinations/ColortblDestinations.ts":
+/*!***************************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/ColortblDestinations.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ColortblDestination": () => (/* binding */ ColortblDestination)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
 /*
 
 The MIT License (MIT)
@@ -8367,6 +8105,175 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+var ColortblDestination = /** @class */ (function (_super) {
+    __extends(ColortblDestination, _super);
+    function ColortblDestination(parser, inst) {
+        var _this = _super.call(this, "colortbl") || this;
+        _this._colors = [];
+        _this._current = null;
+        _this._autoIndex = null;
+        _this.inst = inst;
+        return _this;
+    }
+    ColortblDestination.prototype.appendText = function (text) {
+        var len = text.length;
+        for (var i = 0; i < len; i++) {
+            if (text[i] !== ";") {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Error parsing colortbl destination");
+            }
+            if (this._current == null) {
+                if (this._autoIndex != null) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define more than one auto color");
+                }
+                this._autoIndex = this._colors.length;
+                this._startNewColor();
+            }
+            else {
+                if (this._current.tint < 255 && this._current.shade < 255) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define shade and tint at the same time");
+                }
+            }
+            this._colors.push(this._current);
+            this._current = null;
+        }
+    };
+    ColortblDestination.prototype.handleKeyword = function (keyword, param) {
+        if (this._current == null) {
+            this._startNewColor();
+        }
+        switch (keyword) {
+            case "red":
+                this._current.r = this._validateColorValueRange(keyword, param);
+                return true;
+            case "green":
+                this._current.g = this._validateColorValueRange(keyword, param);
+                return true;
+            case "blue":
+                this._current.b = this._validateColorValueRange(keyword, param);
+                return true;
+            case "ctint":
+                this._current.tint = this._validateColorValueRange(keyword, param);
+                return true;
+            case "cshade":
+                this._current.shade = this._validateColorValueRange(keyword, param);
+                return true;
+            default:
+                if (keyword[0] === "c") {
+                    this._current.theme = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._mapColorTheme(keyword.slice(1));
+                    return true;
+                }
+                break;
+        }
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
+        return false;
+    };
+    ColortblDestination.prototype.apply = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[colortbl] apply()");
+        if (this._autoIndex == null) {
+            this._autoIndex = 0;
+        }
+        if (this._autoIndex >= this._colors.length) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl doesn't define auto color");
+        }
+        for (var idx in this._colors) {
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[colortbl] [" + idx + "] = "
+                + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b
+                + " theme: " + this._colors[idx].theme);
+        }
+        this.inst._colors = this._colors;
+        this.inst._autoColor = this._autoIndex;
+        delete this._colors;
+    };
+    ColortblDestination.prototype._startNewColor = function () {
+        this._current = {
+            r: 0,
+            g: 0,
+            b: 0,
+            tint: 255,
+            shade: 255,
+            theme: null,
+        };
+        return this._current;
+    };
+    ColortblDestination.prototype._validateColorValueRange = function (keyword, param) {
+        if (param == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError(keyword + " has no param");
+        }
+        if (param < 0 || param > 255) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError(keyword + " has invalid param value");
+        }
+        return param;
+    };
+    return ColortblDestination;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/parser/destinations/DestinationBase.ts":
+/*!**********************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/DestinationBase.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DestinationFactory": () => (/* binding */ DestinationFactory),
+/* harmony export */   "findParentDestination": () => (/* binding */ findParentDestination),
+/* harmony export */   "DestinationBase": () => (/* binding */ DestinationBase),
+/* harmony export */   "DestinationTextBase": () => (/* binding */ DestinationTextBase),
+/* harmony export */   "DestinationFormattedTextBase": () => (/* binding */ DestinationFormattedTextBase),
+/* harmony export */   "GenericPropertyDestinationFactory": () => (/* binding */ GenericPropertyDestinationFactory),
+/* harmony export */   "GenericSubTextPropertyDestinationFactory": () => (/* binding */ GenericSubTextPropertyDestinationFactory),
+/* harmony export */   "RequiredDestinationFactory": () => (/* binding */ RequiredDestinationFactory)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8393,7 +8300,7 @@ var findParentDestination = function (parser, dest) {
         }
         state = state.parent;
     }
-    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("findParentDestination() did not find destination " + dest);
+    _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("findParentDestination() did not find destination " + dest);
 };
 var DestinationBase = /** @class */ (function () {
     function DestinationBase(name) {
@@ -8432,7 +8339,7 @@ var DestinationFormattedTextBase = /** @class */ (function () {
     DestinationFormattedTextBase.prototype.apply = function () {
         var rtf = findParentDestination(this.parser, "rtf");
         if (rtf == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IDestination " + this._name + " is not child of rtf destination");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IDestination " + this._name + " is not child of rtf destination");
         }
         var len = this._records.length;
         var doRender = true;
@@ -8466,11 +8373,11 @@ var GenericPropertyDestinationFactory = /** @class */ (function (_super) {
             class_1.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentdest);
                 if (dest == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IDestination " + this._name + " must be within "
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IDestination " + this._name + " must be within "
                         + parentdest + " destination");
                 }
                 if (dest.setMetadata == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IDestination " + parentdest + " does not accept meta data");
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IDestination " + parentdest + " does not accept meta data");
                 }
                 dest.setMetadata(metaprop, this.text);
             };
@@ -8495,10 +8402,10 @@ var GenericSubTextPropertyDestinationFactory = /** @class */ (function (_super) 
             class_2.prototype.apply = function () {
                 var dest = findParentDestination(this.parser, parentDest);
                 if (dest == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"](this._name + " destination must be child of " + parentDest + " destination");
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError(this._name + " destination must be child of " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"](this._name + " destination cannot find member + " + propOrFunc
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError(this._name + " destination cannot find member + " + propOrFunc
                         + " in " + parentDest + " destination");
                 }
                 if (dest[propOrFunc] instanceof Function) {
@@ -8534,20 +8441,26 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
 
 
 /***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/parser/destinations/Destinations.ts":
+/*!*******************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/Destinations.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Destinations", function() { return Destinations; });
-/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
-/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
-/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(29);
-/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(30);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(26);
-/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(31);
-/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(32);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Destinations": () => (/* binding */ Destinations)
+/* harmony export */ });
+/* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ColortblDestinations */ "./src/rtfjs/parser/destinations/ColortblDestinations.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
+/* harmony import */ var _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FieldDestinations */ "./src/rtfjs/parser/destinations/FieldDestinations.ts");
+/* harmony import */ var _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FonttblDestinations */ "./src/rtfjs/parser/destinations/FonttblDestinations.ts");
+/* harmony import */ var _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./MetaDestinations */ "./src/rtfjs/parser/destinations/MetaDestinations.ts");
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PictDestinations */ "./src/rtfjs/parser/destinations/PictDestinations.ts");
+/* harmony import */ var _RtfDestination__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RtfDestination */ "./src/rtfjs/parser/destinations/RtfDestination.ts");
+/* harmony import */ var _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./StylesheetDestination */ "./src/rtfjs/parser/destinations/StylesheetDestination.ts");
 /*
 
 The MIT License (MIT)
@@ -8582,62 +8495,71 @@ SOFTWARE.
 
 
 var Destinations = {
-    rtf: _RtfDestination__WEBPACK_IMPORTED_MODULE_6__["RtfDestination"],
-    info: _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["InfoDestination"],
-    title: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("title"),
-    subject: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("subject"),
-    author: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("author"),
-    manager: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("manager"),
-    company: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("company"),
-    operator: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("operator"),
-    category: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("category"),
-    keywords: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("keywords"),
-    doccomm: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("doccomm"),
-    hlinkbase: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyDestinationFactory"]("hlinkbase"),
-    generator: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["GenericPropertyDestinationFactory"]("rtf", "generator"),
-    creatim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyTimeDestinationFactory"]("creatim"),
-    revtim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyTimeDestinationFactory"]("revtim"),
-    printim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyTimeDestinationFactory"]("printim"),
-    buptim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__["MetaPropertyTimeDestinationFactory"]("buptim"),
-    fonttbl: _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__["FonttblDestination"],
-    falt: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["GenericSubTextPropertyDestinationFactory"]("falt", "fonttbl:sub", "setAltFontName"),
-    colortbl: _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__["ColortblDestination"],
-    stylesheet: _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__["StylesheetDestination"],
-    footer: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("footer"),
-    footerf: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("footerf"),
-    footerl: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("footerl"),
-    footerr: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("footerr"),
-    footnote: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("footnote"),
-    ftncn: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("ftncn"),
-    ftnsep: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("ftnsep"),
-    ftnsepc: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("ftnsepc"),
-    header: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("header"),
-    headerf: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("headerf"),
-    headerl: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("headerl"),
-    headerr: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("headerr"),
-    pict: _PictDestinations__WEBPACK_IMPORTED_MODULE_5__["PictDestination"],
-    shppict: new _PictDestinations__WEBPACK_IMPORTED_MODULE_5__["PictGroupDestinationFactory"](false),
-    nonshppict: new _PictDestinations__WEBPACK_IMPORTED_MODULE_5__["PictGroupDestinationFactory"](true),
-    private1: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("private1"),
-    rxe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("rxe"),
-    tc: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("tc"),
-    txe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("txe"),
-    xe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__["RequiredDestinationFactory"]("xe"),
-    field: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__["FieldDestination"],
-    fldinst: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__["FldinstDestination"],
-    fldrslt: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__["FldrsltDestination"],
+    rtf: _RtfDestination__WEBPACK_IMPORTED_MODULE_6__.RtfDestination,
+    info: _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.InfoDestination,
+    title: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("title"),
+    subject: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("subject"),
+    author: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("author"),
+    manager: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("manager"),
+    company: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("company"),
+    operator: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("operator"),
+    category: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("category"),
+    keywords: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("keywords"),
+    doccomm: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("doccomm"),
+    hlinkbase: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyDestinationFactory("hlinkbase"),
+    generator: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.GenericPropertyDestinationFactory("rtf", "generator"),
+    creatim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyTimeDestinationFactory("creatim"),
+    revtim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyTimeDestinationFactory("revtim"),
+    printim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyTimeDestinationFactory("printim"),
+    buptim: new _MetaDestinations__WEBPACK_IMPORTED_MODULE_4__.MetaPropertyTimeDestinationFactory("buptim"),
+    fonttbl: _FonttblDestinations__WEBPACK_IMPORTED_MODULE_3__.FonttblDestination,
+    falt: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.GenericSubTextPropertyDestinationFactory("falt", "fonttbl:sub", "setAltFontName"),
+    colortbl: _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__.ColortblDestination,
+    stylesheet: _StylesheetDestination__WEBPACK_IMPORTED_MODULE_7__.StylesheetDestination,
+    footer: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("footer"),
+    footerf: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("footerf"),
+    footerl: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("footerl"),
+    footerr: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("footerr"),
+    footnote: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("footnote"),
+    ftncn: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("ftncn"),
+    ftnsep: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("ftnsep"),
+    ftnsepc: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("ftnsepc"),
+    header: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("header"),
+    headerf: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("headerf"),
+    headerl: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("headerl"),
+    headerr: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("headerr"),
+    pict: _PictDestinations__WEBPACK_IMPORTED_MODULE_5__.PictDestination,
+    shppict: new _PictDestinations__WEBPACK_IMPORTED_MODULE_5__.PictGroupDestinationFactory(false),
+    nonshppict: new _PictDestinations__WEBPACK_IMPORTED_MODULE_5__.PictGroupDestinationFactory(true),
+    private1: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("private1"),
+    rxe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("rxe"),
+    tc: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("tc"),
+    txe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("txe"),
+    xe: new _DestinationBase__WEBPACK_IMPORTED_MODULE_1__.RequiredDestinationFactory("xe"),
+    field: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__.FieldDestination,
+    fldinst: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__.FldinstDestination,
+    fldrslt: _FieldDestinations__WEBPACK_IMPORTED_MODULE_2__.FldrsltDestination,
 };
 
 
 /***/ }),
-/* 24 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/parser/destinations/FieldDestinations.ts":
+/*!************************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/FieldDestinations.ts ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ColortblDestination", function() { return ColortblDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FieldDestination": () => (/* binding */ FieldDestination),
+/* harmony export */   "FldinstDestination": () => (/* binding */ FldinstDestination),
+/* harmony export */   "FldrsltDestination": () => (/* binding */ FldrsltDestination)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
+/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PictDestinations */ "./src/rtfjs/parser/destinations/PictDestinations.ts");
 /*
 
 The MIT License (MIT)
@@ -8671,162 +8593,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-var ColortblDestination = /** @class */ (function (_super) {
-    __extends(ColortblDestination, _super);
-    function ColortblDestination(parser, inst) {
-        var _this = _super.call(this, "colortbl") || this;
-        _this._colors = [];
-        _this._current = null;
-        _this._autoIndex = null;
-        _this.inst = inst;
-        return _this;
-    }
-    ColortblDestination.prototype.appendText = function (text) {
-        var len = text.length;
-        for (var i = 0; i < len; i++) {
-            if (text[i] !== ";") {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Error parsing colortbl destination");
-            }
-            if (this._current == null) {
-                if (this._autoIndex != null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("colortbl cannot define more than one auto color");
-                }
-                this._autoIndex = this._colors.length;
-                this._startNewColor();
-            }
-            else {
-                if (this._current.tint < 255 && this._current.shade < 255) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("colortbl cannot define shade and tint at the same time");
-                }
-            }
-            this._colors.push(this._current);
-            this._current = null;
-        }
-    };
-    ColortblDestination.prototype.handleKeyword = function (keyword, param) {
-        if (this._current == null) {
-            this._startNewColor();
-        }
-        switch (keyword) {
-            case "red":
-                this._current.r = this._validateColorValueRange(keyword, param);
-                return true;
-            case "green":
-                this._current.g = this._validateColorValueRange(keyword, param);
-                return true;
-            case "blue":
-                this._current.b = this._validateColorValueRange(keyword, param);
-                return true;
-            case "ctint":
-                this._current.tint = this._validateColorValueRange(keyword, param);
-                return true;
-            case "cshade":
-                this._current.shade = this._validateColorValueRange(keyword, param);
-                return true;
-            default:
-                if (keyword[0] === "c") {
-                    this._current.theme = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._mapColorTheme(keyword.slice(1));
-                    return true;
-                }
-                break;
-        }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[colortbl] handleKeyword(): unhandled keyword: " + keyword);
-        return false;
-    };
-    ColortblDestination.prototype.apply = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[colortbl] apply()");
-        if (this._autoIndex == null) {
-            this._autoIndex = 0;
-        }
-        if (this._autoIndex >= this._colors.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("colortbl doesn't define auto color");
-        }
-        for (var idx in this._colors) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[colortbl] [" + idx + "] = "
-                + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b
-                + " theme: " + this._colors[idx].theme);
-        }
-        this.inst._colors = this._colors;
-        this.inst._autoColor = this._autoIndex;
-        delete this._colors;
-    };
-    ColortblDestination.prototype._startNewColor = function () {
-        this._current = {
-            r: 0,
-            g: 0,
-            b: 0,
-            tint: 255,
-            shade: 255,
-            theme: null,
-        };
-        return this._current;
-    };
-    ColortblDestination.prototype._validateColorValueRange = function (keyword, param) {
-        if (param == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"](keyword + " has no param");
-        }
-        if (param < 0 || param > 255) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"](keyword + " has invalid param value");
-        }
-        return param;
-    };
-    return ColortblDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
-
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FieldDestination", function() { return FieldDestination; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldinstDestination", function() { return FldinstDestination; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FldrsltDestination", function() { return FldrsltDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
-/* harmony import */ var _PictDestinations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -8846,7 +8614,7 @@ var FieldDestination = /** @class */ (function (_super) {
     }
     FieldDestination.prototype.apply = function () {
         if (!this._haveInst) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IField has no fldinst destination");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IField has no fldinst destination");
         }
         // A fldrslt destination should be included but is not required
         // if (this._result == null)
@@ -8856,14 +8624,14 @@ var FieldDestination = /** @class */ (function (_super) {
         var _this = this;
         this._haveInst = true;
         if (this._parsedInst != null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IField cannot have multiple fldinst destinations");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IField cannot have multiple fldinst destinations");
         }
         if (inst instanceof Promise) {
             inst.then(function (parsedInst) {
                 _this._parsedInst = parsedInst;
             }).catch(function (error) {
                 _this._parsedInst = null;
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"](error.message);
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError(error.message);
             });
         }
         else {
@@ -8875,12 +8643,12 @@ var FieldDestination = /** @class */ (function (_super) {
     };
     FieldDestination.prototype.setResult = function (inst) {
         if (this._result != null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IField cannot have multiple fldrslt destinations");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IField cannot have multiple fldrslt destinations");
         }
         this._result = inst;
     };
     return FieldDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
 
 var FieldBase = /** @class */ (function () {
     function FieldBase(fldinst) {
@@ -8946,9 +8714,9 @@ var FldinstDestination = /** @class */ (function (_super) {
         return _this;
     }
     FldinstDestination.prototype.apply = function () {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "field");
         if (field == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("fldinst destination must be child of field destination");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("fldinst destination must be child of field destination");
         }
         field.setInst(this.parseType());
     };
@@ -8993,11 +8761,11 @@ var FldinstDestination = /** @class */ (function (_super) {
                                     var error = _a.error, keyword = _a.keyword, blob = _a.blob, width = _a.width, height = _a.height;
                                     if (!error && typeof keyword === "string" && keyword && blob) {
                                         var dims = {
-                                            w: _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._pxToTwips(width || window.document.body.clientWidth
+                                            w: _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._pxToTwips(width || window.document.body.clientWidth
                                                 || window.innerWidth),
-                                            h: _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._pxToTwips(height || 300),
+                                            h: _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._pxToTwips(height || 300),
                                         };
-                                        pict_1 = new _PictDestinations__WEBPACK_IMPORTED_MODULE_2__["PictDestination"](_this.parser, _this.inst);
+                                        pict_1 = new _PictDestinations__WEBPACK_IMPORTED_MODULE_2__.PictDestination(_this.parser, _this.inst);
                                         pict_1.handleBlob(blob);
                                         pict_1.handleKeyword(keyword, 8); // mapMode: 8 => preserve aspect ratio
                                         pict_1._displaysize.width = dims.w;
@@ -9011,7 +8779,7 @@ var FldinstDestination = /** @class */ (function (_super) {
                                         resolve(_parsedInst);
                                     }
                                     else {
-                                        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[fldinst]: failed to IMPORT image file: " + data_1);
+                                        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[fldinst]: failed to IMPORT image file: " + data_1);
                                         if (error) {
                                             error = (error instanceof Error) ? error : new Error(error);
                                             reject(error);
@@ -9032,13 +8800,13 @@ var FldinstDestination = /** @class */ (function (_super) {
                     }
                     break;
                 default:
-                    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[fldinst]: unknown field type: " + fieldType);
+                    _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[fldinst]: unknown field type: " + fieldType);
                     break;
             }
         }
     };
     return FldinstDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationTextBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationTextBase));
 
 var FldrsltDestination = /** @class */ (function (_super) {
     __extends(FldrsltDestination, _super);
@@ -9046,14 +8814,14 @@ var FldrsltDestination = /** @class */ (function (_super) {
         return _super.call(this, parser, "fldrslt") || this;
     }
     FldrsltDestination.prototype.apply = function () {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "field");
         if (field != null) {
             field.setResult(this);
         }
         _super.prototype.apply.call(this);
     };
     FldrsltDestination.prototype.renderBegin = function (rtf, records) {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null) {
@@ -9063,7 +8831,7 @@ var FldrsltDestination = /** @class */ (function (_super) {
         return false;
     };
     FldrsltDestination.prototype.renderEnd = function (rtf, records) {
-        var field = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "field");
+        var field = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "field");
         if (field != null) {
             var inst = field.getInst();
             if (inst != null) {
@@ -9072,24 +8840,26 @@ var FldrsltDestination = /** @class */ (function (_super) {
         }
     };
     return FldrsltDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationFormattedTextBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationFormattedTextBase));
 
 
 
 /***/ }),
-/* 26 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/parser/destinations/FonttblDestinations.ts":
+/*!**************************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/FonttblDestinations.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictGroupDestinationFactory", function() { return PictGroupDestinationFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PictDestination", function() { return PictDestination; });
-/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
-/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
-/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(WMFJS__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(22);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FonttblDestinationSub": () => (/* binding */ FonttblDestinationSub),
+/* harmony export */   "FonttblDestination": () => (/* binding */ FonttblDestination)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
 /*
 
 The MIT License (MIT)
@@ -9123,6 +8893,371 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+var FonttblDestinationSub = /** @class */ (function (_super) {
+    __extends(FonttblDestinationSub, _super);
+    function FonttblDestinationSub(fonttbl) {
+        var _this = _super.call(this, "fonttbl:sub") || this;
+        _this._fonttbl = fonttbl;
+        _this.index = null;
+        _this.fontname = null;
+        _this.altfontname = null;
+        _this.family = null;
+        _this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.FONTPITCH.DEFAULT;
+        _this.bias = 0;
+        _this.charset = null;
+        return _this;
+    }
+    FonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
+        switch (keyword) {
+            case "f":
+                this.index = param;
+                return true;
+            case "fnil":
+                return true;
+            case "froman":
+            case "fswiss":
+            case "fmodern":
+            case "fscript":
+            case "fdecor":
+            case "ftech":
+            case "fbidi":
+            case "flomajor":
+            case "fhimajor":
+            case "fdbmajor":
+            case "fbimajor":
+            case "flominor":
+            case "fhiminor":
+            case "fdbminor":
+            case "fbiminor":
+                this.family = keyword.slice(1);
+                return true;
+            case "fprq":
+                switch (param) {
+                    case 0:
+                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.FONTPITCH.DEFAULT;
+                        break;
+                    case 1:
+                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.FONTPITCH.FIXED;
+                        break;
+                    case 2:
+                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.FONTPITCH.VARIABLE;
+                        break;
+                }
+                return true;
+            case "fbias":
+                if (param != null) {
+                    this.bias = param;
+                }
+                return true;
+            case "fcharset":
+                if (param != null) {
+                    this.charset = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._mapCharset(param);
+                    if (this.charset == null) {
+                        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("Unknown font charset: " + param);
+                    }
+                }
+                return true;
+            case "cpg":
+                if (param != null) {
+                    this.charset = param;
+                }
+                return true;
+        }
+        return false;
+    };
+    FonttblDestinationSub.prototype.appendText = function (text) {
+        if (this.fontname == null) {
+            this.fontname = text;
+        }
+        else {
+            this.fontname += text;
+        }
+    };
+    FonttblDestinationSub.prototype.apply = function () {
+        if (this.index == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("No font index provided");
+        }
+        if (this.fontname == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("No font name provided");
+        }
+        this._fonttbl.addSub(this);
+        delete this._fonttbl;
+    };
+    FonttblDestinationSub.prototype.setAltFontName = function (name) {
+        this.altfontname = name;
+    };
+    return FonttblDestinationSub;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
+
+var FonttblDestination = /** @class */ (function (_super) {
+    __extends(FonttblDestination, _super);
+    function FonttblDestination(parser, inst) {
+        var _this = _super.call(this, "fonttbl") || this;
+        _this._fonts = [];
+        _this._sub = null;
+        _this.inst = inst;
+        return _this;
+    }
+    FonttblDestination.prototype.sub = function () {
+        return new FonttblDestinationSub(this);
+    };
+    FonttblDestination.prototype.apply = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[fonttbl] apply()");
+        for (var idx in this._fonts) {
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
+                + " alternative: " + this._fonts[idx].altfontname);
+        }
+        this.inst._fonts = this._fonts;
+        delete this._fonts;
+    };
+    FonttblDestination.prototype.appendText = function (text) {
+        this._sub.appendText(text);
+        this._sub.apply();
+    };
+    FonttblDestination.prototype.handleKeyword = function (keyword, param) {
+        if (keyword === "f") {
+            this._sub = this.sub();
+        }
+        this._sub.handleKeyword(keyword, param);
+    };
+    FonttblDestination.prototype.addSub = function (sub) {
+        this._fonts[sub.index] = sub;
+    };
+    return FonttblDestination;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/parser/destinations/MetaDestinations.ts":
+/*!***********************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/MetaDestinations.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "InfoDestination": () => (/* binding */ InfoDestination),
+/* harmony export */   "MetaPropertyDestinationFactory": () => (/* binding */ MetaPropertyDestinationFactory),
+/* harmony export */   "MetaPropertyTimeDestinationFactory": () => (/* binding */ MetaPropertyTimeDestinationFactory)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+var InfoDestination = /** @class */ (function (_super) {
+    __extends(InfoDestination, _super);
+    function InfoDestination(parser, inst, name) {
+        var _this = _super.call(this, name) || this;
+        _this._metadata = {};
+        _this.inst = inst;
+        return _this;
+    }
+    InfoDestination.prototype.apply = function () {
+        for (var prop in this._metadata) {
+            this.inst._meta[prop] = this._metadata[prop];
+        }
+        delete this._metadata;
+    };
+    InfoDestination.prototype.setMetadata = function (prop, val) {
+        this._metadata[prop] = val;
+    };
+    return InfoDestination;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
+
+var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
+    __extends(MetaPropertyDestinationFactory, _super);
+    function MetaPropertyDestinationFactory(metaprop) {
+        var _this = _super.call(this) || this;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_1, _super);
+            function class_1(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this.parser = parser;
+                return _this;
+            }
+            class_1.prototype.apply = function () {
+                var info = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "info");
+                if (info == null) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IDestination " + this._name + " must be within info destination");
+                }
+                info.setMetadata(metaprop, this.text);
+            };
+            return class_1;
+        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationTextBase));
+        return _this;
+    }
+    return MetaPropertyDestinationFactory;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationFactory));
+
+var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
+    __extends(MetaPropertyTimeDestinationFactory, _super);
+    function MetaPropertyTimeDestinationFactory(metaprop) {
+        var _this = _super.call(this) || this;
+        _this.class = /** @class */ (function (_super) {
+            __extends(class_2, _super);
+            function class_2(parser, inst, name) {
+                var _this = _super.call(this, name) || this;
+                _this._yr = null;
+                _this._mo = null;
+                _this._dy = null;
+                _this._hr = null;
+                _this._min = null;
+                _this._sec = null;
+                _this.parser = parser;
+                return _this;
+            }
+            class_2.prototype.handleKeyword = function (keyword, param) {
+                switch (keyword) {
+                    case "yr":
+                        this._yr = param;
+                        break;
+                    case "mo":
+                        this._mo = param;
+                        break;
+                    case "dy":
+                        this._dy = param;
+                        break;
+                    case "hr":
+                        this._hr = param;
+                        break;
+                    case "min":
+                        this._min = param;
+                        break;
+                    case "sec":
+                        this._sec = param;
+                        break;
+                    default:
+                        return false;
+                }
+                if (param == null) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("No param found for keyword " + keyword);
+                }
+                return true;
+            };
+            class_2.prototype.apply = function () {
+                var info = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.findParentDestination)(this.parser, "info");
+                if (info == null) {
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("IDestination " + this._name + " must be within info destination");
+                }
+                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
+                info.setMetadata(metaprop, date);
+            };
+            return class_2;
+        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
+        return _this;
+    }
+    return MetaPropertyTimeDestinationFactory;
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationFactory));
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/parser/destinations/PictDestinations.ts":
+/*!***********************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/PictDestinations.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PictGroupDestinationFactory": () => (/* binding */ PictGroupDestinationFactory),
+/* harmony export */   "PictDestination": () => (/* binding */ PictDestination)
+/* harmony export */ });
+/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! EMFJS */ "EMFJS");
+/* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! WMFJS */ "WMFJS");
+/* harmony import */ var WMFJS__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(WMFJS__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9147,11 +9282,11 @@ var PictGroupDestinationFactory = /** @class */ (function (_super) {
                 return this._legacy;
             };
             return class_1;
-        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__["DestinationTextBase"]));
+        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__.DestinationTextBase));
         return _this;
     }
     return PictGroupDestinationFactory;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__["DestinationFactory"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__.DestinationFactory));
 
 var PictDestination = /** @class */ (function (_super) {
     __extends(PictDestination, _super);
@@ -9170,10 +9305,10 @@ var PictDestination = /** @class */ (function (_super) {
                         return {
                             load: function () {
                                 try {
-                                    return new EMFJS__WEBPACK_IMPORTED_MODULE_0__["Renderer"](_this._blob);
+                                    return new EMFJS__WEBPACK_IMPORTED_MODULE_0__.Renderer(_this._blob);
                                 }
                                 catch (e) {
-                                    if (e instanceof EMFJS__WEBPACK_IMPORTED_MODULE_0__["Error"]) {
+                                    if (e instanceof EMFJS__WEBPACK_IMPORTED_MODULE_0__.Error) {
                                         return e.message;
                                     }
                                     else {
@@ -9183,8 +9318,8 @@ var PictDestination = /** @class */ (function (_super) {
                             },
                             render: function (img) {
                                 return img.render({
-                                    width: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.width) + "pt",
-                                    height: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.height) + "pt",
+                                    width: _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._twipsToPt(_this._displaysize.width) + "pt",
+                                    height: _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._twipsToPt(_this._displaysize.height) + "pt",
                                     wExt: _this._size.width,
                                     hExt: _this._size.height,
                                     xExt: _this._size.width,
@@ -9207,15 +9342,15 @@ var PictDestination = /** @class */ (function (_super) {
                 if (typeof WMFJS__WEBPACK_IMPORTED_MODULE_1__ !== "undefined") {
                     return function (param) {
                         if (param == null || param < 0 || param > 8) {
-                            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Insufficient metafile information");
+                            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.RTFJSError("Insufficient metafile information");
                         }
                         return {
                             load: function () {
                                 try {
-                                    return new WMFJS__WEBPACK_IMPORTED_MODULE_1__["Renderer"](_this._blob);
+                                    return new WMFJS__WEBPACK_IMPORTED_MODULE_1__.Renderer(_this._blob);
                                 }
                                 catch (e) {
-                                    if (e instanceof WMFJS__WEBPACK_IMPORTED_MODULE_1__["Error"]) {
+                                    if (e instanceof WMFJS__WEBPACK_IMPORTED_MODULE_1__.Error) {
                                         return e.message;
                                     }
                                     else {
@@ -9225,8 +9360,8 @@ var PictDestination = /** @class */ (function (_super) {
                             },
                             render: function (img) {
                                 return img.render({
-                                    width: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.width) + "pt",
-                                    height: _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._twipsToPt(_this._displaysize.height) + "pt",
+                                    width: _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._twipsToPt(_this._displaysize.width) + "pt",
+                                    height: _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._twipsToPt(_this._displaysize.height) + "pt",
                                     xExt: _this._size.width,
                                     yExt: _this._size.height,
                                     mapMode: param,
@@ -9240,7 +9375,7 @@ var PictDestination = /** @class */ (function (_super) {
                 }
             })(),
             dibitmap: "",
-            wbitmap: "",
+            wbitmap: "", // TODO
         };
         _this._type = null;
         _this._blob = null;
@@ -9296,18 +9431,18 @@ var PictDestination = /** @class */ (function (_super) {
         var _this = this;
         if (rendering === void 0) { rendering = false; }
         if (this._type == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Picture type unknown or not specified");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.RTFJSError("Picture type unknown or not specified");
         }
-        var pictGroup = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__["findParentDestination"])(this.parser, "pict-group");
+        var pictGroup = (0,_DestinationBase__WEBPACK_IMPORTED_MODULE_3__.findParentDestination)(this.parser, "pict-group");
         var isLegacy = (pictGroup != null ? pictGroup.isLegacy() : null);
         var type = this._type;
         if (typeof type === "function") {
             // type is the trampoline function that executes the .load function
             // and returns a renderer trampoline that ends up calling the .render function
             if (this._blob == null) {
-                this._blob = _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._hexToBlob(this.text);
+                this._blob = _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._hexToBlob(this.text);
                 if (this._blob == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Could not parse picture data");
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.RTFJSError("Could not parse picture data");
                 }
                 delete this.text;
             }
@@ -9316,7 +9451,7 @@ var PictDestination = /** @class */ (function (_super) {
                 var pictrender = type();
                 if (pictrender != null) {
                     if (typeof pictrender === "string") {
-                        _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[pict] Could not load image: " + pictrender);
+                        _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.log("[pict] Could not load image: " + pictrender);
                         if (render) {
                             return renderer.buildPicture(pictrender, null);
                         }
@@ -9328,7 +9463,7 @@ var PictDestination = /** @class */ (function (_super) {
                     }
                     else {
                         if (typeof pictrender !== "function") {
-                            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Expected a picture render function");
+                            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.RTFJSError("Expected a picture render function");
                         }
                         if (render) {
                             return renderer.buildRenderedPicture(pictrender());
@@ -9362,7 +9497,7 @@ var PictDestination = /** @class */ (function (_super) {
             var text_1 = this.text;
             var blob_1 = this._blob;
             var doRender_2 = function (renderer, render) {
-                var bin = blob_1 != null ? _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._blobToBinary(blob_1) : _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"]._hexToBinary(text_1);
+                var bin = blob_1 != null ? _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._blobToBinary(blob_1) : _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper._hexToBinary(text_1);
                 if (type !== "") {
                     if (render) {
                         return renderer.buildPicture(type, bin);
@@ -9407,40 +9542,36 @@ var PictDestination = /** @class */ (function (_super) {
         var _this = this;
         return function (param) {
             if (param == null) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["RTFJSError"]("Picture property has no value");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.RTFJSError("Picture property has no value");
             }
-            _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[pict] set " + member + "." + prop + " = " + param);
+            _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.log("[pict] set " + member + "." + prop + " = " + param);
             var obj = (member != null ? _this[member] : _this);
             obj[prop] = param;
         };
     };
     return PictDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__["DestinationTextBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_3__.DestinationTextBase));
 
 
 
 /***/ }),
-/* 27 */
-/***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE__27__;
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__28__;
-
-/***/ }),
-/* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./src/rtfjs/parser/destinations/RtfDestination.ts":
+/*!*********************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/RtfDestination.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestinationSub", function() { return FonttblDestinationSub; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FonttblDestination", function() { return FonttblDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RtfDestination": () => (/* binding */ RtfDestination)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../renderer/RenderChp */ "./src/rtfjs/renderer/RenderChp.ts");
+/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../renderer/RenderPap */ "./src/rtfjs/renderer/RenderPap.ts");
+/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Containers */ "./src/rtfjs/parser/Containers.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
 /*
 
 The MIT License (MIT)
@@ -9474,351 +9605,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-var FonttblDestinationSub = /** @class */ (function (_super) {
-    __extends(FonttblDestinationSub, _super);
-    function FonttblDestinationSub(fonttbl) {
-        var _this = _super.call(this, "fonttbl:sub") || this;
-        _this._fonttbl = fonttbl;
-        _this.index = null;
-        _this.fontname = null;
-        _this.altfontname = null;
-        _this.family = null;
-        _this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].FONTPITCH.DEFAULT;
-        _this.bias = 0;
-        _this.charset = null;
-        return _this;
-    }
-    FonttblDestinationSub.prototype.handleKeyword = function (keyword, param) {
-        switch (keyword) {
-            case "f":
-                this.index = param;
-                return true;
-            case "fnil":
-                return true;
-            case "froman":
-            case "fswiss":
-            case "fmodern":
-            case "fscript":
-            case "fdecor":
-            case "ftech":
-            case "fbidi":
-            case "flomajor":
-            case "fhimajor":
-            case "fdbmajor":
-            case "fbimajor":
-            case "flominor":
-            case "fhiminor":
-            case "fdbminor":
-            case "fbiminor":
-                this.family = keyword.slice(1);
-                return true;
-            case "fprq":
-                switch (param) {
-                    case 0:
-                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].FONTPITCH.DEFAULT;
-                        break;
-                    case 1:
-                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].FONTPITCH.FIXED;
-                        break;
-                    case 2:
-                        this.pitch = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].FONTPITCH.VARIABLE;
-                        break;
-                }
-                return true;
-            case "fbias":
-                if (param != null) {
-                    this.bias = param;
-                }
-                return true;
-            case "fcharset":
-                if (param != null) {
-                    this.charset = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._mapCharset(param);
-                    if (this.charset == null) {
-                        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("Unknown font charset: " + param);
-                    }
-                }
-                return true;
-            case "cpg":
-                if (param != null) {
-                    this.charset = param;
-                }
-                return true;
-        }
-        return false;
-    };
-    FonttblDestinationSub.prototype.appendText = function (text) {
-        if (this.fontname == null) {
-            this.fontname = text;
-        }
-        else {
-            this.fontname += text;
-        }
-    };
-    FonttblDestinationSub.prototype.apply = function () {
-        if (this.index == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No font index provided");
-        }
-        if (this.fontname == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No font name provided");
-        }
-        this._fonttbl.addSub(this);
-        delete this._fonttbl;
-    };
-    FonttblDestinationSub.prototype.setAltFontName = function (name) {
-        this.altfontname = name;
-    };
-    return FonttblDestinationSub;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
-
-var FonttblDestination = /** @class */ (function (_super) {
-    __extends(FonttblDestination, _super);
-    function FonttblDestination(parser, inst) {
-        var _this = _super.call(this, "fonttbl") || this;
-        _this._fonts = [];
-        _this._sub = null;
-        _this.inst = inst;
-        return _this;
-    }
-    FonttblDestination.prototype.sub = function () {
-        return new FonttblDestinationSub(this);
-    };
-    FonttblDestination.prototype.apply = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[fonttbl] apply()");
-        for (var idx in this._fonts) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
-                + " alternative: " + this._fonts[idx].altfontname);
-        }
-        this.inst._fonts = this._fonts;
-        delete this._fonts;
-    };
-    FonttblDestination.prototype.appendText = function (text) {
-        this._sub.appendText(text);
-        this._sub.apply();
-    };
-    FonttblDestination.prototype.handleKeyword = function (keyword, param) {
-        if (keyword === "f") {
-            this._sub = this.sub();
-        }
-        this._sub.handleKeyword(keyword, param);
-    };
-    FonttblDestination.prototype.addSub = function (sub) {
-        this._fonts[sub.index] = sub;
-    };
-    return FonttblDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
-
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InfoDestination", function() { return InfoDestination; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyDestinationFactory", function() { return MetaPropertyDestinationFactory; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MetaPropertyTimeDestinationFactory", function() { return MetaPropertyTimeDestinationFactory; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-var InfoDestination = /** @class */ (function (_super) {
-    __extends(InfoDestination, _super);
-    function InfoDestination(parser, inst, name) {
-        var _this = _super.call(this, name) || this;
-        _this._metadata = {};
-        _this.inst = inst;
-        return _this;
-    }
-    InfoDestination.prototype.apply = function () {
-        for (var prop in this._metadata) {
-            this.inst._meta[prop] = this._metadata[prop];
-        }
-        delete this._metadata;
-    };
-    InfoDestination.prototype.setMetadata = function (prop, val) {
-        this._metadata[prop] = val;
-    };
-    return InfoDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
-
-var MetaPropertyDestinationFactory = /** @class */ (function (_super) {
-    __extends(MetaPropertyDestinationFactory, _super);
-    function MetaPropertyDestinationFactory(metaprop) {
-        var _this = _super.call(this) || this;
-        _this.class = /** @class */ (function (_super) {
-            __extends(class_1, _super);
-            function class_1(parser, inst, name) {
-                var _this = _super.call(this, name) || this;
-                _this.parser = parser;
-                return _this;
-            }
-            class_1.prototype.apply = function () {
-                var info = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "info");
-                if (info == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IDestination " + this._name + " must be within info destination");
-                }
-                info.setMetadata(metaprop, this.text);
-            };
-            return class_1;
-        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationTextBase"]));
-        return _this;
-    }
-    return MetaPropertyDestinationFactory;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationFactory"]));
-
-var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
-    __extends(MetaPropertyTimeDestinationFactory, _super);
-    function MetaPropertyTimeDestinationFactory(metaprop) {
-        var _this = _super.call(this) || this;
-        _this.class = /** @class */ (function (_super) {
-            __extends(class_2, _super);
-            function class_2(parser, inst, name) {
-                var _this = _super.call(this, name) || this;
-                _this._yr = null;
-                _this._mo = null;
-                _this._dy = null;
-                _this._hr = null;
-                _this._min = null;
-                _this._sec = null;
-                _this.parser = parser;
-                return _this;
-            }
-            class_2.prototype.handleKeyword = function (keyword, param) {
-                switch (keyword) {
-                    case "yr":
-                        this._yr = param;
-                        break;
-                    case "mo":
-                        this._mo = param;
-                        break;
-                    case "dy":
-                        this._dy = param;
-                        break;
-                    case "hr":
-                        this._hr = param;
-                        break;
-                    case "min":
-                        this._min = param;
-                        break;
-                    case "sec":
-                        this._sec = param;
-                        break;
-                    default:
-                        return false;
-                }
-                if (param == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No param found for keyword " + keyword);
-                }
-                return true;
-            };
-            class_2.prototype.apply = function () {
-                var info = Object(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["findParentDestination"])(this.parser, "info");
-                if (info == null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("IDestination " + this._name + " must be within info destination");
-                }
-                var date = new Date(Date.UTC(this._yr != null ? this._yr : 1970, this._mo != null ? this._mo : 1, this._dy != null ? this._dy : 1, this._hr != null ? this._hr : 0, this._min != null ? this._min : 0, this._sec != null ? this._sec : 0, 0));
-                info.setMetadata(metaprop, date);
-            };
-            return class_2;
-        }(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
-        return _this;
-    }
-    return MetaPropertyTimeDestinationFactory;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationFactory"]));
-
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RtfDestination", function() { return RtfDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(19);
-/* harmony import */ var _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(20);
-/* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(21);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(22);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9837,21 +9625,21 @@ var RtfDestination = /** @class */ (function (_super) {
             ansicpg: function (param) {
                 // if the value is 0, use the default charset as 0 is not valid
                 if (param > 0) {
-                    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] using charset: " + param);
+                    _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] using charset: " + param);
                     _this.parser.codepage = param;
                 }
             },
             sectd: function () {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to section defaults");
-                _this.parser.state.sep = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Sep"](null);
+                _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] reset to section defaults");
+                _this.parser.state.sep = new _Containers__WEBPACK_IMPORTED_MODULE_3__.Sep(null);
             },
             plain: function () {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to character defaults");
-                _this.parser.state.chp = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](null);
+                _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] reset to character defaults");
+                _this.parser.state.chp = new _Containers__WEBPACK_IMPORTED_MODULE_3__.Chp(null);
             },
             pard: function () {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] reset to paragraph defaults");
-                _this.parser.state.pap = new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](null);
+                _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] reset to paragraph defaults");
+                _this.parser.state.pap = new _Containers__WEBPACK_IMPORTED_MODULE_3__.Pap(null);
             },
             b: _this._genericFormatOnOff("chp", "bold"),
             i: _this._genericFormatOnOff("chp", "italic"),
@@ -9859,50 +9647,50 @@ var RtfDestination = /** @class */ (function (_super) {
             highlight: _this._genericFormatSetValRequired("chp", "highlightindex"),
             fs: _this._genericFormatSetValRequired("chp", "fontsize"),
             f: _this._genericFormatSetValRequired("chp", "fontfamily"),
-            loch: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].CHARACTER_TYPE.LOWANSI),
-            hich: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].CHARACTER_TYPE.HIGHANSI),
-            dbch: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].CHARACTER_TYPE.DOUBLE),
+            loch: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.CHARACTER_TYPE.LOWANSI),
+            hich: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.CHARACTER_TYPE.HIGHANSI),
+            dbch: _this._genericFormatSetNoParam("pap", "charactertype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.CHARACTER_TYPE.DOUBLE),
             strike: _this._genericFormatOnOff("chp", "strikethrough"),
             striked: _this._genericFormatOnOff("chp", "dblstrikethrough"),
-            ul: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.CONTINUOUS, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            uld: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            uldash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            uldashd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DASHDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            uldashdd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DASHDOTDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            uldb: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DOUBLE, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulhwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.HEAVYWAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulldash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.LONGDASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulnone: _this._genericFormatSetNoParam("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulth: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.THICK, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulthd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.THICKDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulthdash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.THICKDASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulthdashd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.THICKDASHDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulthdashdd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.THICKDASHDOTDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ululdbwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.DOUBLEWAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulw: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.WORD, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
-            ulwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.WAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].UNDERLINE.NONE),
+            ul: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.CONTINUOUS, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            uld: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            uldash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            uldashd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DASHDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            uldashdd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DASHDOTDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            uldb: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DOUBLE, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulhwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.HEAVYWAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulldash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.LONGDASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulnone: _this._genericFormatSetNoParam("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulth: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.THICK, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulthd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.THICKDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulthdash: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.THICKDASHED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulthdashd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.THICKDASHDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulthdashdd: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.THICKDASHDOTDOTTED, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ululdbwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.DOUBLEWAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulw: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.WORD, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
+            ulwave: _this._genericFormatOnOff("chp", "underline", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.WAVE, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE),
             li: _this._genericFormatSetMemberVal("pap", "indent", "left", 0),
             ri: _this._genericFormatSetMemberVal("pap", "indent", "right", 0),
             fi: _this._genericFormatSetMemberVal("pap", "indent", "firstline", 0),
             sa: _this._genericFormatSetValRequired("pap", "spaceafter"),
             sb: _this._genericFormatSetValRequired("pap", "spacebefore"),
             cols: _this._genericFormatSetVal("sep", "columns", 0),
-            sbknone: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.NONE),
-            sbkcol: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.COL),
-            sbkeven: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.EVEN),
-            sbkodd: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.ODD),
-            sbkpage: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].BREAKTYPE.PAGE),
+            sbknone: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.NONE),
+            sbkcol: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.COL),
+            sbkeven: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.EVEN),
+            sbkodd: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.ODD),
+            sbkpage: _this._genericFormatSetNoParam("sep", "breaktype", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.BREAKTYPE.PAGE),
             pgnx: _this._genericFormatSetMemberVal("sep", "pagenumber", "x", 0),
             pgny: _this._genericFormatSetMemberVal("sep", "pagenumber", "y", 0),
-            pgndec: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.DECIMAL),
-            pgnucrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.UROM),
-            pgnlcrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.LROM),
-            pgnucltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.ULTR),
-            pgnlcltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].PAGENUMBER.LLTR),
-            qc: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.CENTER),
-            ql: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.LEFT),
-            qr: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.RIGHT),
-            qj: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].JUSTIFICATION.JUSTIFY),
+            pgndec: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.DECIMAL),
+            pgnucrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.UROM),
+            pgnlcrm: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.LROM),
+            pgnucltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.ULTR),
+            pgnlcltr: _this._genericFormatSetNoParam("sep", "pagenumberformat", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.PAGENUMBER.LLTR),
+            qc: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.CENTER),
+            ql: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.LEFT),
+            qr: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.RIGHT),
+            qj: _this._genericFormatSetNoParam("pap", "justification", _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.JUSTIFY),
             paperw: _this._genericFormatSetVal("dop", "width", 12240),
             paperh: _this._genericFormatSetVal("dop", "height", 15480),
             margl: _this._genericFormatSetMemberVal("dop", "margin", "left", 1800),
@@ -9920,11 +9708,11 @@ var RtfDestination = /** @class */ (function (_super) {
             }),
         };
         if (parser.version != null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Unexpected rtf destination");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Unexpected rtf destination");
         }
         // This parameter should be one, but older versions of the spec allow for omission of the version number
         if (param && param !== 1) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Unsupported rtf version");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Unsupported rtf version");
         }
         parser.version = 1;
         _this._metadata = {};
@@ -9936,11 +9724,11 @@ var RtfDestination = /** @class */ (function (_super) {
         this.inst.addIns(func);
     };
     RtfDestination.prototype.appendText = function (text) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] output: " + text);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] output: " + text);
         this.inst.addIns(text);
     };
     RtfDestination.prototype.sub = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf].sub()");
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf].sub()");
     };
     RtfDestination.prototype.handleKeyword = function (keyword, param) {
         var handler = this._charFormatHandlers[keyword];
@@ -9951,7 +9739,7 @@ var RtfDestination = /** @class */ (function (_super) {
         return false;
     };
     RtfDestination.prototype.apply = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] apply()");
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] apply()");
         for (var prop in this._metadata) {
             this.inst._meta[prop] = this._metadata[prop];
         }
@@ -9967,17 +9755,17 @@ var RtfDestination = /** @class */ (function (_super) {
         };
     };
     RtfDestination.prototype._addFormatIns = function (ptype, props) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] update " + ptype);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] update " + ptype);
         switch (ptype) {
             case "chp": {
-                var rchp_1 = new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__["RenderChp"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Chp"](props));
+                var rchp_1 = new _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__.RenderChp(new _Containers__WEBPACK_IMPORTED_MODULE_3__.Chp(props));
                 this.inst.addIns(function (renderer) {
                     renderer.setChp(rchp_1);
                 });
                 break;
             }
             case "pap": {
-                var rpap_1 = new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__["RenderPap"](new _Containers__WEBPACK_IMPORTED_MODULE_3__["Pap"](props));
+                var rpap_1 = new _renderer_RenderPap__WEBPACK_IMPORTED_MODULE_2__.RenderPap(new _Containers__WEBPACK_IMPORTED_MODULE_3__.Pap(props));
                 this.inst.addIns(function (renderer) {
                     renderer.setPap(rpap_1);
                 });
@@ -9990,7 +9778,7 @@ var RtfDestination = /** @class */ (function (_super) {
         return function (param) {
             var props = _this.parser.state[ptype];
             props[prop] = val;
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
     };
@@ -10000,7 +9788,7 @@ var RtfDestination = /** @class */ (function (_super) {
             var props = _this.parser.state[ptype];
             props[prop] = (param == null || param !== 0)
                 ? (onval != null ? onval : true) : (offval != null ? offval : false);
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
     };
@@ -10009,7 +9797,7 @@ var RtfDestination = /** @class */ (function (_super) {
         return function (param) {
             var props = _this.parser.state[ptype];
             props[prop] = (param == null) ? defaultval : param;
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
     };
@@ -10017,11 +9805,11 @@ var RtfDestination = /** @class */ (function (_super) {
         var _this = this;
         return function (param) {
             if (param == null) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("Keyword without required param");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Keyword without required param");
             }
             var props = _this.parser.state[ptype];
             props[prop] = param;
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] state." + ptype + "." + prop + " = " + props[prop].toString());
             _this._addFormatIns(ptype, props);
         };
     };
@@ -10031,25 +9819,31 @@ var RtfDestination = /** @class */ (function (_super) {
             var props = _this.parser.state[ptype];
             var members = props[prop];
             members[member] = (param == null) ? defaultval : param;
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] state." + ptype + "." + prop + "." + member + " = " + members[member].toString());
             _this._addFormatIns(ptype, props);
         };
     };
     return RtfDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_4__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_4__.DestinationBase));
 
 
 
 /***/ }),
-/* 32 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/parser/destinations/StylesheetDestination.ts":
+/*!****************************************************************!*\
+  !*** ./src/rtfjs/parser/destinations/StylesheetDestination.ts ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestinationSub", function() { return StylesheetDestinationSub; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StylesheetDestination", function() { return StylesheetDestination; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
-/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "StylesheetDestinationSub": () => (/* binding */ StylesheetDestinationSub),
+/* harmony export */   "StylesheetDestination": () => (/* binding */ StylesheetDestination)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
+/* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
 /*
 
 The MIT License (MIT)
@@ -10083,6 +9877,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10140,12 +9936,12 @@ var StylesheetDestinationSub = /** @class */ (function (_super) {
     };
     StylesheetDestinationSub.prototype._handleKeywordCommon = function (member) {
         return function (keyword, param) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[stylesheet:sub]." + member + ": unhandled keyword: " + keyword + " param: " + param);
             return false;
         };
     };
     return StylesheetDestinationSub;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
 
 var StylesheetDestination = /** @class */ (function (_super) {
     __extends(StylesheetDestination, _super);
@@ -10159,9 +9955,9 @@ var StylesheetDestination = /** @class */ (function (_super) {
         return new StylesheetDestinationSub(this);
     };
     StylesheetDestination.prototype.apply = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[stylesheet] apply()");
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[stylesheet] apply()");
         for (var idx in this._stylesheets) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
         }
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
@@ -10173,18 +9969,198 @@ var StylesheetDestination = /** @class */ (function (_super) {
         this._stylesheets[sub.index] = sub;
     };
     return StylesheetDestination;
-}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__["DestinationBase"]));
+}(_DestinationBase__WEBPACK_IMPORTED_MODULE_1__.DestinationBase));
 
 
 
 /***/ }),
-/* 33 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+/***/ "./src/rtfjs/renderer/RenderChp.ts":
+/*!*****************************************!*\
+  !*** ./src/rtfjs/renderer/RenderChp.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RenderChp": () => (/* binding */ RenderChp)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+var RenderChp = /** @class */ (function () {
+    function RenderChp(chp) {
+        this._chp = chp;
+    }
+    RenderChp.prototype.apply = function (doc, el) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] RenderChp: " + el.textContent);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] RenderChp apply: " + JSON.stringify(this._chp));
+        if (this._chp.bold) {
+            el.style.fontWeight = "bold";
+        }
+        if (this._chp.italic) {
+            el.style.fontStyle = "italic";
+        }
+        if (Object.prototype.hasOwnProperty.call(this._chp, "fontfamily") && doc._fonts[this._chp.fontfamily]) {
+            var fontFamily = doc._fonts[this._chp.fontfamily].fontname.replace(";", "");
+            if (fontFamily !== "Symbol") {
+                el.style.fontFamily = fontFamily;
+            }
+        }
+        var deco = [];
+        if (this._chp.underline !== _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.UNDERLINE.NONE) {
+            deco.push("underline");
+        }
+        if (this._chp.strikethrough || this._chp.dblstrikethrough) {
+            deco.push("line-through");
+        }
+        if (deco.length > 0) {
+            el.style.textDecoration = deco.join(" ");
+        }
+        if (this._chp.colorindex !== 0) {
+            var color = doc._lookupColor(this._chp.colorindex);
+            if (color != null) {
+                el.style.color = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._colorToStr(color);
+            }
+        }
+        if (this._chp.highlightindex !== 0) {
+            var color = doc._lookupColor(this._chp.highlightindex);
+            if (color != null) {
+                el.style.backgroundColor = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._colorToStr(color);
+            }
+        }
+        el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
+    };
+    return RenderChp;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/renderer/RenderPap.ts":
+/*!*****************************************!*\
+  !*** ./src/rtfjs/renderer/RenderPap.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RenderPap": () => (/* binding */ RenderPap)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+var RenderPap = /** @class */ (function () {
+    function RenderPap(pap) {
+        this._pap = pap;
+    }
+    RenderPap.prototype.apply = function (doc, el, rchp, ismaindiv) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[rtf] RenderPap apply:" + (rchp != null ? " chp=" + JSON.stringify(rchp._chp) : "")
+            + " pap=" + JSON.stringify(this._pap) + " ismaindiv=" + ismaindiv);
+        if (ismaindiv) {
+            if (this._pap.spacebefore !== 0) {
+                el.style.marginTop = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._twipsToPt(this._pap.spacebefore) + "pt";
+            }
+            else {
+                el.style.marginTop = "";
+            }
+            if (this._pap.spaceafter !== 0) {
+                el.style.marginBottom = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._twipsToPt(this._pap.spaceafter) + "pt";
+            }
+            else {
+                el.style.marginBottom = "";
+            }
+            if (rchp != null) {
+                el.style.minHeight = Math.floor(rchp._chp.fontsize / 2) + "pt";
+            }
+        }
+        else {
+            switch (this._pap.justification) {
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.LEFT:
+                    el.style.textAlign = "left";
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.RIGHT:
+                    el.style.textAlign = "right";
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.CENTER:
+                    el.style.textAlign = "center";
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.JUSTIFICATION.JUSTIFY:
+                    el.style.textAlign = "justify";
+                    break;
+            }
+        }
+    };
+    return RenderPap;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/rtfjs/renderer/Renderer.ts":
+/*!****************************************!*\
+  !*** ./src/rtfjs/renderer/Renderer.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Renderer": () => (/* binding */ Renderer)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -10242,7 +10218,7 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.popContainer = function () {
         var contel = this._curcont.pop();
         if (contel == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["RTFJSError"]("No container on rendering stack");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("No container on rendering stack");
         }
     };
     Renderer.prototype.buildHyperlinkElement = function (url) {
@@ -10372,7 +10348,145 @@ var Renderer = /** @class */ (function () {
 
 
 
+/***/ }),
+
+/***/ "EMFJS":
+/*!**************************************************************************************************************************!*\
+  !*** external {"commonjs":"./EMFJS.bundle.js","commonjs2":"./EMFJS.bundle.js","amd":"./EMFJS.bundle.js","root":"EMFJS"} ***!
+  \**************************************************************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = __WEBPACK_EXTERNAL_MODULE_EMFJS__;
+
+/***/ }),
+
+/***/ "WMFJS":
+/*!**************************************************************************************************************************!*\
+  !*** external {"commonjs":"./WMFJS.bundle.js","commonjs2":"./WMFJS.bundle.js","amd":"./WMFJS.bundle.js","root":"WMFJS"} ***!
+  \**************************************************************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = __WEBPACK_EXTERNAL_MODULE_WMFJS__;
+
 /***/ })
-/******/ ]);
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!****************************!*\
+  !*** ./src/rtfjs/index.ts ***!
+  \****************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Document": () => (/* reexport safe */ _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__.DocumentFacade),
+/* harmony export */   "Error": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError),
+/* harmony export */   "loggingEnabled": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
+/* harmony export */ });
+/* harmony import */ var _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DocumentFacade */ "./src/rtfjs/DocumentFacade.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
 });
 //# sourceMappingURL=RTFJS.bundle.js.map

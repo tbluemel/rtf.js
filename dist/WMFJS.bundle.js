@@ -8,140 +8,22 @@
 	else
 		root["WMFJS"] = factory();
 })(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 34);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */,
-/* 1 */,
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
 
-"use strict";
+/***/ "./src/util/SVG.ts":
+/*!*************************!*\
+  !*** ./src/util/SVG.ts ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _SVG__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "SVG", function() { return _SVG__WEBPACK_IMPORTED_MODULE_0__["SVG"]; });
-
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2020 Tom Zoehner
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SVGFilters", function() { return SVGFilters; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SVGPathBuilder", function() { return SVGPathBuilder; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SVG", function() { return SVG; });
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SVGFilters": () => (/* binding */ SVGFilters),
+/* harmony export */   "SVGPathBuilder": () => (/* binding */ SVGPathBuilder),
+/* harmony export */   "SVG": () => (/* binding */ SVG)
+/* harmony export */ });
 /*
 
 The MIT License (MIT)
@@ -380,54 +262,23 @@ var SVG = /** @class */ (function () {
 
 
 /***/ }),
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */,
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/util/index.ts":
+/*!***************************!*\
+  !*** ./src/util/index.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(35);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return _Renderer__WEBPACK_IMPORTED_MODULE_0__["Renderer"]; });
-
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(37);
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Error", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["WMFJSError"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return _Helper__WEBPACK_IMPORTED_MODULE_1__["loggingEnabled"]; });
-
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SVG": () => (/* reexport safe */ _SVG__WEBPACK_IMPORTED_MODULE_0__.SVG)
+/* harmony export */ });
+/* harmony import */ var _SVG__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SVG */ "./src/util/SVG.ts");
 /*
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Thomas Bluemel
+Copyright (c) 2020 Tom Zoehner
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -448,22 +299,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
 
 
 
 /***/ }),
-/* 35 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/Bitmap.ts":
+/*!*****************************!*\
+  !*** ./src/wmfjs/Bitmap.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Renderer", function() { return Renderer; });
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
-/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(36);
-/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(38);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(37);
-/* harmony import */ var _WMFRecords__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(43);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "BitmapInfo": () => (/* binding */ BitmapInfo),
+/* harmony export */   "DIBitmap": () => (/* binding */ DIBitmap),
+/* harmony export */   "Bitmap16": () => (/* binding */ Bitmap16),
+/* harmony export */   "PatternBitmap16": () => (/* binding */ PatternBitmap16)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -489,120 +343,231 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
-
-
-
-
-var Renderer = /** @class */ (function () {
-    function Renderer(blob) {
-        this.parse(blob);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("WMFJS.Renderer instantiated");
-    }
-    Renderer.prototype.render = function (info) {
-        var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this._render(new _util__WEBPACK_IMPORTED_MODULE_0__["SVG"](svgElement), info.mapMode, info.xExt, info.yExt);
-        svgElement.setAttribute("viewBox", [0, 0, info.xExt, info.yExt].join(" "));
-        svgElement.setAttribute("preserveAspectRatio", "none"); // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
-        svgElement.setAttribute("width", info.width);
-        svgElement.setAttribute("height", info.height);
-        return svgElement;
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
     };
-    Renderer.prototype.parse = function (blob) {
-        this._img = null;
-        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_1__["Blob"](blob);
-        var type;
-        var size;
-        var placable;
-        var headerstart;
-        var key = reader.readUint32();
-        if (key === 0x9ac6cdd7) {
-            placable = new WMFPlacable(reader);
-            headerstart = reader.pos;
-            type = reader.readUint16();
-            size = reader.readUint16();
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var BitmapCoreHeader = /** @class */ (function () {
+    function BitmapCoreHeader(reader, skipsize) {
+        if (skipsize) {
+            reader.skip(4);
+        }
+        this.width = reader.readUint16();
+        this.height = reader.readUint16();
+        this.planes = reader.readUint16();
+        this.bitcount = reader.readUint16();
+    }
+    BitmapCoreHeader.prototype.colors = function () {
+        return this.bitcount <= 8 ? 1 << this.bitcount : 0;
+    };
+    return BitmapCoreHeader;
+}());
+var BitmapInfoHeader = /** @class */ (function () {
+    function BitmapInfoHeader(reader, skipsize) {
+        if (skipsize) {
+            reader.skip(4);
+        }
+        this.width = reader.readInt32();
+        this.height = reader.readInt32();
+        this.planes = reader.readUint16();
+        this.bitcount = reader.readUint16();
+        this.compression = reader.readUint32();
+        this.sizeimage = reader.readUint32();
+        this.xpelspermeter = reader.readInt32();
+        this.ypelspermeter = reader.readInt32();
+        this.clrused = reader.readUint32();
+        this.clrimportant = reader.readUint32();
+    }
+    BitmapInfoHeader.prototype.colors = function () {
+        if (this.clrused !== 0) {
+            return this.clrused < 256 ? this.clrused : 256;
         }
         else {
-            headerstart = 0;
-            type = key & 0xffff;
-            size = (key >>> 16) & 0xffff;
-        }
-        switch (type) {
-            case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileType.MEMORYMETAFILE:
-            case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileType.DISKMETAFILE:
-                if (size === _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.METAHEADER_SIZE / 2) {
-                    var version = reader.readUint16();
-                    switch (version) {
-                        case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileVersion.METAVERSION100:
-                        case _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].GDI.MetafileVersion.METAVERSION300:
-                            this._img = new WMF(reader, placable, version, headerstart + (size * 2));
-                            break;
-                    }
-                }
-                break;
-        }
-        if (this._img == null) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__["WMFJSError"]("Format not recognized");
+            return this.bitcount > 8 ? 0 : 1 << this.bitcount;
         }
     };
-    Renderer.prototype._render = function (svg, mapMode, xExt, yExt) {
-        // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
-        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_2__["GDIContext"](svg);
-        gdi.setViewportExt(xExt, yExt);
-        gdi.setMapMode(mapMode);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[WMF] BEGIN RENDERING --->");
-        this._img.render(gdi);
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("[WMF] <--- DONE RENDERING");
+    return BitmapInfoHeader;
+}());
+var BitmapInfo = /** @class */ (function () {
+    function BitmapInfo(reader, usergb) {
+        this._reader = reader;
+        this._offset = reader.pos;
+        this._usergb = usergb;
+        var hdrsize = reader.readUint32();
+        this._infosize = hdrsize;
+        if (hdrsize === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BITMAPCOREHEADER_SIZE) {
+            this._header = new BitmapCoreHeader(reader, false);
+            this._infosize += this._header.colors() * (usergb ? 3 : 2);
+        }
+        else {
+            this._header = new BitmapInfoHeader(reader, false);
+            var masks = this._header.compression === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
+            if (hdrsize <= _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
+                this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
+            }
+            this._infosize += this._header.colors() * (usergb ? 4 : 2);
+        }
+    }
+    BitmapInfo.prototype.getWidth = function () {
+        return this._header.width;
     };
-    return Renderer;
+    BitmapInfo.prototype.getHeight = function () {
+        return Math.abs(this._header.height);
+    };
+    BitmapInfo.prototype.infosize = function () {
+        return this._infosize;
+    };
+    BitmapInfo.prototype.header = function () {
+        return this._header;
+    };
+    return BitmapInfo;
 }());
 
-var WMFRect16 = /** @class */ (function () {
-    function WMFRect16(reader) {
-        this.left = reader.readInt16();
-        this.top = reader.readInt16();
-        this.right = reader.readInt16();
-        this.bottom = reader.readInt16();
+var DIBitmap = /** @class */ (function () {
+    function DIBitmap(reader, size) {
+        this._reader = reader;
+        this._offset = reader.pos;
+        this._size = size;
+        this._info = new BitmapInfo(reader, true);
     }
-    WMFRect16.prototype.toString = function () {
-        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
-            + ", bottom: " + this.bottom + "}";
+    DIBitmap.prototype.getWidth = function () {
+        return this._info.getWidth();
     };
-    return WMFRect16;
-}());
-var WMFPlacable = /** @class */ (function () {
-    function WMFPlacable(reader) {
-        reader.skip(2);
-        this.boundingBox = new WMFRect16(reader);
-        this.unitsPerInch = reader.readInt16();
-        reader.skip(4);
-        reader.skip(2); // TODO: checksum
-        _Helper__WEBPACK_IMPORTED_MODULE_3__["Helper"].log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
-    }
-    return WMFPlacable;
-}());
-var WMF = /** @class */ (function () {
-    function WMF(reader, placable, version, hdrsize) {
-        this._version = version;
-        this._hdrsize = hdrsize;
-        this._placable = placable;
-        this._records = new _WMFRecords__WEBPACK_IMPORTED_MODULE_4__["WMFRecords"](reader, this._hdrsize);
-    }
-    WMF.prototype.render = function (gdi) {
-        this._records.play(gdi);
+    DIBitmap.prototype.getHeight = function () {
+        return this._info.getHeight();
     };
-    return WMF;
+    DIBitmap.prototype.base64ref = function () {
+        var prevpos = this._reader.pos;
+        this._reader.seek(this._offset);
+        var mime = "image/bmp";
+        var header = this._info.header();
+        var data;
+        if (header instanceof BitmapInfoHeader && header.compression != null) {
+            switch (header.compression) {
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BitmapCompression.BI_JPEG:
+                    mime = "data:image/jpeg";
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BitmapCompression.BI_PNG:
+                    mime = "data:image/png";
+                    break;
+                default:
+                    data = this.makeBitmapFileHeader();
+                    break;
+            }
+        }
+        else {
+            data = this.makeBitmapFileHeader();
+        }
+        if (data != null) {
+            data += this._reader.readBinary(this._size);
+        }
+        else {
+            data = this._reader.readBinary(this._size);
+        }
+        var ref = "data:" + mime + ";base64," + btoa(data);
+        this._reader.seek(prevpos);
+        return ref;
+    };
+    DIBitmap.prototype.makeBitmapFileHeader = function () {
+        var buf = new ArrayBuffer(14);
+        var view = new Uint8Array(buf);
+        view[0] = 0x42;
+        view[1] = 0x4d;
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._writeUint32Val(view, 2, this._size + 14);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._writeUint32Val(view, 10, this._info.infosize() + 14);
+        return _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._blobToBinary(view);
+    };
+    return DIBitmap;
 }());
+
+var Bitmap16 = /** @class */ (function () {
+    function Bitmap16(reader, size) {
+        if (reader != null) {
+            size = size;
+            this._reader = reader;
+            this._offset = reader.pos;
+            this._size = size;
+            this.type = reader.readInt16();
+            this.width = reader.readInt16();
+            this.height = reader.readInt16();
+            this.widthBytes = reader.readInt16();
+            this.planes = reader.readUint8();
+            this.bitsPixel = reader.readUint8();
+            this.bitsOffset = reader.pos;
+            this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
+            if (this.bitsSize > size - 10) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
+            }
+        }
+        else {
+            var copy = size;
+            this._reader = copy._reader;
+            this._offset = copy._offset;
+            this._size = copy._size;
+            this.type = copy.type;
+            this.width = copy.width;
+            this.height = copy.height;
+            this.widthBytes = copy.widthBytes;
+            this.planes = copy.planes;
+            this.bitsPixel = copy.bitsPixel;
+            this.bitsOffset = copy.bitsOffset;
+            this.bitsSize = copy.bitsSize;
+        }
+    }
+    Bitmap16.prototype.getWidth = function () {
+        return this.width;
+    };
+    Bitmap16.prototype.getHeight = function () {
+        return this.height;
+    };
+    Bitmap16.prototype.clone = function () {
+        return new Bitmap16(null, this);
+    };
+    return Bitmap16;
+}());
+
+var PatternBitmap16 = /** @class */ (function (_super) {
+    __extends(PatternBitmap16, _super);
+    function PatternBitmap16(reader, size) {
+        var _this = _super.call(this, reader, size) || this;
+        if (reader != null) {
+            _this.bitsOffset += 22; // skip bits (4 bytes) + reserved (18 bytes)
+        }
+        return _this;
+    }
+    PatternBitmap16.prototype.clone = function () {
+        return new PatternBitmap16(null, this);
+    };
+    return PatternBitmap16;
+}(Bitmap16));
+
 
 
 /***/ }),
-/* 36 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/Blob.ts":
+/*!***************************!*\
+  !*** ./src/wmfjs/Blob.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Blob", function() { return Blob; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Blob": () => (/* binding */ Blob)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -647,21 +612,21 @@ var Blob = /** @class */ (function () {
     };
     Blob.prototype.seek = function (newpos) {
         if (newpos < 0 || newpos > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Invalid seek position");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Invalid seek position");
         }
         this.pos = newpos;
     };
     Blob.prototype.skip = function (cnt) {
         var newPos = this.pos + cnt;
         if (newPos > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         this.pos = newPos;
     };
     Blob.prototype.readBinary = function (cnt) {
         var end = this.pos + cnt;
         if (end > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         var ret = "";
         while (cnt-- > 0) {
@@ -671,7 +636,7 @@ var Blob = /** @class */ (function () {
     };
     Blob.prototype.readInt8 = function () {
         if (this.pos + 1 > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         return this.data[this.pos++];
     };
@@ -680,7 +645,7 @@ var Blob = /** @class */ (function () {
     };
     Blob.prototype.readInt32 = function () {
         if (this.pos + 4 > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         var val = this.data[this.pos++];
         val |= this.data[this.pos++] << 8;
@@ -693,7 +658,7 @@ var Blob = /** @class */ (function () {
     };
     Blob.prototype.readUint16 = function () {
         if (this.pos + 2 > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         var val = this.data[this.pos++];
         val |= this.data[this.pos++] << 8;
@@ -708,7 +673,7 @@ var Blob = /** @class */ (function () {
     };
     Blob.prototype.readString = function (length) {
         if (this.pos + length > this.data.length) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
         }
         var ret = "";
         for (var i = 0; i < length; i++) {
@@ -722,7 +687,7 @@ var Blob = /** @class */ (function () {
             maxSize--;
             for (var i = 0; i < maxSize; i++) {
                 if (this.pos + i + 1 > this.data.length) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Unexpected end of file");
+                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Unexpected end of file");
                 }
                 var byte = this.data[this.pos + i] >>> 0;
                 if (byte === 0) {
@@ -739,14 +704,720 @@ var Blob = /** @class */ (function () {
 
 
 /***/ }),
-/* 37 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/GDIContext.ts":
+/*!*********************************!*\
+  !*** ./src/wmfjs/GDIContext.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFJSError", function() { return WMFJSError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loggingEnabled", function() { return loggingEnabled; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Helper", function() { return Helper; });
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GDIContext": () => (/* binding */ GDIContext)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
+/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Region */ "./src/wmfjs/Region.ts");
+/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Style */ "./src/wmfjs/Style.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+
+var GDIContextState = /** @class */ (function () {
+    function GDIContextState(copy, defObjects) {
+        if (copy != null) {
+            this._svggroup = copy._svggroup;
+            this._svgclipChanged = copy._svgclipChanged;
+            this._svgtextbkfilter = copy._svgtextbkfilter;
+            this.mapmode = copy.mapmode;
+            this.stretchmode = copy.stretchmode;
+            this.textalign = copy.textalign;
+            this.bkmode = copy.bkmode;
+            this.textcolor = copy.textcolor.clone();
+            this.bkcolor = copy.bkcolor.clone();
+            this.polyfillmode = copy.polyfillmode;
+            this.wx = copy.wx;
+            this.wy = copy.wy;
+            this.ww = copy.ww;
+            this.wh = copy.wh;
+            this.vx = copy.vx;
+            this.vy = copy.vy;
+            this.vw = copy.vw;
+            this.vh = copy.vh;
+            this.x = copy.x;
+            this.y = copy.y;
+            this.clip = copy.clip;
+            this.ownclip = false;
+            this.selected = {};
+            for (var type in copy.selected) {
+                this.selected[type] = copy.selected[type];
+            }
+        }
+        else {
+            this._svggroup = null;
+            this._svgclipChanged = false;
+            this._svgtextbkfilter = null;
+            this.mapmode = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.MapMode.MM_ANISOTROPIC;
+            this.stretchmode = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.StretchMode.COLORONCOLOR;
+            this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
+            this.bkmode = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.MixMode.OPAQUE;
+            this.textcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__.ColorRef(null, 0, 0, 0);
+            this.bkcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__.ColorRef(null, 255, 255, 255);
+            this.polyfillmode = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PolyFillMode.ALTERNATE;
+            this.wx = 0;
+            this.wy = 0;
+            this.ww = 0;
+            this.wh = 0;
+            this.vx = 0;
+            this.vy = 0;
+            this.vw = 0;
+            this.vh = 0;
+            this.x = 0;
+            this.y = 0;
+            this.clip = null;
+            this.ownclip = false;
+            this.selected = {};
+            for (var type in defObjects) {
+                var defObj = defObjects[type];
+                this.selected[type] = defObj != null ? defObj.clone() : null;
+            }
+        }
+    }
+    return GDIContextState;
+}());
+var GDIContext = /** @class */ (function () {
+    function GDIContext(svg) {
+        this._svg = svg;
+        this._svgdefs = null;
+        this._svgPatterns = {};
+        this._svgClipPaths = {};
+        this.defObjects = {
+            brush: new _Style__WEBPACK_IMPORTED_MODULE_3__.Brush(null, null),
+            pen: new _Style__WEBPACK_IMPORTED_MODULE_3__.Pen(null, _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_SOLID, new _Primitives__WEBPACK_IMPORTED_MODULE_1__.PointS(null, 1, 1), new _Style__WEBPACK_IMPORTED_MODULE_3__.ColorRef(null, 0, 0, 0), 0, 0),
+            font: new _Style__WEBPACK_IMPORTED_MODULE_3__.Font(null, null),
+            palette: null,
+            region: null,
+        };
+        this.state = new GDIContextState(null, this.defObjects);
+        this.statestack = [this.state];
+        this.objects = {};
+    }
+    GDIContext.prototype.setMapMode = function (mode) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setMapMode: mode=" + mode);
+        this.state.mapmode = mode;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setWindowOrg = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setWindowOrg: x=" + x + " y=" + y);
+        this.state.wx = x;
+        this.state.wy = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setWindowExt = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setWindowExt: x=" + x + " y=" + y);
+        this.state.ww = x;
+        this.state.wh = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.offsetWindowOrg = function (offX, offY) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
+        this.state.wx += offX;
+        this.state.wy += offY;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setViewportOrg = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setViewportOrg: x=" + x + " y=" + y);
+        this.state.vx = x;
+        this.state.vy = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.setViewportExt = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setViewportExt: x=" + x + " y=" + y);
+        this.state.vw = x;
+        this.state.vh = y;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.offsetViewportOrg = function (offX, offY) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
+        this.state.vx += offX;
+        this.state.vy += offY;
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.saveDC = function () {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] saveDC");
+        var prevstate = this.state;
+        this.state = new GDIContextState(this.state);
+        this.statestack.push(prevstate);
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.restoreDC = function (saved) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] restoreDC: saved=" + saved);
+        if (this.statestack.length > 1) {
+            if (saved === -1) {
+                this.state = this.statestack.pop();
+            }
+            else if (saved < -1) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("restoreDC: relative restore not implemented");
+            }
+            else if (saved > 1) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("restoreDC: absolute restore not implemented");
+            }
+        }
+        else {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("No saved contexts");
+        }
+        this.state._svggroup = null;
+    };
+    GDIContext.prototype.escape = function (func, blob, offset, count) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
+    };
+    GDIContext.prototype.setStretchBltMode = function (stretchMode) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
+    };
+    GDIContext.prototype.stretchDib = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        srcW = this._todevW(srcW);
+        srcH = this._todevH(srcH);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        dstW = this._todevW(dstW);
+        dstH = this._todevH(dstH);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+    };
+    GDIContext.prototype.stretchDibBits = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        srcW = this._todevW(srcW);
+        srcH = this._todevH(srcH);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        dstW = this._todevW(dstW);
+        dstH = this._todevH(dstH);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
+            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
+            + " rasterOp=0x" + rasterOp.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
+    };
+    GDIContext.prototype.rectangle = function (rect, rw, rh) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        var bottom = this._todevY(rect.bottom);
+        var right = this._todevX(rect.right);
+        var top = this._todevY(rect.top);
+        var left = this._todevX(rect.left);
+        rw = this._todevH(rw);
+        rh = this._todevH(rh);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
+            + " left=" + left + " rh=" + rh + " rw=" + rw);
+        this._pushGroup();
+        var opts = this._applyOpts(null, true, true, false);
+        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
+    };
+    GDIContext.prototype.textOut = function (x, y, text) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
+        x = this._todevX(x);
+        y = this._todevY(y);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
+        this._pushGroup();
+        var opts = this._applyOpts(null, false, false, true);
+        if (this.state.selected.font.escapement !== 0) {
+            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+            opts.style = "dominant-baseline: middle; text-anchor: start;";
+        }
+        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.MixMode.OPAQUE) {
+            if (this.state._svgtextbkfilter == null) {
+                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._makeUniqueId("f");
+                var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
+                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+                this._svg.filters.composite(filter, null, null, "SourceGraphic");
+                this.state._svgtextbkfilter = filter;
+            }
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
+        }
+        this._svg.text(this.state._svggroup, x, y, text, opts);
+    };
+    GDIContext.prototype.extTextOut = function (x, y, text, fwOpts, rect, dx) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
+            + " with font " + this.state.selected.font.toString());
+        x = this._todevX(x);
+        y = this._todevY(y);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
+        this._pushGroup();
+        var opts = this._applyOpts(null, false, false, true);
+        if (this.state.selected.font.escapement !== 0) {
+            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
+            opts.style = "dominant-baseline: middle; text-anchor: start;";
+        }
+        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.MixMode.OPAQUE) {
+            if (this.state._svgtextbkfilter == null) {
+                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._makeUniqueId("f");
+                var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
+                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
+                this._svg.filters.composite(filter, null, null, "SourceGraphic");
+                this.state._svgtextbkfilter = filter;
+            }
+            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
+        }
+        this._svg.text(this.state._svggroup, x, y, text, opts);
+    };
+    GDIContext.prototype.lineTo = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
+        var toX = this._todevX(x);
+        var toY = this._todevY(y);
+        var fromX = this._todevX(this.state.x);
+        var fromY = this._todevY(this.state.y);
+        // Update position
+        this.state.x = x;
+        this.state.y = y;
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
+        this._pushGroup();
+        var opts = this._applyOpts(null, true, false, false);
+        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
+    };
+    GDIContext.prototype.moveTo = function (x, y) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] moveTo: x=" + x + " y=" + y);
+        this.state.x = x;
+        this.state.y = y;
+    };
+    GDIContext.prototype.polygon = function (points, first) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        var pts = [];
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] polygon: TRANSLATED: pts=" + pts);
+        if (first) {
+            this._pushGroup();
+        }
+        var opts = {
+            "fill-rule": this.state.polyfillmode === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
+        };
+        this._applyOpts(opts, true, true, false);
+        this._svg.polygon(this.state._svggroup, pts, opts);
+    };
+    GDIContext.prototype.polyPolygon = function (polygons) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] polyPolygon: polygons.length=" + polygons.length
+            + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        var cnt = polygons.length;
+        for (var i = 0; i < cnt; i++) {
+            this.polygon(polygons[i], i === 0);
+        }
+    };
+    GDIContext.prototype.polyline = function (points) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
+        var pts = [];
+        for (var i = 0; i < points.length; i++) {
+            var point = points[i];
+            pts.push([this._todevX(point.x), this._todevY(point.y)]);
+        }
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] polyline: TRANSLATED: pts=" + pts);
+        this._pushGroup();
+        var opts = this._applyOpts({ fill: "none" }, true, false, false);
+        this._svg.polyline(this.state._svggroup, pts, opts);
+    };
+    GDIContext.prototype.ellipse = function (rect) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
+            + " and brush " + this.state.selected.brush.toString());
+        var bottom = this._todevY(rect.bottom);
+        var right = this._todevX(rect.right);
+        var top = this._todevY(rect.top);
+        var left = this._todevX(rect.left);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
+        this._pushGroup();
+        var width2 = (right - left) / 2;
+        var height2 = (bottom - top) / 2;
+        var opts = this._applyOpts(null, true, true, false);
+        this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
+    };
+    GDIContext.prototype.excludeClipRect = function (rect) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] excludeClipRect: rect=" + rect.toString());
+        this._getClipRgn().subtract(rect);
+    };
+    GDIContext.prototype.intersectClipRect = function (rect) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] intersectClipRect: rect=" + rect.toString());
+        this._getClipRgn().intersect(rect);
+    };
+    GDIContext.prototype.offsetClipRgn = function (offX, offY) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
+        this._getClipRgn().offset(offX, offY);
+    };
+    GDIContext.prototype.setTextAlign = function (textAlignmentMode) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
+        this.state.textalign = textAlignmentMode;
+    };
+    GDIContext.prototype.setBkMode = function (bkMode) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
+        this.state.bkmode = bkMode;
+    };
+    GDIContext.prototype.setTextColor = function (textColor) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setTextColor: textColor=" + textColor.toString());
+        this.state.textcolor = textColor;
+    };
+    GDIContext.prototype.setBkColor = function (bkColor) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setBkColor: bkColor=" + bkColor.toString());
+        this.state.bkcolor = bkColor;
+        this.state._svgtextbkfilter = null;
+    };
+    GDIContext.prototype.setPolyFillMode = function (polyFillMode) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
+        this.state.polyfillmode = polyFillMode;
+    };
+    GDIContext.prototype.createBrush = function (brush) {
+        var idx = this._storeObject(brush);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
+    };
+    GDIContext.prototype.createFont = function (font) {
+        var idx = this._storeObject(font);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
+    };
+    GDIContext.prototype.createPen = function (pen) {
+        var idx = this._storeObject(pen);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.createPalette = function (palette) {
+        var idx = this._storeObject(palette);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.createRegion = function (region) {
+        var idx = this._storeObject(region);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.createPatternBrush = function (patternBrush) {
+        var idx = this._storeObject(patternBrush);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
+    };
+    GDIContext.prototype.selectObject = function (objIdx, checkType) {
+        var obj = this._getObject(objIdx);
+        if (obj != null && (checkType == null || obj.type === checkType)) {
+            this._selectObject(obj);
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
+        }
+        else {
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] selectObject: objIdx=" + objIdx
+                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
+        }
+    };
+    GDIContext.prototype.deleteObject = function (objIdx) {
+        var ret = this._deleteObject(objIdx);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
+    };
+    GDIContext.prototype._pushGroup = function () {
+        if (this.state._svggroup == null || this.state._svgclipChanged) {
+            this.state._svgclipChanged = false;
+            this.state._svgtextbkfilter = null;
+            var settings = {
+                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
+                preserveAspectRatio: "none",
+            };
+            if (this.state.clip != null) {
+                _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
+                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
+            }
+            else {
+                _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
+                    + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
+            }
+            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
+        }
+    };
+    GDIContext.prototype._storeObject = function (obj) {
+        var i = 0;
+        while (this.objects[i.toString()] != null && i <= 65535) {
+            i++;
+        }
+        if (i > 65535) {
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] Too many objects!");
+            return -1;
+        }
+        this.objects[i.toString()] = obj;
+        return i;
+    };
+    GDIContext.prototype._getObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj == null) {
+            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] No object with handle " + objIdx);
+        }
+        return obj;
+    };
+    GDIContext.prototype._getSvgDef = function () {
+        if (this._svgdefs == null) {
+            this._svgdefs = this._svg.defs();
+        }
+        return this._svgdefs;
+    };
+    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
+        for (var existingId in this._svgClipPaths) {
+            var rgn = this._svgClipPaths[existingId];
+            if (rgn === region) {
+                return existingId;
+            }
+        }
+        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._makeUniqueId("c");
+        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
+        switch (region.complexity) {
+            case 1:
+                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { "fill": "black", "stroke-width": 0 });
+                break;
+            case 2:
+                for (var i = 0; i < region.scans.length; i++) {
+                    var scan = region.scans[i];
+                    for (var j = 0; j < scan.scanlines.length; j++) {
+                        var scanline = scan.scanlines[j];
+                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { "fill": "black", "stroke-width": 0 });
+                    }
+                }
+                break;
+        }
+        this._svgClipPaths[id] = region;
+        return id;
+    };
+    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
+        for (var existingId in this._svgPatterns) {
+            var pat = this._svgPatterns[existingId];
+            if (pat === brush) {
+                return existingId;
+            }
+        }
+        var width;
+        var height;
+        var img;
+        switch (brush.style) {
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_PATTERN:
+                width = brush.pattern.getWidth();
+                height = brush.pattern.getHeight();
+                break;
+            case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                width = brush.dibpatternpt.getWidth();
+                height = brush.dibpatternpt.getHeight();
+                img = brush.dibpatternpt.base64ref();
+                break;
+            default:
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Invalid brush style");
+        }
+        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper._makeUniqueId("p");
+        var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, { patternUnits: "userSpaceOnUse" });
+        this._svg.image(spat, 0, 0, width, height, img);
+        this._svgPatterns[id] = brush;
+        return id;
+    };
+    GDIContext.prototype._selectObject = function (obj) {
+        this.state.selected[obj.type] = obj;
+        if (obj.type === "region") {
+            this.state._svgclipChanged = true;
+        }
+    };
+    GDIContext.prototype._deleteObject = function (objIdx) {
+        var obj = this.objects[objIdx.toString()];
+        if (obj != null) {
+            for (var i = 0; i < this.statestack.length; i++) {
+                var state = this.statestack[i];
+                if (state.selected[obj.type] === obj) {
+                    state.selected[obj.type] = this.defObjects[obj.type].clone();
+                }
+            }
+            delete this.objects[objIdx.toString()];
+            return true;
+        }
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] Cannot delete object with invalid handle " + objIdx);
+        return false;
+    };
+    GDIContext.prototype._getClipRgn = function () {
+        if (this.state.clip != null) {
+            if (!this.state.ownclip) {
+                this.state.clip = this.state.clip.clone();
+            }
+        }
+        else {
+            if (this.state.selected.region != null) {
+                this.state.clip = this.state.selected.region.clone();
+            }
+            else {
+                this.state.clip = (0,_Region__WEBPACK_IMPORTED_MODULE_2__.CreateSimpleRegion)(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
+            }
+        }
+        this.state.ownclip = true;
+        return this.state.clip;
+    };
+    GDIContext.prototype._todevX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._todevW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
+    };
+    GDIContext.prototype._todevH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
+    };
+    GDIContext.prototype._tologicalX = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalY = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype._tologicalW = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
+    };
+    GDIContext.prototype._tologicalH = function (val) {
+        // http://wvware.sourceforge.net/caolan/mapmode.html
+        // logical -> device
+        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
+    };
+    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
+        if (opts == null) {
+            opts = {};
+        }
+        if (usePen) {
+            var pen = this.state.selected.pen;
+            if (pen.style !== _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_NULL) {
+                opts.stroke = "#" + pen.color.toHex(), // TODO: pen style
+                    opts["stroke-width"] = this._todevW(pen.width.x); // TODO: is .y ever used?
+                var dotWidth = void 0;
+                if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
+                    opts["stroke-linecap"] = "square";
+                    dotWidth = 1;
+                }
+                else if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
+                    opts["stroke-linecap"] = "butt";
+                    dotWidth = opts["stroke-width"];
+                }
+                else {
+                    opts["stroke-linecap"] = "round";
+                    dotWidth = 1;
+                }
+                if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
+                    opts["stroke-linejoin"] = "bevel";
+                }
+                else if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_JOIN_MITER) !== 0) {
+                    opts["stroke-linejoin"] = "miter";
+                }
+                else {
+                    opts["stroke-linejoin"] = "round";
+                }
+                var dashWidth = opts["stroke-width"] * 4;
+                var dotSpacing = opts["stroke-width"] * 2;
+                switch (pen.style) {
+                    case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_DASH:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
+                        break;
+                    case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_DOT:
+                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
+                        break;
+                    case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_DASHDOT:
+                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                    case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.PenStyle.PS_DASHDOTDOT:
+                        opts["stroke-dasharray"]
+                            = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
+                        break;
+                }
+            }
+        }
+        if (useBrush) {
+            var brush = this.state.selected.brush;
+            switch (brush.style) {
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_SOLID:
+                    opts.fill = "#" + brush.color.toHex();
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_PATTERN:
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
+                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
+                    break;
+                case _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.GDI.BrushStyle.BS_NULL:
+                    opts.fill = "none";
+                    break;
+                default:
+                    _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] unsupported brush style: " + brush.style);
+                    opts.fill = "none";
+                    break;
+            }
+        }
+        if (useFont) {
+            var font = this.state.selected.font;
+            opts["font-family"] = font.facename;
+            opts["font-size"] = this._todevH(Math.abs(font.height));
+            opts.fill = "#" + this.state.textcolor.toHex();
+        }
+        return opts;
+    };
+    return GDIContext;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/wmfjs/Helper.ts":
+/*!*****************************!*\
+  !*** ./src/wmfjs/Helper.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "WMFJSError": () => (/* binding */ WMFJSError),
+/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled),
+/* harmony export */   "Helper": () => (/* binding */ Helper)
+/* harmony export */ });
 /*
 
 The MIT License (MIT)
@@ -780,6 +1451,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1062,711 +1735,20 @@ var Helper = /** @class */ (function () {
 
 
 /***/ }),
-/* 38 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/Primitives.ts":
+/*!*********************************!*\
+  !*** ./src/wmfjs/Primitives.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GDIContext", function() { return GDIContext; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(39);
-/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(40);
-/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(41);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-
-
-
-
-var GDIContextState = /** @class */ (function () {
-    function GDIContextState(copy, defObjects) {
-        if (copy != null) {
-            this._svggroup = copy._svggroup;
-            this._svgclipChanged = copy._svgclipChanged;
-            this._svgtextbkfilter = copy._svgtextbkfilter;
-            this.mapmode = copy.mapmode;
-            this.stretchmode = copy.stretchmode;
-            this.textalign = copy.textalign;
-            this.bkmode = copy.bkmode;
-            this.textcolor = copy.textcolor.clone();
-            this.bkcolor = copy.bkcolor.clone();
-            this.polyfillmode = copy.polyfillmode;
-            this.wx = copy.wx;
-            this.wy = copy.wy;
-            this.ww = copy.ww;
-            this.wh = copy.wh;
-            this.vx = copy.vx;
-            this.vy = copy.vy;
-            this.vw = copy.vw;
-            this.vh = copy.vh;
-            this.x = copy.x;
-            this.y = copy.y;
-            this.clip = copy.clip;
-            this.ownclip = false;
-            this.selected = {};
-            for (var type in copy.selected) {
-                this.selected[type] = copy.selected[type];
-            }
-        }
-        else {
-            this._svggroup = null;
-            this._svgclipChanged = false;
-            this._svgtextbkfilter = null;
-            this.mapmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MapMode.MM_ANISOTROPIC;
-            this.stretchmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.StretchMode.COLORONCOLOR;
-            this.textalign = 0; // TA_LEFT | TA_TOP | TA_NOUPDATECP
-            this.bkmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE;
-            this.textcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 0, 0, 0);
-            this.bkcolor = new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 255, 255, 255);
-            this.polyfillmode = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PolyFillMode.ALTERNATE;
-            this.wx = 0;
-            this.wy = 0;
-            this.ww = 0;
-            this.wh = 0;
-            this.vx = 0;
-            this.vy = 0;
-            this.vw = 0;
-            this.vh = 0;
-            this.x = 0;
-            this.y = 0;
-            this.clip = null;
-            this.ownclip = false;
-            this.selected = {};
-            for (var type in defObjects) {
-                var defObj = defObjects[type];
-                this.selected[type] = defObj != null ? defObj.clone() : null;
-            }
-        }
-    }
-    return GDIContextState;
-}());
-var GDIContext = /** @class */ (function () {
-    function GDIContext(svg) {
-        this._svg = svg;
-        this._svgdefs = null;
-        this._svgPatterns = {};
-        this._svgClipPaths = {};
-        this.defObjects = {
-            brush: new _Style__WEBPACK_IMPORTED_MODULE_3__["Brush"](null, null),
-            pen: new _Style__WEBPACK_IMPORTED_MODULE_3__["Pen"](null, _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_SOLID, new _Primitives__WEBPACK_IMPORTED_MODULE_1__["PointS"](null, 1, 1), new _Style__WEBPACK_IMPORTED_MODULE_3__["ColorRef"](null, 0, 0, 0), 0, 0),
-            font: new _Style__WEBPACK_IMPORTED_MODULE_3__["Font"](null, null),
-            palette: null,
-            region: null,
-        };
-        this.state = new GDIContextState(null, this.defObjects);
-        this.statestack = [this.state];
-        this.objects = {};
-    }
-    GDIContext.prototype.setMapMode = function (mode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setMapMode: mode=" + mode);
-        this.state.mapmode = mode;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setWindowOrg = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setWindowOrg: x=" + x + " y=" + y);
-        this.state.wx = x;
-        this.state.wy = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setWindowExt = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setWindowExt: x=" + x + " y=" + y);
-        this.state.ww = x;
-        this.state.wh = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.offsetWindowOrg = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetWindowOrg: offX=" + offX + " offY=" + offY);
-        this.state.wx += offX;
-        this.state.wy += offY;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setViewportOrg = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setViewportOrg: x=" + x + " y=" + y);
-        this.state.vx = x;
-        this.state.vy = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.setViewportExt = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setViewportExt: x=" + x + " y=" + y);
-        this.state.vw = x;
-        this.state.vh = y;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.offsetViewportOrg = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetViewportOrg: offX=" + offX + " offY=" + offY);
-        this.state.vx += offX;
-        this.state.vy += offY;
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.saveDC = function () {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] saveDC");
-        var prevstate = this.state;
-        this.state = new GDIContextState(this.state);
-        this.statestack.push(prevstate);
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.restoreDC = function (saved) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] restoreDC: saved=" + saved);
-        if (this.statestack.length > 1) {
-            if (saved === -1) {
-                this.state = this.statestack.pop();
-            }
-            else if (saved < -1) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("restoreDC: relative restore not implemented");
-            }
-            else if (saved > 1) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("restoreDC: absolute restore not implemented");
-            }
-        }
-        else {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("No saved contexts");
-        }
-        this.state._svggroup = null;
-    };
-    GDIContext.prototype.escape = function (func, blob, offset, count) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] escape: func=" + func + " offset=" + offset + " count=" + count);
-    };
-    GDIContext.prototype.setStretchBltMode = function (stretchMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setStretchBltMode: stretchMode=" + stretchMode);
-    };
-    GDIContext.prototype.stretchDib = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, colorUsage, dib) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDib: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        srcX = this._todevX(srcX);
-        srcY = this._todevY(srcY);
-        srcW = this._todevW(srcW);
-        srcH = this._todevH(srcH);
-        dstX = this._todevX(dstX);
-        dstY = this._todevY(dstY);
-        dstW = this._todevW(dstW);
-        dstH = this._todevH(dstH);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDib: TRANSLATED: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16) + " colorUsage=0x" + colorUsage.toString(16));
-        this._pushGroup();
-        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
-    };
-    GDIContext.prototype.stretchDibBits = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        srcX = this._todevX(srcX);
-        srcY = this._todevY(srcY);
-        srcW = this._todevW(srcW);
-        srcH = this._todevH(srcH);
-        dstX = this._todevX(dstX);
-        dstY = this._todevY(dstY);
-        dstW = this._todevW(dstW);
-        dstH = this._todevH(dstH);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] stretchDibBits: TRANSLATED:"
-            + " srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
-            + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
-            + " rasterOp=0x" + rasterOp.toString(16));
-        this._pushGroup();
-        this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
-    };
-    GDIContext.prototype.rectangle = function (rect, rw, rh) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] rectangle: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        var bottom = this._todevY(rect.bottom);
-        var right = this._todevX(rect.right);
-        var top = this._todevY(rect.top);
-        var left = this._todevX(rect.left);
-        rw = this._todevH(rw);
-        rh = this._todevH(rh);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] rectangle: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top
-            + " left=" + left + " rh=" + rh + " rw=" + rw);
-        this._pushGroup();
-        var opts = this._applyOpts(null, true, true, false);
-        this._svg.rect(this.state._svggroup, left, top, right - left, bottom - top, rw / 2, rh / 2, opts);
-    };
-    GDIContext.prototype.textOut = function (x, y, text) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] textOut: x=" + x + " y=" + y + " text=" + text
-            + " with font " + this.state.selected.font.toString());
-        x = this._todevX(x);
-        y = this._todevY(y);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] textOut: TRANSLATED: x=" + x + " y=" + y);
-        this._pushGroup();
-        var opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement !== 0) {
-            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
-            opts.style = "dominant-baseline: middle; text-anchor: start;";
-        }
-        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE) {
-            if (this.state._svgtextbkfilter == null) {
-                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("f");
-                var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
-                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
-                this._svg.filters.composite(filter, null, null, "SourceGraphic");
-                this.state._svgtextbkfilter = filter;
-            }
-            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
-        }
-        this._svg.text(this.state._svggroup, x, y, text, opts);
-    };
-    GDIContext.prototype.extTextOut = function (x, y, text, fwOpts, rect, dx) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] extTextOut: x=" + x + " y=" + y + " text=" + text
-            + " with font " + this.state.selected.font.toString());
-        x = this._todevX(x);
-        y = this._todevY(y);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] extTextOut: TRANSLATED: x=" + x + " y=" + y);
-        this._pushGroup();
-        var opts = this._applyOpts(null, false, false, true);
-        if (this.state.selected.font.escapement !== 0) {
-            opts.transform = "rotate(" + [(-this.state.selected.font.escapement / 10), x, y] + ")";
-            opts.style = "dominant-baseline: middle; text-anchor: start;";
-        }
-        if (this.state.bkmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.MixMode.OPAQUE) {
-            if (this.state._svgtextbkfilter == null) {
-                var filterId = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("f");
-                var filter = this._svg.filter(this._getSvgDef(), filterId, 0, 0, 1, 1);
-                this._svg.filters.flood(filter, null, "#" + this.state.bkcolor.toHex(), 1.0);
-                this._svg.filters.composite(filter, null, null, "SourceGraphic");
-                this.state._svgtextbkfilter = filter;
-            }
-            opts.filter = "url(#" + this.state._svgtextbkfilter.id + ")";
-        }
-        this._svg.text(this.state._svggroup, x, y, text, opts);
-    };
-    GDIContext.prototype.lineTo = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] lineTo: x=" + x + " y=" + y + " with pen " + this.state.selected.pen.toString());
-        var toX = this._todevX(x);
-        var toY = this._todevY(y);
-        var fromX = this._todevX(this.state.x);
-        var fromY = this._todevY(this.state.y);
-        // Update position
-        this.state.x = x;
-        this.state.y = y;
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] lineTo: TRANSLATED: toX=" + toX + " toY=" + toY + " fromX=" + fromX + " fromY=" + fromY);
-        this._pushGroup();
-        var opts = this._applyOpts(null, true, false, false);
-        this._svg.line(this.state._svggroup, fromX, fromY, toX, toY, opts);
-    };
-    GDIContext.prototype.moveTo = function (x, y) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] moveTo: x=" + x + " y=" + y);
-        this.state.x = x;
-        this.state.y = y;
-    };
-    GDIContext.prototype.polygon = function (points, first) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polygon: points=" + points + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        var pts = [];
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polygon: TRANSLATED: pts=" + pts);
-        if (first) {
-            this._pushGroup();
-        }
-        var opts = {
-            "fill-rule": this.state.polyfillmode === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PolyFillMode.ALTERNATE ? "evenodd" : "nonzero",
-        };
-        this._applyOpts(opts, true, true, false);
-        this._svg.polygon(this.state._svggroup, pts, opts);
-    };
-    GDIContext.prototype.polyPolygon = function (polygons) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyPolygon: polygons.length=" + polygons.length
-            + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        var cnt = polygons.length;
-        for (var i = 0; i < cnt; i++) {
-            this.polygon(polygons[i], i === 0);
-        }
-    };
-    GDIContext.prototype.polyline = function (points) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyline: points=" + points + " with pen " + this.state.selected.pen.toString());
-        var pts = [];
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            pts.push([this._todevX(point.x), this._todevY(point.y)]);
-        }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] polyline: TRANSLATED: pts=" + pts);
-        this._pushGroup();
-        var opts = this._applyOpts({ fill: "none" }, true, false, false);
-        this._svg.polyline(this.state._svggroup, pts, opts);
-    };
-    GDIContext.prototype.ellipse = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] ellipse: rect=" + rect.toString() + " with pen " + this.state.selected.pen.toString()
-            + " and brush " + this.state.selected.brush.toString());
-        var bottom = this._todevY(rect.bottom);
-        var right = this._todevX(rect.right);
-        var top = this._todevY(rect.top);
-        var left = this._todevX(rect.left);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] ellipse: TRANSLATED: bottom=" + bottom + " right=" + right + " top=" + top + " left=" + left);
-        this._pushGroup();
-        var width2 = (right - left) / 2;
-        var height2 = (bottom - top) / 2;
-        var opts = this._applyOpts(null, true, true, false);
-        this._svg.ellipse(this.state._svggroup, left + width2, top + height2, width2, height2, opts);
-    };
-    GDIContext.prototype.excludeClipRect = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] excludeClipRect: rect=" + rect.toString());
-        this._getClipRgn().subtract(rect);
-    };
-    GDIContext.prototype.intersectClipRect = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] intersectClipRect: rect=" + rect.toString());
-        this._getClipRgn().intersect(rect);
-    };
-    GDIContext.prototype.offsetClipRgn = function (offX, offY) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] offsetClipRgn: offX=" + offX + " offY=" + offY);
-        this._getClipRgn().offset(offX, offY);
-    };
-    GDIContext.prototype.setTextAlign = function (textAlignmentMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setTextAlign: textAlignmentMode=0x" + textAlignmentMode.toString(16));
-        this.state.textalign = textAlignmentMode;
-    };
-    GDIContext.prototype.setBkMode = function (bkMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setBkMode: bkMode=0x" + bkMode.toString(16));
-        this.state.bkmode = bkMode;
-    };
-    GDIContext.prototype.setTextColor = function (textColor) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setTextColor: textColor=" + textColor.toString());
-        this.state.textcolor = textColor;
-    };
-    GDIContext.prototype.setBkColor = function (bkColor) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setBkColor: bkColor=" + bkColor.toString());
-        this.state.bkcolor = bkColor;
-        this.state._svgtextbkfilter = null;
-    };
-    GDIContext.prototype.setPolyFillMode = function (polyFillMode) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] setPolyFillMode: polyFillMode=" + polyFillMode);
-        this.state.polyfillmode = polyFillMode;
-    };
-    GDIContext.prototype.createBrush = function (brush) {
-        var idx = this._storeObject(brush);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createBrush: brush=" + brush.toString() + " with handle " + idx);
-    };
-    GDIContext.prototype.createFont = function (font) {
-        var idx = this._storeObject(font);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createFont: font=" + font.toString() + " with handle " + idx);
-    };
-    GDIContext.prototype.createPen = function (pen) {
-        var idx = this._storeObject(pen);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createPen: pen=" + pen.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.createPalette = function (palette) {
-        var idx = this._storeObject(palette);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createPalette: palette=" + palette.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.createRegion = function (region) {
-        var idx = this._storeObject(region);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createRegion: region=" + region.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.createPatternBrush = function (patternBrush) {
-        var idx = this._storeObject(patternBrush);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] createRegion: region=" + patternBrush.toString() + " width handle " + idx);
-    };
-    GDIContext.prototype.selectObject = function (objIdx, checkType) {
-        var obj = this._getObject(objIdx);
-        if (obj != null && (checkType == null || obj.type === checkType)) {
-            this._selectObject(obj);
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
-                + (obj ? " selected " + obj.type + ": " + obj.toString() : "[invalid index]"));
-        }
-        else {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] selectObject: objIdx=" + objIdx
-                + (obj ? " invalid object type: " + obj.type : "[invalid index]"));
-        }
-    };
-    GDIContext.prototype.deleteObject = function (objIdx) {
-        var ret = this._deleteObject(objIdx);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] deleteObject: objIdx=" + objIdx + (ret ? " deleted object" : "[invalid index]"));
-    };
-    GDIContext.prototype._pushGroup = function () {
-        if (this.state._svggroup == null || this.state._svgclipChanged) {
-            this.state._svgclipChanged = false;
-            this.state._svgtextbkfilter = null;
-            var settings = {
-                viewBox: [this.state.vx, this.state.vy, this.state.vw, this.state.vh].join(" "),
-                preserveAspectRatio: "none",
-            };
-            if (this.state.clip != null) {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
-                    + " width=" + this.state.vw + " height=" + this.state.vh + " with clipping");
-                settings["clip-path"] = "url(#" + this._getSvgClipPathForRegion(this.state.clip) + ")";
-            }
-            else {
-                _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] new svg x=" + this.state.vx + " y=" + this.state.vy
-                    + " width=" + this.state.vw + " height=" + this.state.vh + " without clipping");
-            }
-            this.state._svggroup = this._svg.svg(this.state._svggroup, this.state.vx, this.state.vy, this.state.vw, this.state.vh, settings);
-        }
-    };
-    GDIContext.prototype._storeObject = function (obj) {
-        var i = 0;
-        while (this.objects[i.toString()] != null && i <= 65535) {
-            i++;
-        }
-        if (i > 65535) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] Too many objects!");
-            return -1;
-        }
-        this.objects[i.toString()] = obj;
-        return i;
-    };
-    GDIContext.prototype._getObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj == null) {
-            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] No object with handle " + objIdx);
-        }
-        return obj;
-    };
-    GDIContext.prototype._getSvgDef = function () {
-        if (this._svgdefs == null) {
-            this._svgdefs = this._svg.defs();
-        }
-        return this._svgdefs;
-    };
-    GDIContext.prototype._getSvgClipPathForRegion = function (region) {
-        for (var existingId in this._svgClipPaths) {
-            var rgn = this._svgClipPaths[existingId];
-            if (rgn === region) {
-                return existingId;
-            }
-        }
-        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("c");
-        var sclip = this._svg.clipPath(this._getSvgDef(), id, "userSpaceOnUse");
-        switch (region.complexity) {
-            case 1:
-                this._svg.rect(sclip, this._todevX(region.bounds.left), this._todevY(region.bounds.top), this._todevW(region.bounds.right - region.bounds.left), this._todevH(region.bounds.bottom - region.bounds.top), { "fill": "black", "stroke-width": 0 });
-                break;
-            case 2:
-                for (var i = 0; i < region.scans.length; i++) {
-                    var scan = region.scans[i];
-                    for (var j = 0; j < scan.scanlines.length; j++) {
-                        var scanline = scan.scanlines[j];
-                        this._svg.rect(sclip, this._todevX(scanline.left), this._todevY(scan.top), this._todevW(scanline.right - scanline.left), this._todevH(scan.bottom - scan.top), { "fill": "black", "stroke-width": 0 });
-                    }
-                }
-                break;
-        }
-        this._svgClipPaths[id] = region;
-        return id;
-    };
-    GDIContext.prototype._getSvgPatternForBrush = function (brush) {
-        for (var existingId in this._svgPatterns) {
-            var pat = this._svgPatterns[existingId];
-            if (pat === brush) {
-                return existingId;
-            }
-        }
-        var width;
-        var height;
-        var img;
-        switch (brush.style) {
-            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_PATTERN:
-                width = brush.pattern.getWidth();
-                height = brush.pattern.getHeight();
-                break;
-            case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
-                width = brush.dibpatternpt.getWidth();
-                height = brush.dibpatternpt.getHeight();
-                img = brush.dibpatternpt.base64ref();
-                break;
-            default:
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Invalid brush style");
-        }
-        var id = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._makeUniqueId("p");
-        var spat = this._svg.pattern(this._getSvgDef(), id, 0, 0, width, height, { patternUnits: "userSpaceOnUse" });
-        this._svg.image(spat, 0, 0, width, height, img);
-        this._svgPatterns[id] = brush;
-        return id;
-    };
-    GDIContext.prototype._selectObject = function (obj) {
-        this.state.selected[obj.type] = obj;
-        if (obj.type === "region") {
-            this.state._svgclipChanged = true;
-        }
-    };
-    GDIContext.prototype._deleteObject = function (objIdx) {
-        var obj = this.objects[objIdx.toString()];
-        if (obj != null) {
-            for (var i = 0; i < this.statestack.length; i++) {
-                var state = this.statestack[i];
-                if (state.selected[obj.type] === obj) {
-                    state.selected[obj.type] = this.defObjects[obj.type].clone();
-                }
-            }
-            delete this.objects[objIdx.toString()];
-            return true;
-        }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] Cannot delete object with invalid handle " + objIdx);
-        return false;
-    };
-    GDIContext.prototype._getClipRgn = function () {
-        if (this.state.clip != null) {
-            if (!this.state.ownclip) {
-                this.state.clip = this.state.clip.clone();
-            }
-        }
-        else {
-            if (this.state.selected.region != null) {
-                this.state.clip = this.state.selected.region.clone();
-            }
-            else {
-                this.state.clip = Object(_Region__WEBPACK_IMPORTED_MODULE_2__["CreateSimpleRegion"])(this.state.wx, this.state.wy, this.state.wx + this.state.ww, this.state.wy + this.state.wh);
-            }
-        }
-        this.state.ownclip = true;
-        return this.state.clip;
-    };
-    GDIContext.prototype._todevX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wx) * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.wy) * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._todevW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vw / this.state.ww)) + this.state.vx;
-    };
-    GDIContext.prototype._todevH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val * (this.state.vh / this.state.wh)) + this.state.vy;
-    };
-    GDIContext.prototype._tologicalX = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vx) / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalY = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor((val - this.state.vy) / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
-    GDIContext.prototype._tologicalW = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vw / this.state.ww)) + this.state.wx;
-    };
-    GDIContext.prototype._tologicalH = function (val) {
-        // http://wvware.sourceforge.net/caolan/mapmode.html
-        // logical -> device
-        return Math.floor(val / (this.state.vh / this.state.wh)) + this.state.wy;
-    };
-    GDIContext.prototype._applyOpts = function (opts, usePen, useBrush, useFont) {
-        if (opts == null) {
-            opts = {};
-        }
-        if (usePen) {
-            var pen = this.state.selected.pen;
-            if (pen.style !== _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_NULL) {
-                opts.stroke = "#" + pen.color.toHex(), // TODO: pen style
-                    opts["stroke-width"] = this._todevW(pen.width.x); // TODO: is .y ever used?
-                var dotWidth = void 0;
-                if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_ENDCAP_SQUARE) !== 0) {
-                    opts["stroke-linecap"] = "square";
-                    dotWidth = 1;
-                }
-                else if ((pen.linecap & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_ENDCAP_FLAT) !== 0) {
-                    opts["stroke-linecap"] = "butt";
-                    dotWidth = opts["stroke-width"];
-                }
-                else {
-                    opts["stroke-linecap"] = "round";
-                    dotWidth = 1;
-                }
-                if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_JOIN_BEVEL) !== 0) {
-                    opts["stroke-linejoin"] = "bevel";
-                }
-                else if ((pen.join & _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_JOIN_MITER) !== 0) {
-                    opts["stroke-linejoin"] = "miter";
-                }
-                else {
-                    opts["stroke-linejoin"] = "round";
-                }
-                var dashWidth = opts["stroke-width"] * 4;
-                var dotSpacing = opts["stroke-width"] * 2;
-                switch (pen.style) {
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASH:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing].toString();
-                        break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DOT:
-                        opts["stroke-dasharray"] = [dotWidth, dotSpacing].toString();
-                        break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASHDOT:
-                        opts["stroke-dasharray"] = [dashWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.PenStyle.PS_DASHDOTDOT:
-                        opts["stroke-dasharray"]
-                            = [dashWidth, dotSpacing, dotWidth, dotSpacing, dotWidth, dotSpacing].toString();
-                        break;
-                }
-            }
-        }
-        if (useBrush) {
-            var brush = this.state.selected.brush;
-            switch (brush.style) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_SOLID:
-                    opts.fill = "#" + brush.color.toHex();
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_PATTERN:
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
-                    opts.fill = "url(#" + this._getSvgPatternForBrush(brush) + ")";
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BrushStyle.BS_NULL:
-                    opts.fill = "none";
-                    break;
-                default:
-                    _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[gdi] unsupported brush style: " + brush.style);
-                    opts.fill = "none";
-                    break;
-            }
-        }
-        if (useFont) {
-            var font = this.state.selected.font;
-            opts["font-family"] = font.facename;
-            opts["font-size"] = this._todevH(Math.abs(font.height));
-            opts.fill = "#" + this.state.textcolor.toHex();
-        }
-        return opts;
-    };
-    return GDIContext;
-}());
-
-
-
-/***/ }),
-/* 39 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PointS", function() { return PointS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Rect", function() { return Rect; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Obj", function() { return Obj; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "PointS": () => (/* binding */ PointS),
+/* harmony export */   "Rect": () => (/* binding */ Rect),
+/* harmony export */   "Obj": () => (/* binding */ Obj)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
 /*
 
 The MIT License (MIT)
@@ -1856,10 +1838,10 @@ var Obj = /** @class */ (function () {
         this.type = type;
     }
     Obj.prototype.clone = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("clone not implemented");
+        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("clone not implemented");
     };
     Obj.prototype.toString = function () {
-        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("toString not implemented");
+        throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("toString not implemented");
     };
     return Obj;
 }());
@@ -1867,16 +1849,21 @@ var Obj = /** @class */ (function () {
 
 
 /***/ }),
-/* 40 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/Region.ts":
+/*!*****************************!*\
+  !*** ./src/wmfjs/Region.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Region", function() { return Region; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CreateSimpleRegion", function() { return CreateSimpleRegion; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Scan", function() { return Scan; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(39);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Region": () => (/* binding */ Region),
+/* harmony export */   "CreateSimpleRegion": () => (/* binding */ CreateSimpleRegion),
+/* harmony export */   "Scan": () => (/* binding */ Scan)
+/* harmony export */ });
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
 /*
 
 The MIT License (MIT)
@@ -1910,6 +1897,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -1924,7 +1913,7 @@ var Region = /** @class */ (function (_super) {
         if (reader != null) {
             reader.skip(2);
             if (reader.readInt16() !== 6) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Invalid region identifier");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.WMFJSError("Invalid region identifier");
             }
             reader.skip(2);
             var rgnSize = reader.readInt16();
@@ -1935,7 +1924,7 @@ var Region = /** @class */ (function (_super) {
             var top_1 = reader.readInt16();
             var right = reader.readInt16();
             var bottom = reader.readInt16();
-            _this.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__["Rect"](null, left, top_1, right, bottom);
+            _this.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__.Rect(null, left, top_1, right, bottom);
             _this.scans = [];
             for (var i = 0; i < scanCnt; i++) {
                 _this.scans.push(new Scan(reader));
@@ -1999,7 +1988,7 @@ var Region = /** @class */ (function (_super) {
         }
     };
     Region.prototype.subtract = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region " + this.toString() + " subtract " + rect.toString());
         if (this.bounds != null) {
             var isect = this.bounds.intersect(rect);
             if (isect != null) { // Only need to do anything if there is any chance of an overlap
@@ -2025,7 +2014,7 @@ var Region = /** @class */ (function (_super) {
                             this.scans[si] = cloned;
                         }
                         else {
-                            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region split top scan " + si + " for substraction");
+                            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region split top scan " + si + " for substraction");
                             this.scans.splice(++si, 0, cloned);
                         }
                         break;
@@ -2049,7 +2038,7 @@ var Region = /** @class */ (function (_super) {
                             this.scans[si] = cloned;
                         }
                         else {
-                            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region split bottom scan " + si + " for substraction");
+                            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region split bottom scan " + si + " for substraction");
                             this.scans.splice(++si, 0, cloned);
                         }
                         break;
@@ -2065,7 +2054,7 @@ var Region = /** @class */ (function (_super) {
                     while (si < last) {
                         var scan = this.scans[si];
                         if (!scan.subtract(rect.left, rect.right)) {
-                            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region remove now empty scan " + si + " due to subtraction");
+                            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region remove now empty scan " + si + " due to subtraction");
                             this.scans.splice(si, 1);
                             last--;
                             continue;
@@ -2101,7 +2090,7 @@ var Region = /** @class */ (function (_super) {
                         }
                     }
                     if (left != null && top_2 != null && right != null && bottom != null) {
-                        this.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__["Rect"](null, left, top_2, right, bottom);
+                        this.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__.Rect(null, left, top_2, right, bottom);
                         this._updateComplexity();
                     }
                     else {
@@ -2116,10 +2105,10 @@ var Region = /** @class */ (function (_super) {
                 }
             }
         }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region subtraction -> " + this.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region subtraction -> " + this.toString());
     };
     Region.prototype.intersect = function (rect) {
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region " + this.toString() + " intersect with " + rect.toString());
         if (this.bounds != null) {
             this.bounds = this.bounds.intersect(rect);
             if (this.bounds != null) {
@@ -2136,7 +2125,7 @@ var Region = /** @class */ (function (_super) {
                         }
                     }
                     if (si > 0) {
-                        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region remove " + si + " scans from top");
+                        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region remove " + si + " scans from top");
                         this.scans.splice(0, si);
                         // Adjust the first scan's top to match the new bounds.top
                         if (this.scans.length > 0) {
@@ -2149,13 +2138,13 @@ var Region = /** @class */ (function (_super) {
                         var scan = this.scans[si];
                         if (scan.top > this.bounds.bottom) {
                             // Remove this and all remaining scans that fall entirely below the new bounds.bottom
-                            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region remove " + (this.scans.length - si) + " scans from bottom");
+                            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region remove " + (this.scans.length - si) + " scans from bottom");
                             this.scans.splice(si, this.scans.length - si);
                             break;
                         }
                         if (!scan.intersect(this.bounds.left, this.bounds.right)) {
                             // Remove now empty scan
-                            _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region remove now empty scan " + si + " due to intersection");
+                            _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region remove now empty scan " + si + " due to intersection");
                             this.scans.splice(si, 1);
                             continue;
                         }
@@ -2173,7 +2162,7 @@ var Region = /** @class */ (function (_super) {
                 this.complexity = 0;
             }
         }
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].log("[wmf] Region intersection -> " + this.toString());
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[wmf] Region intersection -> " + this.toString());
     };
     Region.prototype.offset = function (offX, offY) {
         if (this.bounds != null) {
@@ -2198,11 +2187,11 @@ var Region = /** @class */ (function (_super) {
         }
     };
     return Region;
-}(_Primitives__WEBPACK_IMPORTED_MODULE_1__["Obj"]));
+}(_Primitives__WEBPACK_IMPORTED_MODULE_1__.Obj));
 
 function CreateSimpleRegion(left, top, right, bottom) {
     var rgn = new Region(null, null);
-    rgn.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__["Rect"](null, left, top, right, bottom);
+    rgn.bounds = new _Primitives__WEBPACK_IMPORTED_MODULE_1__.Rect(null, left, top, right, bottom);
     rgn._updateComplexity();
     return rgn;
 }
@@ -2323,20 +2312,173 @@ var Scan = /** @class */ (function () {
 
 
 /***/ }),
-/* 41 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/Renderer.ts":
+/*!*******************************!*\
+  !*** ./src/wmfjs/Renderer.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ColorRef", function() { return ColorRef; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Font", function() { return Font; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Brush", function() { return Brush; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Pen", function() { return Pen; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PaletteEntry", function() { return PaletteEntry; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Palette", function() { return Palette; });
-/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(42);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(37);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(39);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Renderer": () => (/* binding */ Renderer)
+/* harmony export */ });
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util */ "./src/util/index.ts");
+/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Blob */ "./src/wmfjs/Blob.ts");
+/* harmony import */ var _GDIContext__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GDIContext */ "./src/wmfjs/GDIContext.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _WMFRecords__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./WMFRecords */ "./src/wmfjs/WMFRecords.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+
+
+var Renderer = /** @class */ (function () {
+    function Renderer(blob) {
+        this.parse(blob);
+        _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.log("WMFJS.Renderer instantiated");
+    }
+    Renderer.prototype.render = function (info) {
+        var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this._render(new _util__WEBPACK_IMPORTED_MODULE_0__.SVG(svgElement), info.mapMode, info.xExt, info.yExt);
+        svgElement.setAttribute("viewBox", [0, 0, info.xExt, info.yExt].join(" "));
+        svgElement.setAttribute("preserveAspectRatio", "none"); // TODO: MM_ISOTROPIC vs MM_ANISOTROPIC
+        svgElement.setAttribute("width", info.width);
+        svgElement.setAttribute("height", info.height);
+        return svgElement;
+    };
+    Renderer.prototype.parse = function (blob) {
+        this._img = null;
+        var reader = new _Blob__WEBPACK_IMPORTED_MODULE_1__.Blob(blob);
+        var type;
+        var size;
+        var placable;
+        var headerstart;
+        var key = reader.readUint32();
+        if (key === 0x9ac6cdd7) {
+            placable = new WMFPlacable(reader);
+            headerstart = reader.pos;
+            type = reader.readUint16();
+            size = reader.readUint16();
+        }
+        else {
+            headerstart = 0;
+            type = key & 0xffff;
+            size = (key >>> 16) & 0xffff;
+        }
+        switch (type) {
+            case _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.GDI.MetafileType.MEMORYMETAFILE:
+            case _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.GDI.MetafileType.DISKMETAFILE:
+                if (size === _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.GDI.METAHEADER_SIZE / 2) {
+                    var version = reader.readUint16();
+                    switch (version) {
+                        case _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.GDI.MetafileVersion.METAVERSION100:
+                        case _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.GDI.MetafileVersion.METAVERSION300:
+                            this._img = new WMF(reader, placable, version, headerstart + (size * 2));
+                            break;
+                    }
+                }
+                break;
+        }
+        if (this._img == null) {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_3__.WMFJSError("Format not recognized");
+        }
+    };
+    Renderer.prototype._render = function (svg, mapMode, xExt, yExt) {
+        // See https://www-user.tu-chemnitz.de/~ygu/petzold/ch18b.htm
+        var gdi = new _GDIContext__WEBPACK_IMPORTED_MODULE_2__.GDIContext(svg);
+        gdi.setViewportExt(xExt, yExt);
+        gdi.setMapMode(mapMode);
+        _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.log("[WMF] BEGIN RENDERING --->");
+        this._img.render(gdi);
+        _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.log("[WMF] <--- DONE RENDERING");
+    };
+    return Renderer;
+}());
+
+var WMFRect16 = /** @class */ (function () {
+    function WMFRect16(reader) {
+        this.left = reader.readInt16();
+        this.top = reader.readInt16();
+        this.right = reader.readInt16();
+        this.bottom = reader.readInt16();
+    }
+    WMFRect16.prototype.toString = function () {
+        return "{left: " + this.left + ", top: " + this.top + ", right: " + this.right
+            + ", bottom: " + this.bottom + "}";
+    };
+    return WMFRect16;
+}());
+var WMFPlacable = /** @class */ (function () {
+    function WMFPlacable(reader) {
+        reader.skip(2);
+        this.boundingBox = new WMFRect16(reader);
+        this.unitsPerInch = reader.readInt16();
+        reader.skip(4);
+        reader.skip(2); // TODO: checksum
+        _Helper__WEBPACK_IMPORTED_MODULE_3__.Helper.log("Got bounding box " + this.boundingBox + " and " + this.unitsPerInch + " units/inch");
+    }
+    return WMFPlacable;
+}());
+var WMF = /** @class */ (function () {
+    function WMF(reader, placable, version, hdrsize) {
+        this._version = version;
+        this._hdrsize = hdrsize;
+        this._placable = placable;
+        this._records = new _WMFRecords__WEBPACK_IMPORTED_MODULE_4__.WMFRecords(reader, this._hdrsize);
+    }
+    WMF.prototype.render = function (gdi) {
+        this._records.play(gdi);
+    };
+    return WMF;
+}());
+
+
+/***/ }),
+
+/***/ "./src/wmfjs/Style.ts":
+/*!****************************!*\
+  !*** ./src/wmfjs/Style.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ColorRef": () => (/* binding */ ColorRef),
+/* harmony export */   "Font": () => (/* binding */ Font),
+/* harmony export */   "Brush": () => (/* binding */ Brush),
+/* harmony export */   "Pen": () => (/* binding */ Pen),
+/* harmony export */   "PaletteEntry": () => (/* binding */ PaletteEntry),
+/* harmony export */   "Palette": () => (/* binding */ Palette)
+/* harmony export */ });
+/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bitmap */ "./src/wmfjs/Bitmap.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
 /*
 
 The MIT License (MIT)
@@ -2370,6 +2512,8 @@ var __extends = (undefined && undefined.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -2474,7 +2618,7 @@ var Font = /** @class */ (function (_super) {
         return JSON.stringify(this);
     };
     return Font;
-}(_Primitives__WEBPACK_IMPORTED_MODULE_2__["Obj"]));
+}(_Primitives__WEBPACK_IMPORTED_MODULE_2__.Obj));
 
 var Brush = /** @class */ (function (_super) {
     __extends(Brush, _super);
@@ -2485,32 +2629,32 @@ var Brush = /** @class */ (function (_super) {
             var start = reader.pos;
             if (forceDibPattern === true || forceDibPattern === false) {
                 _this.style = reader.readUint16();
-                if (forceDibPattern && _this.style !== _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN) {
-                    _this.style = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT;
+                if (forceDibPattern && _this.style !== _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_PATTERN) {
+                    _this.style = _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT;
                 }
                 switch (_this.style) {
-                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_SOLID:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_SOLID:
                         _this.color = new ColorRef(reader);
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_PATTERN:
                         reader.skip(forceDibPattern ? 2 : 6);
-                        _this.pattern = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__["Bitmap16"](reader, dataLength - (reader.pos - start));
+                        _this.pattern = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.Bitmap16(reader, dataLength - (reader.pos - start));
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                         _this.colorusage = forceDibPattern ? reader.readUint16() : reader.readUint32();
                         if (!forceDibPattern) {
                             reader.skip(2);
                         }
-                        _this.dibpatternpt = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__["DIBitmap"](reader, dataLength - (reader.pos - start));
+                        _this.dibpatternpt = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, dataLength - (reader.pos - start));
                         break;
-                    case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_HATCHED:
+                    case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_HATCHED:
                         _this.color = new ColorRef(reader);
                         _this.hatchstyle = reader.readUint16();
                         break;
                 }
             }
-            else if (forceDibPattern instanceof _Bitmap__WEBPACK_IMPORTED_MODULE_0__["PatternBitmap16"]) {
-                _this.style = _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN;
+            else if (forceDibPattern instanceof _Bitmap__WEBPACK_IMPORTED_MODULE_0__.PatternBitmap16) {
+                _this.style = _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_PATTERN;
                 _this.pattern = forceDibPattern;
             }
         }
@@ -2518,17 +2662,17 @@ var Brush = /** @class */ (function (_super) {
             copy = copy;
             _this.style = copy.style;
             switch (_this.style) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_SOLID:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_SOLID:
                     _this.color = copy.color.clone();
                     break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_PATTERN:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_PATTERN:
                     _this.pattern = copy.pattern.clone();
                     break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                     _this.colorusage = copy.colorusage;
                     _this.dibpatternpt = copy.dibpatternpt;
                     break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_HATCHED:
+                case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_HATCHED:
                     _this.color = copy.color.clone();
                     _this.hatchstyle = copy.hatchstyle;
                     break;
@@ -2542,20 +2686,20 @@ var Brush = /** @class */ (function (_super) {
     Brush.prototype.toString = function () {
         var ret = "{style: " + this.style;
         switch (this.style) {
-            case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_SOLID:
+            case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_SOLID:
                 ret += ", color: " + this.color.toString();
                 break;
-            case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_DIBPATTERNPT:
+            case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_DIBPATTERNPT:
                 ret += ", colorusage: " + this.colorusage;
                 break;
-            case _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.BrushStyle.BS_HATCHED:
+            case _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.BrushStyle.BS_HATCHED:
                 ret += ", color: " + this.color.toString() + ", hatchstyle: " + this.hatchstyle;
                 break;
         }
         return ret + "}";
     };
     return Brush;
-}(_Primitives__WEBPACK_IMPORTED_MODULE_2__["Obj"]));
+}(_Primitives__WEBPACK_IMPORTED_MODULE_2__.Obj));
 
 var Pen = /** @class */ (function (_super) {
     __extends(Pen, _super);
@@ -2564,10 +2708,10 @@ var Pen = /** @class */ (function (_super) {
         if (reader != null) {
             style = reader.readUint16();
             _this.style = style & 0xFF;
-            _this.width = new _Primitives__WEBPACK_IMPORTED_MODULE_2__["PointS"](reader);
+            _this.width = new _Primitives__WEBPACK_IMPORTED_MODULE_2__.PointS(reader);
             _this.color = new ColorRef(reader);
-            _this.linecap = (style & (_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_ENDCAP_SQUARE | _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_ENDCAP_FLAT));
-            _this.join = (style & (_Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_JOIN_BEVEL | _Helper__WEBPACK_IMPORTED_MODULE_1__["Helper"].GDI.PenStyle.PS_JOIN_MITER));
+            _this.linecap = (style & (_Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.PenStyle.PS_ENDCAP_SQUARE | _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.PenStyle.PS_ENDCAP_FLAT));
+            _this.join = (style & (_Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.PenStyle.PS_JOIN_BEVEL | _Helper__WEBPACK_IMPORTED_MODULE_1__.Helper.GDI.PenStyle.PS_JOIN_MITER));
         }
         else {
             _this.style = style;
@@ -2586,7 +2730,7 @@ var Pen = /** @class */ (function (_super) {
             + ", linecap: " + this.linecap + ", join: " + this.join + "}";
     };
     return Pen;
-}(_Primitives__WEBPACK_IMPORTED_MODULE_2__["Obj"]));
+}(_Primitives__WEBPACK_IMPORTED_MODULE_2__.Obj));
 
 var PaletteEntry = /** @class */ (function () {
     function PaletteEntry(reader, copy) {
@@ -2639,269 +2783,28 @@ var Palette = /** @class */ (function (_super) {
         return "{ #entries: " + this.entries.length + "}"; // TODO
     };
     return Palette;
-}(_Primitives__WEBPACK_IMPORTED_MODULE_2__["Obj"]));
+}(_Primitives__WEBPACK_IMPORTED_MODULE_2__.Obj));
 
 
 
 /***/ }),
-/* 42 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
+/***/ "./src/wmfjs/WMFRecords.ts":
+/*!*********************************!*\
+  !*** ./src/wmfjs/WMFRecords.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BitmapInfo", function() { return BitmapInfo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DIBitmap", function() { return DIBitmap; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Bitmap16", function() { return Bitmap16; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PatternBitmap16", function() { return PatternBitmap16; });
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
-/*
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Thomas Bluemel
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-*/
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-var BitmapCoreHeader = /** @class */ (function () {
-    function BitmapCoreHeader(reader, skipsize) {
-        if (skipsize) {
-            reader.skip(4);
-        }
-        this.width = reader.readUint16();
-        this.height = reader.readUint16();
-        this.planes = reader.readUint16();
-        this.bitcount = reader.readUint16();
-    }
-    BitmapCoreHeader.prototype.colors = function () {
-        return this.bitcount <= 8 ? 1 << this.bitcount : 0;
-    };
-    return BitmapCoreHeader;
-}());
-var BitmapInfoHeader = /** @class */ (function () {
-    function BitmapInfoHeader(reader, skipsize) {
-        if (skipsize) {
-            reader.skip(4);
-        }
-        this.width = reader.readInt32();
-        this.height = reader.readInt32();
-        this.planes = reader.readUint16();
-        this.bitcount = reader.readUint16();
-        this.compression = reader.readUint32();
-        this.sizeimage = reader.readUint32();
-        this.xpelspermeter = reader.readInt32();
-        this.ypelspermeter = reader.readInt32();
-        this.clrused = reader.readUint32();
-        this.clrimportant = reader.readUint32();
-    }
-    BitmapInfoHeader.prototype.colors = function () {
-        if (this.clrused !== 0) {
-            return this.clrused < 256 ? this.clrused : 256;
-        }
-        else {
-            return this.bitcount > 8 ? 0 : 1 << this.bitcount;
-        }
-    };
-    return BitmapInfoHeader;
-}());
-var BitmapInfo = /** @class */ (function () {
-    function BitmapInfo(reader, usergb) {
-        this._reader = reader;
-        this._offset = reader.pos;
-        this._usergb = usergb;
-        var hdrsize = reader.readUint32();
-        this._infosize = hdrsize;
-        if (hdrsize === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPCOREHEADER_SIZE) {
-            this._header = new BitmapCoreHeader(reader, false);
-            this._infosize += this._header.colors() * (usergb ? 3 : 2);
-        }
-        else {
-            this._header = new BitmapInfoHeader(reader, false);
-            var masks = this._header.compression === _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_BITFIELDS ? 3 : 0;
-            if (hdrsize <= _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4)) {
-                this._infosize = _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BITMAPINFOHEADER_SIZE + (masks * 4);
-            }
-            this._infosize += this._header.colors() * (usergb ? 4 : 2);
-        }
-    }
-    BitmapInfo.prototype.getWidth = function () {
-        return this._header.width;
-    };
-    BitmapInfo.prototype.getHeight = function () {
-        return Math.abs(this._header.height);
-    };
-    BitmapInfo.prototype.infosize = function () {
-        return this._infosize;
-    };
-    BitmapInfo.prototype.header = function () {
-        return this._header;
-    };
-    return BitmapInfo;
-}());
-
-var DIBitmap = /** @class */ (function () {
-    function DIBitmap(reader, size) {
-        this._reader = reader;
-        this._offset = reader.pos;
-        this._size = size;
-        this._info = new BitmapInfo(reader, true);
-    }
-    DIBitmap.prototype.getWidth = function () {
-        return this._info.getWidth();
-    };
-    DIBitmap.prototype.getHeight = function () {
-        return this._info.getHeight();
-    };
-    DIBitmap.prototype.base64ref = function () {
-        var prevpos = this._reader.pos;
-        this._reader.seek(this._offset);
-        var mime = "image/bmp";
-        var header = this._info.header();
-        var data;
-        if (header instanceof BitmapInfoHeader && header.compression != null) {
-            switch (header.compression) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_JPEG:
-                    mime = "data:image/jpeg";
-                    break;
-                case _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"].GDI.BitmapCompression.BI_PNG:
-                    mime = "data:image/png";
-                    break;
-                default:
-                    data = this.makeBitmapFileHeader();
-                    break;
-            }
-        }
-        else {
-            data = this.makeBitmapFileHeader();
-        }
-        if (data != null) {
-            data += this._reader.readBinary(this._size);
-        }
-        else {
-            data = this._reader.readBinary(this._size);
-        }
-        var ref = "data:" + mime + ";base64," + btoa(data);
-        this._reader.seek(prevpos);
-        return ref;
-    };
-    DIBitmap.prototype.makeBitmapFileHeader = function () {
-        var buf = new ArrayBuffer(14);
-        var view = new Uint8Array(buf);
-        view[0] = 0x42;
-        view[1] = 0x4d;
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._writeUint32Val(view, 2, this._size + 14);
-        _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._writeUint32Val(view, 10, this._info.infosize() + 14);
-        return _Helper__WEBPACK_IMPORTED_MODULE_0__["Helper"]._blobToBinary(view);
-    };
-    return DIBitmap;
-}());
-
-var Bitmap16 = /** @class */ (function () {
-    function Bitmap16(reader, size) {
-        if (reader != null) {
-            size = size;
-            this._reader = reader;
-            this._offset = reader.pos;
-            this._size = size;
-            this.type = reader.readInt16();
-            this.width = reader.readInt16();
-            this.height = reader.readInt16();
-            this.widthBytes = reader.readInt16();
-            this.planes = reader.readUint8();
-            this.bitsPixel = reader.readUint8();
-            this.bitsOffset = reader.pos;
-            this.bitsSize = (((this.width * this.bitsPixel + 15) >> 4) << 1) * this.height;
-            if (this.bitsSize > size - 10) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__["WMFJSError"]("Bitmap should have " + this.bitsSize + " bytes, but has " + (size - 10));
-            }
-        }
-        else {
-            var copy = size;
-            this._reader = copy._reader;
-            this._offset = copy._offset;
-            this._size = copy._size;
-            this.type = copy.type;
-            this.width = copy.width;
-            this.height = copy.height;
-            this.widthBytes = copy.widthBytes;
-            this.planes = copy.planes;
-            this.bitsPixel = copy.bitsPixel;
-            this.bitsOffset = copy.bitsOffset;
-            this.bitsSize = copy.bitsSize;
-        }
-    }
-    Bitmap16.prototype.getWidth = function () {
-        return this.width;
-    };
-    Bitmap16.prototype.getHeight = function () {
-        return this.height;
-    };
-    Bitmap16.prototype.clone = function () {
-        return new Bitmap16(null, this);
-    };
-    return Bitmap16;
-}());
-
-var PatternBitmap16 = /** @class */ (function (_super) {
-    __extends(PatternBitmap16, _super);
-    function PatternBitmap16(reader, size) {
-        var _this = _super.call(this, reader, size) || this;
-        if (reader != null) {
-            _this.bitsOffset += 22; // skip bits (4 bytes) + reserved (18 bytes)
-        }
-        return _this;
-    }
-    PatternBitmap16.prototype.clone = function () {
-        return new PatternBitmap16(null, this);
-    };
-    return PatternBitmap16;
-}(Bitmap16));
-
-
-
-/***/ }),
-/* 43 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WMFRecords", function() { return WMFRecords; });
-/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(42);
-/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(36);
-/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(37);
-/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(39);
-/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(40);
-/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(41);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "WMFRecords": () => (/* binding */ WMFRecords)
+/* harmony export */ });
+/* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bitmap */ "./src/wmfjs/Bitmap.ts");
+/* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Blob */ "./src/wmfjs/Blob.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Primitives */ "./src/wmfjs/Primitives.ts");
+/* harmony import */ var _Region__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Region */ "./src/wmfjs/Region.ts");
+/* harmony import */ var _Style__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Style */ "./src/wmfjs/Style.ts");
 /*
 
 The MIT License (MIT)
@@ -2942,21 +2845,21 @@ var WMFRecords = /** @class */ (function () {
             reader.seek(curpos);
             var size = reader.readUint32();
             if (size < 3) {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["WMFJSError"]("Invalid record size");
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.WMFJSError("Invalid record size");
             }
             var type = reader.readUint16();
             switch (type) {
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_EOF:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_EOF:
                     all = true;
                     return "break-main_loop";
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETMAPMODE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETMAPMODE: {
                     var mapMode_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.setMapMode(mapMode_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETWINDOWORG: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETWINDOWORG: {
                     var y_1 = reader.readInt16();
                     var x_1 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -2964,7 +2867,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETWINDOWEXT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETWINDOWEXT: {
                     var y_2 = reader.readInt16();
                     var x_2 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -2972,7 +2875,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_OFFSETWINDOWORG: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_OFFSETWINDOWORG: {
                     var offY_1 = reader.readInt16();
                     var offX_1 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -2980,7 +2883,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETVIEWPORTORG: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETVIEWPORTORG: {
                     var y_3 = reader.readInt16();
                     var x_3 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -2988,7 +2891,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETVIEWPORTEXT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETVIEWPORTEXT: {
                     var y_4 = reader.readInt16();
                     var x_4 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -2996,7 +2899,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_OFFSETVIEWPORTORG: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_OFFSETVIEWPORTORG: {
                     var offY_2 = reader.readInt16();
                     var offX_2 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -3004,27 +2907,27 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SAVEDC: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SAVEDC: {
                     this_1._records.push(function (gdi) {
                         gdi.saveDC();
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_RESTOREDC: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_RESTOREDC: {
                     var saved_1 = reader.readInt16();
                     this_1._records.push(function (gdi) {
                         gdi.restoreDC(saved_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETSTRETCHBLTMODE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETSTRETCHBLTMODE: {
                     var stretchMode_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.setStretchBltMode(stretchMode_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_DIBSTRETCHBLT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
                     var haveSrcDib = ((type >> 8) + 3 !== size);
                     var rasterOp_1 = reader.readUint16() | (reader.readUint16() << 16);
                     var srcH_1 = reader.readInt16();
@@ -3036,13 +2939,13 @@ var WMFRecords = /** @class */ (function () {
                     var destY_1 = reader.readInt16();
                     var destX_1 = reader.readInt16();
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var dib_1 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__["DIBitmap"](reader, datalength);
+                    var dib_1 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
                     this_1._records.push(function (gdi) {
                         gdi.stretchDibBits(srcX_1, srcY_1, srcW_1, srcH_1, destX_1, destY_1, destW_1, destH_1, rasterOp_1, dib_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_STRETCHDIB: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_STRETCHDIB: {
                     var rasterOp_2 = reader.readUint16() | (reader.readUint16() << 16);
                     var colorUsage_1 = reader.readInt16();
                     var srcH_2 = reader.readInt16();
@@ -3054,126 +2957,126 @@ var WMFRecords = /** @class */ (function () {
                     var destY_2 = reader.readInt16();
                     var destX_2 = reader.readInt16();
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var dib_2 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__["DIBitmap"](reader, datalength);
+                    var dib_2 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
                     this_1._records.push(function (gdi) {
                         gdi.stretchDib(srcX_2, srcY_2, srcW_2, srcH_2, destX_2, destY_2, destW_2, destH_2, rasterOp_2, colorUsage_1, dib_2);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_ESCAPE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_ESCAPE: {
                     var func_1 = reader.readUint16();
                     var count_1 = reader.readUint16();
                     var offset_1 = reader.pos;
-                    var blob_1 = new _Blob__WEBPACK_IMPORTED_MODULE_1__["Blob"](reader, offset_1);
+                    var blob_1 = new _Blob__WEBPACK_IMPORTED_MODULE_1__.Blob(reader, offset_1);
                     this_1._records.push(function (gdi) {
                         gdi.escape(func_1, blob_1, offset_1, count_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETTEXTALIGN: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETTEXTALIGN: {
                     var textAlign_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.setTextAlign(textAlign_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETBKMODE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETBKMODE: {
                     var bkMode_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.setBkMode(bkMode_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETTEXTCOLOR: {
-                    var textColor_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["ColorRef"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETTEXTCOLOR: {
+                    var textColor_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.ColorRef(reader);
                     this_1._records.push(function (gdi) {
                         gdi.setTextColor(textColor_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETBKCOLOR: {
-                    var bkColor_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["ColorRef"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETBKCOLOR: {
+                    var bkColor_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.ColorRef(reader);
                     this_1._records.push(function (gdi) {
                         gdi.setBkColor(bkColor_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEBRUSHINDIRECT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEBRUSHINDIRECT: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var brush_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Brush"](reader, datalength, false);
+                    var brush_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Brush(reader, datalength, false);
                     this_1._records.push(function (gdi) {
                         gdi.createBrush(brush_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_DIBCREATEPATTERNBRUSH: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBCREATEPATTERNBRUSH: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var brush_2 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Brush"](reader, datalength, true);
+                    var brush_2 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Brush(reader, datalength, true);
                     this_1._records.push(function (gdi) {
                         gdi.createBrush(brush_2);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEPENINDIRECT: {
-                    var pen_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Pen"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEPENINDIRECT: {
+                    var pen_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Pen(reader);
                     this_1._records.push(function (gdi) {
                         gdi.createPen(pen_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEFONTINDIRECT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEFONTINDIRECT: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var font_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Font"](reader, datalength);
+                    var font_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Font(reader, datalength);
                     this_1._records.push(function (gdi) {
                         gdi.createFont(font_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SELECTOBJECT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SELECTOBJECT: {
                     var idx_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.selectObject(idx_1, null);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SELECTPALETTE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SELECTPALETTE: {
                     var idx_2 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.selectObject(idx_2, "palette");
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SELECTCLIPREGION: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SELECTCLIPREGION: {
                     var idx_3 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.selectObject(idx_3, "region");
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_DELETEOBJECT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DELETEOBJECT: {
                     var idx_4 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.deleteObject(idx_4);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_RECTANGLE: {
-                    var rect_1 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_RECTANGLE: {
+                    var rect_1 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader);
                     this_1._records.push(function (gdi) {
                         gdi.rectangle(rect_1, 0, 0);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_ROUNDRECT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_ROUNDRECT: {
                     var rh_1 = reader.readInt16();
                     var rw_1 = reader.readInt16();
-                    var rect_2 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader);
+                    var rect_2 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader);
                     this_1._records.push(function (gdi) {
                         gdi.rectangle(rect_2, rw_1, rh_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_LINETO: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_LINETO: {
                     var y_5 = reader.readInt16();
                     var x_5 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -3181,7 +3084,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_MOVETO: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_MOVETO: {
                     var y_6 = reader.readInt16();
                     var x_6 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -3189,7 +3092,7 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_TEXTOUT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_TEXTOUT: {
                     var len = reader.readInt16();
                     if (len > 0) {
                         var text_1 = reader.readString(len);
@@ -3202,7 +3105,7 @@ var WMFRecords = /** @class */ (function () {
                     }
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_EXTTEXTOUT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_EXTTEXTOUT: {
                     var y_8 = reader.readInt16();
                     var x_8 = reader.readInt16();
                     var len = reader.readInt16();
@@ -3225,7 +3128,7 @@ var WMFRecords = /** @class */ (function () {
                         hasRect = true;
                         hasDx = true;
                     }
-                    var rect_3 = hasRect ? new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader) : null;
+                    var rect_3 = hasRect ? new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader) : null;
                     if (len > 0) {
                         var text_2 = reader.readString(len);
                         reader.skip(len % 2);
@@ -3241,25 +3144,25 @@ var WMFRecords = /** @class */ (function () {
                     }
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_EXCLUDECLIPRECT: {
-                    var rect_4 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_EXCLUDECLIPRECT: {
+                    var rect_4 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader);
                     this_1._records.push(function (gdi) {
                         gdi.excludeClipRect(rect_4);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_INTERSECTCLIPRECT: {
-                    var rect_5 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_INTERSECTCLIPRECT: {
+                    var rect_5 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader);
                     this_1._records.push(function (gdi) {
                         gdi.intersectClipRect(rect_5);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_POLYGON: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_POLYGON: {
                     var cnt = reader.readInt16();
                     var points_1 = [];
                     while (cnt > 0) {
-                        points_1.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__["PointS"](reader));
+                        points_1.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__.PointS(reader));
                         cnt--;
                     }
                     this_1._records.push(function (gdi) {
@@ -3267,14 +3170,14 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETPOLYFILLMODE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETPOLYFILLMODE: {
                     var polyfillmode_1 = reader.readUint16();
                     this_1._records.push(function (gdi) {
                         gdi.setPolyFillMode(polyfillmode_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_POLYPOLYGON: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_POLYPOLYGON: {
                     var cnt = reader.readUint16();
                     var polygonsPtCnts = [];
                     for (var i = 0; i < cnt; i++) {
@@ -3285,7 +3188,7 @@ var WMFRecords = /** @class */ (function () {
                         var ptCnt = polygonsPtCnts[i];
                         var p = [];
                         for (var ip = 0; ip < ptCnt; ip++) {
-                            p.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__["PointS"](reader));
+                            p.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__.PointS(reader));
                         }
                         polygons_1.push(p);
                     }
@@ -3294,11 +3197,11 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_POLYLINE: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_POLYLINE: {
                     var cnt = reader.readInt16();
                     var points_2 = [];
                     while (cnt > 0) {
-                        points_2.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__["PointS"](reader));
+                        points_2.push(new _Primitives__WEBPACK_IMPORTED_MODULE_3__.PointS(reader));
                         cnt--;
                     }
                     this_1._records.push(function (gdi) {
@@ -3306,37 +3209,37 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_ELLIPSE: {
-                    var rect_6 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__["Rect"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_ELLIPSE: {
+                    var rect_6 = new _Primitives__WEBPACK_IMPORTED_MODULE_3__.Rect(reader);
                     this_1._records.push(function (gdi) {
                         gdi.ellipse(rect_6);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEPALETTE: {
-                    var palette_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Palette"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEPALETTE: {
+                    var palette_1 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Palette(reader);
                     this_1._records.push(function (gdi) {
                         gdi.createPalette(palette_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEREGION: {
-                    var region_1 = new _Region__WEBPACK_IMPORTED_MODULE_4__["Region"](reader);
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEREGION: {
+                    var region_1 = new _Region__WEBPACK_IMPORTED_MODULE_4__.Region(reader);
                     this_1._records.push(function (gdi) {
                         gdi.createRegion(region_1);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CREATEPATTERNBRUSH: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CREATEPATTERNBRUSH: {
                     var datalength = size * 2 - (reader.pos - curpos);
-                    var patternBitmap = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__["PatternBitmap16"](reader, datalength);
-                    var brush_3 = new _Style__WEBPACK_IMPORTED_MODULE_5__["Brush"](reader, datalength, patternBitmap);
+                    var patternBitmap = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.PatternBitmap16(reader, datalength);
+                    var brush_3 = new _Style__WEBPACK_IMPORTED_MODULE_5__.Brush(reader, datalength, patternBitmap);
                     this_1._records.push(function (gdi) {
                         gdi.createPatternBrush(brush_3);
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_OFFSETCLIPRGN: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_OFFSETCLIPRGN: {
                     var offY_3 = reader.readInt16();
                     var offX_3 = reader.readInt16();
                     this_1._records.push(function (gdi) {
@@ -3344,43 +3247,43 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_REALIZEPALETTE:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETPALENTRIES:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETROP2:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETRELABS:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETTEXTCHAREXTRA:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_RESIZEPALETTE:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETLAYOUT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_FILLREGION:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETMAPPERFLAGS:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETTEXTJUSTIFICATION:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SCALEWINDOWEXT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SCALEVIEWPORTEXT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_FLOODFILL:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_FRAMEREGION:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_ANIMATEPALETTE:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_EXTFLOODFILL:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETPIXEL:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_PATBLT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_PIE:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_STRETCHBLT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_INVERTREGION:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_PAINTREGION:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_ARC:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_CHORD:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_BITBLT:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_SETDIBTODEV:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType.META_DIBBITBLT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_REALIZEPALETTE:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETPALENTRIES:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETROP2:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETRELABS:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETTEXTCHAREXTRA:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_RESIZEPALETTE:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETLAYOUT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_FILLREGION:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETMAPPERFLAGS:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETTEXTJUSTIFICATION:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SCALEWINDOWEXT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SCALEVIEWPORTEXT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_FLOODFILL:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_FRAMEREGION:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_ANIMATEPALETTE:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_EXTFLOODFILL:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETPIXEL:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_PATBLT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_PIE:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_STRETCHBLT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_INVERTREGION:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_PAINTREGION:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_ARC:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CHORD:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_BITBLT:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETDIBTODEV:
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBBITBLT:
                 default: {
                     var recordName = "UNKNOWN";
-                    for (var name_1 in _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType) {
-                        var recordTypes = _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].GDI.RecordType;
+                    for (var name_1 in _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType) {
+                        var recordTypes = _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType;
                         if (recordTypes[name_1] === type) {
                             recordName = name_1;
                             break;
                         }
                     }
-                    _Helper__WEBPACK_IMPORTED_MODULE_2__["Helper"].log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
+                    _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.log("[WMF] " + recordName + " record (0x" + type.toString(16) + ") at offset 0x"
                         + curpos.toString(16) + " with " + (size * 2) + " bytes");
                     break;
                 }
@@ -3395,7 +3298,7 @@ var WMFRecords = /** @class */ (function () {
             }
         }
         if (!all) {
-            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__["WMFJSError"]("Could not read all records");
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_2__.WMFJSError("Could not read all records");
         }
     }
     WMFRecords.prototype.play = function (gdi) {
@@ -3410,6 +3313,109 @@ var WMFRecords = /** @class */ (function () {
 
 
 /***/ })
-/******/ ]);
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!****************************!*\
+  !*** ./src/wmfjs/index.ts ***!
+  \****************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Renderer": () => (/* reexport safe */ _Renderer__WEBPACK_IMPORTED_MODULE_0__.Renderer),
+/* harmony export */   "Error": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.WMFJSError),
+/* harmony export */   "loggingEnabled": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
+/* harmony export */ });
+/* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Renderer */ "./src/wmfjs/Renderer.ts");
+/* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/wmfjs/Helper.ts");
+/*
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Thomas Bluemel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+
+
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
 });
 //# sourceMappingURL=WMFJS.bundle.js.map

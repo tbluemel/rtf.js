@@ -3,11 +3,9 @@ const {merge} = require('webpack-merge');
 const baseConfig = require('./base.config.js');
 
 module.exports = merge(baseConfig, {
+    mode: 'production',
     output: {
         filename: '[name].bundle.min.js'
-    },
-    optimization: {
-        minimize: true
     },
     module: {
         rules: [
