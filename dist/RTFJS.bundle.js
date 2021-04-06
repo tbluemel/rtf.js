@@ -8125,26 +8125,24 @@ var ColortblDestination = /** @class */ (function (_super) {
         return _this;
     }
     ColortblDestination.prototype.appendText = function (text) {
-        var len = text.length;
-        for (var i = 0; i < len; i++) {
-            if (text[i] !== ";") {
-                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Error parsing colortbl destination");
-            }
-            if (this._current == null) {
-                if (this._autoIndex != null) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define more than one auto color");
-                }
-                this._autoIndex = this._colors.length;
-                this._startNewColor();
-            }
-            else {
-                if (this._current.tint < 255 && this._current.shade < 255) {
-                    throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define shade and tint at the same time");
-                }
-            }
-            this._colors.push(this._current);
-            this._current = null;
+        // We expect this method to be called after the color was fully defined.
+        if (text.trim() !== ";") {
+            throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("Error parsing colortbl destination");
         }
+        if (this._current == null) {
+            if (this._autoIndex != null) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define more than one auto color");
+            }
+            this._autoIndex = this._colors.length;
+            this._startNewColor();
+        }
+        else {
+            if (this._current.tint < 255 && this._current.shade < 255) {
+                throw new _Helper__WEBPACK_IMPORTED_MODULE_0__.RTFJSError("colortbl cannot define shade and tint at the same time");
+            }
+        }
+        this._colors.push(this._current);
+        this._current = null;
     };
     ColortblDestination.prototype.handleKeyword = function (keyword, param) {
         if (this._current == null) {
