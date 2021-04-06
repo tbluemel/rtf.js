@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.7] - 2021-04-06
+- Make colortbl parsing more robust
+
 ## [3.0.6] - 2021-03-23
 - Add support for text highlighting
 
