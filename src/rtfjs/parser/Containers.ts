@@ -38,6 +38,7 @@ export class Chp {
     public highlightindex: number;
     public fontsize: number;
     public fontfamily: number;
+    public supersubscript: number;
 
     constructor(parent: Chp) {
         if (parent != null) {
@@ -50,6 +51,7 @@ export class Chp {
             this.highlightindex = parent.highlightindex;
             this.fontsize = parent.fontsize;
             this.fontfamily = parent.fontfamily;
+            this.supersubscript = parent.supersubscript
         } else {
             this.bold = false;
             this.underline = Helper.UNDERLINE.NONE;
@@ -59,6 +61,7 @@ export class Chp {
             this.colorindex = 0;
             this.highlightindex = 0;
             this.fontsize = 24;
+            this.supersubscript = 0;
         }
     }
 }
