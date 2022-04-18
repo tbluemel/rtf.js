@@ -78,10 +78,8 @@ export class RenderChp {
 
         if (this._chp.supersubscript === 1) {
             el.style.verticalAlign = "super"
-            el.style.lineHeight = "normal"
         } else if (this._chp.supersubscript === -1) {
             el.style.verticalAlign = "sub"
-            el.style.lineHeight = "normal"
         }
 
         if (this._chp.supersubscript === 1 || this._chp.supersubscript === -1) {
