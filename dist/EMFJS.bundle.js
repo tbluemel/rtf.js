@@ -7,7 +7,7 @@
 		exports["EMFJS"] = factory();
 	else
 		root["EMFJS"] = factory();
-})(this, function() {
+})(this, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -1749,8 +1749,8 @@ var GDIContext = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "EMFJSError": () => (/* binding */ EMFJSError),
-/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled),
-/* harmony export */   "Helper": () => (/* binding */ Helper)
+/* harmony export */   "Helper": () => (/* binding */ Helper),
+/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled)
 /* harmony export */ });
 /*
 
@@ -2130,11 +2130,11 @@ var Helper = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "PointS": () => (/* binding */ PointS),
+/* harmony export */   "Obj": () => (/* binding */ Obj),
 /* harmony export */   "PointL": () => (/* binding */ PointL),
+/* harmony export */   "PointS": () => (/* binding */ PointS),
 /* harmony export */   "RectL": () => (/* binding */ RectL),
-/* harmony export */   "SizeL": () => (/* binding */ SizeL),
-/* harmony export */   "Obj": () => (/* binding */ Obj)
+/* harmony export */   "SizeL": () => (/* binding */ SizeL)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /*
@@ -2287,8 +2287,8 @@ var Obj = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Region": () => (/* binding */ Region),
 /* harmony export */   "CreateSimpleRegion": () => (/* binding */ CreateSimpleRegion),
+/* harmony export */   "Region": () => (/* binding */ Region),
 /* harmony export */   "Scan": () => (/* binding */ Scan)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
@@ -2846,9 +2846,9 @@ var EMF = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Brush": () => (/* binding */ Brush),
 /* harmony export */   "ColorRef": () => (/* binding */ ColorRef),
 /* harmony export */   "Font": () => (/* binding */ Font),
-/* harmony export */   "Brush": () => (/* binding */ Brush),
 /* harmony export */   "Pen": () => (/* binding */ Pen)
 /* harmony export */ });
 /* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bitmap */ "./src/emfjs/Bitmap.ts");
@@ -3112,9 +3112,9 @@ var Pen = /** @class */ (function (_super) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SVG": () => (/* binding */ SVG),
 /* harmony export */   "SVGFilters": () => (/* binding */ SVGFilters),
-/* harmony export */   "SVGPathBuilder": () => (/* binding */ SVGPathBuilder),
-/* harmony export */   "SVG": () => (/* binding */ SVG)
+/* harmony export */   "SVGPathBuilder": () => (/* binding */ SVGPathBuilder)
 /* harmony export */ });
 /*
 
@@ -3170,7 +3170,7 @@ var SVGPathBuilder = /** @class */ (function () {
         this._path = "";
     }
     SVGPathBuilder.prototype.move = function (x, y) {
-        this._path += " M " + x + " " + y;
+        this._path += " M ".concat(x, " ").concat(y);
     };
     SVGPathBuilder.prototype.path = function () {
         return this._path.substr(1);
@@ -3178,11 +3178,11 @@ var SVGPathBuilder = /** @class */ (function () {
     SVGPathBuilder.prototype.line = function (pts) {
         var _this = this;
         pts.forEach(function (point) {
-            _this._path += " L " + point[0] + " " + point[1];
+            _this._path += " L ".concat(point[0], " ").concat(point[1]);
         });
     };
     SVGPathBuilder.prototype.curveC = function (x1, y1, x2, y2, x, y) {
-        this._path += " C " + x1 + " " + y1 + ", " + x2 + " " + y2 + ", " + x + " " + y;
+        this._path += " C ".concat(x1, " ").concat(y1, ", ").concat(x2, " ").concat(y2, ", ").concat(x, " ").concat(y);
     };
     SVGPathBuilder.prototype.close = function () {
         this._path += " Z";
@@ -3460,8 +3460,8 @@ var __webpack_exports__ = {};
   \****************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Renderer": () => (/* reexport safe */ _Renderer__WEBPACK_IMPORTED_MODULE_0__.Renderer),
 /* harmony export */   "Error": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.EMFJSError),
+/* harmony export */   "Renderer": () => (/* reexport safe */ _Renderer__WEBPACK_IMPORTED_MODULE_0__.Renderer),
 /* harmony export */   "loggingEnabled": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
 /* harmony export */ });
 /* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Renderer */ "./src/emfjs/Renderer.ts");

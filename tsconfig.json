@@ -6,6 +6,11 @@
         "lib": [
             "ES2018", "DOM"
         ],
+        "baseUrl": "src",
+        "paths": {
+            "EMFJS": ["emfjs/index.ts"],
+            "WMFJS": ["wmfjs/index.ts"]
+        },
         "moduleResolution": "node",
         "module": "ES2015",
         "sourceMap": true,
