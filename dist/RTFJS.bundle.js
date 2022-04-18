@@ -5565,6 +5565,11 @@ var Helper = /** @class */ (function () {
         HIGHANSI: "hich",
         DOUBLE: "dbch",
     };
+    Helper.SUPERSUBSCRIPT = {
+        SUPERSCRIPT: 1,
+        NONE: 0,
+        SUBSCRIPT: -1,
+    };
     Helper._A = "A".charCodeAt(0);
     Helper._a = "a".charCodeAt(0);
     Helper._F = "F".charCodeAt(0);
@@ -5688,6 +5693,7 @@ var Chp = /** @class */ (function () {
             this.highlightindex = parent.highlightindex;
             this.fontsize = parent.fontsize;
             this.fontfamily = parent.fontfamily;
+            this.supersubscript = parent.supersubscript;
         }
         else {
             this.bold = false;
@@ -5698,6 +5704,7 @@ var Chp = /** @class */ (function () {
             this.colorindex = 0;
             this.highlightindex = 0;
             this.fontsize = 24;
+            this.supersubscript = _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.SUPERSUBSCRIPT.NONE;
         }
     }
     return Chp;
@@ -7945,6 +7952,9 @@ var RtfDestination = /** @class */ (function (_super) {
             },
             b: _this._genericFormatOnOff("chp", "bold"),
             i: _this._genericFormatOnOff("chp", "italic"),
+            sub: _this._genericFormatSetVal("chp", "supersubscript", -1),
+            super: _this._genericFormatSetVal("chp", "supersubscript", 1),
+            nosupersub: _this._genericFormatSetVal("chp", "supersubscript", 0),
             cf: _this._genericFormatSetValRequired("chp", "colorindex"),
             highlight: _this._genericFormatSetValRequired("chp", "highlightindex"),
             fs: _this._genericFormatSetValRequired("chp", "fontsize"),
@@ -8357,6 +8367,15 @@ var RenderChp = /** @class */ (function () {
             }
         }
         el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
+        if (this._chp.supersubscript === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.SUPERSUBSCRIPT.SUPERSCRIPT) {
+            el.style.verticalAlign = "super";
+        }
+        else if (this._chp.supersubscript === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.SUPERSUBSCRIPT.SUBSCRIPT) {
+            el.style.verticalAlign = "sub";
+        }
+        if (this._chp.supersubscript === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.SUPERSUBSCRIPT.SUPERSCRIPT || this._chp.supersubscript === _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.SUPERSUBSCRIPT.SUBSCRIPT) {
+            el.style.fontSize = Math.floor((this._chp.fontsize / 2) - 2) + "pt";
+        }
     };
     return RenderChp;
 }());
