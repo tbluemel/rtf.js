@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.8] - 2022-04-18
+- Add support for superscript and subscript
+
 ## [3.0.7] - 2021-04-06
 - Make colortbl parsing more robust
 
