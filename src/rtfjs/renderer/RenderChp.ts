@@ -75,5 +75,15 @@ export class RenderChp {
             }
         }
         el.style.fontSize = Math.floor(this._chp.fontsize / 2) + "pt";
+
+        if (this._chp.supersubscript === Helper.SUPERSUBSCRIPT.SUPERSCRIPT) {
+            el.style.verticalAlign = "super"
+        } else if (this._chp.supersubscript === Helper.SUPERSUBSCRIPT.SUBSCRIPT) {
+            el.style.verticalAlign = "sub"
+        }
+
+        if (this._chp.supersubscript === Helper.SUPERSUBSCRIPT.SUPERSCRIPT || this._chp.supersubscript === Helper.SUPERSUBSCRIPT.SUBSCRIPT) {
+            el.style.fontSize = Math.floor((this._chp.fontsize / 2) - 2) + "pt"
+        }
     }
 }

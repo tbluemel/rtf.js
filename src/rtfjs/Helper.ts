@@ -90,6 +90,11 @@ export class Helper {
         HIGHANSI: "hich",
         DOUBLE: "dbch",
     };
+    public static SUPERSUBSCRIPT = {
+        SUPERSCRIPT: 1,
+        NONE: 0,
+        SUBSCRIPT: -1,
+    };
 
     public static log(message: string): void {
         if (isLoggingEnabled) {
