@@ -5,7 +5,7 @@ const baseConfig = require('./base.config.js');
 module.exports = merge(baseConfig, {
     mode: 'development',
     devServer: {
-        dev: {
+        devMiddleware: {
             publicPath: '/dist/'
         },
         static: path.resolve(__dirname, '../samples')
