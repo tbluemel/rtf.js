@@ -262,6 +262,24 @@ export class GDIContext {
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     }
 
+    public dibBits(srcX: number, srcY: number, dstX: number, dstY: number, width: number, height: number,
+                   rasterOp: number, dib: DIBitmap): void {
+        Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY
+            + " dstX=" + dstX + " dstY=" + dstY + " width=" + width + " height=" + height
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        width = this._todevW(width);
+        height = this._todevH(height);
+        Helper.log("[gdi] dibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + +" dstX=" + dstX + " dstY=" + dstY
+            + " width=" + width + " height=" + height + " rasterOp=0x" + rasterOp.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, width, height, dib.base64ref());
+    }
+
     public stretchDibBits(srcX: number, srcY: number, srcW: number, srcH: number,
                           dstX: number, dstY: number, dstW: number, dstH: number,
                           rasterOp: number, dib: DIBitmap): void {
