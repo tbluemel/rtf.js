@@ -917,6 +917,22 @@ var GDIContext = /** @class */ (function () {
         this._pushGroup();
         this._svg.image(this.state._svggroup, dstX, dstY, dstW, dstH, dib.base64ref());
     };
+    GDIContext.prototype.dibBits = function (srcX, srcY, dstX, dstY, width, height, rasterOp, dib) {
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY
+            + " dstX=" + dstX + " dstY=" + dstY + " width=" + width + " height=" + height
+            + " rasterOp=0x" + rasterOp.toString(16));
+        srcX = this._todevX(srcX);
+        srcY = this._todevY(srcY);
+        dstX = this._todevX(dstX);
+        dstY = this._todevY(dstY);
+        width = this._todevW(width);
+        height = this._todevH(height);
+        _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] dibBits: TRANSLATED:"
+            + " srcX=" + srcX + " srcY=" + srcY + +" dstX=" + dstX + " dstY=" + dstY
+            + " width=" + width + " height=" + height + " rasterOp=0x" + rasterOp.toString(16));
+        this._pushGroup();
+        this._svg.image(this.state._svggroup, dstX, dstY, width, height, dib.base64ref());
+    };
     GDIContext.prototype.stretchDibBits = function (srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH, rasterOp, dib) {
         _Helper__WEBPACK_IMPORTED_MODULE_0__.Helper.log("[gdi] stretchDibBits: srcX=" + srcX + " srcY=" + srcY + " srcW=" + srcW + " srcH=" + srcH
             + " dstX=" + dstX + " dstY=" + dstY + " dstW=" + dstW + " dstH=" + dstH
@@ -2927,39 +2943,61 @@ var WMFRecords = /** @class */ (function () {
                     });
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBBITBLT: {
                     var haveSrcDib = ((type >> 8) + 3 !== size);
                     var rasterOp_1 = reader.readUint16() | (reader.readUint16() << 16);
-                    var srcH_1 = reader.readInt16();
-                    var srcW_1 = reader.readInt16();
                     var srcY_1 = reader.readInt16();
                     var srcX_1 = reader.readInt16();
-                    var destH_1 = reader.readInt16();
-                    var destW_1 = reader.readInt16();
+                    if (!haveSrcDib) {
+                        // ignore reserved field
+                        reader.skip(2);
+                    }
+                    var height_1 = reader.readInt16();
+                    var width_1 = reader.readInt16();
                     var destY_1 = reader.readInt16();
                     var destX_1 = reader.readInt16();
-                    var datalength = size * 2 - (reader.pos - curpos);
-                    var dib_1 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
-                    this_1._records.push(function (gdi) {
-                        gdi.stretchDibBits(srcX_1, srcY_1, srcW_1, srcH_1, destX_1, destY_1, destW_1, destH_1, rasterOp_1, dib_1);
-                    });
+                    if (haveSrcDib) {
+                        var datalength = size * 2 - (reader.pos - curpos);
+                        var dib_1 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
+                        this_1._records.push(function (gdi) {
+                            gdi.dibBits(srcX_1, srcY_1, destX_1, destY_1, width_1, height_1, rasterOp_1, dib_1);
+                        });
+                    }
                     break;
                 }
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_STRETCHDIB: {
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBSTRETCHBLT: {
+                    var haveSrcDib = ((type >> 8) + 3 !== size);
                     var rasterOp_2 = reader.readUint16() | (reader.readUint16() << 16);
-                    var colorUsage_1 = reader.readInt16();
-                    var srcH_2 = reader.readInt16();
-                    var srcW_2 = reader.readInt16();
+                    var srcH_1 = reader.readInt16();
+                    var srcW_1 = reader.readInt16();
                     var srcY_2 = reader.readInt16();
                     var srcX_2 = reader.readInt16();
-                    var destH_2 = reader.readInt16();
-                    var destW_2 = reader.readInt16();
+                    var destH_1 = reader.readInt16();
+                    var destW_1 = reader.readInt16();
                     var destY_2 = reader.readInt16();
                     var destX_2 = reader.readInt16();
                     var datalength = size * 2 - (reader.pos - curpos);
                     var dib_2 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
                     this_1._records.push(function (gdi) {
-                        gdi.stretchDib(srcX_2, srcY_2, srcW_2, srcH_2, destX_2, destY_2, destW_2, destH_2, rasterOp_2, colorUsage_1, dib_2);
+                        gdi.stretchDibBits(srcX_2, srcY_2, srcW_1, srcH_1, destX_2, destY_2, destW_1, destH_1, rasterOp_2, dib_2);
+                    });
+                    break;
+                }
+                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_STRETCHDIB: {
+                    var rasterOp_3 = reader.readUint16() | (reader.readUint16() << 16);
+                    var colorUsage_1 = reader.readInt16();
+                    var srcH_2 = reader.readInt16();
+                    var srcW_2 = reader.readInt16();
+                    var srcY_3 = reader.readInt16();
+                    var srcX_3 = reader.readInt16();
+                    var destH_2 = reader.readInt16();
+                    var destW_2 = reader.readInt16();
+                    var destY_3 = reader.readInt16();
+                    var destX_3 = reader.readInt16();
+                    var datalength = size * 2 - (reader.pos - curpos);
+                    var dib_3 = new _Bitmap__WEBPACK_IMPORTED_MODULE_0__.DIBitmap(reader, datalength);
+                    this_1._records.push(function (gdi) {
+                        gdi.stretchDib(srcX_3, srcY_3, srcW_2, srcH_2, destX_3, destY_3, destW_2, destH_2, rasterOp_3, colorUsage_1, dib_3);
                     });
                     break;
                 }
@@ -3273,7 +3311,6 @@ var WMFRecords = /** @class */ (function () {
                 case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_CHORD:
                 case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_BITBLT:
                 case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_SETDIBTODEV:
-                case _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType.META_DIBBITBLT:
                 default: {
                     var recordName = "UNKNOWN";
                     for (var name_1 in _Helper__WEBPACK_IMPORTED_MODULE_2__.Helper.GDI.RecordType) {
