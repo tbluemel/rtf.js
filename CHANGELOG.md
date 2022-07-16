@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.9] - 2022-07-16
+- Support the META_DIBBITBLT record in WMF files
+
 ## [3.0.8] - 2022-04-18
 - Add support for superscript and subscript
 
