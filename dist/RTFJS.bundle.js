@@ -5878,6 +5878,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Containers__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Containers */ "./src/rtfjs/parser/Containers.ts");
 /* harmony import */ var _destinations_DestinationBase__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./destinations/DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
 /* harmony import */ var _destinations_Destinations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./destinations/Destinations */ "./src/rtfjs/parser/destinations/Destinations.ts");
+/* harmony import */ var _destinations_FonttblDestinations__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./destinations/FonttblDestinations */ "./src/rtfjs/parser/destinations/FonttblDestinations.ts");
 /*
 
 The MIT License (MIT)
@@ -5903,6 +5904,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
 
 
 
@@ -5977,14 +5979,20 @@ var Parser = /** @class */ (function () {
             if (dest == null) {
                 throw new _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError("Cannot route text to destination");
             }
+            var summarizedText = "";
             if (dest.appendText != null && !this.parser.state.skipdestination) {
-                var summarizedText = this.summarizeText(this.parser.text);
+                if (dest instanceof _destinations_FonttblDestinations__WEBPACK_IMPORTED_MODULE_7__.FonttblDestinationSub) {
+                    summarizedText = this.summarizeText(this.parser.text, dest.charset);
+                }
+                else {
+                    summarizedText = this.summarizeText(this.parser.text);
+                }
                 dest.appendText(summarizedText);
             }
             this.parser.text = [];
         }
     };
-    Parser.prototype.summarizeText = function (text) {
+    Parser.prototype.summarizeText = function (text, charset) {
         var result = "";
         for (var i = 0; i < text.length; i++) {
             var value = text[i];
@@ -5993,7 +6001,7 @@ var Parser = /** @class */ (function () {
             }
             else if (value instanceof _Containers__WEBPACK_IMPORTED_MODULE_4__.HexText) {
                 // Looking for current fonttbl charset
-                var codepage = this.parser.codepage;
+                var codepage = charset ? charset : this.parser.codepage;
                 if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
                     var idx = value.chp.fontfamily;
                     // Code page 42 isn't a real code page and shouldn't appear here

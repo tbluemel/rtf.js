@@ -33,6 +33,7 @@ import { RenderPap } from "../renderer/RenderPap";
 import { GlobalState, HexText, PlainText, State } from "./Containers";
 import { DestinationFactory } from "./destinations/DestinationBase";
 import { Destinations } from "./destinations/Destinations";
+import { FonttblDestinationSub } from "./destinations/FonttblDestinations"
 
 export class Parser {
     private inst: Document;
@@ -111,15 +112,22 @@ export class Parser {
             if (dest == null) {
                 throw new RTFJSError("Cannot route text to destination");
             }
+
+            let summarizedText = "";
             if (dest.appendText != null && !this.parser.state.skipdestination) {
-                const summarizedText = this.summarizeText(this.parser.text);
+                if (dest instanceof FonttblDestinationSub) {
+                    summarizedText = this.summarizeText(this.parser.text, dest.charset);
+                }
+                else {
+                    summarizedText = this.summarizeText(this.parser.text);
+                }
                 dest.appendText(summarizedText);
             }
             this.parser.text = [];
         }
     }
 
-    private summarizeText(text: (PlainText | HexText)[]) {
+    private summarizeText(text: (PlainText | HexText)[], charset?: number) {
         let result = "";
         for (let i = 0; i < text.length; i++) {
             const value = text[i];
@@ -127,7 +135,7 @@ export class Parser {
                 result += value.text;
             } else if (value instanceof HexText) {
                 // Looking for current fonttbl charset
-                let codepage = this.parser.codepage;
+                let codepage = charset ? charset : this.parser.codepage;
                 if (Object.prototype.hasOwnProperty.call(value.chp, "fontfamily")) {
                     const idx = value.chp.fontfamily;
                     // Code page 42 isn't a real code page and shouldn't appear here
