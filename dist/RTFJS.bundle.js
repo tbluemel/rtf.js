@@ -5219,7 +5219,7 @@ if ( true && module.exports && typeof DO_NOT_EXPORT_CODEPAGE === 'undefined') mo
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Document": () => (/* binding */ Document)
+/* harmony export */   Document: () => (/* binding */ Document)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -5289,7 +5289,7 @@ var Document = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "DocumentFacade": () => (/* binding */ DocumentFacade)
+/* harmony export */   DocumentFacade: () => (/* binding */ DocumentFacade)
 /* harmony export */ });
 /* harmony import */ var _Document__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Document */ "./src/rtfjs/Document.ts");
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");
@@ -5359,9 +5359,9 @@ var DocumentFacade = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Helper": () => (/* binding */ Helper),
-/* harmony export */   "RTFJSError": () => (/* binding */ RTFJSError),
-/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled)
+/* harmony export */   Helper: () => (/* binding */ Helper),
+/* harmony export */   RTFJSError: () => (/* binding */ RTFJSError),
+/* harmony export */   loggingEnabled: () => (/* binding */ loggingEnabled)
 /* harmony export */ });
 /*
 
@@ -5645,14 +5645,14 @@ var Helper = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Chp": () => (/* binding */ Chp),
-/* harmony export */   "Dop": () => (/* binding */ Dop),
-/* harmony export */   "GlobalState": () => (/* binding */ GlobalState),
-/* harmony export */   "HexText": () => (/* binding */ HexText),
-/* harmony export */   "Pap": () => (/* binding */ Pap),
-/* harmony export */   "PlainText": () => (/* binding */ PlainText),
-/* harmony export */   "Sep": () => (/* binding */ Sep),
-/* harmony export */   "State": () => (/* binding */ State)
+/* harmony export */   Chp: () => (/* binding */ Chp),
+/* harmony export */   Dop: () => (/* binding */ Dop),
+/* harmony export */   GlobalState: () => (/* binding */ GlobalState),
+/* harmony export */   HexText: () => (/* binding */ HexText),
+/* harmony export */   Pap: () => (/* binding */ Pap),
+/* harmony export */   PlainText: () => (/* binding */ PlainText),
+/* harmony export */   Sep: () => (/* binding */ Sep),
+/* harmony export */   State: () => (/* binding */ State)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -5818,7 +5818,7 @@ var State = /** @class */ (function () {
             this.destination = null;
             this.skipunknowndestination = false;
             this.skipdestination = false;
-            this.ucn = 1;
+            this.ucn = 0;
         }
     }
     return State;
@@ -5868,7 +5868,7 @@ var HexText = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Parser": () => (/* binding */ Parser)
+/* harmony export */   Parser: () => (/* binding */ Parser)
 /* harmony export */ });
 /* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! codepage */ "./node_modules/codepage/cputils.js");
 /* harmony import */ var codepage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(codepage__WEBPACK_IMPORTED_MODULE_0__);
@@ -6387,7 +6387,7 @@ var Parser = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ColortblDestination": () => (/* binding */ ColortblDestination)
+/* harmony export */   ColortblDestination: () => (/* binding */ ColortblDestination)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -6546,14 +6546,14 @@ var ColortblDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "DestinationBase": () => (/* binding */ DestinationBase),
-/* harmony export */   "DestinationFactory": () => (/* binding */ DestinationFactory),
-/* harmony export */   "DestinationFormattedTextBase": () => (/* binding */ DestinationFormattedTextBase),
-/* harmony export */   "DestinationTextBase": () => (/* binding */ DestinationTextBase),
-/* harmony export */   "GenericPropertyDestinationFactory": () => (/* binding */ GenericPropertyDestinationFactory),
-/* harmony export */   "GenericSubTextPropertyDestinationFactory": () => (/* binding */ GenericSubTextPropertyDestinationFactory),
-/* harmony export */   "RequiredDestinationFactory": () => (/* binding */ RequiredDestinationFactory),
-/* harmony export */   "findParentDestination": () => (/* binding */ findParentDestination)
+/* harmony export */   DestinationBase: () => (/* binding */ DestinationBase),
+/* harmony export */   DestinationFactory: () => (/* binding */ DestinationFactory),
+/* harmony export */   DestinationFormattedTextBase: () => (/* binding */ DestinationFormattedTextBase),
+/* harmony export */   DestinationTextBase: () => (/* binding */ DestinationTextBase),
+/* harmony export */   GenericPropertyDestinationFactory: () => (/* binding */ GenericPropertyDestinationFactory),
+/* harmony export */   GenericSubTextPropertyDestinationFactory: () => (/* binding */ GenericSubTextPropertyDestinationFactory),
+/* harmony export */   RequiredDestinationFactory: () => (/* binding */ RequiredDestinationFactory),
+/* harmony export */   findParentDestination: () => (/* binding */ findParentDestination)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -6768,7 +6768,7 @@ var RequiredDestinationFactory = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Destinations": () => (/* binding */ Destinations)
+/* harmony export */   Destinations: () => (/* binding */ Destinations)
 /* harmony export */ });
 /* harmony import */ var _ColortblDestinations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ColortblDestinations */ "./src/rtfjs/parser/destinations/ColortblDestinations.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -6870,9 +6870,9 @@ var Destinations = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FieldDestination": () => (/* binding */ FieldDestination),
-/* harmony export */   "FldinstDestination": () => (/* binding */ FldinstDestination),
-/* harmony export */   "FldrsltDestination": () => (/* binding */ FldrsltDestination)
+/* harmony export */   FieldDestination: () => (/* binding */ FieldDestination),
+/* harmony export */   FldinstDestination: () => (/* binding */ FldinstDestination),
+/* harmony export */   FldrsltDestination: () => (/* binding */ FldrsltDestination)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -7172,8 +7172,8 @@ var FldrsltDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "FonttblDestination": () => (/* binding */ FonttblDestination),
-/* harmony export */   "FonttblDestinationSub": () => (/* binding */ FonttblDestinationSub)
+/* harmony export */   FonttblDestination: () => (/* binding */ FonttblDestination),
+/* harmony export */   FonttblDestinationSub: () => (/* binding */ FonttblDestinationSub)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -7365,9 +7365,9 @@ var FonttblDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "InfoDestination": () => (/* binding */ InfoDestination),
-/* harmony export */   "MetaPropertyDestinationFactory": () => (/* binding */ MetaPropertyDestinationFactory),
-/* harmony export */   "MetaPropertyTimeDestinationFactory": () => (/* binding */ MetaPropertyTimeDestinationFactory)
+/* harmony export */   InfoDestination: () => (/* binding */ InfoDestination),
+/* harmony export */   MetaPropertyDestinationFactory: () => (/* binding */ MetaPropertyDestinationFactory),
+/* harmony export */   MetaPropertyTimeDestinationFactory: () => (/* binding */ MetaPropertyTimeDestinationFactory)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -7531,8 +7531,8 @@ var MetaPropertyTimeDestinationFactory = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "PictDestination": () => (/* binding */ PictDestination),
-/* harmony export */   "PictGroupDestinationFactory": () => (/* binding */ PictGroupDestinationFactory)
+/* harmony export */   PictDestination: () => (/* binding */ PictDestination),
+/* harmony export */   PictGroupDestinationFactory: () => (/* binding */ PictGroupDestinationFactory)
 /* harmony export */ });
 /* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! EMFJS */ "EMFJS");
 /* harmony import */ var EMFJS__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(EMFJS__WEBPACK_IMPORTED_MODULE_0__);
@@ -7882,7 +7882,7 @@ var PictDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "RtfDestination": () => (/* binding */ RtfDestination)
+/* harmony export */   RtfDestination: () => (/* binding */ RtfDestination)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _renderer_RenderChp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../renderer/RenderChp */ "./src/rtfjs/renderer/RenderChp.ts");
@@ -8159,8 +8159,8 @@ var RtfDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "StylesheetDestination": () => (/* binding */ StylesheetDestination),
-/* harmony export */   "StylesheetDestinationSub": () => (/* binding */ StylesheetDestinationSub)
+/* harmony export */   StylesheetDestination: () => (/* binding */ StylesheetDestination),
+/* harmony export */   StylesheetDestinationSub: () => (/* binding */ StylesheetDestinationSub)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../Helper */ "./src/rtfjs/Helper.ts");
 /* harmony import */ var _DestinationBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DestinationBase */ "./src/rtfjs/parser/destinations/DestinationBase.ts");
@@ -8304,7 +8304,7 @@ var StylesheetDestination = /** @class */ (function (_super) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "RenderChp": () => (/* binding */ RenderChp)
+/* harmony export */   RenderChp: () => (/* binding */ RenderChp)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -8401,7 +8401,7 @@ var RenderChp = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "RenderPap": () => (/* binding */ RenderPap)
+/* harmony export */   RenderPap: () => (/* binding */ RenderPap)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -8487,7 +8487,7 @@ var RenderPap = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Renderer": () => (/* binding */ Renderer)
+/* harmony export */   Renderer: () => (/* binding */ Renderer)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Helper */ "./src/rtfjs/Helper.ts");
 /*
@@ -8778,9 +8778,9 @@ var __webpack_exports__ = {};
   \****************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Document": () => (/* reexport safe */ _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__.DocumentFacade),
-/* harmony export */   "Error": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError),
-/* harmony export */   "loggingEnabled": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
+/* harmony export */   Document: () => (/* reexport safe */ _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__.DocumentFacade),
+/* harmony export */   Error: () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.RTFJSError),
+/* harmony export */   loggingEnabled: () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
 /* harmony export */ });
 /* harmony import */ var _DocumentFacade__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DocumentFacade */ "./src/rtfjs/DocumentFacade.ts");
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/rtfjs/Helper.ts");

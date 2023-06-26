@@ -200,7 +200,7 @@ export class State {
             this.destination = null;
             this.skipunknowndestination = false;
             this.skipdestination = false;
-            this.ucn = 1;
+            this.ucn = 0;
         }
     }
 }

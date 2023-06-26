@@ -20,8 +20,8 @@ return /******/ (() => { // webpackBootstrap
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "BitmapInfo": () => (/* binding */ BitmapInfo),
-/* harmony export */   "DIBitmap": () => (/* binding */ DIBitmap)
+/* harmony export */   BitmapInfo: () => (/* binding */ BitmapInfo),
+/* harmony export */   DIBitmap: () => (/* binding */ DIBitmap)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /*
@@ -201,7 +201,7 @@ var DIBitmap = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Blob": () => (/* binding */ Blob)
+/* harmony export */   Blob: () => (/* binding */ Blob)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /*
@@ -364,7 +364,7 @@ var Blob = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "EMFRecords": () => (/* binding */ EMFRecords)
+/* harmony export */   EMFRecords: () => (/* binding */ EMFRecords)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/emfjs/Primitives.ts");
@@ -949,7 +949,7 @@ var EMFRecords = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "GDIContext": () => (/* binding */ GDIContext)
+/* harmony export */   GDIContext: () => (/* binding */ GDIContext)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/emfjs/Primitives.ts");
@@ -1748,9 +1748,9 @@ var GDIContext = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "EMFJSError": () => (/* binding */ EMFJSError),
-/* harmony export */   "Helper": () => (/* binding */ Helper),
-/* harmony export */   "loggingEnabled": () => (/* binding */ loggingEnabled)
+/* harmony export */   EMFJSError: () => (/* binding */ EMFJSError),
+/* harmony export */   Helper: () => (/* binding */ Helper),
+/* harmony export */   loggingEnabled: () => (/* binding */ loggingEnabled)
 /* harmony export */ });
 /*
 
@@ -2130,11 +2130,11 @@ var Helper = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Obj": () => (/* binding */ Obj),
-/* harmony export */   "PointL": () => (/* binding */ PointL),
-/* harmony export */   "PointS": () => (/* binding */ PointS),
-/* harmony export */   "RectL": () => (/* binding */ RectL),
-/* harmony export */   "SizeL": () => (/* binding */ SizeL)
+/* harmony export */   Obj: () => (/* binding */ Obj),
+/* harmony export */   PointL: () => (/* binding */ PointL),
+/* harmony export */   PointS: () => (/* binding */ PointS),
+/* harmony export */   RectL: () => (/* binding */ RectL),
+/* harmony export */   SizeL: () => (/* binding */ SizeL)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /*
@@ -2287,9 +2287,9 @@ var Obj = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "CreateSimpleRegion": () => (/* binding */ CreateSimpleRegion),
-/* harmony export */   "Region": () => (/* binding */ Region),
-/* harmony export */   "Scan": () => (/* binding */ Scan)
+/* harmony export */   CreateSimpleRegion: () => (/* binding */ CreateSimpleRegion),
+/* harmony export */   Region: () => (/* binding */ Region),
+/* harmony export */   Scan: () => (/* binding */ Scan)
 /* harmony export */ });
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
 /* harmony import */ var _Primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Primitives */ "./src/emfjs/Primitives.ts");
@@ -2744,7 +2744,7 @@ var Scan = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Renderer": () => (/* binding */ Renderer)
+/* harmony export */   Renderer: () => (/* binding */ Renderer)
 /* harmony export */ });
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util */ "./src/util/index.ts");
 /* harmony import */ var _Blob__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Blob */ "./src/emfjs/Blob.ts");
@@ -2846,10 +2846,10 @@ var EMF = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Brush": () => (/* binding */ Brush),
-/* harmony export */   "ColorRef": () => (/* binding */ ColorRef),
-/* harmony export */   "Font": () => (/* binding */ Font),
-/* harmony export */   "Pen": () => (/* binding */ Pen)
+/* harmony export */   Brush: () => (/* binding */ Brush),
+/* harmony export */   ColorRef: () => (/* binding */ ColorRef),
+/* harmony export */   Font: () => (/* binding */ Font),
+/* harmony export */   Pen: () => (/* binding */ Pen)
 /* harmony export */ });
 /* harmony import */ var _Bitmap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Bitmap */ "./src/emfjs/Bitmap.ts");
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
@@ -3112,9 +3112,9 @@ var Pen = /** @class */ (function (_super) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "SVG": () => (/* binding */ SVG),
-/* harmony export */   "SVGFilters": () => (/* binding */ SVGFilters),
-/* harmony export */   "SVGPathBuilder": () => (/* binding */ SVGPathBuilder)
+/* harmony export */   SVG: () => (/* binding */ SVG),
+/* harmony export */   SVGFilters: () => (/* binding */ SVGFilters),
+/* harmony export */   SVGPathBuilder: () => (/* binding */ SVGPathBuilder)
 /* harmony export */ });
 /*
 
@@ -3363,7 +3363,7 @@ var SVG = /** @class */ (function () {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "SVG": () => (/* reexport safe */ _SVG__WEBPACK_IMPORTED_MODULE_0__.SVG)
+/* harmony export */   SVG: () => (/* reexport safe */ _SVG__WEBPACK_IMPORTED_MODULE_0__.SVG)
 /* harmony export */ });
 /* harmony import */ var _SVG__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SVG */ "./src/util/SVG.ts");
 /*
@@ -3460,9 +3460,9 @@ var __webpack_exports__ = {};
   \****************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Error": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.EMFJSError),
-/* harmony export */   "Renderer": () => (/* reexport safe */ _Renderer__WEBPACK_IMPORTED_MODULE_0__.Renderer),
-/* harmony export */   "loggingEnabled": () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
+/* harmony export */   Error: () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.EMFJSError),
+/* harmony export */   Renderer: () => (/* reexport safe */ _Renderer__WEBPACK_IMPORTED_MODULE_0__.Renderer),
+/* harmony export */   loggingEnabled: () => (/* reexport safe */ _Helper__WEBPACK_IMPORTED_MODULE_1__.loggingEnabled)
 /* harmony export */ });
 /* harmony import */ var _Renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Renderer */ "./src/emfjs/Renderer.ts");
 /* harmony import */ var _Helper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helper */ "./src/emfjs/Helper.ts");
