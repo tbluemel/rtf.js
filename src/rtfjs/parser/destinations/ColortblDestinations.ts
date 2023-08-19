@@ -113,11 +113,11 @@ export class ColortblDestination extends DestinationBase {
         if (this._autoIndex >= this._colors.length) {
             throw new RTFJSError("colortbl doesn't define auto color");
         }
-        for (const idx in this._colors) {
-            Helper.log("[colortbl] [" + idx + "] = "
-                + this._colors[idx].r + "," + this._colors[idx].g + "," + this._colors[idx].b
-                + " theme: " + this._colors[idx].theme);
-        }
+        this._colors.forEach((color, idx) => { 
+            Helper.log("[colortbl] [" + idx + "] = " 
+                + color.r + "," + color.g + "," + color.b 
+                + " theme: " + color.theme); 
+        });
         this.inst._colors = this._colors;
         this.inst._autoColor = this._autoIndex;
         delete this._colors;

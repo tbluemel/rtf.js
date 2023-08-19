@@ -152,10 +152,10 @@ export class FonttblDestination extends DestinationBase {
 
     public apply(): void {
         Helper.log("[fonttbl] apply()");
-        for (const idx in this._fonts) {
-            Helper.log("[fonttbl][" + idx + "] index = " + this._fonts[idx].fontname
-                + " alternative: " + this._fonts[idx].altfontname);
-        }
+        this._fonts.forEach((font, idx) => { 
+            Helper.log("[fonttbl][" + idx + "] index = " + font.fontname 
+                + " alternative: " + font.altfontname); 
+        });
         this.inst._fonts = this._fonts;
         delete this._fonts;
     }

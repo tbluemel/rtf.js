@@ -109,9 +109,9 @@ export class StylesheetDestination extends DestinationBase {
 
     public apply(): void {
         Helper.log("[stylesheet] apply()");
-        for (const idx in this._stylesheets) {
-            Helper.log("[stylesheet] [" + idx + "] name: " + this._stylesheets[idx].name);
-        }
+        this._stylesheets.forEach((stylesheet, idx) => { 
+            Helper.log("[stylesheet] [" + idx + "] name: " + stylesheet.name); 
+        });
         this.inst._stylesheets = this._stylesheets;
         delete this._stylesheets;
     }
